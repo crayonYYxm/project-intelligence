@@ -44,6 +44,7 @@ plugins/project-intelligence/scripts/project-intel
 ```bash
 plugins/project-intelligence/scripts/project-intel --project /path/to/repo init
 plugins/project-intelligence/scripts/project-intel --project /path/to/repo init --interactive
+plugins/project-intelligence/scripts/project-intel --project /path/to/repo init --setup-missing
 plugins/project-intelligence/scripts/project-intel --project /path/to/repo lifecycle --task "新需求"
 plugins/project-intelligence/scripts/project-intel --project /path/to/repo debug --bug "错误或异常行为"
 plugins/project-intelligence/scripts/project-intel --project /path/to/repo spec --title "功能" --from "需求"
@@ -54,6 +55,13 @@ plugins/project-intelligence/scripts/project-intel --project /path/to/repo maint
 plugins/project-intelligence/scripts/project-intel --project /path/to/repo install --hooks
 plugins/project-intelligence/scripts/project-intel --project /path/to/repo query "表格"
 ```
+
+说明：
+
+- `init` 默认会检查 GitNexus 和 Understand-Anything。已安装且有可执行分析命令时会自动分析。
+- 图谱工具未安装但有支持的安装/初始化命令时，`init` 会询问是否安装；选择否会继续初始化 `.project-intel`。
+- `init --setup-missing` 会跳过询问并直接运行支持的安装/初始化命令。
+- Understand-Anything 如果只能通过 agent slash command 使用，安装后需要重启 agent 并运行 `/understand .`，随后再运行 `refresh` 让 `.project-intel` 记录图谱元数据。
 
 ## Skills
 

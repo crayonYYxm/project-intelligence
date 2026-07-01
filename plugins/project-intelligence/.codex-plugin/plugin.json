@@ -9,7 +9,7 @@
   "interface": {
     "displayName": "Project Intelligence",
     "shortDescription": "Project specs, standards, knowledge, graph context, debugging, lifecycle maintenance, and review checks.",
-    "longDescription": "Project Intelligence initializes and refreshes a repository-local .project-intel knowledge base for project specs, implementation plans, standards, reusable frontend/backend patterns, optional GitNexus and Understand-Anything graph context, systematic debugging, quality checks, code review workflows, and post-task maintenance. Init checks optional tools and suggests setup without silently installing them. It intentionally does not integrate with cgraphx.",
+    "longDescription": "Project Intelligence initializes and refreshes a repository-local .project-intel knowledge base for project specs, implementation plans, standards, reusable frontend/backend patterns, optional GitNexus and Understand-Anything graph context, systematic debugging, quality checks, code review workflows, and post-task maintenance. Init checks optional graph tools, runs installed analysis commands automatically, and asks before installing missing supported tools. It intentionally does not integrate with cgraphx.",
     "developerName": "Local developer",
     "category": "Productivity",
     "capabilities": [

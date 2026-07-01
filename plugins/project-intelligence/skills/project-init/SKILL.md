@@ -13,11 +13,14 @@ Commands:
 python3 plugins/project-intelligence/scripts/project_intel.py init
 python3 plugins/project-intelligence/scripts/project_intel.py init --no-graph
 python3 plugins/project-intelligence/scripts/project_intel.py init --interactive
+python3 plugins/project-intelligence/scripts/project_intel.py init --setup-missing
 python3 plugins/project-intelligence/scripts/project_intel.py init --strict
 ```
 
 `init` generates `.project-intel/` with standards, knowledge, graph summaries, quality configuration, tooling checks, and reports. It checks optional tools such as GitNexus, Understand-Anything, Node/package managers, and quality commands. Missing optional tools do not block initialization unless strict graph setup is requested.
 
-By default, `init` attempts to generate graph sources (GitNexus). Use `--no-graph` to skip graph generation.
+By default, `init` checks graph tools before writing project facts. If GitNexus or Understand-Anything has an executable analysis command, `init` runs analysis automatically. If a graph tool is missing but has a supported install command, `init` asks whether to install/initialize it; answering no continues initialization.
+
+Use `--setup-missing` only when the user has already approved automatic installation. Understand-Anything can be run automatically from the CLI when `PROJECT_INTEL_UNDERSTAND_COMMAND` or an `understand` shell command is available; otherwise the CLI can install the agent plugin and will tell the user to restart the agent and run `/understand .`.
 
 After initialization, use `/project-refresh` to update existing project facts.

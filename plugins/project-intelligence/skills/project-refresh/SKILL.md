@@ -13,6 +13,7 @@ Commands:
 python3 /Users/xumeng/plugins/project-intelligence/scripts/project_intel.py init
 python3 /Users/xumeng/plugins/project-intelligence/scripts/project_intel.py init --no-graph
 python3 /Users/xumeng/plugins/project-intelligence/scripts/project_intel.py init --interactive
+python3 /Users/xumeng/plugins/project-intelligence/scripts/project_intel.py init --setup-missing
 python3 /Users/xumeng/plugins/project-intelligence/scripts/project_intel.py refresh
 python3 /Users/xumeng/plugins/project-intelligence/scripts/project_intel.py install
 python3 /Users/xumeng/plugins/project-intelligence/scripts/project_intel.py install --hooks
@@ -20,6 +21,6 @@ python3 /Users/xumeng/plugins/project-intelligence/scripts/project_intel.py inst
 
 `refresh` scans current workspace contents relative to the last generated project facts. It includes code pulled from other authors because project intelligence is based on file facts, not author identity.
 
-`init` checks optional tools such as GitNexus, Understand-Anything, Node/package managers, and quality commands. By default, `init` attempts to generate graph sources (GitNexus). Use `--no-graph` to skip. Missing optional tools do not block initialization unless strict graph setup is requested.
+`init` checks optional tools such as GitNexus, Understand-Anything, Node/package managers, and quality commands. By default it runs installed graph analysis commands automatically and asks whether missing supported graph tools should be installed/initialized. Use `--setup-missing` only after the user has already approved automatic setup. If Understand-Anything is only available as an agent slash command, run `/understand .` and then `refresh` so `.project-intel` can record the resulting graph metadata.
 
 The CLI intentionally does not read `.cgraphx`.

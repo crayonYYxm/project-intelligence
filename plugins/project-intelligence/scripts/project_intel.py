@@ -301,6 +301,67 @@ def understand_plugin_roots() -> list[Path]:
     return roots
 
 
+def default_understand_install_command() -> str | None:
+    if os.name == "nt":
+        shell = "powershell" if command_exists("powershell") else "pwsh" if command_exists("pwsh") else ""
+        if shell:
+            return f'{shell} -NoProfile -ExecutionPolicy Bypass -Command "iwr -useb https://raw.githubusercontent.com/Lum1104/Understand-Anything/main/install.ps1 | iex"'
+        return None
+    if command_exists("curl") and command_exists("bash"):
+        return "curl -fsSL https://raw.githubusercontent.com/Lum1104/Understand-Anything/main/install.sh | bash -s codex"
+    return None
+
+
+def understand_analyze_command() -> str | None:
+    configured = os.environ.get("PROJECT_INTEL_UNDERSTAND_COMMAND", "").strip()
+    if configured:
+        return configured
+    if command_exists("understand"):
+        return "understand ."
+    return None
+
+
+def detect_graph_actions(root: Path) -> list[dict[str, Any]]:
+    gitnexus_runner = root / ".gitnexus" / "run.cjs"
+    gitnexus_command = None
+    if gitnexus_runner.exists():
+        gitnexus_command = "node .gitnexus/run.cjs analyze"
+    elif command_exists("gitnexus"):
+        gitnexus_command = "gitnexus analyze"
+    gitnexus_install_command = "npx gitnexus analyze" if command_exists("npx") else None
+
+    actions = [
+        {
+            "tool": "GitNexus",
+            "reason": "符号级调用、影响分析、PR/变更风险",
+            "state": "installed" if gitnexus_command else "installable" if gitnexus_install_command else "missing",
+            "analyzeCommand": gitnexus_command,
+            "installCommand": gitnexus_install_command,
+            "canAnalyze": bool(gitnexus_command),
+            "canInstall": bool(gitnexus_install_command),
+        }
+    ]
+
+    ua_roots = understand_plugin_roots()
+    ua_command = understand_analyze_command()
+    ua_install_command = default_understand_install_command()
+    ua_state = "installed" if ua_command else "agent-installed" if ua_roots else "installable" if ua_install_command else "missing"
+    actions.append(
+        {
+            "tool": "Understand-Anything",
+            "reason": "架构概览、模块关系、领域流、入职图谱",
+            "state": ua_state,
+            "analyzeCommand": ua_command,
+            "installCommand": ua_install_command,
+            "agentCommand": "/understand .",
+            "canAnalyze": bool(ua_command),
+            "canInstall": bool(ua_install_command),
+            "pluginRoots": [str(path) for path in ua_roots],
+        }
+    )
+    return actions
+
+
 def detect_quality_tool_status(root: Path, commands: list[dict[str, Any]]) -> list[dict[str, Any]]:
     configured = []
     for item in commands:
@@ -343,30 +404,33 @@ def detect_tooling(root: Path, package: dict[str, Any]) -> dict[str, Any]:
     gitnexus_index = root / ".gitnexus"
     ua_graph = root / ".understand-anything" / "knowledge-graph.json"
     ua_roots = understand_plugin_roots()
+    graph_actions = detect_graph_actions(root)
+    graph_action_by_tool = {action.get("tool"): action for action in graph_actions}
     package_managers = [
         {"name": name, "status": "present" if command_exists(name) else "missing", "selected": name == selected_pm}
         for name in ("pnpm", "npm", "yarn")
     ]
-    gitnexus_available = gitnexus_runner.exists() or command_exists("gitnexus") or command_exists("npx")
-    gitnexus_status = "present" if gitnexus_index.exists() else "available" if gitnexus_available else "missing"
-    understand_status = "present" if ua_graph.exists() else "available" if ua_roots else "missing"
+    gitnexus_action = graph_action_by_tool.get("GitNexus", {})
+    understand_action = graph_action_by_tool.get("Understand-Anything", {})
+    gitnexus_status = "present" if gitnexus_index.exists() else gitnexus_action.get("state", "missing")
+    understand_status = "present" if ua_graph.exists() else understand_action.get("state", "missing")
     recommended_actions = []
-    if gitnexus_status != "present":
+    if gitnexus_action.get("state") != "installed":
         recommended_actions.append(
             {
                 "tool": "GitNexus",
-                "reason": "符号级调用、影响分析、PR/变更风险",
-                "command": "node .gitnexus/run.cjs analyze" if gitnexus_runner.exists() else "npx gitnexus analyze",
-                "canRun": gitnexus_runner.exists() or command_exists("gitnexus") or command_exists("npx"),
+                "reason": gitnexus_action.get("reason"),
+                "command": gitnexus_action.get("installCommand") or gitnexus_action.get("analyzeCommand"),
+                "canRun": gitnexus_action.get("canInstall") or gitnexus_action.get("canAnalyze"),
             }
         )
-    if understand_status != "present":
+    if understand_action.get("state") != "installed":
         recommended_actions.append(
             {
                 "tool": "Understand-Anything",
-                "reason": "架构概览、模块关系、领域流、入职图谱",
-                "command": "/understand .",
-                "canRun": False,
+                "reason": understand_action.get("reason"),
+                "command": understand_action.get("installCommand") or understand_action.get("agentCommand"),
+                "canRun": understand_action.get("canInstall") or understand_action.get("canAnalyze"),
             }
         )
     if package.get("hasPackageJson") and not command_exists(selected_pm):
@@ -401,6 +465,7 @@ def detect_tooling(root: Path, package: dict[str, Any]) -> dict[str, Any]:
             },
             "qualityTools": detect_quality_tool_status(root, quality_commands),
         },
+        "graphActions": graph_actions,
         "recommendedActions": recommended_actions,
     }
 
@@ -416,7 +481,7 @@ def print_tooling_summary(tooling: dict[str, Any]) -> None:
         return
     print("项目智能检测到可提升效果的可选工具：")
     for idx, action in enumerate(actions, start=1):
-        runnable = "可立即运行" if action.get("canRun") else "需手动设置"
+        runnable = "可安装/初始化" if action.get("canRun") else "需手动设置"
         print(f"{idx}. {action.get('tool')}：{runnable}")
         print(f"   用途：{action.get('reason')}")
         print(f"   命令：{action.get('command')}")
@@ -447,22 +512,84 @@ def setup_missing_tools(root: Path, tooling: dict[str, Any], with_graph: bool = 
     return results
 
 
+def run_graph_command(root: Path, action: dict[str, Any], command: str) -> dict[str, Any]:
+    code, out, err = run_shell(command, root, timeout=300)
+    return {
+        "tool": action.get("tool"),
+        "status": "ok" if code == 0 else "failed",
+        "command": command,
+        "exitCode": code,
+        "stdout": out[-4000:],
+        "stderr": err[-4000:],
+    }
+
+
+def confirm_graph_install(action: dict[str, Any], auto_approve: bool) -> bool:
+    if auto_approve:
+        return True
+    command = action.get("installCommand") or action.get("agentCommand") or ""
+    print(f"\n未检测到 {action.get('tool')} 可执行分析命令。")
+    print(f"用途：{action.get('reason')}")
+    print(f"安装/初始化命令：{command}")
+    print("[y] 安装并继续分析")
+    print("[n] 跳过，继续初始化 .project-intel")
+    try:
+        choice = input("> ").strip().lower()
+    except EOFError:
+        print("未读取到交互输入，跳过该图谱工具。")
+        return False
+    return choice in ("y", "yes", "是")
+
+
+def setup_graph_tools(root: Path, tooling: dict[str, Any], auto_approve: bool = False) -> list[dict[str, Any]]:
+    results: list[dict[str, Any]] = []
+    for action in tooling.get("graphActions", []):
+        tool = action.get("tool")
+        analyze_command = action.get("analyzeCommand")
+        install_command = action.get("installCommand")
+        state = action.get("state")
+
+        if analyze_command:
+            print(f"{tool} 已安装，开始运行分析：{analyze_command}")
+            results.append(run_graph_command(root, action, analyze_command))
+            continue
+
+        if state == "agent-installed":
+            detail = f"检测到 Understand-Anything 插件，但 CLI 无法直接执行 agent 指令；请在 agent 会话运行 {action.get('agentCommand')}。"
+            print(detail)
+            results.append({"tool": tool, "status": "skipped", "detail": detail})
+            continue
+
+        if not install_command:
+            detail = "未检测到可安装或可运行的命令。"
+            print(f"{tool}：{detail}")
+            results.append({"tool": tool, "status": "skipped", "detail": detail})
+            continue
+
+        if not confirm_graph_install(action, auto_approve=auto_approve):
+            results.append({"tool": tool, "status": "skipped", "detail": "用户选择跳过。"})
+            continue
+
+        print(f"开始安装/初始化 {tool}：{install_command}")
+        install_result = run_graph_command(root, action, install_command)
+        results.append(install_result)
+        if tool == "Understand-Anything" and install_result.get("status") == "ok":
+            refreshed_command = understand_analyze_command()
+            if refreshed_command:
+                results.append(run_graph_command(root, action, refreshed_command))
+            else:
+                detail = f"Understand-Anything 已尝试安装；请重启 agent 后运行 {action.get('agentCommand')}。"
+                print(detail)
+                results.append({"tool": tool, "status": "needs-agent", "detail": detail})
+    return results
+
+
 def handle_tooling_setup(root: Path, tooling: dict[str, Any], interactive: bool, setup_missing: bool, with_graph: bool) -> list[dict[str, Any]]:
-    if setup_missing:
-        print_tooling_summary(tooling)
-        return setup_missing_tools(root, tooling, with_graph=True)
     if tooling_has_missing_optional(tooling):
         print_tooling_summary(tooling)
-        if with_graph and sys.stdin.isatty():
-            print("\n是否尝试安装/初始化推荐的图谱工具？")
-            print("[y] 是，尝试安装")
-            print("[n] 否，仅初始化 .project-intel")
-            choice = input("> ").strip().lower()
-            if choice in ("y", "yes", "是"):
-                return setup_missing_tools(root, tooling, with_graph=True)
-        elif with_graph:
-            return setup_missing_tools(root, tooling, with_graph=True)
-    return []
+    if not with_graph:
+        return []
+    return setup_graph_tools(root, tooling, auto_approve=setup_missing)
 
 
 def extract_vue_props(text: str) -> list[str]:
@@ -930,7 +1057,7 @@ def build_tooling_report(tooling: dict[str, Any], setup_results: list[dict[str, 
 
 {table(["工具", "状态", "命令/详情", "退出码"], setup_rows)}
 
-`init` 不会静默安装工具。只有在 `--setup-missing`、`--with-graph` 或交互式菜单选择授权时才会执行安装。
+`init` 会检查图谱工具。已检测到可执行分析命令时会自动运行分析；未检测到时会询问是否安装/初始化，选择跳过时继续初始化 `.project-intel`。使用 `--setup-missing` 可跳过询问并直接运行支持的安装/初始化命令。
 """
 
 
@@ -1409,9 +1536,9 @@ def main(argv: list[str]) -> int:
     parser.add_argument("--project", help="项目根目录，默认为当前目录。")
     sub = parser.add_subparsers(dest="command", required=True)
     init = sub.add_parser("init", help="初始化 .project-intel")
-    init.add_argument("--interactive", action="store_true", help="可选工具缺失时显示交互式设置菜单")
-    init.add_argument("--setup-missing", action="store_true", help="对缺失的可选工具运行安全安装（需有可运行的命令）")
-    init.add_argument("--with-graph", action="store_true", default=True, help="尝试初始化图谱工具（如 GitNexus），默认启用")
+    init.add_argument("--interactive", action="store_true", help="兼容参数；init 默认会在缺失图谱工具时询问")
+    init.add_argument("--setup-missing", action="store_true", help="对缺失的可选图谱工具跳过询问并运行支持的安装/初始化命令")
+    init.add_argument("--with-graph", action="store_true", default=True, help="启用图谱工具检查、安装询问和已安装工具自动分析，默认启用")
     init.add_argument("--no-graph", dest="with_graph", action="store_false", help="跳过图谱工具初始化")
     init.add_argument("--strict", action="store_true", help="--with-graph 未产生任何图谱来源时失败")
     sub.add_parser("refresh", help="从当前工作区刷新 .project-intel")
