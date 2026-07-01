@@ -487,6 +487,28 @@ def print_tooling_summary(tooling: dict[str, Any]) -> None:
         print(f"   命令：{action.get('command')}")
 
 
+def print_graph_tools_report(tooling: dict[str, Any], as_json: bool = False) -> None:
+    actions = tooling.get("graphActions", [])
+    if as_json:
+        print(json.dumps(actions, ensure_ascii=False, indent=2))
+        return
+    print("图谱工具检查结果：")
+    if not actions:
+        print("未检测到可选图谱工具。")
+        return
+    state_map = {
+        "installed": "已安装，可直接分析",
+        "installable": "可安装",
+        "agent-installed": "已安装插件，需在 agent 中运行",
+        "missing": "不可用",
+    }
+    for idx, action in enumerate(actions, start=1):
+        command = action.get("analyzeCommand") or action.get("installCommand") or action.get("agentCommand") or "-"
+        print(f"{idx}. {action.get('tool')}：{state_map.get(action.get('state'), action.get('state'))}")
+        print(f"   用途：{action.get('reason')}")
+        print(f"   命令：{command}")
+
+
 def setup_missing_tools(root: Path, tooling: dict[str, Any], with_graph: bool = False) -> list[dict[str, Any]]:
     results: list[dict[str, Any]] = []
     for action in tooling.get("recommendedActions", []):
@@ -1531,6 +1553,13 @@ def query_project(root: Path, text: str) -> int:
     return 0
 
 
+def report_graph_tools(root: Path, as_json: bool = False) -> int:
+    package = detect_package(root)
+    tooling = detect_tooling(root, package)
+    print_graph_tools_report(tooling, as_json=as_json)
+    return 0
+
+
 def main(argv: list[str]) -> int:
     parser = argparse.ArgumentParser(prog="project-intel", description="项目智能 CLI")
     parser.add_argument("--project", help="项目根目录，默认为当前目录。")
@@ -1562,6 +1591,8 @@ def main(argv: list[str]) -> int:
     maintain.add_argument("--run-quality", action="store_true", help="实际运行检测到的 lint/type/style/format 命令")
     query = sub.add_parser("query", help="搜索项目智能产物")
     query.add_argument("text")
+    graph_tools = sub.add_parser("graph-tools", help="查询可选图谱工具的状态与命令")
+    graph_tools.add_argument("--json", action="store_true", help="以 JSON 输出图谱工具信息")
     sub.add_parser("version", help="打印版本号")
     args = parser.parse_args(argv)
     root = project_root(args.project)
@@ -1602,6 +1633,8 @@ def main(argv: list[str]) -> int:
         return maintain_project(root, args.task, args.run_quality)
     if args.command == "query":
         return query_project(root, args.text)
+    if args.command == "graph-tools":
+        return report_graph_tools(root, as_json=args.json)
     return 2
 
 
