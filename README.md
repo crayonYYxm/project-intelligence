@@ -15,7 +15,7 @@ It intentionally does not integrate with cgraphx. GitNexus and Understand-Anythi
 
 2. Then install the plugin:
    ```bash
-   /plugin add project-intelligence@project-intelligence
+   /plugin install project-intelligence@project-intelligence
    ```
 
 3. Start a new Claude Code session so the plugin skills are loaded.
