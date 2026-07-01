@@ -448,25 +448,20 @@ def setup_missing_tools(root: Path, tooling: dict[str, Any], with_graph: bool = 
 
 
 def handle_tooling_setup(root: Path, tooling: dict[str, Any], interactive: bool, setup_missing: bool, with_graph: bool) -> list[dict[str, Any]]:
-    if setup_missing or with_graph:
+    if setup_missing:
         print_tooling_summary(tooling)
         return setup_missing_tools(root, tooling, with_graph=True)
-    if interactive and sys.stdin.isatty() and tooling_has_missing_optional(tooling):
+    if tooling_has_missing_optional(tooling):
         print_tooling_summary(tooling)
-        print("\n请选择操作：")
-        print("[1] 安装/初始化推荐的图谱工具")
-        print("[2] 仅初始化 .project-intel")
-        print("[3] 仅打印安装命令")
-        print("[4] 取消")
-        choice = input("> ").strip()
-        if choice == "1":
+        if with_graph and sys.stdin.isatty():
+            print("\n是否尝试安装/初始化推荐的图谱工具？")
+            print("[y] 是，尝试安装")
+            print("[n] 否，仅初始化 .project-intel")
+            choice = input("> ").strip().lower()
+            if choice in ("y", "yes", "是"):
+                return setup_missing_tools(root, tooling, with_graph=True)
+        elif with_graph:
             return setup_missing_tools(root, tooling, with_graph=True)
-        if choice == "3":
-            return []
-        if choice == "4":
-            raise SystemExit(130)
-    elif tooling_has_missing_optional(tooling):
-        print_tooling_summary(tooling)
     return []
 
 
