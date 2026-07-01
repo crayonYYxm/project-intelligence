@@ -1,0 +1,17 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "project-intelligence",
+  "description": "Project-level intelligence for specs, plans, standards, knowledge, graph context, systematic debugging, quality checks, lifecycle maintenance, and reuse guidance.",
+  "owner": {
+    "name": "crayonYYxm"
+  },
+  "plugins": [
+    {
+      "name": "project-intelligence",
+      "description": "Project specs, standards, knowledge, graph context, debugging, lifecycle maintenance, and review checks.",
+      "category": "productivity",
+      "source": "./plugins/project-intelligence",
+      "homepage": "https://github.com/crayonYYxm/project-intelligence"
+    }
+  ]
+}

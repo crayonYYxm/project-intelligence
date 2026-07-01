@@ -6,16 +6,20 @@ It intentionally does not integrate with cgraphx. GitNexus and Understand-Anythi
 
 ## Install
 
-Clone this repository:
+### Claude Code
+
+```bash
+/plugin marketplace add crayonYYxm/project-intelligence
+/plugin add project-intelligence@project-intelligence
+```
+
+Start a new Claude Code session after installation so the plugin skills are loaded.
+
+### Codex CLI
 
 ```bash
 git clone https://github.com/crayonYYxm/project-intelligence.git
 cd project-intelligence
-```
-
-Add this repository as a Codex marketplace:
-
-```bash
 codex plugin marketplace add .
 codex plugin add project-intelligence@project-intelligence
 ```
