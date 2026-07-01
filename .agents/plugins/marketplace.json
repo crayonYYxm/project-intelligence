@@ -1,0 +1,20 @@
+{
+  "name": "project-intelligence",
+  "interface": {
+    "displayName": "Project Intelligence"
+  },
+  "plugins": [
+    {
+      "name": "project-intelligence",
+      "source": {
+        "source": "local",
+        "path": "./plugins/project-intelligence"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}

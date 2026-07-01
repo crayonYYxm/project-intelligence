@@ -1,0 +1,27 @@
+{
+  "name": "project-intelligence",
+  "version": "0.1.0+codex.20260701013854",
+  "description": "Project-level intelligence for standards, knowledge, graph context, quality checks, and reuse guidance.",
+  "author": {
+    "name": "Local developer"
+  },
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Project Intelligence",
+    "shortDescription": "Project standards, knowledge, graph context, and review checks.",
+    "longDescription": "Project Intelligence initializes and refreshes a repository-local .project-intel knowledge base for project standards, reusable frontend/backend patterns, optional GitNexus and Understand-Anything graph context, quality checks, and code review workflows. It intentionally does not integrate with cgraphx.",
+    "developerName": "Local developer",
+    "category": "Productivity",
+    "capabilities": [
+      "Read",
+      "Write",
+      "Analyze"
+    ],
+    "defaultPrompt": [
+      "Initialize project standards and knowledge.",
+      "Review this change with project intelligence.",
+      "Find reusable components and APIs for this task."
+    ],
+    "brandColor": "#2563EB"
+  }
+}
