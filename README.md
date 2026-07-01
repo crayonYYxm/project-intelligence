@@ -8,12 +8,17 @@ It intentionally does not integrate with cgraphx. GitNexus and Understand-Anythi
 
 ### Claude Code
 
-```bash
-/plugin marketplace add crayonYYxm/project-intelligence
-/plugin add project-intelligence@project-intelligence
-```
+1. Add the marketplace first:
+   ```bash
+   /plugin marketplace add crayonYYxm/project-intelligence
+   ```
 
-Start a new Claude Code session after installation so the plugin skills are loaded.
+2. Then install the plugin:
+   ```bash
+   /plugin add project-intelligence@project-intelligence
+   ```
+
+3. Start a new Claude Code session so the plugin skills are loaded.
 
 ### Codex CLI
 
