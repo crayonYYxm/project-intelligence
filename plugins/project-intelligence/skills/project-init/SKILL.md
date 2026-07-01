@@ -28,13 +28,13 @@ Use a concise Chinese choice prompt, for example:
 
 ```text
 检测到可选图谱工具：
-1. GitNexus：可安装并运行分析
-2. Understand-Anything：可安装并运行分析
+1. GitNexus：可下载并运行分析
+2. Understand-Anything：可安装到 Codex 并运行分析
 
 请选择：
-1. 全部安装并分析
-2. 仅安装 GitNexus
-3. 仅安装 Understand-Anything
+1. 全部准备并分析
+2. 仅准备 GitNexus
+3. 仅准备 Understand-Anything
 4. 跳过并继续初始化
 ```
 
@@ -44,6 +44,8 @@ After the user answers:
 - If they chose to skip, run `init --no-graph` or plain `init` only after explicitly telling them graph tools will be skipped.
 - Keep all user-facing narration in Chinese unless the user asked for another language.
 
-Use `--setup-missing` only when the user has already approved automatic installation. Understand-Anything can be run automatically from the CLI when `PROJECT_INTEL_UNDERSTAND_COMMAND` or an `understand` shell command is available; otherwise the CLI can install the agent plugin and will tell the user to restart the agent and run `/understand .`.
+Use `--setup-missing` only when the user has already approved automatic setup. For GitNexus this usually means downloading the CLI via `npx` and immediately running `analyze`, not a separate global install. Understand-Anything can be run automatically from the CLI when `PROJECT_INTEL_UNDERSTAND_COMMAND` or an `understand` shell command is available; otherwise the CLI installs the Codex-targeted plugin and then tells the user to restart the agent and run `/understand . --language zh`.
+
+If Understand-Anything reaches the `agent-installed` state, treat `init` as successfully completed. Do not immediately retry `init` in the same session just to recheck plugin recognition. Instead, tell the user in Chinese that the remaining step is: restart the agent, run `/understand . --language zh`, then run `refresh`.
 
 After initialization, use `/project-refresh` to update existing project facts.
