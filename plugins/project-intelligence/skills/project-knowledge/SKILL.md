@@ -11,7 +11,8 @@ Answer from `.project-intel` first:
 - `.project-intel/standards/*.md` for rules and conventions
 - `.project-intel/knowledge/*.json` for components, Hooks, APIs, services, files, and candidates
 - `.project-intel/graph/project-graph.json` for graph summary
-- `.project-intel/reports/*.md` for initialization, quality, and redundancy reports
+- `.project-intel/specs/*.md` and `.project-intel/plans/*.md` for task lifecycle docs
+- `.project-intel/reports/*.md` for initialization, tooling, quality, task impact, and redundancy reports
 
 Use GitNexus for precise symbol-level questions. Use Understand-Anything for architecture/domain questions.
 

@@ -1,6 +1,6 @@
 ---
 name: project-task
-description: Use when implementing a project request that should reuse existing project standards, components, Hooks, APIs, services, graph context, or knowledge before changing code.
+description: Use when implementing, building, adding, modifying, fixing, refactoring, or completing a project feature/需求 and needing project standards, reuse, components, Hooks, APIs, services, graph context, or post-task maintenance.
 ---
 
 # Project Task
@@ -14,7 +14,8 @@ Use this sequence:
 3. Treat redundancy findings as `candidate` unless a rule has been promoted to `hard`.
 4. Use GitNexus for symbol-level calls, impact, and change risk when available.
 5. Use Understand-Anything for architecture, module, and domain-flow context when available.
-6. Do not read or rely on `.cgraphx`.
+6. If implementation reveals a bug, error, test failure, or regression, switch to `project-debug` before proposing fixes.
+7. Do not read or rely on `.cgraphx`.
 
 If `.project-intel` is missing or stale, run:
 
@@ -22,8 +23,15 @@ If `.project-intel` is missing or stale, run:
 python3 /Users/xumeng/plugins/project-intelligence/scripts/project_intel.py init
 ```
 
+Before broad implementation, write the task impact report when useful:
+
+```bash
+python3 /Users/xumeng/plugins/project-intelligence/scripts/project_intel.py lifecycle --task "<requirement>"
+```
+
 After implementation, run:
 
 ```bash
 python3 /Users/xumeng/plugins/project-intelligence/scripts/project_intel.py check
+python3 /Users/xumeng/plugins/project-intelligence/scripts/project_intel.py maintain --task "<summary>"
 ```

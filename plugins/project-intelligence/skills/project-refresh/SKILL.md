@@ -1,6 +1,6 @@
 ---
 name: project-refresh
-description: Use when initializing, refreshing, or updating project standards, knowledge, graph summaries, quality configuration, reports, or Claude adapters.
+description: Use when initializing, refreshing, updating, installing, or setting up project standards, knowledge, graph summaries, quality configuration, tooling checks, reports, hooks, or Claude adapters.
 ---
 
 # Project Refresh
@@ -11,10 +11,15 @@ Commands:
 
 ```bash
 python3 /Users/xumeng/plugins/project-intelligence/scripts/project_intel.py init
+python3 /Users/xumeng/plugins/project-intelligence/scripts/project_intel.py init --interactive
+python3 /Users/xumeng/plugins/project-intelligence/scripts/project_intel.py init --with-graph
 python3 /Users/xumeng/plugins/project-intelligence/scripts/project_intel.py refresh
 python3 /Users/xumeng/plugins/project-intelligence/scripts/project_intel.py install
+python3 /Users/xumeng/plugins/project-intelligence/scripts/project_intel.py install --hooks
 ```
 
 `refresh` scans current workspace contents relative to the last generated project facts. It includes code pulled from other authors because project intelligence is based on file facts, not author identity.
+
+`init` checks optional tools such as GitNexus, Understand-Anything, Node/package managers, and quality commands. Missing optional tools do not block initialization unless strict graph setup is requested.
 
 The CLI intentionally does not read `.cgraphx`.

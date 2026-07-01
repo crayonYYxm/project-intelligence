@@ -1,15 +1,15 @@
 {
   "name": "project-intelligence",
-  "version": "0.1.0+codex.20260701013854",
-  "description": "Project-level intelligence for standards, knowledge, graph context, quality checks, and reuse guidance.",
+  "version": "0.1.0+codex.20260701030949",
+  "description": "Project-level intelligence for specs, plans, standards, knowledge, graph context, systematic debugging, quality checks, lifecycle maintenance, and reuse guidance.",
   "author": {
     "name": "Local developer"
   },
   "skills": "./skills/",
   "interface": {
     "displayName": "Project Intelligence",
-    "shortDescription": "Project standards, knowledge, graph context, and review checks.",
-    "longDescription": "Project Intelligence initializes and refreshes a repository-local .project-intel knowledge base for project standards, reusable frontend/backend patterns, optional GitNexus and Understand-Anything graph context, quality checks, and code review workflows. It intentionally does not integrate with cgraphx.",
+    "shortDescription": "Project specs, standards, knowledge, graph context, debugging, lifecycle maintenance, and review checks.",
+    "longDescription": "Project Intelligence initializes and refreshes a repository-local .project-intel knowledge base for project specs, implementation plans, standards, reusable frontend/backend patterns, optional GitNexus and Understand-Anything graph context, systematic debugging, quality checks, code review workflows, and post-task maintenance. Init checks optional tools and suggests setup without silently installing them. It intentionally does not integrate with cgraphx.",
     "developerName": "Local developer",
     "category": "Productivity",
     "capabilities": [
@@ -18,9 +18,12 @@
       "Analyze"
     ],
     "defaultPrompt": [
-      "Initialize project standards and knowledge.",
+      "Initialize project standards and knowledge with tooling checks.",
+      "Brainstorm this requirement and write a project spec.",
+      "Write an implementation plan from this spec.",
+      "Investigate this bug with project context.",
       "Review this change with project intelligence.",
-      "Find reusable components and APIs for this task."
+      "Maintain project knowledge after this task."
     ],
     "brandColor": "#2563EB"
   }

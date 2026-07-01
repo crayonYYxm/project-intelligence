@@ -1,0 +1,1060 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Project Intelligence 插件介绍</title>
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap");
+
+    :root {
+      --ink: #111827;
+      --ink-soft: #344054;
+      --muted: #667085;
+      --paper: #f7f8f3;
+      --surface: #ffffff;
+      --surface-2: #eef4f2;
+      --line: #d8ded8;
+      --blue: #2563eb;
+      --teal: #0e8f8f;
+      --amber: #f2a541;
+      --rust: #c35c3a;
+      --lime: #b8f03a;
+      --violet: #6f5bd8;
+      --radius: 8px;
+      --shadow: 0 24px 80px rgba(17, 24, 39, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--paper);
+      font-family: "IBM Plex Sans", "PingFang SC", "Microsoft YaHei", sans-serif;
+      font-size: 16px;
+      line-height: 1.65;
+      letter-spacing: 0;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    code {
+      font-family: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+      font-size: 0.92em;
+    }
+
+    .page {
+      min-height: 100vh;
+      overflow: hidden;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      padding: 16px 32px;
+      background: rgba(247, 248, 243, 0.88);
+      border-bottom: 1px solid rgba(216, 222, 216, 0.7);
+      backdrop-filter: blur(16px);
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      line-height: 1;
+      white-space: nowrap;
+    }
+
+    .brand-mark {
+      display: grid;
+      width: 28px;
+      height: 28px;
+      place-items: center;
+      color: #07130f;
+      background: var(--lime);
+      border: 1px solid #0e1c16;
+      border-radius: 6px;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      gap: 22px;
+      color: var(--ink-soft);
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .nav a:hover {
+      color: var(--blue);
+    }
+
+    .shell {
+      width: min(1180px, calc(100% - 48px));
+      margin: 0 auto;
+    }
+
+    .hero {
+      position: relative;
+      min-height: 760px;
+      padding: 86px 0 76px;
+      background:
+        linear-gradient(90deg, rgba(17, 24, 39, 0.04) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(17, 24, 39, 0.04) 1px, transparent 1px);
+      background-size: 44px 44px;
+    }
+
+    .hero::before {
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      content: "";
+      background:
+        radial-gradient(circle at 72% 22%, rgba(184, 240, 58, 0.32), transparent 28%),
+        radial-gradient(circle at 18% 36%, rgba(14, 143, 143, 0.18), transparent 24%),
+        linear-gradient(180deg, #fbfcf7 0%, #f0f4ef 100%);
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 0.92fr) minmax(420px, 1.08fr);
+      gap: 54px;
+      align-items: center;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin: 0 0 22px;
+      color: #0b5c5c;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .eyebrow::before {
+      width: 34px;
+      height: 2px;
+      content: "";
+      background: var(--teal);
+    }
+
+    h1 {
+      max-width: 760px;
+      margin: 0 0 24px;
+      font-size: 72px;
+      font-weight: 700;
+      line-height: 0.96;
+      letter-spacing: 0;
+    }
+
+    .lead {
+      max-width: 590px;
+      margin: 0 0 34px;
+      color: var(--ink-soft);
+      font-size: 20px;
+      line-height: 1.55;
+    }
+
+    .cta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 40px;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
+      padding: 0 18px;
+      border: 1px solid var(--ink);
+      border-radius: 6px;
+      font-weight: 700;
+    }
+
+    .button.primary {
+      color: #08110f;
+      background: var(--lime);
+      box-shadow: 4px 4px 0 #08110f;
+    }
+
+    .button.secondary {
+      color: var(--ink);
+      background: rgba(255, 255, 255, 0.72);
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      max-width: 620px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.68);
+    }
+
+    .stat {
+      padding: 18px 20px;
+      border-right: 1px solid var(--line);
+    }
+
+    .stat:last-child {
+      border-right: 0;
+    }
+
+    .stat strong {
+      display: block;
+      margin-bottom: 4px;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 22px;
+      line-height: 1;
+    }
+
+    .stat span {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .visual {
+      position: relative;
+      min-height: 560px;
+    }
+
+    .map {
+      position: absolute;
+      inset: 0 0 48px;
+      border: 1px solid #1d2939;
+      border-radius: var(--radius);
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.88), rgba(239, 244, 239, 0.88)),
+        linear-gradient(90deg, rgba(17, 24, 39, 0.06) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(17, 24, 39, 0.06) 1px, transparent 1px);
+      background-size: auto, 28px 28px, 28px 28px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .map-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 48px;
+      padding: 0 16px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.78);
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: #14532d;
+    }
+
+    .status::before {
+      width: 8px;
+      height: 8px;
+      content: "";
+      background: #22c55e;
+      border-radius: 99px;
+      box-shadow: 0 0 0 5px rgba(34, 197, 94, 0.12);
+    }
+
+    .graph-stage {
+      position: relative;
+      height: 330px;
+      margin: 20px;
+      border: 1px solid rgba(17, 24, 39, 0.14);
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.52);
+    }
+
+    .edge {
+      position: absolute;
+      height: 2px;
+      background: rgba(17, 24, 39, 0.25);
+      transform-origin: left center;
+    }
+
+    .edge.e1 { top: 88px; left: 148px; width: 160px; transform: rotate(17deg); }
+    .edge.e2 { top: 190px; left: 174px; width: 190px; transform: rotate(-22deg); }
+    .edge.e3 { top: 116px; left: 350px; width: 130px; transform: rotate(35deg); }
+    .edge.e4 { top: 235px; left: 366px; width: 152px; transform: rotate(-13deg); }
+    .edge.e5 { top: 158px; left: 414px; width: 138px; transform: rotate(86deg); }
+
+    .node {
+      position: absolute;
+      display: grid;
+      min-width: 118px;
+      min-height: 54px;
+      place-items: center;
+      padding: 10px 14px;
+      border: 1px solid #111827;
+      border-radius: 6px;
+      background: #ffffff;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 12px;
+      font-weight: 600;
+      box-shadow: 5px 5px 0 rgba(17, 24, 39, 0.12);
+    }
+
+    .node.blue { background: #dbeafe; }
+    .node.teal { background: #d6f5ef; }
+    .node.amber { background: #ffe7bc; }
+    .node.lime { background: #eaff9a; }
+    .node.rust { background: #ffd7cc; }
+    .node.a { top: 44px; left: 48px; }
+    .node.b { top: 88px; left: 286px; }
+    .node.c { top: 34px; right: 34px; }
+    .node.d { bottom: 36px; left: 74px; }
+    .node.e { bottom: 70px; left: 336px; }
+    .node.f { bottom: 28px; right: 48px; }
+
+    .terminal {
+      position: absolute;
+      right: 28px;
+      bottom: 0;
+      left: 62px;
+      border: 1px solid #111827;
+      border-radius: var(--radius);
+      background: #101828;
+      box-shadow: 10px 10px 0 rgba(17, 24, 39, 0.16);
+      color: #e5e7eb;
+      font-family: "IBM Plex Mono", monospace;
+      overflow: hidden;
+    }
+
+    .terminal-bar {
+      display: flex;
+      gap: 8px;
+      padding: 12px 14px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+      background: #0b1220;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 99px;
+    }
+
+    .dot.red { background: #ff6b5f; }
+    .dot.yellow { background: #f6c453; }
+    .dot.green { background: #61d394; }
+
+    .terminal-body {
+      padding: 18px;
+      font-size: 13px;
+      line-height: 1.8;
+    }
+
+    .terminal-body span {
+      color: var(--lime);
+    }
+
+    .band {
+      padding: 76px 0;
+      border-top: 1px solid var(--line);
+    }
+
+    .band.white {
+      background: var(--surface);
+    }
+
+    .band.tinted {
+      background: var(--surface-2);
+    }
+
+    .section-head {
+      display: grid;
+      grid-template-columns: minmax(0, 0.78fr) minmax(320px, 0.52fr);
+      gap: 42px;
+      align-items: end;
+      margin-bottom: 40px;
+    }
+
+    h2 {
+      margin: 0;
+      max-width: 740px;
+      font-size: 42px;
+      font-weight: 700;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+
+    .section-copy {
+      margin: 0;
+      color: var(--ink-soft);
+    }
+
+    .capability-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1px;
+      border: 1px solid var(--line);
+      background: var(--line);
+    }
+
+    .capability {
+      min-height: 230px;
+      padding: 26px;
+      background: var(--surface);
+    }
+
+    .capability-index {
+      display: inline-flex;
+      margin-bottom: 28px;
+      color: var(--muted);
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .capability h3 {
+      margin: 0 0 10px;
+      font-size: 22px;
+      line-height: 1.18;
+    }
+
+    .capability p {
+      margin: 0;
+      color: var(--ink-soft);
+    }
+
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      border: 1px solid #111827;
+      background: #111827;
+      box-shadow: 8px 8px 0 rgba(17, 24, 39, 0.12);
+    }
+
+    .flow-step {
+      min-height: 190px;
+      padding: 24px;
+      background: var(--paper);
+    }
+
+    .flow-step strong {
+      display: block;
+      margin-bottom: 16px;
+      color: var(--blue);
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 13px;
+      text-transform: uppercase;
+    }
+
+    .flow-step h3 {
+      margin: 0 0 10px;
+      font-size: 20px;
+    }
+
+    .flow-step p {
+      margin: 0;
+      color: var(--ink-soft);
+      font-size: 15px;
+    }
+
+    .artifact-layout {
+      display: grid;
+      grid-template-columns: 0.86fr 1.14fr;
+      gap: 40px;
+      align-items: start;
+    }
+
+    .tree {
+      border: 1px solid #111827;
+      border-radius: var(--radius);
+      background: #101828;
+      color: #e6edf3;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 13px;
+      line-height: 1.9;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .tree-title {
+      padding: 14px 18px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+      color: var(--lime);
+      font-weight: 600;
+    }
+
+    .tree pre {
+      margin: 0;
+      padding: 20px 22px 24px;
+      white-space: pre-wrap;
+    }
+
+    .artifact-copy {
+      display: grid;
+      gap: 18px;
+    }
+
+    .artifact-row {
+      display: grid;
+      grid-template-columns: 130px 1fr;
+      gap: 18px;
+      padding: 18px 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .artifact-row code {
+      color: var(--blue);
+      font-weight: 600;
+    }
+
+    .artifact-row p {
+      margin: 0;
+      color: var(--ink-soft);
+    }
+
+    .commands {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 22px;
+    }
+
+    .command-block {
+      border: 1px solid #111827;
+      border-radius: var(--radius);
+      background: #101828;
+      color: #e5e7eb;
+      overflow: hidden;
+    }
+
+    .command-block h3 {
+      margin: 0;
+      padding: 16px 18px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+      color: var(--lime);
+      font-size: 15px;
+    }
+
+    .command-block pre {
+      margin: 0;
+      padding: 18px;
+      overflow-x: auto;
+      font-size: 13px;
+      line-height: 1.85;
+    }
+
+    .voice {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface);
+      overflow: hidden;
+    }
+
+    .voice-row {
+      display: grid;
+      grid-template-columns: 36px 1fr;
+      gap: 14px;
+      padding: 18px 20px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .voice-row:last-child {
+      border-bottom: 0;
+    }
+
+    .voice-number {
+      display: grid;
+      width: 28px;
+      height: 28px;
+      place-items: center;
+      color: #111827;
+      background: var(--amber);
+      border-radius: 5px;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .voice-row p {
+      margin: 0;
+      color: var(--ink-soft);
+    }
+
+    .final {
+      padding: 88px 0;
+      color: #eef2ff;
+      background:
+        linear-gradient(135deg, rgba(184, 240, 58, 0.12), transparent 34%),
+        #101828;
+    }
+
+    .final-inner {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(320px, 0.56fr);
+      gap: 42px;
+      align-items: center;
+    }
+
+    .final h2 {
+      color: #ffffff;
+    }
+
+    .final p {
+      max-width: 640px;
+      color: #cbd5e1;
+      font-size: 18px;
+    }
+
+    .install-card {
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.08);
+      padding: 22px;
+    }
+
+    .install-card code {
+      display: block;
+      padding: 14px;
+      color: var(--lime);
+      background: rgba(0, 0, 0, 0.32);
+      border-radius: 6px;
+      white-space: nowrap;
+      overflow-x: auto;
+    }
+
+    footer {
+      padding: 28px 0;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      background: var(--paper);
+      font-size: 14px;
+    }
+
+    @media (max-width: 980px) {
+      .hero-grid,
+      .section-head,
+      .artifact-layout,
+      .final-inner {
+        grid-template-columns: 1fr;
+      }
+
+      .hero {
+        min-height: auto;
+      }
+
+      .visual {
+        min-height: 520px;
+      }
+
+      h1 {
+        font-size: 56px;
+      }
+
+      .capability-grid,
+      .flow,
+      .commands {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 680px) {
+      .topbar {
+        align-items: flex-start;
+        padding: 14px 18px;
+      }
+
+      .nav {
+        display: none;
+      }
+
+      .shell {
+        width: min(100% - 32px, 1180px);
+      }
+
+      .hero {
+        padding-top: 54px;
+      }
+
+      h1 {
+        font-size: 44px;
+      }
+
+      h2 {
+        font-size: 32px;
+      }
+
+      .lead {
+        font-size: 18px;
+      }
+
+      .stats,
+      .capability-grid,
+      .flow,
+      .commands {
+        grid-template-columns: 1fr;
+      }
+
+      .stat {
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .stat:last-child {
+        border-bottom: 0;
+      }
+
+      .visual {
+        min-height: 620px;
+      }
+
+      .map {
+        inset: 0 0 84px;
+      }
+
+      .graph-stage {
+        height: 390px;
+      }
+
+      .terminal {
+        right: 12px;
+        left: 12px;
+      }
+
+      .node {
+        min-width: 98px;
+        font-size: 11px;
+      }
+
+      .node.a { top: 38px; left: 18px; }
+      .node.b { top: 110px; left: 164px; }
+      .node.c { top: 26px; right: 18px; }
+      .node.d { bottom: 114px; left: 26px; }
+      .node.e { bottom: 72px; left: 150px; }
+      .node.f { bottom: 24px; right: 24px; }
+
+      .edge {
+        opacity: 0.45;
+      }
+
+      .artifact-row {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="topbar" aria-label="主导航">
+      <a class="brand" href="#top" aria-label="Project Intelligence 首页">
+        <span class="brand-mark">PI</span>
+        <span>Project Intelligence</span>
+      </a>
+      <nav class="nav" aria-label="页面导航">
+        <a href="#capabilities">能力</a>
+        <a href="#workflow">流程</a>
+        <a href="#artifacts">产物</a>
+        <a href="#install">安装</a>
+      </nav>
+    </header>
+
+    <main id="top">
+      <section class="hero">
+        <div class="shell hero-grid">
+          <div>
+            <p class="eyebrow">Claude / Codex project layer</p>
+            <h1>让 AI 先读懂项目，再开始写代码。</h1>
+            <p class="lead">Project Intelligence 把代码库里的规范、组件、接口、服务、业务流程、spec、plan、debug context 和质量检查沉淀成项目知识层。后续需求、bug 排查、review、组件/API 查询和任务维护都会优先引用这些项目事实。</p>
+            <div class="cta-row" aria-label="主要操作">
+              <a class="button primary" href="#install">查看安装方式</a>
+              <a class="button secondary" href="#workflow">了解工作流</a>
+            </div>
+            <div class="stats" aria-label="插件能力摘要">
+              <div class="stat">
+                <strong>11</strong>
+                <span>Codex skills</span>
+              </div>
+              <div class="stat">
+                <strong>2</strong>
+                <span>graph sources</span>
+              </div>
+              <div class="stat">
+                <strong>0</strong>
+                <span>cgraphx dependency</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="visual" aria-label="项目知识图谱可视化">
+            <div class="map">
+              <div class="map-header">
+                <span>.project-intel / graph</span>
+                <span class="status">synced</span>
+              </div>
+              <div class="graph-stage">
+                <span class="edge e1"></span>
+                <span class="edge e2"></span>
+                <span class="edge e3"></span>
+                <span class="edge e4"></span>
+                <span class="edge e5"></span>
+                <div class="node blue a">Component</div>
+                <div class="node lime b">Hook</div>
+                <div class="node amber c">API</div>
+                <div class="node teal d">Service</div>
+                <div class="node rust e">Rule</div>
+                <div class="node blue f">Review</div>
+              </div>
+            </div>
+            <div class="terminal" aria-label="Project Intelligence CLI 示例">
+              <div class="terminal-bar">
+                <span class="dot red"></span>
+                <span class="dot yellow"></span>
+                <span class="dot green"></span>
+              </div>
+              <div class="terminal-body">
+                <div><span>$</span> project-intel init</div>
+                <div>checked GitNexus, Understand, Node, quality tools</div>
+                <div>generated .project-intel/standards</div>
+                <div><span>$</span> project-intel lifecycle --task "需求"</div>
+                <div><span>$</span> project-intel debug --bug "报错"</div>
+                <div>spec, plan, debug, review context ready</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="capabilities" class="band white">
+        <div class="shell">
+          <div class="section-head">
+            <h2>它不是另一个图谱引擎，而是项目上下文层。</h2>
+            <p class="section-copy">GitNexus 负责符号级调用链和影响面，Understand-Anything 负责架构和业务域理解。Project Intelligence 把这些信息与项目规范、质量检查、复用约束组织成 agent 每次工作前都能读取的事实层。</p>
+          </div>
+          <div class="capability-grid">
+            <article class="capability">
+              <span class="capability-index">01 / init</span>
+              <h3>初始化项目知识</h3>
+              <p>生成 `.project-intel/`，提取规范、组件、Hooks、API、服务、路由、配置和质量命令，并检查可选增强工具。</p>
+            </article>
+            <article class="capability">
+              <span class="capability-index">02 / reuse</span>
+              <h3>先复用，再实现</h3>
+              <p>需求执行前检索已有组件、Hook、工具函数、服务和业务模式，减少重复造轮子。</p>
+            </article>
+            <article class="capability">
+              <span class="capability-index">03 / debug</span>
+              <h3>系统化 bug 排查</h3>
+              <p>把报错、复现、最近变更、调用链、工作样例和质量命令整理成 debug context，先找根因再修复。</p>
+            </article>
+            <article class="capability">
+              <span class="capability-index">04 / quality</span>
+              <h3>接入已有检查</h3>
+              <p>识别 ESLint、Stylelint、Prettier、tsc、vue-tsc 和项目脚本，把检查结果写入报告。</p>
+            </article>
+            <article class="capability">
+              <span class="capability-index">05 / backend</span>
+              <h3>识别非常规后端入口</h3>
+              <p>通过框架适配器、AST/调用模式和项目自定义规则识别 API、RPC、消息和任务入口。</p>
+            </article>
+            <article class="capability">
+              <span class="capability-index">06 / lifecycle</span>
+              <h3>需求到维护闭环</h3>
+              <p>支持脑暴、spec、plan、任务影响分析和执行后的知识库维护；真实 Git hook 需要显式启用。</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section id="workflow" class="band tinted">
+        <div class="shell">
+          <div class="section-head">
+            <h2>日常不用记命令，直接说你要做什么。</h2>
+            <p class="section-copy">CLI 是底层工具，自然语言是日常入口。agent 自动决定该刷新知识库、查组件、跑质量检查、生成 spec/plan，还是维护任务后的项目沉淀。</p>
+          </div>
+          <div class="flow" aria-label="Project Intelligence 工作流">
+            <article class="flow-step">
+              <strong>prepare</strong>
+              <h3>初始化</h3>
+              <p>“初始化这个项目规范”会检查工具、生成标准、知识库、图谱摘要和报告。</p>
+            </article>
+            <article class="flow-step">
+              <strong>spec</strong>
+              <h3>需求前置</h3>
+              <p>“帮我写这个需求的 spec/plan”会查组件、Hook、API、服务和业务模式。</p>
+            </article>
+            <article class="flow-step">
+              <strong>check</strong>
+              <h3>质量检查</h3>
+              <p>“帮我检查前端质量”会汇总 lint、type、style、format 和冗余候选。</p>
+            </article>
+            <article class="flow-step">
+              <strong>debug</strong>
+              <h3>问题定位</h3>
+              <p>“帮我查这个 bug”会先生成 debug context，再按证据、复现、根因、假设验证推进。</p>
+            </article>
+            <article class="flow-step">
+              <strong>maintain</strong>
+              <h3>执行后维护</h3>
+              <p>“这个任务做完了，维护知识库”会 refresh、check 并写维护报告。</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section id="artifacts" class="band white">
+        <div class="shell artifact-layout">
+          <div class="tree" aria-label="Project Intelligence 产物目录">
+            <div class="tree-title">.project-intel</div>
+            <pre>.
+├── manifest.json
+├── config.json
+├── standards/
+│   ├── frontend.md
+│   ├── backend.md
+│   ├── quality.md
+│   └── reuse.md
+├── knowledge/
+│   ├── frontend.json
+│   ├── backend.json
+│   └── files.json
+├── graph/
+│   └── project-graph.json
+├── specs/
+├── plans/
+├── maintenance/
+├── hooks/
+└── reports/
+    ├── init-report.md
+    ├── tooling-report.md
+    ├── debug-context.md
+    ├── task-impact.md
+    ├── redundancy-report.md
+    └── frontend-quality.md</pre>
+          </div>
+
+          <div>
+            <div class="section-head" style="display:block;margin-bottom:22px;">
+              <h2>沉淀的是团队能复用的事实。</h2>
+            </div>
+            <div class="artifact-copy">
+              <div class="artifact-row">
+                <code>manifest</code>
+                <p>记录项目技术栈、Git 状态、图谱来源和扫描时间，是每次任务的入口。</p>
+              </div>
+              <div class="artifact-row">
+                <code>standards</code>
+                <p>沉淀硬性规范、推断规范和候选规则，避免 agent 只凭临时上下文发挥。</p>
+              </div>
+              <div class="artifact-row">
+                <code>knowledge</code>
+                <p>结构化保存组件、Hooks、API、Service、DTO、Entity、路由和配置。</p>
+              </div>
+              <div class="artifact-row">
+                <code>reports</code>
+                <p>输出初始化、工具检查、debug context、任务影响、冗余、质量检查和 review 报告，方便团队审查和演进。</p>
+              </div>
+              <div class="artifact-row">
+                <code>lifecycle</code>
+                <p>保存 specs、plans、maintenance 和可选 hook 模板，让任务执行前后都有项目级记录。</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="band tinted">
+        <div class="shell commands">
+          <div>
+            <div class="section-head" style="display:block;margin-bottom:24px;">
+              <h2>自然语言入口</h2>
+            </div>
+            <div class="voice">
+              <div class="voice-row">
+                <span class="voice-number">1</span>
+                <p>帮我更新规范和知识库</p>
+              </div>
+              <div class="voice-row">
+                <span class="voice-number">2</span>
+                <p>这个需求能复用什么组件或服务</p>
+              </div>
+              <div class="voice-row">
+                <span class="voice-number">3</span>
+                <p>帮我写下这个需求涉及的关系和规范</p>
+              </div>
+              <div class="voice-row">
+                <span class="voice-number">4</span>
+                <p>帮我写这个需求的 spec 和 plan</p>
+              </div>
+              <div class="voice-row">
+                <span class="voice-number">5</span>
+                <p>帮我查这个 bug 的根因</p>
+              </div>
+              <div class="voice-row">
+                <span class="voice-number">6</span>
+                <p>帮我 review 这次改动</p>
+              </div>
+              <div class="voice-row">
+                <span class="voice-number">7</span>
+                <p>这个任务做完了，维护一下项目知识库</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="command-block">
+            <h3>CLI 底层能力</h3>
+            <pre><code>project-intel init
+project-intel init --interactive
+project-intel lifecycle --task "需求"
+project-intel debug --bug "报错或异常行为"
+project-intel spec --title "需求" --from "..."
+project-intel plan --title "需求" --from-spec .project-intel/specs/...
+project-intel refresh
+project-intel check
+project-intel maintain --task "summary"
+project-intel query "这个组件怎么用"
+project-intel install --hooks</code></pre>
+          </div>
+        </div>
+      </section>
+
+      <section id="install" class="final">
+        <div class="shell final-inner">
+          <div>
+            <h2>把项目上下文变成默认工作方式。</h2>
+            <p>Project Intelligence 适合团队级分发：放进 marketplace 仓库，团队成员添加 marketplace 后即可安装。初始化会提示缺失工具并给出选项，真实 Git hook 需要显式启用。插件本身不绑定 cgraphx，也不会读取 `.cgraphx` 数据。</p>
+          </div>
+          <div class="install-card">
+            <code>codex plugin add project-intelligence@personal</code>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="shell">Project Intelligence · Specs, plans, standards, knowledge, graph context, debugging, lifecycle maintenance, and review checks.</div>
+    </footer>
+  </div>
+</body>
+</html>

@@ -16,6 +16,8 @@ Rule levels:
 
 Do not upgrade `candidate` redundancy or entrypoint findings to `hard` without explicit human confirmation.
 
+When a task reveals a stable reusable pattern, record it as `candidate` first and ask for confirmation before treating it as `preferred` or `hard`.
+
 Use:
 
 ```bash

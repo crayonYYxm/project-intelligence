@@ -1,6 +1,6 @@
 ---
 name: project-review
-description: Use when reviewing code changes against project standards, reusable components, APIs, services, GitNexus impact, Understand-Anything context, quality checks, redundancy, and test gaps.
+description: Use when reviewing code changes, PRs, diffs, review fixes, implementation quality, reuse, standards, GitNexus impact, Understand-Anything context, redundancy, and test gaps.
 ---
 
 # Project Review
@@ -14,7 +14,9 @@ Workflow:
 3. Use GitNexus for symbol impact/call chains when available.
 4. Use Understand-Anything for architecture/domain context when available.
 5. Run `project-intel check`; use `--run-quality` only when the user asks to run lint/type/style/format commands.
-6. Flag hard-rule violations, behavioral risks, missing tests, repeated implementations, and ignored reuse opportunities.
+6. Flag hard-rule violations, behavioral risks, missing tests, repeated implementations, ignored reuse opportunities, and stale `.project-intel` facts.
+7. If a finding is a bug or failed behavior, use `project-intel debug --bug "<finding>"` before recommending a fix.
+8. After fixes are completed, use `project-intel maintain --task "<summary>"` to refresh facts and reports.
 
 Command:
 
