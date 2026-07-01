@@ -781,7 +781,7 @@ def table(headers: list[str], rows: list[list[Any]]) -> str:
     return "\n".join(out)
 
 
-def init_project(root: Path, refresh: bool = False, interactive: bool = False, setup_missing: bool = False, with_graph: bool = False, strict: bool = False) -> dict[str, Any]:
+def init_project(root: Path, refresh: bool = False, interactive: bool = False, setup_missing: bool = False, with_graph: bool = True, strict: bool = False) -> dict[str, Any]:
     package = detect_package(root)
     tooling = detect_tooling(root, package)
     setup_results = handle_tooling_setup(root, tooling, interactive=interactive, setup_missing=setup_missing, with_graph=with_graph)
@@ -1416,7 +1416,8 @@ def main(argv: list[str]) -> int:
     init = sub.add_parser("init", help="初始化 .project-intel")
     init.add_argument("--interactive", action="store_true", help="可选工具缺失时显示交互式设置菜单")
     init.add_argument("--setup-missing", action="store_true", help="对缺失的可选工具运行安全安装（需有可运行的命令）")
-    init.add_argument("--with-graph", action="store_true", help="尝试初始化图谱工具（如 GitNexus）")
+    init.add_argument("--with-graph", action="store_true", default=True, help="尝试初始化图谱工具（如 GitNexus），默认启用")
+    init.add_argument("--no-graph", dest="with_graph", action="store_false", help="跳过图谱工具初始化")
     init.add_argument("--strict", action="store_true", help="--with-graph 未产生任何图谱来源时失败")
     sub.add_parser("refresh", help="从当前工作区刷新 .project-intel")
     install = sub.add_parser("install", help="安装 Claude 兼容的项目入口")
