@@ -1,6 +1,6 @@
 ---
 name: project-init
-description: Use when the user wants to initialize, set up, or bootstrap project intelligence for the first time.
+description: Use when the user wants to initialize, set up, or bootstrap project intelligence for the first time. 初始化项目, 项目初始化, 搭建项目, 创建项目, 项目搭建, 初始化.
 ---
 
 # Project Init

@@ -1,6 +1,6 @@
 ---
 name: project-review
-description: Use when reviewing code changes, PRs, diffs, review fixes, implementation quality, reuse, standards, GitNexus impact, Understand-Anything context, redundancy, and test gaps.
+description: Use when reviewing code changes, PRs, diffs, review fixes, implementation quality, reuse, standards, GitNexus impact, Understand-Anything context, redundancy, and test gaps. 代码审查, 代码评审, PR审查, 代码检查, 审查代码, review, review代码.
 ---
 
 # Project Review

@@ -166,7 +166,7 @@ def load_json(path: Path, default: Any) -> Any:
 def project_root(arg: str | None) -> Path:
     root = Path(arg or os.getcwd()).expanduser().resolve()
     if not root.exists() or not root.is_dir():
-        raise SystemExit(f"Project path is not a directory: {root}")
+        raise SystemExit(f"项目路径不是目录：{root}")
     return root
 
 
@@ -312,7 +312,7 @@ def detect_quality_tool_status(root: Path, commands: list[dict[str, Any]]) -> li
                     "kind": item.get("kind"),
                     "command": command,
                     "status": "configured",
-                    "detail": "Uses project package script; dependency ownership stays with the project.",
+                    "detail": "使用项目的 package script；依赖归属保持在项目中。",
                 }
             )
         elif first == "npx":
@@ -321,7 +321,7 @@ def detect_quality_tool_status(root: Path, commands: list[dict[str, Any]]) -> li
                     "kind": item.get("kind"),
                     "command": command,
                     "status": "available" if command_exists("npx") else "missing",
-                    "detail": "Requires npx because no project script was found.",
+                    "detail": "需要 npx，因为未找到项目 script。",
                 }
             )
         else:
@@ -330,7 +330,7 @@ def detect_quality_tool_status(root: Path, commands: list[dict[str, Any]]) -> li
                     "kind": item.get("kind"),
                     "command": command,
                     "status": "available" if first and command_exists(first) else "missing",
-                    "detail": "Inferred from project config.",
+                    "detail": "从项目配置推断。",
                 }
             )
     return configured
@@ -355,7 +355,7 @@ def detect_tooling(root: Path, package: dict[str, Any]) -> dict[str, Any]:
         recommended_actions.append(
             {
                 "tool": "GitNexus",
-                "reason": "symbol-level calls, impact analysis, PR/change risk",
+                "reason": "符号级调用、影响分析、PR/变更风险",
                 "command": "node .gitnexus/run.cjs analyze" if gitnexus_runner.exists() else "npx gitnexus analyze",
                 "canRun": gitnexus_runner.exists() or command_exists("gitnexus") or command_exists("npx"),
             }
@@ -364,7 +364,7 @@ def detect_tooling(root: Path, package: dict[str, Any]) -> dict[str, Any]:
         recommended_actions.append(
             {
                 "tool": "Understand-Anything",
-                "reason": "architecture overview, module relationships, domain flow, onboarding graph",
+                "reason": "架构概览、模块关系、领域流、入职图谱",
                 "command": "/understand .",
                 "canRun": False,
             }
@@ -373,8 +373,8 @@ def detect_tooling(root: Path, package: dict[str, Any]) -> dict[str, Any]:
         recommended_actions.append(
             {
                 "tool": selected_pm,
-                "reason": "run project package scripts such as lint/type-check/format-check",
-                "command": f"Install {selected_pm}, then run {selected_pm} install",
+                "reason": "运行项目 package scripts，如 lint/type-check/format-check",
+                "command": f"安装 {selected_pm}，然后运行 {selected_pm} install",
                 "canRun": False,
             }
         )
@@ -412,14 +412,14 @@ def tooling_has_missing_optional(tooling: dict[str, Any]) -> bool:
 def print_tooling_summary(tooling: dict[str, Any]) -> None:
     actions = tooling.get("recommendedActions", [])
     if not actions:
-        print("Project Intelligence tooling check: optional graph and quality tooling look ready.")
+        print("项目智能工具检查：可选的图谱和质量工具已就绪。")
         return
-    print("Project Intelligence detected optional tools that can improve results:")
+    print("项目智能检测到可提升效果的可选工具：")
     for idx, action in enumerate(actions, start=1):
-        runnable = "can run now" if action.get("canRun") else "manual setup needed"
-        print(f"{idx}. {action.get('tool')}: {runnable}")
-        print(f"   use: {action.get('reason')}")
-        print(f"   command: {action.get('command')}")
+        runnable = "可立即运行" if action.get("canRun") else "需手动设置"
+        print(f"{idx}. {action.get('tool')}：{runnable}")
+        print(f"   用途：{action.get('reason')}")
+        print(f"   命令：{action.get('command')}")
 
 
 def setup_missing_tools(root: Path, tooling: dict[str, Any], with_graph: bool = False) -> list[dict[str, Any]]:
@@ -430,7 +430,7 @@ def setup_missing_tools(root: Path, tooling: dict[str, Any], with_graph: bool = 
             results.append({"tool": tool, "status": "skipped", "detail": action.get("command")})
             continue
         if not action.get("canRun"):
-            results.append({"tool": tool, "status": "skipped", "detail": "No runnable GitNexus command was detected."})
+            results.append({"tool": tool, "status": "skipped", "detail": "未检测到可运行的 GitNexus 命令。"})
             continue
         command = action.get("command") or "npx gitnexus analyze"
         code, out, err = run_shell(command, root, timeout=300)
@@ -453,11 +453,11 @@ def handle_tooling_setup(root: Path, tooling: dict[str, Any], interactive: bool,
         return setup_missing_tools(root, tooling, with_graph=True)
     if interactive and sys.stdin.isatty() and tooling_has_missing_optional(tooling):
         print_tooling_summary(tooling)
-        print("\nChoose an action:")
-        print("[1] Install/initialize recommended graph tooling")
-        print("[2] Initialize .project-intel only")
-        print("[3] Print install commands only")
-        print("[4] Cancel")
+        print("\n请选择操作：")
+        print("[1] 安装/初始化推荐的图谱工具")
+        print("[2] 仅初始化 .project-intel")
+        print("[3] 仅打印安装命令")
+        print("[4] 取消")
         choice = input("> ").strip()
         if choice == "1":
             return setup_missing_tools(root, tooling, with_graph=True)
@@ -563,7 +563,7 @@ def scan_frontend(root: Path, files: list[Path]) -> dict[str, Any]:
             "count": count,
             "locations": pattern_locations[name][:20],
             "level": "candidate",
-            "recommendation": "Review whether repeated usage should reuse or become a component/Hook; do not block by default.",
+            "recommendation": "审查重复使用是否应复用或抽取为组件/Hook；默认不阻塞。",
         }
         for name, count in patterns.items()
         if count >= 3
@@ -610,7 +610,7 @@ def scan_backend(root: Path, files: list[Path]) -> dict[str, Any]:
         if suffix in {".yaml", ".yml", ".properties", ".xml"} or "/config" in lower:
             configs.append({"path": rp})
         if not (route_signals or decorators) and re.search(r"(handler|endpoint|facade|adapter|action)", lower):
-            entrypoint_candidates.append({"path": rp, "reason": "path/name suggests non-standard entrypoint", "level": "candidate"})
+            entrypoint_candidates.append({"path": rp, "reason": "路径/名称暗示非标准入口点", "level": "candidate"})
     return {
         "apis": apis,
         "services": services,
@@ -624,9 +624,9 @@ def scan_backend(root: Path, files: list[Path]) -> dict[str, Any]:
 def detect_graph_sources(root: Path) -> list[dict[str, Any]]:
     sources: list[dict[str, Any]] = []
     if (root / ".gitnexus").exists():
-        sources.append({"name": "GitNexus", "path": ".gitnexus", "role": "symbol calls, impact, change risk", "status": "present"})
+        sources.append({"name": "GitNexus", "path": ".gitnexus", "role": "符号调用、影响、变更风险", "status": "present"})
     else:
-        sources.append({"name": "GitNexus", "path": ".gitnexus", "role": "symbol calls, impact, change risk", "status": "missing"})
+        sources.append({"name": "GitNexus", "path": ".gitnexus", "role": "符号调用、影响、变更风险", "status": "missing"})
     ua_graph = root / ".understand-anything" / "knowledge-graph.json"
     if ua_graph.exists():
         graph = load_json(ua_graph, {})
@@ -634,14 +634,14 @@ def detect_graph_sources(root: Path) -> list[dict[str, Any]]:
             {
                 "name": "Understand-Anything",
                 "path": ".understand-anything/knowledge-graph.json",
-                "role": "architecture, modules, domain flow, onboarding",
+                "role": "架构、模块、领域流、入职",
                 "status": "present",
                 "nodes": len(graph.get("nodes", []) or []),
                 "edges": len(graph.get("edges", []) or []),
             }
         )
     else:
-        sources.append({"name": "Understand-Anything", "path": ".understand-anything/knowledge-graph.json", "role": "architecture, modules, domain flow, onboarding", "status": "missing"})
+        sources.append({"name": "Understand-Anything", "path": ".understand-anything/knowledge-graph.json", "role": "架构、模块、领域流、入职", "status": "missing"})
     return sources
 
 
@@ -676,8 +676,8 @@ def build_manifest(root: Path, files: list[Path], package: dict[str, Any], graph
             "recommendedActions": len(tooling.get("recommendedActions", [])),
         },
         "notes": [
-            "project-intelligence does not read or integrate .cgraphx data.",
-            "GitNexus and Understand-Anything are preferred graph sources when available.",
+            "project-intelligence 不读取或集成 .cgraphx 数据。",
+            "可用时优先使用 GitNexus 和 Understand-Anything 作为图谱来源。",
         ],
     }
 
@@ -708,66 +708,66 @@ def standards_docs(data: dict[str, Any]) -> dict[str, str]:
     config = data["config"]
     quality = config.get("quality", {}).get("commands", [])
     docs = {}
-    docs["quality.md"] = f"""# Quality Checks
+    docs["quality.md"] = f"""# 质量检查
 
-Rule levels:
+规则等级：
 
-- `hard`: confirmed rule that can fail `project-intel check`
-- `preferred`: stable project convention
-- `inferred`: scanner inference that needs review
-- `candidate`: non-blocking suggestion
+- `hard`：已确认的规则，会导致 `project-intel check` 失败
+- `preferred`：稳定的项目约定
+- `inferred`：扫描器推断，需要人工审查
+- `candidate`：非阻塞建议
 
-## Detected Commands
+## 检测到的命令
 
-{table(["Kind", "Command", "Source"], [[c.get("kind"), c.get("command"), c.get("source")] for c in quality])}
+{table(["类型", "命令", "来源"], [[c.get("kind"), c.get("command"), c.get("source")] for c in quality])}
 
-## Policy
+## 策略
 
-- Prefer existing package scripts over inferred commands.
-- Treat redundancy findings as `candidate` until a human upgrades the rule.
-- Combine project quality checks with standards and graph context during review.
+- 优先使用项目已有的 package scripts，而非推断的命令。
+- 冗余发现默认为 `candidate`，直到人工升级规则。
+- 审查时将项目质量检查与规范和图谱上下文结合使用。
 """
-    docs["frontend.md"] = f"""# Frontend Standards
+    docs["frontend.md"] = f"""# 前端规范
 
-## Extracted Facts
+## 已提取的事实
 
-- Components found: {len(frontend.get("components", []))}
-- Hooks found: {len(frontend.get("hooks", []))}
-- Route files found: {len(frontend.get("routes", []))}
-- API-related modules found: {len(frontend.get("apiModules", []))}
-- Redundancy candidates: {len(frontend.get("redundancyCandidates", []))}
+- 发现的组件数：{len(frontend.get("components", []))}
+- 发现的 Hooks 数：{len(frontend.get("hooks", []))}
+- 发现的路由文件数：{len(frontend.get("routes", []))}
+- 发现的 API 相关模块数：{len(frontend.get("apiModules", []))}
+- 冗余候选数：{len(frontend.get("redundancyCandidates", []))}
 
-## Default Rules
+## 默认规则
 
-- Reuse existing components and Hooks before adding new ones.
-- Use project request/state/style abstractions when they exist.
-- Run detected lint/type/style/format checks before final review.
-- Treat duplicated table/search/dialog/export/permission patterns as candidates for component or Hook extraction.
+- 添加新组件或 Hook 前，优先复用已有的组件和 Hook。
+- 使用项目已有的请求/状态/样式抽象（如果存在）。
+- 最终审查前运行检测到的 lint/type/style/format 检查。
+- 重复的表格/搜索/对话框/导出/权限模式视为组件或 Hook 抽取的候选。
 """
-    docs["backend.md"] = f"""# Backend Standards
+    docs["backend.md"] = f"""# 后端规范
 
-## Extracted Facts
+## 已提取的事实
 
-- API/entry modules found: {len(backend.get("apis", []))}
-- Services found: {len(backend.get("services", []))}
-- DTO/VO/Entity/model files found: {len(backend.get("dataTypes", []))}
-- Repository/Mapper files found: {len(backend.get("repositories", []))}
-- Candidate non-standard entrypoints: {len(backend.get("candidateEntrypoints", []))}
+- 发现的 API/入口模块数：{len(backend.get("apis", []))}
+- 发现的服务数：{len(backend.get("services", []))}
+- 发现的 DTO/VO/Entity/模型文件数：{len(backend.get("dataTypes", []))}
+- 发现的 Repository/Mapper 文件数：{len(backend.get("repositories", []))}
+- 候选非标准入口点数：{len(backend.get("candidateEntrypoints", []))}
 
-## Default Rules
+## 默认规则
 
-- Identify entrypoints through framework adapters, AST/call patterns, and project-specific rules.
-- Do not rely only on `Controller` naming.
-- Preserve service, data, repository, permission, transaction, and config boundaries.
-- Confirm candidate entrypoints before upgrading them to hard standards.
+- 通过框架适配器、AST/调用模式和项目特定规则识别入口点。
+- 不要仅依赖 `Controller` 命名。
+- 保持服务、数据、仓库、权限、事务和配置的边界。
+- 升级候选入口点为 hard 标准前需人工确认。
 """
-    docs["reuse.md"] = """# Reuse And Redundancy
+    docs["reuse.md"] = """# 复用与冗余
 
-## Policy
+## 策略
 
-- Search `.project-intel/knowledge` before implementing components, Hooks, API clients, services, or utilities.
-- Treat repeated UI, data transformation, validation, request building, and style blocks as `candidate` findings by default.
-- Upgrade candidates to `preferred` or `hard` only after human confirmation.
+- 实现组件、Hook、API 客户端、服务或工具函数前，先搜索 `.project-intel/knowledge`。
+- 重复的 UI、数据转换、校验、请求构建和样式块默认视为 `candidate` 发现。
+- 候选升级为 `preferred` 或 `hard` 需人工确认。
 """
     return docs
 
@@ -800,7 +800,7 @@ def init_project(root: Path, refresh: bool = False, interactive: bool = False, s
     backend = scan_backend(root, files)
     manifest = build_manifest(root, files, package, graph_sources, tooling)
     if strict and with_graph and not any(source.get("status") == "present" for source in graph_sources):
-        raise SystemExit("Strict graph initialization requested, but no GitNexus or Understand-Anything graph is present.")
+        raise SystemExit("请求了严格的图谱初始化，但没有 GitNexus 或 Understand-Anything 图谱。")
     graph = {
         "schemaVersion": 1,
         "generatedAt": now_iso(),
@@ -849,38 +849,38 @@ def build_init_report(root: Path, manifest: dict[str, Any], frontend: dict[str, 
     source_rows = [[s.get("name"), s.get("status"), s.get("role"), s.get("path")] for s in manifest.get("graphSources", [])]
     quality_rows = [[c.get("kind"), c.get("command"), c.get("source")] for c in config.get("quality", {}).get("commands", [])]
     action_rows = [[a.get("tool"), a.get("command"), "yes" if a.get("canRun") else "manual"] for a in tooling.get("recommendedActions", [])]
-    return f"""# Project Intelligence Report
+    return f"""# 项目智能报告
 
-Generated at: `{manifest.get("generatedAt")}`
+生成时间：`{manifest.get("generatedAt")}`
 
-Project root: `{root}`
+项目根目录：`{root}`
 
-## Graph Sources
+## 图谱来源
 
-{table(["Source", "Status", "Role", "Path"], source_rows)}
+{table(["来源", "状态", "用途", "路径"], source_rows)}
 
-## Frontend Summary
+## 前端概况
 
-- Components: {len(frontend.get("components", []))}
-- Hooks: {len(frontend.get("hooks", []))}
-- API modules: {len(frontend.get("apiModules", []))}
-- Redundancy candidates: {len(frontend.get("redundancyCandidates", []))}
+- 组件数：{len(frontend.get("components", []))}
+- Hooks 数：{len(frontend.get("hooks", []))}
+- API 模块数：{len(frontend.get("apiModules", []))}
+- 冗余候选数：{len(frontend.get("redundancyCandidates", []))}
 
-## Backend Summary
+## 后端概况
 
-- APIs / entry modules: {len(backend.get("apis", []))}
-- Services: {len(backend.get("services", []))}
-- Data types: {len(backend.get("dataTypes", []))}
-- Repositories / mappers: {len(backend.get("repositories", []))}
-- Candidate entrypoints: {len(backend.get("candidateEntrypoints", []))}
+- API / 入口模块数：{len(backend.get("apis", []))}
+- 服务数：{len(backend.get("services", []))}
+- 数据类型数：{len(backend.get("dataTypes", []))}
+- 仓库 / 映射器数：{len(backend.get("repositories", []))}
+- 候选入口点数：{len(backend.get("candidateEntrypoints", []))}
 
-## Quality Commands
+## 质量命令
 
-{table(["Kind", "Command", "Source"], quality_rows)}
+{table(["类型", "命令", "来源"], quality_rows)}
 
-## Recommended Tooling Actions
+## 推荐的工具操作
 
-{table(["Tool", "Command", "Runnable"], action_rows)}
+{table(["工具", "命令", "可运行"], action_rows)}
 """
 
 
@@ -889,11 +889,11 @@ def build_redundancy_report(frontend: dict[str, Any]) -> str:
         [item.get("name"), item.get("count"), ", ".join(item.get("locations", [])[:8]), item.get("level")]
         for item in frontend.get("redundancyCandidates", [])
     ]
-    return f"""# Redundancy Candidates
+    return f"""# 冗余候选
 
-These findings are `candidate` level by default and do not block development.
+这些发现默认为 `candidate` 级别，不会阻塞开发。
 
-{table(["Pattern", "Count", "Locations", "Level"], rows)}
+{table(["模式", "数量", "位置", "级别"], rows)}
 """
 
 
@@ -904,38 +904,38 @@ def build_tooling_report(tooling: dict[str, Any], setup_results: list[dict[str, 
     quality_rows = [[item.get("kind"), item.get("status"), item.get("command")] for item in optional.get("qualityTools", [])]
     action_rows = [[item.get("tool"), item.get("command"), "yes" if item.get("canRun") else "manual"] for item in tooling.get("recommendedActions", [])]
     setup_rows = [[item.get("tool"), item.get("status"), item.get("command") or item.get("detail"), item.get("exitCode", "")] for item in setup_results]
-    return f"""# Tooling Report
+    return f"""# 工具报告
 
-Generated at: `{tooling.get("generatedAt")}`
+生成时间：`{tooling.get("generatedAt")}`
 
-## Required
+## 必需工具
 
-{table(["Tool", "Status"], required_rows)}
+{table(["工具", "状态"], required_rows)}
 
-## Optional Runtime
+## 可选运行时
 
-- Git: `{optional.get("git", {}).get("status")}`
-- Node: `{optional.get("node", {}).get("status")}`
-- GitNexus: `{optional.get("gitnexus", {}).get("status")}`
-- Understand-Anything: `{optional.get("understandAnything", {}).get("status")}`
+- Git：`{optional.get("git", {}).get("status")}`
+- Node：`{optional.get("node", {}).get("status")}`
+- GitNexus：`{optional.get("gitnexus", {}).get("status")}`
+- Understand-Anything：`{optional.get("understandAnything", {}).get("status")}`
 
-## Package Managers
+## 包管理器
 
-{table(["Name", "Status", "Selected"], pm_rows)}
+{table(["名称", "状态", "已选"], pm_rows)}
 
-## Quality Commands
+## 质量命令
 
-{table(["Kind", "Status", "Command"], quality_rows)}
+{table(["类型", "状态", "命令"], quality_rows)}
 
-## Recommended Actions
+## 推荐操作
 
-{table(["Tool", "Command", "Runnable"], action_rows)}
+{table(["工具", "命令", "可运行"], action_rows)}
 
-## Setup Results
+## 安装结果
 
-{table(["Tool", "Status", "Command/Detail", "Exit"], setup_rows)}
+{table(["工具", "状态", "命令/详情", "退出码"], setup_rows)}
 
-`init` does not silently install tools. It only runs setup when `--setup-missing`, `--with-graph`, or an interactive menu choice authorizes it.
+`init` 不会静默安装工具。只有在 `--setup-missing`、`--with-graph` 或交互式菜单选择授权时才会执行安装。
 """
 
 
@@ -967,44 +967,44 @@ def build_spec_doc(root: Path, title: str, requirement: str, snapshot: dict[str,
     backend = snapshot["backend"]
     graph_rows = [[s.get("name"), s.get("status"), s.get("role")] for s in manifest.get("graphSources", [])]
     quality_rows = [[c.get("kind"), c.get("command"), c.get("source")] for c in config.get("quality", {}).get("commands", [])]
-    return f"""# {title} Spec
+    return f"""# {title} 需求文档
 
-Generated at: `{now_iso()}`
+生成时间：`{now_iso()}`
 
-## Requirement
+## 需求
 
 {truncate(requirement, 3000)}
 
-## Project Context
+## 项目上下文
 
-- Project root: `{root}`
-- Frameworks: {", ".join(manifest.get("frameworks", []) or ["unknown"])}
-- Components: {len(frontend.get("components", []))}
-- Hooks: {len(frontend.get("hooks", []))}
-- API modules: {len(frontend.get("apiModules", []))}
-- Backend APIs: {len(backend.get("apis", []))}
-- Services: {len(backend.get("services", []))}
+- 项目根目录：`{root}`
+- 框架：{", ".join(manifest.get("frameworks", []) or ["未知"])}
+- 组件数：{len(frontend.get("components", []))}
+- Hooks 数：{len(frontend.get("hooks", []))}
+- API 模块数：{len(frontend.get("apiModules", []))}
+- 后端 API 数：{len(backend.get("apis", []))}
+- 服务数：{len(backend.get("services", []))}
 
-## Graph Sources
+## 图谱来源
 
-{table(["Source", "Status", "Role"], graph_rows)}
+{table(["来源", "状态", "用途"], graph_rows)}
 
-## Relevant Standards
+## 相关规范
 
-- Reuse existing components, Hooks, request utilities, services, and domain patterns before adding new abstractions.
-- Treat redundancy findings as `candidate` unless promoted to `hard`.
-- Do not read or rely on `.cgraphx`.
+- 添加新抽象前，复用已有的组件、Hook、请求工具、服务和领域模式。
+- 冗余发现默认为 `candidate`，除非升级为 `hard`。
+- 不要读取或依赖 `.cgraphx`。
 
-## Quality Gates
+## 质量门禁
 
-{table(["Kind", "Command", "Source"], quality_rows)}
+{table(["类型", "命令", "来源"], quality_rows)}
 
-## Acceptance Criteria
+## 验收标准
 
-- The implementation satisfies the stated requirement.
-- Related project standards and reusable capabilities have been checked.
-- Project quality checks are run or explicitly skipped with a reason.
-- `.project-intel` is refreshed after the task so new facts and candidates are captured.
+- 实现满足所述需求。
+- 已检查相关的项目规范和可复用能力。
+- 运行了项目质量检查，或明确说明了跳过原因。
+- 任务完成后刷新 `.project-intel`，以捕获新的事实和候选。
 """
 
 
@@ -1012,7 +1012,7 @@ def write_spec(root: Path, title: str, requirement: str) -> Path:
     snapshot = load_project_snapshot(root)
     path = project_dir(root) / "specs" / spec_filename(title, "spec")
     write_text(path, build_spec_doc(root, title, requirement, snapshot))
-    print(f"Wrote spec: {path}")
+    print(f"已写入需求文档：{path}")
     return path
 
 
@@ -1026,41 +1026,41 @@ def resolve_input_path(root: Path, value: str) -> Path:
 def build_plan_doc(root: Path, title: str, spec_path: Path, spec_text: str, snapshot: dict[str, Any]) -> str:
     config = snapshot["config"]
     quality_rows = [[c.get("kind"), c.get("command"), c.get("source")] for c in config.get("quality", {}).get("commands", [])]
-    return f"""# {title} Implementation Plan
+    return f"""# {title} 实施计划
 
-Generated at: `{now_iso()}`
+生成时间：`{now_iso()}`
 
-Source spec: `{spec_path}`
+来源需求文档：`{spec_path}`
 
-## Summary
+## 概述
 
 {truncate(spec_text, 2500)}
 
-## Tasks
+## 任务清单
 
-- [ ] Refresh project context with `project-intel refresh` if the working tree changed since this plan was written.
-- [ ] Identify impacted modules, components, Hooks, APIs, services, routes, and standards from `.project-intel`.
-- [ ] Check for reusable components, Hooks, services, request utilities, and repeated candidate patterns before writing new code.
-- [ ] Add or update focused tests according to the project test setup.
-- [ ] Implement the requested behavior while preserving hard standards and existing boundaries.
-- [ ] Run `project-intel check` and any relevant project test/type/lint commands.
-- [ ] Run `project-intel maintain --task "{title}"` after implementation to refresh knowledge and maintenance reports.
+- [ ] 如果工作区自本计划编写后有变更，使用 `project-intel refresh` 刷新项目上下文。
+- [ ] 从 `.project-intel` 识别受影响的模块、组件、Hook、API、服务、路由和规范。
+- [ ] 编写新代码前，检查可复用的组件、Hook、服务、请求工具和重复的候选模式。
+- [ ] 根据项目测试配置添加或更新针对性测试。
+- [ ] 实现需求行为，同时保持 hard 规范和现有边界。
+- [ ] 运行 `project-intel check` 及相关的项目 test/type/lint 命令。
+- [ ] 实现完成后运行 `project-intel maintain --task "{title}"` 以刷新知识库和维护报告。
 
-## Quality Commands
+## 质量命令
 
-{table(["Kind", "Command", "Source"], quality_rows)}
+{table(["类型", "命令", "来源"], quality_rows)}
 """
 
 
 def write_plan(root: Path, title: str, from_spec: str) -> Path:
     spec_path = resolve_input_path(root, from_spec)
     if not spec_path.exists():
-        raise SystemExit(f"Spec file does not exist: {spec_path}")
+        raise SystemExit(f"需求文档文件不存在：{spec_path}")
     snapshot = load_project_snapshot(root)
     spec_text = read_text(spec_path)
     path = project_dir(root) / "plans" / spec_filename(title, "plan")
     write_text(path, build_plan_doc(root, title, spec_path, spec_text, snapshot))
-    print(f"Wrote plan: {path}")
+    print(f"已写入实施计划：{path}")
     return path
 
 
@@ -1076,32 +1076,32 @@ def build_task_impact_doc(root: Path, task: str, snapshot: dict[str, Any]) -> st
         reuse_rows.append(["hook", hook.get("name"), hook.get("path")])
     for service in backend.get("services", [])[:20]:
         reuse_rows.append(["service", service.get("name"), service.get("path")])
-    return f"""# Task Impact
+    return f"""# 任务影响
 
-Generated at: `{now_iso()}`
+生成时间：`{now_iso()}`
 
-## Task
+## 任务
 
 {truncate(task, 3000)}
 
-## Graph Context
+## 图谱上下文
 
-{table(["Source", "Status", "Role"], graph_rows)}
+{table(["来源", "状态", "用途"], graph_rows)}
 
-## Reuse Candidates
+## 复用候选
 
-{table(["Kind", "Name", "Path"], reuse_rows)}
+{table(["类型", "名称", "路径"], reuse_rows)}
 
-## Standards To Check
+## 需检查的规范
 
 - `.project-intel/standards/frontend.md`
 - `.project-intel/standards/backend.md`
 - `.project-intel/standards/reuse.md`
 - `.project-intel/standards/quality.md`
 
-## Completion Hook
+## 完成钩子
 
-After implementation, run:
+实现完成后运行：
 
 ```bash
 python3 /Users/xumeng/plugins/project-intelligence/scripts/project_intel.py maintain --task "{task[:120].replace('"', "'")}"
@@ -1113,7 +1113,7 @@ def write_lifecycle(root: Path, task: str) -> Path:
     snapshot = load_project_snapshot(root)
     path = project_dir(root) / "reports" / "task-impact.md"
     write_text(path, build_task_impact_doc(root, task, snapshot))
-    print(f"Wrote task impact report: {path}")
+    print(f"已写入任务影响报告：{path}")
     return path
 
 
@@ -1133,39 +1133,39 @@ def build_debug_doc(root: Path, bug: str, snapshot: dict[str, Any]) -> str:
         candidate_rows.append(["component", component.get("name"), component.get("path")])
     for hook in frontend.get("hooks", [])[:12]:
         candidate_rows.append(["hook", hook.get("name"), hook.get("path")])
-    return f"""# Debug Context
+    return f"""# 调试上下文
 
-Generated at: `{now_iso()}`
+生成时间：`{now_iso()}`
 
 ## Bug
 
 {truncate(bug, 3000)}
 
-## Systematic Debugging Gate
+## 系统化调试门禁
 
-Do not propose or implement fixes before root cause investigation is complete.
+在根因调查完成前，不要提出或实施修复。
 
-1. Read the full error, stack trace, logs, and failing assertion.
-2. Reproduce the bug with exact steps or a failing test.
-3. Check recent changes with `git diff`, `git status`, and relevant commits.
-4. Trace data/control flow from the symptom back to the original bad input, state, config, or dependency.
-5. Compare with a working example in this project.
-6. State one hypothesis and test the smallest possible change.
-7. Only after root cause is confirmed, add a regression test and fix the source cause.
+1. 阅读完整的错误信息、堆栈跟踪、日志和失败的断言。
+2. 用精确的步骤或失败的测试复现 bug。
+3. 使用 `git diff`、`git status` 和相关提交检查最近的变更。
+4. 从症状追溯数据/控制流，找到最初的错误输入、状态、配置或依赖。
+5. 与项目中的正常工作示例进行对比。
+6. 提出一个假设并测试最小的变更。
+7. 根因确认后，添加回归测试并修复根本原因。
 
-## Graph Sources
+## 图谱来源
 
-{table(["Source", "Status", "Role"], graph_rows)}
+{table(["来源", "状态", "用途"], graph_rows)}
 
-## Candidate Areas To Inspect
+## 候选检查区域
 
-{table(["Kind", "Name", "Path"], candidate_rows)}
+{table(["类型", "名称", "路径"], candidate_rows)}
 
-## Quality And Verification Commands
+## 质量与验证命令
 
-{table(["Kind", "Command", "Source"], quality_rows)}
+{table(["类型", "命令", "来源"], quality_rows)}
 
-## Project Files To Read First
+## 优先阅读的项目文件
 
 - `.project-intel/manifest.json`
 - `.project-intel/standards/*.md`
@@ -1174,7 +1174,7 @@ Do not propose or implement fixes before root cause investigation is complete.
 - `.project-intel/graph/project-graph.json`
 - `.project-intel/reports/tooling-report.md`
 
-Use GitNexus for call chains, impact, and changed-code risk when available. Use Understand-Anything for architecture/domain context when available. Do not read or rely on `.cgraphx`.
+可用时使用 GitNexus 获取调用链、影响和变更代码风险。可用时使用 Understand-Anything 获取架构/领域上下文。不要读取或依赖 `.cgraphx`。
 """
 
 
@@ -1182,7 +1182,7 @@ def write_debug_context(root: Path, bug: str) -> Path:
     snapshot = load_project_snapshot(root)
     path = project_dir(root) / "reports" / "debug-context.md"
     write_text(path, build_debug_doc(root, bug, snapshot))
-    print(f"Wrote debug context report: {path}")
+    print(f"已写入调试上下文报告：{path}")
     return path
 
 
@@ -1190,30 +1190,30 @@ def build_maintenance_report(root: Path, task: str, refresh_result: dict[str, An
     manifest = refresh_result.get("manifest", {})
     frontend = refresh_result.get("frontend", {})
     backend = refresh_result.get("backend", {})
-    return f"""# Maintenance Report
+    return f"""# 维护报告
 
-Generated at: `{now_iso()}`
+生成时间：`{now_iso()}`
 
-## Task
+## 任务
 
 {truncate(task, 3000)}
 
-## Refresh Summary
+## 刷新概况
 
-- Indexed files: {manifest.get("fileCount")}
-- Components: {len(frontend.get("components", []))}
-- Hooks: {len(frontend.get("hooks", []))}
-- Backend APIs: {len(backend.get("apis", []))}
-- Services: {len(backend.get("services", []))}
-- Candidate frontend redundancy: {len(frontend.get("redundancyCandidates", []))}
-- Candidate backend entrypoints: {len(backend.get("candidateEntrypoints", []))}
+- 索引文件数：{manifest.get("fileCount")}
+- 组件数：{len(frontend.get("components", []))}
+- Hooks 数：{len(frontend.get("hooks", []))}
+- 后端 API 数：{len(backend.get("apis", []))}
+- 服务数：{len(backend.get("services", []))}
+- 前端冗余候选数：{len(frontend.get("redundancyCandidates", []))}
+- 后端候选入口点数：{len(backend.get("candidateEntrypoints", []))}
 
-## Quality
+## 质量
 
-- `project-intel check` exit code: {check_exit}
-- Real lint/type/style/format commands run: {"yes" if run_quality else "no"}
+- `project-intel check` 退出码：{check_exit}
+- 是否运行了 lint/type/style/format 命令：{"是" if run_quality else "否"}
 
-Review `.project-intel/reports/frontend-quality.md` for details.
+详情请查看 `.project-intel/reports/frontend-quality.md`。
 """
 
 
@@ -1222,13 +1222,13 @@ def maintain_project(root: Path, task: str, run_quality: bool) -> int:
     check_exit = run_check(root, run_quality=run_quality)
     path = project_dir(root) / "maintenance" / spec_filename(task, "maintenance")
     write_text(path, build_maintenance_report(root, task, refresh_result, check_exit, run_quality))
-    print(f"Wrote maintenance report: {path}")
+    print(f"已写入维护报告：{path}")
     return check_exit
 
 
 def hook_script_body(hook_name: str) -> str:
     return f"""#!/bin/sh
-# Project Intelligence hook: {hook_name}
+# 项目智能钩子：{hook_name}
 
 if [ "${{PROJECT_INTEL_SKIP_HOOKS:-0}}" = "1" ]; then
   exit 0
@@ -1255,11 +1255,11 @@ def write_hook_templates(root: Path) -> list[Path]:
         written.append(path)
     write_text(
         hooks_dir / "README.md",
-        """# Project Intelligence Hooks
+        """# 项目智能钩子
 
-These hook templates are opt-in. They are not active until `project-intel install --hooks --activate-git-hooks` installs wrappers into `.git/hooks`.
+这些钩子模板是可选的。只有在 `project-intel install --hooks --activate-git-hooks` 将包装器安装到 `.git/hooks` 后才会激活。
 
-Set `PROJECT_INTEL_SKIP_HOOKS=1` to skip hook execution.
+设置 `PROJECT_INTEL_SKIP_HOOKS=1` 可跳过钩子执行。
 """,
     )
     return written
@@ -1269,7 +1269,7 @@ def activate_git_hooks(root: Path) -> list[dict[str, Any]]:
     git_hooks = root / ".git" / "hooks"
     results = []
     if not git_hooks.exists() or not git_hooks.is_dir():
-        return [{"hook": "*", "status": "skipped", "detail": "No .git/hooks directory found."}]
+        return [{"hook": "*", "status": "skipped", "detail": "未找到 .git/hooks 目录。"}]
     git_hooks.mkdir(parents=True, exist_ok=True)
     for hook_name in ("post-merge", "post-commit", "pre-push"):
         target = git_hooks / hook_name
@@ -1283,7 +1283,7 @@ def activate_git_hooks(root: Path) -> list[dict[str, Any]]:
                     pending.chmod(0o755)
                 except OSError:
                     pass
-                results.append({"hook": hook_name, "status": "conflict", "detail": f"Existing hook preserved; pending wrapper written to {pending}"})
+                results.append({"hook": hook_name, "status": "conflict", "detail": f"已保留现有钩子；待安装的包装器已写入 {pending}"})
                 continue
         write_text(target, body)
         try:
@@ -1302,11 +1302,11 @@ def install_claude(root: Path, hooks: bool = False, activate_hooks: bool = False
     standards.mkdir(parents=True, exist_ok=True)
     write_text(
         claude / "CLAUDE.md",
-        """# Project Intelligence
+        """# 项目智能
 
-Before project tasks, reviews, component/API questions, quality checks, brainstorming, specs, plans, or post-task maintenance, inspect `.project-intel/manifest.json` and the relevant files under `.project-intel/standards` and `.project-intel/knowledge`.
+在执行项目任务、代码审查、组件/API 查询、质量检查、需求脑暴、需求文档、实施计划或任务后维护前，先检查 `.project-intel/manifest.json` 以及 `.project-intel/standards` 和 `.project-intel/knowledge` 下的相关文件。
 
-Use GitNexus for symbol-level calls/impact when available and Understand-Anything for architecture/domain context when available. Do not read or rely on `.cgraphx`.
+可用时使用 GitNexus 获取符号级调用/影响，使用 Understand-Anything 获取架构/领域上下文。不要读取或依赖 `.cgraphx`。
 """,
     )
     skill_template = """---
@@ -1316,22 +1316,22 @@ description: {description}
 
 # {title}
 
-Use `.project-intel` as the project fact source. Start with `.project-intel/manifest.json`, then read only the relevant standards, knowledge JSON, reports, and graph summary.
+以 `.project-intel` 作为项目事实来源。从 `.project-intel/manifest.json` 开始，然后只读取相关的规范、知识 JSON、报告和图谱摘要。
 
-Do not use `.cgraphx`. Prefer GitNexus for symbol-level impact and Understand-Anything for architecture/domain context when available.
+不要使用 `.cgraphx`。可用时优先使用 GitNexus 获取符号级影响，使用 Understand-Anything 获取架构/领域上下文。
 """
     entries = [
-        ("project-task", "Use when implementing, modifying, fixing, refactoring, or adding a feature in a project and needing reuse, standards, components, APIs, services, or graph context.", "Project Task"),
-        ("project-brainstorm", "Use when shaping a project requirement, brainstorming approaches, clarifying scope, or choosing between implementation directions before writing code.", "Project Brainstorm"),
-        ("project-spec", "Use when writing or updating a project requirement spec, design note, acceptance criteria, or task impact summary.", "Project Spec"),
-        ("project-plan", "Use when turning an approved project spec or requirement into an implementation plan with project standards and verification steps.", "Project Plan"),
-        ("project-debug", "Use when investigating bugs, errors, test failures, regressions, unexpected behavior, or debugging questions with project context.", "Project Debug"),
-        ("project-maintain", "Use when a project task is finished or when standards, knowledge, reports, hooks, or lifecycle artifacts should be refreshed.", "Project Maintain"),
-        ("project-review", "Use when reviewing code changes against project standards, graph impact, quality checks, redundancy, and tests.", "Project Review"),
-        ("project-knowledge", "Use when answering questions about project structure, components, APIs, services, modules, standards, or business flows.", "Project Knowledge"),
-        ("project-refresh", "Use when updating or initializing project standards, knowledge, graph summaries, and reports.", "Project Refresh"),
-        ("project-standards", "Use when querying, explaining, confirming, upgrading, or downgrading project standards and rule levels.", "Project Standards"),
-        ("project-quality", "Use when running or interpreting frontend/backend lint, type, format, style, redundancy, and standards checks.", "Project Quality"),
+        ("project-task", "实现、修改、修复、重构或添加项目功能时使用，需要复用、规范、组件、API、服务或图谱上下文。需求开发, 功能开发, 实现需求, 开发任务, 做需求, 写功能。", "项目任务"),
+        ("project-brainstorm", "塑造项目需求、脑暴方案、明确范围或在编写代码前选择实现方向时使用。需求脑暴, 脑暴, 讨论需求。", "需求脑暴"),
+        ("project-spec", "编写或更新项目需求文档、设计说明、验收标准或任务影响摘要时使用。需求文档, 需求设计, 需求涉及关系和规范。", "需求文档"),
+        ("project-plan", "将已批准的项目需求或规格转化为包含项目规范和验证步骤的实施计划时使用。技术方案, 实施计划, 开发计划。", "实施计划"),
+        ("project-debug", "调查 bug、错误、测试失败、回归、异常行为或调试问题时使用。查询bug, 排查bug, 定位问题。", "调试"),
+        ("project-maintain", "项目任务完成或需要刷新规范、知识库、报告、钩子或生命周期产物时使用。维护, 项目维护, 更新知识库。", "项目维护"),
+        ("project-review", "根据项目规范、图谱影响、质量检查、冗余和测试审查代码变更时使用。代码审查, 代码评审, PR审查, 代码检查, review, review代码。", "代码审查"),
+        ("project-knowledge", "回答项目结构、组件、API、服务、模块、规范或业务流程相关问题时使用。项目知识, 项目结构, 项目架构。", "项目知识"),
+        ("project-refresh", "更新或初始化项目规范、知识库、图谱摘要和报告时使用。刷新, 更新, 刷新项目, 更新项目。", "刷新项目"),
+        ("project-standards", "查询、说明、确认、升级或降级项目规范和规则等级时使用。项目规范, 规范, 代码规范, 标准。", "项目规范"),
+        ("project-quality", "运行或解读前端/后端 lint、类型、格式、样式、冗余和规范检查时使用。质量检查, 代码质量, 检查工具。", "质量检查"),
     ]
     for name, desc, title in entries:
         write_text(skills / f"{name}.md", skill_template.format(name=name, description=desc, title=title))
@@ -1363,32 +1363,32 @@ def run_check(root: Path, run_quality: bool) -> int:
             if code != 0:
                 exit_code = 1
     write_text(pdir / "reports" / "frontend-quality.md", build_quality_report(quality_results, frontend, backend))
-    print(f"Project Intelligence check complete: {pdir / 'reports' / 'frontend-quality.md'}")
+    print(f"项目智能检查完成：{pdir / 'reports' / 'frontend-quality.md'}")
     return exit_code
 
 
 def build_quality_report(results: list[dict[str, Any]], frontend: dict[str, Any], backend: dict[str, Any]) -> str:
     rows = [[r.get("kind"), r.get("command"), r.get("exitCode")] for r in results]
     redundancy = frontend.get("redundancyCandidates", [])
-    return f"""# Quality Report
+    return f"""# 质量报告
 
-## Commands
+## 命令
 
-{table(["Kind", "Command", "Exit"], rows) if rows else "_Quality commands were detected but not run, or no commands were configured._"}
+{table(["类型", "命令", "退出码"], rows) if rows else "_已检测到质量命令但未运行，或未配置任何命令。_"}
 
-## Redundancy
+## 冗余
 
-- Frontend redundancy candidates: {len(redundancy)}
-- Backend candidate entrypoints: {len(backend.get("candidateEntrypoints", []))}
+- 前端冗余候选数：{len(redundancy)}
+- 后端候选入口点数：{len(backend.get("candidateEntrypoints", []))}
 
-Redundancy findings are `candidate` by default and do not fail checks unless promoted by team policy.
+冗余发现默认为 `candidate`，除非团队策略升级，否则不会导致检查失败。
 """
 
 
 def query_project(root: Path, text: str) -> int:
     pdir = project_dir(root)
     if not (pdir / "manifest.json").exists():
-        print("No .project-intel found. Run project-intel init first.")
+        print("未找到 .project-intel。请先运行 project-intel init。")
         return 1
     needle = text.lower()
     matches: list[tuple[str, str]] = []
@@ -1401,7 +1401,7 @@ def query_project(root: Path, text: str) -> int:
         if needle in body.lower():
             matches.append((rel(root, path), body[:1200]))
     if not matches:
-        print("No direct project-intel matches. Try broader terms or refresh the knowledge base.")
+        print("未找到直接匹配的项目智能结果。请尝试更宽泛的关键词或刷新知识库。")
         return 0
     for name, snippet in matches[:10]:
         print(f"\n## {name}\n")
@@ -1410,36 +1410,36 @@ def query_project(root: Path, text: str) -> int:
 
 
 def main(argv: list[str]) -> int:
-    parser = argparse.ArgumentParser(prog="project-intel", description="Project Intelligence CLI")
-    parser.add_argument("--project", help="Project root. Defaults to current directory.")
+    parser = argparse.ArgumentParser(prog="project-intel", description="项目智能 CLI")
+    parser.add_argument("--project", help="项目根目录，默认为当前目录。")
     sub = parser.add_subparsers(dest="command", required=True)
-    init = sub.add_parser("init", help="Initialize .project-intel")
-    init.add_argument("--interactive", action="store_true", help="Show an interactive setup menu when optional tooling is missing")
-    init.add_argument("--setup-missing", action="store_true", help="Run safe setup for missing optional tooling where a runnable command is available")
-    init.add_argument("--with-graph", action="store_true", help="Try to initialize graph tooling such as GitNexus when available")
-    init.add_argument("--strict", action="store_true", help="Fail if --with-graph does not produce any graph source")
-    sub.add_parser("refresh", help="Refresh .project-intel from current workspace")
-    install = sub.add_parser("install", help="Install Claude-compatible project entrypoints")
-    install.add_argument("--hooks", action="store_true", help="Generate opt-in Git hook templates under .project-intel/hooks")
-    install.add_argument("--activate-git-hooks", action="store_true", help="Install Project Intelligence wrappers into .git/hooks without overwriting custom hooks")
-    check = sub.add_parser("check", help="Run project intelligence checks")
-    check.add_argument("--run-quality", action="store_true", help="Actually run detected lint/type/style/format commands")
-    spec = sub.add_parser("spec", help="Write a project spec under .project-intel/specs")
+    init = sub.add_parser("init", help="初始化 .project-intel")
+    init.add_argument("--interactive", action="store_true", help="可选工具缺失时显示交互式设置菜单")
+    init.add_argument("--setup-missing", action="store_true", help="对缺失的可选工具运行安全安装（需有可运行的命令）")
+    init.add_argument("--with-graph", action="store_true", help="尝试初始化图谱工具（如 GitNexus）")
+    init.add_argument("--strict", action="store_true", help="--with-graph 未产生任何图谱来源时失败")
+    sub.add_parser("refresh", help="从当前工作区刷新 .project-intel")
+    install = sub.add_parser("install", help="安装 Claude 兼容的项目入口")
+    install.add_argument("--hooks", action="store_true", help="在 .project-intel/hooks 下生成可选的 Git 钩子模板")
+    install.add_argument("--activate-git-hooks", action="store_true", help="将项目智能包装器安装到 .git/hooks（不覆盖自定义钩子）")
+    check = sub.add_parser("check", help="运行项目智能检查")
+    check.add_argument("--run-quality", action="store_true", help="实际运行检测到的 lint/type/style/format 命令")
+    spec = sub.add_parser("spec", help="在 .project-intel/specs 下写入需求文档")
     spec.add_argument("--title", required=True)
     spec.add_argument("--from", dest="requirement", required=True)
-    plan = sub.add_parser("plan", help="Write an implementation plan under .project-intel/plans")
+    plan = sub.add_parser("plan", help="在 .project-intel/plans 下写入实施计划")
     plan.add_argument("--title", required=True)
     plan.add_argument("--from-spec", required=True)
-    lifecycle = sub.add_parser("lifecycle", help="Write a task impact report")
+    lifecycle = sub.add_parser("lifecycle", help="写入任务影响报告")
     lifecycle.add_argument("--task", required=True)
-    debug = sub.add_parser("debug", help="Write a systematic debugging context report")
+    debug = sub.add_parser("debug", help="写入系统化调试上下文报告")
     debug.add_argument("--bug", required=True)
-    maintain = sub.add_parser("maintain", help="Refresh project intelligence after a task")
+    maintain = sub.add_parser("maintain", help="任务完成后刷新项目智能")
     maintain.add_argument("--task", required=True)
-    maintain.add_argument("--run-quality", action="store_true", help="Actually run detected lint/type/style/format commands")
-    query = sub.add_parser("query", help="Search project intelligence artifacts")
+    maintain.add_argument("--run-quality", action="store_true", help="实际运行检测到的 lint/type/style/format 命令")
+    query = sub.add_parser("query", help="搜索项目智能产物")
     query.add_argument("text")
-    sub.add_parser("version", help="Print version")
+    sub.add_parser("version", help="打印版本号")
     args = parser.parse_args(argv)
     root = project_root(args.project)
     if args.command == "version":
@@ -1447,19 +1447,19 @@ def main(argv: list[str]) -> int:
         return 0
     if args.command == "init":
         result = init_project(root, refresh=False, interactive=args.interactive, setup_missing=args.setup_missing, with_graph=args.with_graph, strict=args.strict)
-        print(f"Initialized .project-intel with {result['manifest']['fileCount']} indexed text files.")
+        print(f"已初始化 .project-intel，索引了 {result['manifest']['fileCount']} 个文本文件。")
         return 0
     if args.command == "refresh":
         result = init_project(root, refresh=True)
-        print(f"Refreshed .project-intel with {result['manifest']['fileCount']} indexed text files.")
+        print(f"已刷新 .project-intel，索引了 {result['manifest']['fileCount']} 个文本文件。")
         return 0
     if args.command == "install":
         result = install_claude(root, hooks=args.hooks, activate_hooks=args.activate_git_hooks)
-        print(f"Installed Claude adapters under {result['claude']}")
+        print(f"已安装 Claude 适配器到 {result['claude']}")
         if result.get("hookTemplates"):
-            print(f"Generated hook templates: {len(result['hookTemplates'])}")
+            print(f"已生成钩子模板：{len(result['hookTemplates'])}")
         for item in result.get("hookResults", []):
-            print(f"{item.get('hook')}: {item.get('status')} - {item.get('detail')}")
+            print(f"{item.get('hook')}：{item.get('status')} - {item.get('detail')}")
         return 0
     if args.command == "check":
         return run_check(root, args.run_quality)

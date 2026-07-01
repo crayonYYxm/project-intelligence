@@ -1,6 +1,6 @@
 ---
 name: project-quality
-description: Use when running or interpreting frontend/backend quality checks, ESLint, Stylelint, Prettier check, tsc/vue-tsc, tooling reports, redundancy checks, standards checks, or quality gaps.
+description: Use when running or interpreting frontend/backend quality checks, ESLint, Stylelint, Prettier check, tsc/vue-tsc, tooling reports, redundancy checks, standards checks, or quality gaps. 质量检查, 代码质量, 检查工具, lint检查, 质量报告.
 ---
 
 # Project Quality

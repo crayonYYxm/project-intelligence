@@ -1,6 +1,6 @@
 ---
 name: project-knowledge
-description: Use when answering questions about project structure, components, Hooks, APIs, services, modules, standards, business flows, generated knowledge, or reusable patterns.
+description: Use when answering questions about project structure, components, Hooks, APIs, services, modules, standards, business flows, generated knowledge, or reusable patterns. 项目知识, 项目结构, 项目架构, 组件, 接口, 服务, 模块.
 ---
 
 # Project Knowledge

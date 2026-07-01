@@ -1,6 +1,6 @@
 ---
 name: project-standards
-description: Use when querying, explaining, confirming, promoting, demoting, or applying project standards and rule levels such as hard, preferred, inferred, or candidate.
+description: Use when querying, explaining, confirming, promoting, demoting, or applying project standards and rule levels such as hard, preferred, inferred, or candidate. 项目规范, 规范, 代码规范, 标准, 规则.
 ---
 
 # Project Standards

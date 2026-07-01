@@ -1,6 +1,6 @@
 ---
 name: project-maintain
-description: Use when a task is finished, after implementation, after review fixes, after git pull/merge/commit, or when maintaining project standards, knowledge base, reports, hooks, or lifecycle artifacts.
+description: Use when a task is finished, after implementation, after review fixes, after git pull/merge/commit, or when maintaining project standards, knowledge base, reports, hooks, or lifecycle artifacts. 维护, 项目维护, 更新知识库, 生命周期维护, 完成任务.
 ---
 
 # Project Maintain
