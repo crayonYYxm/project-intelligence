@@ -23,9 +23,9 @@ python3 plugins/project-intelligence/scripts/project_intel.py init --strict
 By default, `init` checks graph tools before writing project facts. If GitNexus has an executable analysis command, `init` can run analysis automatically. Understand-Anything is optional but supported on both Codex and Claude Code:
 
 - `installed`: a real `understand` CLI or `PROJECT_INTEL_UNDERSTAND_COMMAND` is available, so `init` can run analysis directly.
-- `agent-installed`: Codex/Claude Code plugin files are installed, but the shell cannot run analysis. Ask the user to run `/understand . --language zh` or trigger the Understand-Anything skill, then run `refresh`.
+- `agent-installed`: Codex/Claude Code plugin files are installed and enabled, but the shell cannot run analysis. In Claude Code, tell the user to run `/reload-plugins` after a fresh install/enable, then `/understand . --language zh`, then `refresh`.
 - `partially-installed`: current agent already has Understand-Anything, but another platform still has an install option. Offer both the `/understand` follow-up and the missing-platform install option.
-- `installable`: Understand-Anything is not installed. Ask whether to install it. If approved, use `init --setup-missing` or run the selected install command before `init`.
+- `installable`: Understand-Anything is not installed, disabled, or the Claude Code install is broken. Ask whether to install/enable/repair it. If approved, use `init --setup-missing` or run the selected install command before `init`.
 - `missing`: no supported install path was detected. Print the setup suggestion and continue without graph enhancement.
 
 In noninteractive agent shells such as Codex/Claude tool runs, do not rely on the CLI `input()` prompt to collect that choice. First run `graph-tools --json`, inspect `installOptions`, and ask the user in Chinese whether to run all graph setup, install GitNexus, install/enable Understand-Anything for Codex or Claude Code, run the `/understand` follow-up, or skip. Support combination answers such as `1,2`, `1+3`, `全部`, or `all`.
@@ -41,7 +41,7 @@ Use a concise Chinese choice prompt, for example:
 请选择：
 1. 全部准备：GitNexus + Understand-Anything 安装/启用 + 后续分析提示
 2. 准备 GitNexus 并分析
-3. 安装/启用 Understand-Anything 到 Claude Code，并提示运行 /understand
+3. 安装/启用/修复 Understand-Anything 到 Claude Code，并验证插件状态
 4. GitNexus + Understand-Anything 后续分析
 5. 跳过图谱增强并继续初始化
 
@@ -51,15 +51,17 @@ Use a concise Chinese choice prompt, for example:
 After the user answers:
 - If they approved all supported installs, run `init --setup-missing`.
 - If they approved only part of the list, install that subset first, run installed shell analyzers such as GitNexus, then run `init`.
-- If they choose any Understand-Anything analysis option and only an agent skill is available, explain that the remaining action is to run `/understand . --language zh` in the current Codex/Claude Code session, then run `refresh`.
+- If they choose any Understand-Anything analysis option and only an agent skill is available, explain that shell code cannot inject slash commands into the active Claude Code prompt. After Claude Code install/enable succeeds, the remaining action is `/reload-plugins`, then `/understand . --language zh`, then `refresh`.
 - If they chose to skip, run `init --no-graph` or plain `init` only after explicitly telling them graph tools will be skipped.
 - Keep all user-facing narration in Chinese unless the user asked for another language.
 
 Use `--setup-missing` only when the user has already approved automatic setup. For GitNexus this usually means downloading the CLI via `npx` and immediately running `analyze`, not a separate global install. For Understand-Anything, install according to the chosen target:
 
 - Codex: `curl -fsSL https://raw.githubusercontent.com/Lum1104/Understand-Anything/main/install.sh | bash -s codex`
-- Claude Code: `claude plugin marketplace add Lum1104/Understand-Anything`, then `claude plugin install understand-anything@understand-anything`
+- Claude Code: `claude plugin marketplace add Lum1104/Understand-Anything`, then `claude plugin install understand-anything@understand-anything`, then `claude plugin enable understand-anything@understand-anything`. Verify with `claude plugin list`; do not report success if the plugin is disabled or failed to load.
 
 Do not use the Codex installer as a substitute for Claude Code plugin installation, and do not claim Claude Code cannot install it just because it is absent from the official Anthropic marketplace. Use the Understand-Anything marketplace repo instead.
+
+If Claude Code shows `understand-anything@local` with `failed to load` or `Marketplace local not found`, treat it as a broken install rather than a usable plugin. Run the marketplace install/repair flow above and ask for `/reload-plugins` only after verification succeeds.
 
 After initialization, use `/project-refresh` to update existing project facts.

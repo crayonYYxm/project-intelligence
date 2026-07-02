@@ -27,12 +27,13 @@ python3 /Users/xumeng/plugins/project-intelligence/scripts/project_intel.py inst
 Understand-Anything behavior:
 
 - If it is `installed`, `init` can run the configured analysis command.
-- If it is `agent-installed`, ask the user to run `/understand . --language zh` or trigger the installed Understand-Anything skill, then run `refresh`.
+- If it is `agent-installed`, ask the user to run `/reload-plugins` after a fresh Claude Code install/enable, then `/understand . --language zh` or trigger the installed Understand-Anything skill, then run `refresh`.
 - If it is `partially-installed`, keep the `/understand` follow-up and also offer installation/enabling for the missing platform.
-- If it is `installable`, ask whether to install it for Codex, Claude Code, or both. Only install after approval.
+- If it is `installable`, ask whether to install/enable/repair it for Codex, Claude Code, or both. Only install after approval.
 - For Codex, use the Understand-Anything installer with the `codex` platform.
-- For Claude Code, use `claude plugin marketplace add Lum1104/Understand-Anything` and `claude plugin install understand-anything@understand-anything`; do not fall back to the official Anthropic marketplace name.
+- For Claude Code, use `claude plugin marketplace add Lum1104/Understand-Anything`, `claude plugin install understand-anything@understand-anything`, and `claude plugin enable understand-anything@understand-anything`; verify with `claude plugin list`. Do not fall back to the official Anthropic marketplace name.
+- If Claude Code shows `understand-anything@local` with `failed to load` or `Marketplace local not found`, treat it as broken and run the marketplace repair flow instead of telling the user `/understand` is ready.
 
-When presenting choices, always include an “全部” option when more than one graph action is available, and accept combination answers such as `1,2` or `GitNexus + Understand-Anything`. If the user asks for “1 和 2” or “都要”, execute the shell-runnable setup first, then tell them the remaining `/understand . --language zh` step if it cannot be run from shell.
+When presenting choices, always include an “全部” option when more than one graph action is available, and accept combination answers such as `1,2` or `GitNexus + Understand-Anything`. If the user asks for “1 和 2” or “都要”, execute the shell-runnable setup first. If the remaining step is a Claude Code slash command, explain that shell code cannot inject it into the active prompt; tell the user to run `/reload-plugins`, then `/understand . --language zh`, then refresh.
 
 The CLI intentionally does not read `.cgraphx`.

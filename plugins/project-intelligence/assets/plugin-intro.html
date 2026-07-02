@@ -628,7 +628,7 @@ writing:
               <span class="step-num">3</span>
               <div>
                 <h3>按工具状态分支</h3>
-                <p>已安装的自动分析；未准备好的进入选择流。GitNexus 走 <code>npx gitnexus analyze</code>，Understand-Anything 按 Codex/Claude Code 分别安装。</p>
+                <p>已安装的自动分析；未准备好的进入选择流。GitNexus 走 <code>npx gitnexus analyze</code>，Understand-Anything 按 Codex/Claude Code 分别安装、启用并验证。</p>
               </div>
             </article>
             <article class="step reveal delay-4">
@@ -659,7 +659,8 @@ writing:
 <span class="comment">agent next step:</span>
 <span class="comment">1. 中文提示用户：全部 / 组合 / 跳过</span>
 <span class="comment">2. 先执行 shell 可运行的 setup</span>
-<span class="comment">3. 再提示 /understand 与 refresh</span></code></pre>
+<span class="comment">3. Claude Code 安装后先验证 plugin list</span>
+<span class="comment">4. 验证成功再提示 /reload-plugins、/understand 与 refresh</span></code></pre>
           </div>
 
           <div class="notice reveal delay-2">

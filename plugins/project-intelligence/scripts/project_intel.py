@@ -26,11 +26,13 @@ VERSION = "0.1.0"
 UNDERSTAND_AGENT_COMMAND = "/understand . --language zh"
 UNDERSTAND_REPO = "Lum1104/Understand-Anything"
 UNDERSTAND_CODEX_INSTALL_COMMAND = "curl -fsSL https://raw.githubusercontent.com/Lum1104/Understand-Anything/main/install.sh | bash -s codex"
+UNDERSTAND_CLAUDE_PLUGIN_ID = "understand-anything@understand-anything"
 UNDERSTAND_CLAUDE_MARKETPLACE_COMMAND = f"claude plugin marketplace add {UNDERSTAND_REPO}"
-UNDERSTAND_CLAUDE_INSTALL_COMMAND = "claude plugin install understand-anything@understand-anything"
-UNDERSTAND_CLAUDE_ENABLE_COMMAND = "claude plugin enable understand-anything"
+UNDERSTAND_CLAUDE_INSTALL_COMMAND = f"claude plugin install {UNDERSTAND_CLAUDE_PLUGIN_ID}"
+UNDERSTAND_CLAUDE_ENABLE_COMMAND = f"claude plugin enable {UNDERSTAND_CLAUDE_PLUGIN_ID}"
+UNDERSTAND_CLAUDE_RELOAD_COMMAND = "/reload-plugins"
 UNDERSTAND_MANUAL_INSTALL_HINT = (
-    f"{UNDERSTAND_CLAUDE_MARKETPLACE_COMMAND} && {UNDERSTAND_CLAUDE_INSTALL_COMMAND}"
+    f"{UNDERSTAND_CLAUDE_MARKETPLACE_COMMAND} && {UNDERSTAND_CLAUDE_INSTALL_COMMAND} && {UNDERSTAND_CLAUDE_ENABLE_COMMAND}"
 )
 EXCLUDED_DIRS = {
     ".git",
@@ -333,15 +335,63 @@ def current_agent_platform() -> str:
 def claude_understand_installs() -> list[dict[str, Any]]:
     installed = load_json(Path.home() / ".claude" / "plugins" / "installed_plugins.json", {})
     plugins = installed.get("plugins", {}) if isinstance(installed, dict) else {}
+    enabled_plugins = load_json(Path.home() / ".claude" / "settings.json", {}).get("enabledPlugins", {})
+    plugin_statuses = claude_plugin_list_statuses()
     results = []
     for plugin_id, entries in plugins.items():
         if not str(plugin_id).startswith("understand-anything@"):
             continue
         for entry in entries or []:
             if isinstance(entry, dict):
-                item = {"id": plugin_id, **entry}
+                item = {
+                    "id": plugin_id,
+                    "enabled": bool(enabled_plugins.get(plugin_id)),
+                    "listStatus": plugin_statuses.get(plugin_id),
+                    **entry,
+                }
                 results.append(item)
     return results
+
+
+def claude_plugin_list_statuses() -> dict[str, str]:
+    if not command_exists("claude"):
+        return {}
+    code, out, _ = run(["claude", "plugin", "list"], Path.home(), timeout=20)
+    if code != 0:
+        return {}
+    statuses: dict[str, str] = {}
+    current: str | None = None
+    for line in out.splitlines():
+        plugin_match = re.search(r"❯\s+([A-Za-z0-9_.-]+@[A-Za-z0-9_.-]+)", line)
+        if plugin_match:
+            current = plugin_match.group(1)
+            continue
+        status_match = re.search(r"Status:\s*(.+)", line)
+        if current and status_match:
+            statuses[current] = status_match.group(1).strip()
+            current = None
+    return statuses
+
+
+def claude_understand_install_is_ready(install: dict[str, Any]) -> bool:
+    status = str(install.get("listStatus") or "").lower()
+    if "failed" in status:
+        return False
+    if "enabled" in status:
+        return True
+    if "disabled" in status:
+        return False
+    return bool(install.get("enabled"))
+
+
+def claude_understand_install_is_repairable(install: dict[str, Any]) -> bool:
+    status = str(install.get("listStatus") or "").lower()
+    plugin_id = str(install.get("id") or "")
+    if "failed" in status:
+        return False
+    if plugin_id.endswith("@local"):
+        return False
+    return bool(plugin_id)
 
 
 def understand_installed_platforms(roots: list[Path], claude_installs: list[dict[str, Any]]) -> list[str]:
@@ -349,16 +399,14 @@ def understand_installed_platforms(roots: list[Path], claude_installs: list[dict
     home = Path.home()
     for root in roots:
         text = str(root)
-        if ".claude/plugins/cache" in text or os.environ.get("CLAUDE_PLUGIN_ROOT") == text:
-            platforms.add("claude")
         if root == home / ".understand-anything-plugin" or ".codex/understand-anything" in text or ".agents/skills" in text:
             platforms.add("codex")
-    if claude_installs:
+    if any(claude_understand_install_is_ready(install) for install in claude_installs):
         platforms.add("claude")
     return sorted(platforms)
 
 
-def understand_install_options() -> list[dict[str, Any]]:
+def understand_install_options(claude_installs: list[dict[str, Any]] | None = None) -> list[dict[str, Any]]:
     configured = os.environ.get("PROJECT_INTEL_UNDERSTAND_INSTALL_COMMAND", "").strip()
     if configured:
         return [
@@ -373,13 +421,32 @@ def understand_install_options() -> list[dict[str, Any]]:
 
     options: list[dict[str, Any]] = []
     if command_exists("claude"):
+        claude_installs = claude_installs or claude_understand_installs()
+        repairable_install = next((install for install in claude_installs if claude_understand_install_is_repairable(install)), None)
+        if repairable_install and not claude_understand_install_is_ready(repairable_install):
+            plugin_id = repairable_install.get("id")
+            options.append(
+                {
+                    "platform": "claude",
+                    "label": "Claude Code 插件启用",
+                    "command": f"claude plugin enable {plugin_id}",
+                    "commands": [f"claude plugin enable {plugin_id}"],
+                    "canRun": True,
+                    "postInstall": UNDERSTAND_CLAUDE_RELOAD_COMMAND,
+                }
+            )
         options.append(
             {
                 "platform": "claude",
-                "label": "Claude Code 插件安装",
+                "label": "Claude Code 插件安装/修复",
                 "command": UNDERSTAND_MANUAL_INSTALL_HINT,
-                "commands": [UNDERSTAND_CLAUDE_MARKETPLACE_COMMAND, UNDERSTAND_CLAUDE_INSTALL_COMMAND],
+                "commands": [
+                    UNDERSTAND_CLAUDE_MARKETPLACE_COMMAND,
+                    UNDERSTAND_CLAUDE_INSTALL_COMMAND,
+                    UNDERSTAND_CLAUDE_ENABLE_COMMAND,
+                ],
                 "canRun": True,
+                "postInstall": UNDERSTAND_CLAUDE_RELOAD_COMMAND,
             }
         )
     if os.name == "nt":
@@ -459,7 +526,7 @@ def detect_graph_actions(root: Path) -> list[dict[str, Any]]:
     ua_claude_installs = claude_understand_installs()
     ua_command = understand_analyze_command()
     ua_installed_platforms = understand_installed_platforms(ua_roots, ua_claude_installs)
-    ua_install_options = filter_understand_install_options(understand_install_options(), ua_installed_platforms)
+    ua_install_options = filter_understand_install_options(understand_install_options(ua_claude_installs), ua_installed_platforms)
     ua_install_command = default_understand_install_command(ua_install_options)
     current_platform = current_agent_platform()
     ua_installed_for_current = (
@@ -576,9 +643,9 @@ def detect_tooling(root: Path, package: dict[str, Any]) -> dict[str, Any]:
                 "command": understand_action.get("agentCommand"),
                 "detail": (
                     f"Understand-Anything 已安装到 Codex/Claude Code agent，但当前 shell 没有 `understand` 命令。"
-                    f"请在当前 agent 会话中运行 {UNDERSTAND_AGENT_COMMAND} 或触发 Understand-Anything skill，"
+                    f"如果是在 Claude Code 刚完成安装/启用，请先运行 {UNDERSTAND_CLAUDE_RELOAD_COMMAND} 重新加载插件，"
+                    f"再在当前 agent 会话中运行 {UNDERSTAND_AGENT_COMMAND} 或触发 Understand-Anything skill，"
                     f"生成图谱后再执行 project-intel refresh。"
-                    f"如果 Claude Code 显示插件 disabled，请先运行 {UNDERSTAND_CLAUDE_ENABLE_COMMAND} 或在 /plugin 中启用。"
                 ),
                 "canRun": False,
             }
@@ -785,6 +852,47 @@ def run_install_option(root: Path, action: dict[str, Any], option: dict[str, Any
     return results
 
 
+def verify_understand_claude_install() -> dict[str, Any]:
+    installs = claude_understand_installs()
+    ready = [install for install in installs if claude_understand_install_is_ready(install)]
+    if ready:
+        plugin_id = ready[0].get("id")
+        return {
+            "tool": "Understand-Anything",
+            "status": "ok",
+            "command": "claude plugin list",
+            "detail": (
+                f"Claude Code 已启用 {plugin_id}。"
+                f"在当前 Claude Code 会话运行 {UNDERSTAND_CLAUDE_RELOAD_COMMAND} 后，"
+                f"再运行 {UNDERSTAND_AGENT_COMMAND} 生成图谱。"
+            ),
+            "pluginId": plugin_id,
+        }
+    broken = [install for install in installs if str(install.get("listStatus") or "").lower().find("failed") >= 0]
+    if broken:
+        detail = "; ".join(
+            f"{install.get('id')} 状态为 {install.get('listStatus') or 'failed'}" for install in broken
+        )
+        return {
+            "tool": "Understand-Anything",
+            "status": "failed",
+            "command": "claude plugin list",
+            "detail": (
+                f"Claude Code 检测到损坏的 Understand-Anything 安装：{detail}。"
+                f"请移除损坏安装后重新执行安装，或检查 marketplace clone 网络。"
+            ),
+        }
+    return {
+        "tool": "Understand-Anything",
+        "status": "failed",
+        "command": "claude plugin list",
+        "detail": (
+            f"Claude Code 未检测到已启用的 Understand-Anything。"
+            f"请确认 {UNDERSTAND_CLAUDE_MARKETPLACE_COMMAND} 和 {UNDERSTAND_CLAUDE_INSTALL_COMMAND} 是否成功。"
+        ),
+    }
+
+
 def setup_graph_tools(root: Path, tooling: dict[str, Any], auto_approve: bool = False) -> list[dict[str, Any]]:
     results: list[dict[str, Any]] = []
     for action in tooling.get("graphActions", []):
@@ -802,9 +910,9 @@ def setup_graph_tools(root: Path, tooling: dict[str, Any], auto_approve: bool = 
         if tool == "Understand-Anything" and state == "agent-installed" and not install_options:
             detail = (
                 f"Understand-Anything 已安装到 agent；当前 shell 不能直接分析。"
-                f"请在 Codex/Claude Code 会话中运行 {action.get('agentCommand')}，"
+                f"如果是在 Claude Code，请先运行 {UNDERSTAND_CLAUDE_RELOAD_COMMAND}，"
+                f"再在 Codex/Claude Code 会话中运行 {action.get('agentCommand')}，"
                 f"或触发 Understand-Anything skill 后再执行 refresh。"
-                f"如果 Claude Code 显示插件 disabled，请先运行 {UNDERSTAND_CLAUDE_ENABLE_COMMAND} 或在 /plugin 中启用。"
             )
             print(detail)
             results.append({"tool": tool, "status": "skipped", "detail": detail})
@@ -825,14 +933,28 @@ def setup_graph_tools(root: Path, tooling: dict[str, Any], auto_approve: bool = 
         results.extend(install_results)
         install_ok = bool(install_results) and all(result.get("status") == "ok" for result in install_results)
         if tool == "Understand-Anything" and install_ok:
+            if install_option.get("platform") == "claude":
+                verification = verify_understand_claude_install()
+                results.append(verification)
+                if verification.get("status") != "ok":
+                    print(verification.get("detail"))
+                    continue
             refreshed_command = understand_analyze_command()
             if refreshed_command:
                 results.append(run_graph_command(root, action, refreshed_command))
             else:
-                detail = (
-                    f"Understand-Anything 已安装到 agent，但当前会话还不能直接识别它；"
-                    f"请重启 agent 后运行 {action.get('agentCommand')}，再执行 refresh。"
-                )
+                if install_option.get("platform") == "claude":
+                    detail = (
+                        f"Understand-Anything 已安装/启用到 Claude Code，但当前 shell 不能执行 slash command；"
+                        f"请在 Claude Code 当前会话运行 {UNDERSTAND_CLAUDE_RELOAD_COMMAND}，"
+                        f"再运行 {action.get('agentCommand')}，完成后执行 refresh。"
+                    )
+                else:
+                    detail = (
+                        f"Understand-Anything 已安装到 agent，但当前 shell 不能直接识别它；"
+                        f"请触发 Understand-Anything skill 或运行 {action.get('agentCommand')}，"
+                        f"完成后执行 refresh。"
+                    )
                 print(detail)
                 results.append(
                     {

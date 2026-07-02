@@ -406,13 +406,16 @@ class UnderstandSetupFlowTests(unittest.TestCase):
 
         with patch.object(project_intel, "current_agent_platform", return_value="claude"), patch.object(
             project_intel, "understand_analyze_command", return_value=None
-        ), patch.object(project_intel, "run_shell", return_value=(0, "ok", "")) as run_shell:
+        ), patch.object(project_intel, "verify_understand_claude_install", return_value={"tool": "Understand-Anything", "status": "ok"}), patch.object(
+            project_intel, "run_shell", return_value=(0, "ok", "")
+        ) as run_shell:
             result = project_intel.setup_graph_tools(Path("."), tooling, auto_approve=True)
 
         self.assertEqual(result[0]["status"], "ok")
         self.assertEqual(result[0]["command"], project_intel.UNDERSTAND_CLAUDE_MARKETPLACE_COMMAND)
         self.assertEqual(result[1]["command"], project_intel.UNDERSTAND_CLAUDE_INSTALL_COMMAND)
-        self.assertEqual(result[2]["status"], "needs-agent")
+        self.assertEqual(result[2]["status"], "ok")
+        self.assertEqual(result[3]["status"], "needs-agent")
         self.assertEqual(run_shell.call_count, 2)
 
     def test_understand_partially_installed_state_can_install_missing_platform(self):
@@ -443,13 +446,32 @@ class UnderstandSetupFlowTests(unittest.TestCase):
 
         with patch.object(project_intel, "current_agent_platform", return_value="codex"), patch.object(
             project_intel, "understand_analyze_command", return_value=None
-        ), patch.object(project_intel, "run_shell", return_value=(0, "ok", "")) as run_shell:
+        ), patch.object(project_intel, "verify_understand_claude_install", return_value={"tool": "Understand-Anything", "status": "ok"}), patch.object(
+            project_intel, "run_shell", return_value=(0, "ok", "")
+        ) as run_shell:
             result = project_intel.setup_graph_tools(Path("."), tooling, auto_approve=True)
 
         self.assertEqual(result[0]["command"], project_intel.UNDERSTAND_CLAUDE_MARKETPLACE_COMMAND)
         self.assertEqual(result[1]["command"], project_intel.UNDERSTAND_CLAUDE_INSTALL_COMMAND)
-        self.assertEqual(result[2]["status"], "needs-agent")
+        self.assertEqual(result[2]["status"], "ok")
+        self.assertEqual(result[3]["status"], "needs-agent")
         self.assertEqual(run_shell.call_count, 2)
+
+    def test_failed_claude_local_install_does_not_mark_platform_ready(self):
+        installs = [
+            {
+                "id": "understand-anything@local",
+                "enabled": True,
+                "listStatus": "✘ failed to load",
+            }
+        ]
+
+        platforms = project_intel.understand_installed_platforms(
+            [Path("/Users/test/.claude/plugins/cache/local/understand-anything")],
+            installs,
+        )
+
+        self.assertNotIn("claude", platforms)
 
 
 if __name__ == "__main__":
