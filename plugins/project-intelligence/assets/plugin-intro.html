@@ -5,204 +5,287 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Project Intelligence 插件介绍</title>
   <style>
-    @import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap");
+    @import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap");
 
     :root {
-      --ink: #111827;
-      --ink-soft: #344054;
-      --muted: #667085;
-      --paper: #f7f8f3;
-      --surface: #ffffff;
-      --surface-2: #eef4f2;
-      --line: #d8ded8;
-      --blue: #2563eb;
-      --teal: #0e8f8f;
-      --amber: #f2a541;
-      --rust: #c35c3a;
-      --lime: #b8f03a;
-      --violet: #6f5bd8;
+      --bg: #090b10;
+      --panel: #10141d;
+      --panel-2: #151b26;
+      --panel-3: #0d1118;
+      --ink: #f4f7fb;
+      --text: #d6deea;
+      --muted: #8f9bad;
+      --line: rgba(180, 196, 220, 0.16);
+      --line-strong: rgba(180, 196, 220, 0.28);
+      --cyan: #34d5ff;
+      --green: #b7ff4a;
+      --pink: #ff4fd8;
+      --amber: #ffc857;
+      --red: #ff6b6b;
       --radius: 8px;
-      --shadow: 0 24px 80px rgba(17, 24, 39, 0.12);
-      --duration: 780ms;
-      --easing: cubic-bezier(.2, .85, .2, 1);
+      --shadow: 0 24px 70px rgba(0, 0, 0, 0.32);
+      --mono: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+      --sans: "IBM Plex Sans", "PingFang SC", "Microsoft YaHei", sans-serif;
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
-    html {
-      scroll-behavior: smooth;
-    }
+    html { scroll-behavior: smooth; }
 
     body {
       margin: 0;
-      color: var(--ink);
-      background: var(--paper);
-      font-family: "IBM Plex Sans", "PingFang SC", "Microsoft YaHei", sans-serif;
+      background:
+        linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px),
+        var(--bg);
+      background-size: 44px 44px;
+      color: var(--text);
+      font-family: var(--sans);
       font-size: 16px;
       line-height: 1.65;
       letter-spacing: 0;
       -webkit-font-smoothing: antialiased;
     }
 
-    a {
-      color: inherit;
-      text-decoration: none;
-    }
+    a { color: inherit; text-decoration: none; }
 
     code {
-      font-family: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+      font-family: var(--mono);
       font-size: 0.92em;
     }
 
-    .page {
-      min-height: 100vh;
-      overflow: hidden;
-    }
-
-    /* ─── topbar ─── */
     .topbar {
       position: sticky;
       top: 0;
-      z-index: 20;
+      z-index: 30;
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 24px;
-      padding: 16px 32px;
-      background: rgba(247, 248, 243, 0.88);
-      border-bottom: 1px solid rgba(216, 222, 216, 0.7);
-      backdrop-filter: blur(16px);
+      padding: 14px 28px;
+      background: rgba(9, 11, 16, 0.82);
+      border-bottom: 1px solid var(--line);
+      backdrop-filter: blur(18px);
     }
 
     .brand {
       display: inline-flex;
       align-items: center;
       gap: 10px;
+      color: var(--ink);
       font-weight: 700;
-      line-height: 1;
       white-space: nowrap;
     }
 
     .brand-mark {
       display: grid;
-      width: 28px;
-      height: 28px;
+      width: 30px;
+      height: 30px;
       place-items: center;
-      color: #07130f;
-      background: var(--lime);
-      border: 1px solid #0e1c16;
-      border-radius: 6px;
-      font-family: "IBM Plex Mono", monospace;
-      font-size: 14px;
+      border: 1px solid rgba(183, 255, 74, 0.66);
+      border-radius: 7px;
+      background: rgba(183, 255, 74, 0.1);
+      color: var(--green);
+      font-family: var(--mono);
+      font-size: 13px;
       font-weight: 700;
+      box-shadow: inset 0 0 24px rgba(183, 255, 74, 0.1);
     }
 
     .nav {
       display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
       gap: 6px;
     }
 
     .nav a {
-      padding: 6px 12px;
-      border-radius: 6px;
-      font-size: 14px;
-      font-weight: 500;
-      color: var(--ink-soft);
-      transition: background 0.2s, color 0.2s;
+      padding: 6px 10px;
+      border: 1px solid transparent;
+      border-radius: 7px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 600;
+      transition: 160ms ease;
     }
 
     .nav a:hover,
     .nav a.active {
-      background: rgba(17, 24, 39, 0.06);
+      border-color: var(--line);
+      background: rgba(255, 255, 255, 0.06);
       color: var(--ink);
     }
 
-    /* ─── sections ─── */
     section {
-      padding: 80px 32px;
+      padding: 88px 28px;
+      border-bottom: 1px solid rgba(180, 196, 220, 0.08);
     }
 
     .shell {
-      max-width: 1120px;
+      width: min(1180px, 100%);
       margin: 0 auto;
+      min-width: 0;
     }
 
     .section-label {
       display: inline-flex;
       align-items: center;
-      gap: 8px;
-      margin-bottom: 16px;
-      font-family: "IBM Plex Mono", monospace;
+      gap: 10px;
+      margin-bottom: 18px;
+      color: var(--green);
+      font-family: var(--mono);
       font-size: 12px;
-      font-weight: 600;
-      letter-spacing: 0.1em;
+      font-weight: 700;
+      letter-spacing: 0.08em;
       text-transform: uppercase;
-      color: var(--muted);
     }
 
     .section-label::before {
-      width: 24px;
+      width: 28px;
       height: 2px;
       content: "";
-      background: var(--line);
+      background: var(--green);
+      box-shadow: 0 0 18px rgba(183, 255, 74, 0.45);
     }
 
+    h1,
+    h2,
+    h3,
+    p { margin-top: 0; }
+
     h1 {
-      margin: 0 0 24px;
-      font-size: clamp(36px, 5vw, 56px);
+      max-width: 860px;
+      margin-bottom: 20px;
+      color: var(--ink);
+      font-size: clamp(42px, 6.2vw, 78px);
       font-weight: 700;
-      line-height: 1.1;
-      letter-spacing: -0.02em;
+      line-height: 1.02;
+      letter-spacing: 0;
     }
 
     h2 {
-      margin: 0 0 16px;
-      font-size: clamp(28px, 3.5vw, 42px);
+      max-width: 820px;
+      margin-bottom: 16px;
+      color: var(--ink);
+      font-size: clamp(30px, 4vw, 48px);
       font-weight: 700;
-      line-height: 1.15;
-      letter-spacing: -0.01em;
+      line-height: 1.12;
+      letter-spacing: 0;
     }
 
     h3 {
-      margin: 0 0 8px;
+      margin-bottom: 8px;
+      color: var(--ink);
       font-size: 18px;
-      font-weight: 600;
+      font-weight: 700;
+      line-height: 1.3;
+      letter-spacing: 0;
     }
 
     .lead {
-      max-width: 640px;
-      margin: 0 0 32px;
-      color: var(--ink-soft);
+      max-width: 760px;
+      margin-bottom: 30px;
+      color: var(--muted);
       font-size: 18px;
-      line-height: 1.7;
+      line-height: 1.75;
     }
 
-    /* ─── hero ─── */
     .hero {
+      min-height: calc(100vh - 60px);
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 48px;
+      grid-template-columns: minmax(0, 1fr) minmax(380px, 0.8fr);
+      gap: 46px;
       align-items: center;
+      padding-top: 32px;
+      padding-bottom: 48px;
     }
 
-    .hero-visual {
-      position: relative;
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 26px;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 42px;
+      padding: 9px 14px;
+      border: 1px solid var(--line-strong);
+      border-radius: 7px;
+      background: rgba(255, 255, 255, 0.055);
+      color: var(--ink);
+      font-family: var(--mono);
+      font-size: 13px;
+      font-weight: 700;
+      transition: 160ms ease;
+    }
+
+    .button.primary {
+      border-color: rgba(183, 255, 74, 0.72);
+      background: rgba(183, 255, 74, 0.14);
+      color: var(--green);
+      box-shadow: 0 0 28px rgba(183, 255, 74, 0.11);
+    }
+
+    .button:hover {
+      transform: translateY(-1px);
+      background: rgba(255, 255, 255, 0.09);
+    }
+
+    .hero-metrics {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      max-width: 620px;
+    }
+
+    .metric {
+      min-height: 92px;
+      padding: 16px;
       border: 1px solid var(--line);
-      border-radius: 12px;
-      background: var(--surface);
-      box-shadow: var(--shadow);
-      overflow: hidden;
+      border-radius: var(--radius);
+      background: rgba(16, 20, 29, 0.86);
     }
 
-    .terminal-bar {
+    .metric strong {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--ink);
+      font-family: var(--mono);
+      font-size: 24px;
+      line-height: 1.1;
+    }
+
+    .metric span {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .console {
+      overflow: hidden;
+      border: 1px solid var(--line-strong);
+      border-radius: 10px;
+      background: rgba(13, 17, 24, 0.96);
+      box-shadow: var(--shadow);
+      min-width: 0;
+    }
+
+    .console-head {
       display: flex;
       align-items: center;
-      gap: 8px;
-      padding: 12px 16px;
-      background: #1a1a2e;
-      border-bottom: 1px solid rgba(255,255,255,0.08);
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .traffic {
+      display: inline-flex;
+      gap: 7px;
     }
 
     .dot {
@@ -211,288 +294,400 @@
       border-radius: 50%;
     }
 
-    .dot.r { background: #ff5f57; }
-    .dot.y { background: #febc2e; }
-    .dot.g { background: #28c840; }
+    .dot.r { background: var(--red); }
+    .dot.y { background: var(--amber); }
+    .dot.g { background: var(--green); }
 
-    .terminal-bar span {
-      margin-left: 12px;
-      color: rgba(255,255,255,0.4);
-      font-family: "IBM Plex Mono", monospace;
+    .console-title {
+      color: var(--muted);
+      font-family: var(--mono);
       font-size: 12px;
-    }
-
-    .terminal pre {
-      margin: 0;
-      padding: 20px;
-      background: #0d1117;
-      color: #c9d1d9;
-      font-family: "IBM Plex Mono", monospace;
-      font-size: 13px;
-      line-height: 1.8;
-      overflow-x: auto;
-    }
-
-    .terminal .prompt { color: #7ee787; }
-    .terminal .cmd { color: #f0f6fc; }
-    .terminal .comment { color: #6e7681; }
-    .terminal .highlight { color: #ffa657; }
-
-    /* ─── pills ─── */
-    .pill-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-bottom: 24px;
-    }
-
-    .pill {
-      display: inline-flex;
-      align-items: center;
-      padding: 6px 14px;
-      border: 1px solid var(--line);
-      border-radius: 999px;
-      background: var(--surface);
-      font-size: 13px;
-      font-weight: 500;
-      color: var(--ink-soft);
-    }
-
-    /* ─── cards ─── */
-    .grid-2 {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 20px;
-      margin-top: 32px;
-    }
-
-    .grid-3 {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 20px;
-      margin-top: 32px;
-    }
-
-    .card {
-      padding: 28px;
-      border: 1px solid var(--line);
-      border-radius: 12px;
-      background: var(--surface);
-      transition: box-shadow 0.25s, transform 0.25s;
-    }
-
-    .card:hover {
-      box-shadow: 0 12px 40px rgba(17, 24, 39, 0.1);
-      transform: translateY(-2px);
-    }
-
-    .card-icon {
-      display: grid;
-      width: 40px;
-      height: 40px;
-      place-items: center;
-      margin-bottom: 16px;
-      border-radius: 10px;
-      font-size: 18px;
-    }
-
-    .card p {
-      margin: 8px 0 0;
-      color: var(--ink-soft);
-      font-size: 14px;
-      line-height: 1.6;
-    }
-
-    .card code {
-      color: var(--teal);
       font-weight: 600;
     }
 
-    /* ─── steps ─── */
-    .step-list {
+    .console pre {
+      min-height: 310px;
+      margin: 0;
+      padding: 22px;
+      overflow-x: auto;
+      color: #d7e2f0;
+      font-family: var(--mono);
+      font-size: 13px;
+      line-height: 1.78;
+    }
+
+    .prompt { color: var(--green); }
+    .cmd { color: var(--ink); }
+    .dim { color: #6d7788; }
+    .cyan { color: var(--cyan); }
+    .pink { color: var(--pink); }
+    .amber { color: var(--amber); }
+
+    .graph-panel {
+      position: relative;
+      min-height: 230px;
+      border-top: 1px solid var(--line);
+      background:
+        linear-gradient(90deg, rgba(52, 213, 255, 0.12), transparent 40%),
+        rgba(255, 255, 255, 0.025);
+      overflow: hidden;
+    }
+
+    .graph-line {
+      position: absolute;
+      height: 1px;
+      background: rgba(52, 213, 255, 0.38);
+      transform-origin: left center;
+    }
+
+    .graph-node {
+      position: absolute;
+      display: grid;
+      width: 96px;
+      min-height: 42px;
+      place-items: center;
+      padding: 7px;
+      border: 1px solid rgba(52, 213, 255, 0.44);
+      border-radius: 7px;
+      background: rgba(11, 16, 24, 0.92);
+      color: var(--ink);
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 700;
+      text-align: center;
+      box-shadow: 0 0 24px rgba(52, 213, 255, 0.12);
+    }
+
+    .graph-node.hot {
+      border-color: rgba(183, 255, 74, 0.66);
+      color: var(--green);
+      box-shadow: 0 0 30px rgba(183, 255, 74, 0.14);
+    }
+
+    .kicker-grid,
+    .capability-grid,
+    .skill-grid,
+    .artifact-grid,
+    .install-grid {
       display: grid;
       gap: 16px;
+    }
+
+    .kicker-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      margin-top: 30px;
+    }
+
+    .capability-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      margin-top: 34px;
+    }
+
+    .skill-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
       margin-top: 32px;
+    }
+
+    .artifact-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      margin-top: 30px;
+    }
+
+    .install-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      margin-top: 30px;
+    }
+
+    .card,
+    .skill,
+    .artifact,
+    .install-card,
+    .kicker {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(16, 20, 29, 0.82);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+      min-width: 0;
+    }
+
+    .card {
+      min-height: 190px;
+      padding: 24px;
+      transition: 170ms ease;
+    }
+
+    .card:hover,
+    .skill:hover,
+    .artifact:hover {
+      border-color: rgba(52, 213, 255, 0.38);
+      transform: translateY(-2px);
+    }
+
+    .card-tag,
+    .skill-tag,
+    .artifact-tag {
+      display: inline-flex;
+      align-items: center;
+      margin-bottom: 16px;
+      padding: 4px 8px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      color: var(--green);
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .card p,
+    .skill p,
+    .artifact p,
+    .kicker p,
+    .install-card p {
+      margin-bottom: 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.65;
+    }
+
+    .kicker {
+      min-height: 120px;
+      padding: 18px;
+    }
+
+    .kicker strong {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--ink);
+      font-family: var(--mono);
+      font-size: 14px;
+    }
+
+    .workflow {
+      display: grid;
+      grid-template-columns: 0.9fr 1.1fr;
+      gap: 28px;
+      align-items: start;
+      margin-top: 34px;
+    }
+
+    .step-list {
+      display: grid;
+      gap: 14px;
     }
 
     .step {
       display: grid;
-      grid-template-columns: 48px 1fr;
-      gap: 16px;
+      grid-template-columns: 42px 1fr;
+      gap: 14px;
       align-items: start;
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(16, 20, 29, 0.82);
     }
 
     .step-num {
       display: grid;
-      width: 40px;
-      height: 40px;
+      width: 34px;
+      height: 34px;
       place-items: center;
-      border-radius: 10px;
-      background: var(--ink);
-      color: var(--paper);
-      font-family: "IBM Plex Mono", monospace;
-      font-size: 16px;
+      border: 1px solid rgba(183, 255, 74, 0.52);
+      border-radius: 7px;
+      color: var(--green);
+      font-family: var(--mono);
+      font-size: 13px;
       font-weight: 700;
     }
 
     .step h3 {
-      margin-top: 8px;
+      margin-bottom: 5px;
+      font-size: 16px;
     }
 
     .step p {
-      margin: 6px 0 0;
-      color: var(--ink-soft);
+      margin-bottom: 0;
+      color: var(--muted);
       font-size: 14px;
     }
 
-    /* ─── terminal blocks ─── */
-    .terminal-block {
-      border: 1px solid var(--line);
-      border-radius: 12px;
-      overflow: hidden;
-      background: #0d1117;
-      margin-top: 24px;
-    }
-
-    .terminal-block .bar {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 10px 16px;
-      background: #161b22;
-      border-bottom: 1px solid rgba(255,255,255,0.06);
-    }
-
-    .terminal-block pre {
-      margin: 0;
-      padding: 20px;
-      color: #c9d1d9;
-      font-family: "IBM Plex Mono", monospace;
-      font-size: 13px;
-      line-height: 1.8;
-      overflow-x: auto;
-    }
-
-    /* ─── install section ─── */
-    .install-grid {
+    .command-list {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 24px;
-      margin-top: 32px;
+      gap: 10px;
+    }
+
+    .command {
+      display: grid;
+      grid-template-columns: 180px 1fr;
+      gap: 14px;
+      align-items: start;
+      padding: 13px 14px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(13, 17, 24, 0.88);
+    }
+
+    .command code {
+      color: var(--cyan);
+      font-weight: 700;
+      overflow-wrap: anywhere;
+    }
+
+    .command span {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .skill,
+    .artifact {
+      min-height: 150px;
+      padding: 18px;
+      transition: 170ms ease;
+    }
+
+    .skill h3,
+    .artifact h3 {
+      font-size: 15px;
+      font-family: var(--mono);
+      overflow-wrap: anywhere;
+    }
+
+    .artifact code {
+      color: var(--cyan);
+      overflow-wrap: anywhere;
     }
 
     .install-card {
-      padding: 28px;
-      border: 1px solid var(--line);
-      border-radius: 12px;
-      background: var(--surface);
+      padding: 22px;
     }
 
     .install-card h3 {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin: 0 0 16px;
-      font-size: 16px;
+      margin-bottom: 16px;
+      font-size: 18px;
     }
 
     .install-card code {
       display: block;
-      padding: 10px 14px;
-      margin: 8px 0;
-      background: #0d1117;
-      color: #c9d1d9;
-      border-radius: 6px;
-      font-size: 13px;
+      padding: 11px 12px;
+      margin-top: 8px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      background: #080a0f;
+      color: var(--cyan);
+      font-size: 12px;
       white-space: nowrap;
       overflow-x: auto;
+      max-width: 100%;
     }
 
-    .install-card .label {
-      margin: 0 0 4px;
+    .label {
+      margin: 0;
       color: var(--muted);
-      font-size: 12px;
-      font-weight: 600;
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.06em;
     }
 
-    /* ─── notice ─── */
     .notice {
-      padding: 20px 24px;
-      border: 1px solid var(--line);
-      border-left: 3px solid var(--teal);
-      border-radius: 0 8px 8px 0;
-      background: var(--surface-2);
-      margin-top: 24px;
+      margin-top: 26px;
+      padding: 18px 20px;
+      border: 1px solid rgba(183, 255, 74, 0.26);
+      border-left: 3px solid var(--green);
+      border-radius: 0 var(--radius) var(--radius) 0;
+      background: rgba(183, 255, 74, 0.07);
     }
 
     .notice strong {
-      color: var(--teal);
-      font-weight: 600;
+      color: var(--green);
+      font-family: var(--mono);
+      font-size: 13px;
     }
 
     .notice p {
       margin: 8px 0 0;
-      color: var(--ink-soft);
+      color: var(--text);
       font-size: 14px;
     }
 
-    /* ─── footer ─── */
     footer {
-      padding: 32px;
-      text-align: center;
+      padding: 34px 28px;
       color: var(--muted);
-      font-size: 14px;
-      border-top: 1px solid var(--line);
+      text-align: center;
+      font-size: 13px;
     }
 
-    /* ─── scroll reveal ─── */
     .reveal {
       opacity: 0;
-      transform: translateY(32px) scale(0.98);
+      transform: translateY(24px);
       transition:
-        opacity var(--duration) var(--easing),
-        transform var(--duration) var(--easing),
-        filter var(--duration) var(--easing);
-      filter: blur(6px);
-      will-change: transform, opacity;
-    }
-
-    .reveal.left {
-      transform: translateX(-32px) translateY(8px) scale(0.98);
-    }
-
-    .reveal.right {
-      transform: translateX(32px) translateY(8px) scale(0.98);
-    }
-
-    .reveal.zoom {
-      transform: scale(0.94);
+        opacity 620ms cubic-bezier(.2,.8,.2,1),
+        transform 620ms cubic-bezier(.2,.8,.2,1);
     }
 
     .reveal.visible {
       opacity: 1;
       transform: none;
-      filter: blur(0);
     }
 
-    .delay-1 { transition-delay: 90ms; }
-    .delay-2 { transition-delay: 180ms; }
-    .delay-3 { transition-delay: 270ms; }
-    .delay-4 { transition-delay: 360ms; }
+    .delay-1 { transition-delay: 80ms; }
+    .delay-2 { transition-delay: 150ms; }
+    .delay-3 { transition-delay: 220ms; }
+    .delay-4 { transition-delay: 290ms; }
 
-    /* ─── responsive ─── */
-    @media (max-width: 980px) {
+    @media (max-width: 1040px) {
       .hero,
-      .grid-2,
-      .grid-3,
-      .install-grid {
+      .workflow {
         grid-template-columns: 1fr;
       }
 
+      .kicker-grid,
+      .capability-grid,
+      .skill-grid,
+      .artifact-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 720px) {
       section {
-        padding: 48px 20px;
+        padding: 56px 18px;
+      }
+
+      .topbar {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .nav {
+        justify-content: flex-start;
+      }
+
+      .hero {
+        min-height: auto;
+      }
+
+      .hero-metrics,
+      .kicker-grid,
+      .capability-grid,
+      .skill-grid,
+      .artifact-grid,
+      .install-grid,
+      .command {
+        grid-template-columns: 1fr;
+      }
+
+      h1 {
+        font-size: clamp(34px, 12vw, 48px);
+      }
+
+      .graph-panel {
+        display: none;
+      }
+
+      .install-card code {
+        white-space: normal;
+        overflow-wrap: anywhere;
       }
     }
 
@@ -500,248 +695,322 @@
       html { scroll-behavior: auto; }
       .reveal,
       .reveal.visible {
-        transition: none;
         opacity: 1;
         transform: none;
-        filter: none;
+        transition: none;
       }
     }
   </style>
 </head>
 <body>
-  <!-- ─── topbar ─── -->
   <header class="topbar">
-    <div class="brand">
-      <span class="brand-mark">P</span>
+    <a class="brand" href="#top" aria-label="Project Intelligence">
+      <span class="brand-mark">PI</span>
       <span>Project Intelligence</span>
-    </div>
-    <nav class="nav">
-      <a href="#what" class="active">是什么</a>
-      <a href="#workflow">怎么用</a>
-      <a href="#init">初始化</a>
+    </a>
+    <nav class="nav" aria-label="页面导航">
+      <a href="#capabilities" class="active">能力</a>
+      <a href="#usage">怎么用</a>
+      <a href="#skills">Skills</a>
+      <a href="#artifacts">产物</a>
       <a href="#install">安装</a>
     </nav>
   </header>
 
-  <!-- ─── hero ─── -->
-  <section id="what">
-    <div class="shell">
-      <div class="hero">
+  <main id="top">
+    <section>
+      <div class="shell hero">
         <div>
-          <span class="section-label reveal">Project Intelligence</span>
-          <h1 class="reveal">先读懂仓库，再让 Agent 出手。</h1>
+          <span class="section-label reveal">Agent Operating Layer</span>
+          <h1 class="reveal">把仓库变成 Agent 能长期复用的项目大脑。</h1>
           <p class="lead reveal">
-            Project Intelligence 让 Claude Code / Codex 在新增组件、排查 bug、Review 代码之前，先了解项目的真实规范和架构上下文，而不是凭空猜测。
+            Project Intelligence 不只是初始化一个目录。它把规范、组件、API、图谱、质量检查、debug、review、spec、plan 和维护动作串成一条完整项目生命周期。
           </p>
-          <div class="pill-row reveal">
-            <span class="pill">Specs / Plans / Reports</span>
-            <span class="pill">GitNexus + Understand-Anything</span>
-            <span class="pill">11 project skills</span>
+          <div class="hero-actions reveal">
+            <a class="button primary" href="#usage">查看日常用法</a>
+            <a class="button" href="#install">安装插件</a>
           </div>
-        </div>
-
-        <div class="hero-visual reveal right">
-          <div class="terminal">
-            <div class="terminal-bar">
-              <span class="dot r"></span>
-              <span class="dot y"></span>
-              <span class="dot g"></span>
-              <span>project-intel init</span>
+          <div class="hero-metrics reveal">
+            <div class="metric">
+              <strong>12</strong>
+              <span>项目级 skills 覆盖需求、计划、调试、质量、审查和维护</span>
             </div>
-            <pre><code><span class="prompt">$</span> <span class="cmd">project-intel init</span>
+            <div class="metric">
+              <strong>2x</strong>
+              <span>Claude Code 与 Codex 双适配，使用同一套项目事实源</span>
+            </div>
+            <div class="metric">
+              <strong>0</strong>
+              <span>不接 cgraphx，不读取旧 schema，不复用外部数据库</span>
+            </div>
+          </div>
+        </div>
 
-checking package manager, project structure...
-checking optional graph tools...
+        <div class="console reveal delay-2">
+          <div class="console-head">
+            <span class="traffic"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span></span>
+            <span class="console-title">project-intel lifecycle</span>
+          </div>
+          <pre><code><span class="prompt">$</span> <span class="cmd">帮我做这个需求</span>
 
-<span class="highlight">GitNexus</span>   -> installable? ask, then analyze
-<span class="highlight">Understand</span> -> missing? choose Codex or Claude
+<span class="cyan">project-task</span> reads:
+  .project-intel/standards/*
+  .project-intel/knowledge/*.json
+  GitNexus impact chain
+  Understand-Anything architecture map
 
-writing:
-  .project-intel/manifest.json
-  .project-intel/standards/
-  .project-intel/knowledge/
-  .project-intel/reports/
+<span class="pink">before coding</span>  -> spec / plan / reuse check
+<span class="amber">while coding</span>   -> standards / APIs / components
+<span class="cyan">after coding</span>   -> check / review / maintain
 
-<span class="comment">result: repository context is now reusable</span></code></pre>
+<span class="dim">context: durable, repo-local, refreshable</span></code></pre>
+          <div class="graph-panel" aria-label="项目知识图谱示意">
+            <span class="graph-line" style="left:56px; top:62px; width:230px; transform:rotate(15deg);"></span>
+            <span class="graph-line" style="left:250px; top:86px; width:160px; transform:rotate(28deg);"></span>
+            <span class="graph-line" style="left:82px; top:154px; width:250px; transform:rotate(-18deg);"></span>
+            <span class="graph-line" style="left:316px; top:148px; width:146px; transform:rotate(-30deg);"></span>
+            <span class="graph-node hot" style="left:26px; top:38px;">standards</span>
+            <span class="graph-node" style="left:230px; top:54px;">components</span>
+            <span class="graph-node hot" style="left:392px; top:116px;">graph</span>
+            <span class="graph-node" style="left:92px; top:142px;">apis</span>
+            <span class="graph-node" style="left:278px; top:166px;">review</span>
           </div>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- ─── what it does ─── -->
-  <section id="workflow" style="background: var(--surface-2);">
-    <div class="shell">
-      <span class="section-label reveal">Core Capabilities</span>
-      <h2 class="reveal">它不只是"画图"，而是让 Agent 有项目记忆。</h2>
-      <p class="lead reveal">
-        GitNexus 负责符号级调用链，Understand-Anything 负责架构上下文，Project Intelligence 把它们和项目规范、质量检查、工作流串成一个可复用的日常底座。
-      </p>
-
-      <div class="grid-3">
-        <article class="card reveal delay-1">
-          <div class="card-icon" style="background: rgba(14,143,143,0.1); color: var(--teal);">🔄</div>
-          <h3>先查可复用资产</h3>
-          <p>新增组件、Hook、服务或 API 前，先对照 <code>.project-intel/</code> 中的现有抽象，避免重复造轮子。</p>
-        </article>
-        <article class="card reveal delay-2">
-          <div class="card-icon" style="background: rgba(191,92,58,0.1); color: var(--rust);">🔍</div>
-          <h3>先找根因再修 Bug</h3>
-          <p>把复现步骤、最近变更、调用链和质量命令收敛成 debug context，减少猜修。</p>
-        </article>
-        <article class="card reveal delay-3">
-          <div class="card-icon" style="background: rgba(111,91,216,0.1); color: var(--violet);">📋</div>
-          <h3>任务做完继续补知识</h3>
-          <p>实现、Review 修复、commit 后，继续刷新项目事实，避免上下文过期。</p>
-        </article>
+    <section id="capabilities">
+      <div class="shell">
+        <span class="section-label reveal">What It Covers</span>
+        <h2 class="reveal">不止 `init`。它覆盖项目从需求到维护的完整链路。</h2>
+        <p class="lead reveal">
+          核心目标是减少 Agent 猜测：做需求先查复用，写方案先查影响，排 bug 先建上下文，review 先看规范和变更风险。
+        </p>
+        <div class="capability-grid">
+          <article class="card reveal delay-1">
+            <span class="card-tag">01 / lifecycle</span>
+            <h3>需求脑暴、spec、plan</h3>
+            <p>从一句需求开始，先整理目标、边界、影响范围和实现计划，再进入编码。</p>
+          </article>
+          <article class="card reveal delay-2">
+            <span class="card-tag">02 / standards</span>
+            <h3>项目规范沉淀</h3>
+            <p>把 hard、preferred、inferred、candidate 四级规则写入 `.project-intel/standards/`。</p>
+          </article>
+          <article class="card reveal delay-3">
+            <span class="card-tag">03 / reuse</span>
+            <h3>组件与公共能力复用</h3>
+            <p>扫描前端组件、Hooks、API、路由、状态管理和重复候选，做需求前先查可复用资产。</p>
+          </article>
+          <article class="card reveal delay-1">
+            <span class="card-tag">04 / graph</span>
+            <h3>GitNexus + Understand-Anything</h3>
+            <p>GitNexus 负责符号级调用和影响分析，Understand-Anything 负责架构、模块和领域流。</p>
+          </article>
+          <article class="card reveal delay-2">
+            <span class="card-tag">05 / debug</span>
+            <h3>系统化排错</h3>
+            <p>debug 前生成上下文，要求复现、读错误、查最近变更、追调用链，再提出单一假设。</p>
+          </article>
+          <article class="card reveal delay-3">
+            <span class="card-tag">06 / quality</span>
+            <h3>质量与冗余检查</h3>
+            <p>识别项目已有 lint、type-check、format、style 工具，并输出重复 UI、逻辑和样式候选。</p>
+          </article>
+        </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- ─── init flow ─── -->
-  <section id="init">
-    <div class="shell">
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:48px; align-items:start;">
-        <div>
-          <span class="section-label reveal">Init Sequence</span>
-          <h2 class="reveal"><code>init</code> 不是装完就结束，而是把项目智能真正引导起来。</h2>
-          <p class="lead reveal">
-            安装后第一次初始化怎么跑、图谱工具怎么判断、哪些步骤要停在 agent 里继续——这些边界讲清楚了，后面才顺。
-          </p>
-
+    <section id="usage">
+      <div class="shell">
+        <span class="section-label reveal">Natural Language Usage</span>
+        <h2 class="reveal">用户不用记 CLI。日常用自然语言触发。</h2>
+        <p class="lead reveal">
+          CLI 是底层工具；真正使用时，Claude Code / Codex 通过 skills 自动读 `.project-intel`、图谱摘要、规范和报告。
+        </p>
+        <div class="workflow">
           <div class="step-list">
             <article class="step reveal delay-1">
-              <span class="step-num">1</span>
+              <span class="step-num">A</span>
               <div>
-                <h3>先看图谱工具状态</h3>
-                <p>执行 <code>graph-tools --json</code>，由 agent 用中文向用户确认是否准备缺失工具。</p>
+                <h3>初始化项目规范</h3>
+                <p>检测工具、生成规范、扫描知识库、安装 Claude 适配入口。</p>
               </div>
             </article>
             <article class="step reveal delay-2">
-              <span class="step-num">2</span>
+              <span class="step-num">B</span>
               <div>
-                <h3>再跑主初始化</h3>
-                <p>默认 <code>project-intel init</code>。用户明确同意后才用 <code>--setup-missing</code>。</p>
+                <h3>做需求前先查上下文</h3>
+                <p>读取组件、服务、API、业务流、图谱影响面和复用候选。</p>
               </div>
             </article>
             <article class="step reveal delay-3">
-              <span class="step-num">3</span>
+              <span class="step-num">C</span>
               <div>
-                <h3>按工具状态分支</h3>
-                <p>已安装的自动分析；未准备好的进入选择流。GitNexus 走 <code>npx gitnexus analyze</code>，Understand-Anything 按 Codex/Claude Code 分别安装、启用并验证。</p>
-              </div>
-            </article>
-            <article class="step reveal delay-4">
-              <span class="step-num">4</span>
-              <div>
-                <h3>落盘后进入日常工作流</h3>
-                <p><code>.project-intel/</code> 生成后，spec、plan、debug、review 都有固定上下文入口。</p>
+                <h3>实现后维护项目事实</h3>
+                <p>运行 check、refresh、maintenance report，让知识库跟上代码变化。</p>
               </div>
             </article>
           </div>
-        </div>
-
-        <div>
-          <div class="terminal-block reveal right">
-            <div class="bar">
-              <span class="dot r"></span>
-              <span class="dot y"></span>
-              <span class="dot g"></span>
-              <span style="margin-left:12px; color:rgba(255,255,255,0.4); font-family:'IBM Plex Mono',monospace; font-size:12px;">graph-tools --json</span>
+          <div class="command-list reveal delay-2">
+            <div class="command">
+              <code>初始化这个项目规范</code>
+              <span>执行 init，检查 GitNexus、Understand-Anything、质量工具和项目结构。</span>
             </div>
-            <pre><code><span class="prompt">$</span> <span class="cmd">project-intel graph-tools --json</span>
-[
-  { "tool": "GitNexus", "state": "installable" },
-  { "tool": "Understand-Anything", "state": "installable",
-    "installOptions": ["codex", "claude"] }
-]
-
-<span class="comment">agent next step:</span>
-<span class="comment">1. 中文提示用户：全部 / 组合 / 跳过</span>
-<span class="comment">2. 先执行 shell 可运行的 setup</span>
-<span class="comment">3. Claude Code 安装后先验证 plugin list</span>
-<span class="comment">4. 验证成功再提示 /reload-plugins 与 /understand</span>
-<span class="comment">5. 图谱完成后立即触发 /project-refresh 或 project-intel refresh</span></code></pre>
+            <div class="command">
+              <code>帮我做这个需求</code>
+              <span>触发 project-task，先读规范、复用资产和图谱上下文，再实施。</span>
+            </div>
+            <div class="command">
+              <code>帮我写 spec / plan</code>
+              <span>输出需求说明、影响关系、技术计划和可执行 checklist。</span>
+            </div>
+            <div class="command">
+              <code>查询这个 bug</code>
+              <span>触发 project-debug，使用 systematic-debugging 流程定位根因。</span>
+            </div>
+            <div class="command">
+              <code>帮我 review 代码</code>
+              <span>读取 diff、规范、质量结果和图谱影响面，按严重度输出 findings。</span>
+            </div>
+            <div class="command">
+              <code>图谱跑完了</code>
+              <span>立即触发 project-refresh，刷新 `.project-intel` 中的图谱摘要和项目知识。</span>
+            </div>
           </div>
+        </div>
+      </div>
+    </section>
 
-          <div class="notice reveal delay-2">
-            <strong>关键点</strong>
-            <p><code>init</code> 的价值不是输出一句"初始化成功"，而是把后续 agent 需要依赖的项目知识真正沉淀下来。</p>
+    <section id="graph">
+      <div class="shell">
+        <span class="section-label reveal">Graph & Setup</span>
+        <h2 class="reveal">图谱增强是可选的，但闭环是自动接上的。</h2>
+        <p class="lead reveal">
+          GitNexus 能在 shell 里直接分析；Understand-Anything 在 Claude Code 里需要 `/reload-plugins` 和 `/understand`。图谱完成后，插件会引导或直接执行刷新。
+        </p>
+        <div class="console reveal">
+          <div class="console-head">
+            <span class="traffic"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span></span>
+            <span class="console-title">graph setup menu</span>
+          </div>
+          <pre><code>请选择：
+1. 全部准备：GitNexus 分析 + Understand-Anything 安装到 Claude Code
+2. 仅 GitNexus：运行 node .gitnexus/run.cjs analyze
+3. 仅 Understand-Anything：安装到 Claude Code
+4. 跳过图谱增强：直接初始化 .project-intel/
+
+Claude Code:
+  /plugin marketplace add Egonex-AI/Understand-Anything
+  /plugin install understand-anything
+  /reload-plugins
+  /understand . --language zh
+
+after graph:
+  /project-refresh
+  <span class="dim">or fallback: project-intel refresh</span></code></pre>
+        </div>
+        <div class="notice reveal delay-2">
+          <strong>边界清晰</strong>
+          <p>CLI 不会假装能注入 Claude Code slash command。它会完成能在 shell 里做的安装、启用、验证；图谱完成后通过 project-refresh 把结果写回 `.project-intel`。</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="skills">
+      <div class="shell">
+        <span class="section-label reveal">Skill Surface</span>
+        <h2 class="reveal">每个常见项目动作都有专用入口。</h2>
+        <p class="lead reveal">
+          这些 skills 让 Agent 在不同任务中读同一套项目事实，而不是每次从零理解仓库。
+        </p>
+        <div class="skill-grid">
+          <article class="skill reveal delay-1"><span class="skill-tag">shape</span><h3>project-brainstorm</h3><p>需求脑暴，比较方案，收敛范围。</p></article>
+          <article class="skill reveal delay-2"><span class="skill-tag">write</span><h3>project-spec</h3><p>需求说明、验收标准、影响关系。</p></article>
+          <article class="skill reveal delay-3"><span class="skill-tag">plan</span><h3>project-plan</h3><p>从 spec 生成实施步骤和检查点。</p></article>
+          <article class="skill reveal delay-4"><span class="skill-tag">build</span><h3>project-task</h3><p>实现需求前查规范、组件和 API。</p></article>
+          <article class="skill reveal delay-1"><span class="skill-tag">debug</span><h3>project-debug</h3><p>bug 查询和根因定位工作流。</p></article>
+          <article class="skill reveal delay-2"><span class="skill-tag">review</span><h3>project-review</h3><p>按 diff、规范和影响面做代码审查。</p></article>
+          <article class="skill reveal delay-3"><span class="skill-tag">quality</span><h3>project-quality</h3><p>汇总 lint、type、format、style 和冗余。</p></article>
+          <article class="skill reveal delay-4"><span class="skill-tag">memory</span><h3>project-maintain</h3><p>任务完成后维护项目知识库和报告。</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section id="artifacts">
+      <div class="shell">
+        <span class="section-label reveal">Repository Artifacts</span>
+        <h2 class="reveal">所有项目事实都沉淀在仓库内。</h2>
+        <p class="lead reveal">
+          `.project-intel/` 是可提交、可审查、可刷新、可被 Claude Code 和 Codex 共用的事实层。缓存和中间产物默认不提交。
+        </p>
+        <div class="artifact-grid">
+          <article class="artifact reveal delay-1"><span class="artifact-tag">metadata</span><h3><code>manifest.json</code></h3><p>技术栈、入口、图谱来源、刷新状态和 commit。</p></article>
+          <article class="artifact reveal delay-2"><span class="artifact-tag">rules</span><h3><code>standards/*.md</code></h3><p>组件、Hook、API、后端分层、权限、错误码和测试规范。</p></article>
+          <article class="artifact reveal delay-3"><span class="artifact-tag">knowledge</span><h3><code>knowledge/*.json</code></h3><p>组件、Hooks、API、服务、DTO、路由、配置和业务流程。</p></article>
+          <article class="artifact reveal delay-1"><span class="artifact-tag">graph</span><h3><code>graph/project-graph.json</code></h3><p>统一引用 GitNexus 和 Understand-Anything 的摘要。</p></article>
+          <article class="artifact reveal delay-2"><span class="artifact-tag">reports</span><h3><code>reports/*.md</code></h3><p>初始化、质量、冗余、影响分析、review 和 debug 报告。</p></article>
+          <article class="artifact reveal delay-3"><span class="artifact-tag">lifecycle</span><h3><code>specs/ plans/ maintenance/</code></h3><p>需求、计划和任务后维护记录，形成可追踪时间线。</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section id="install">
+      <div class="shell">
+        <span class="section-label reveal">Install</span>
+        <h2 class="reveal">装上插件，切到仓库，开始沉淀项目智能。</h2>
+        <p class="lead reveal">
+          安装只是入口。第一次 `init` 负责把项目规范、知识库和图谱状态接起来，后续需求和 review 都会复用这些事实。
+        </p>
+        <div class="install-grid">
+          <div class="install-card reveal delay-1">
+            <h3>Claude Code</h3>
+            <p class="label">add marketplace</p>
+            <code>/plugin marketplace add crayonYYxm/project-intelligence</code>
+            <p class="label" style="margin-top:14px;">install plugin</p>
+            <code>/plugin install project-intelligence@project-intelligence</code>
+          </div>
+          <div class="install-card reveal delay-2">
+            <h3>Codex CLI</h3>
+            <p class="label">add marketplace</p>
+            <code>codex plugin marketplace add crayonYYxm/project-intelligence</code>
+            <p class="label" style="margin-top:14px;">install plugin</p>
+            <code>codex plugin install project-intelligence@project-intelligence</code>
           </div>
         </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ─── install ─── -->
-  <section id="install" style="background: var(--surface-2);">
-    <div class="shell">
-      <span class="section-label reveal">Get Started</span>
-      <h2 class="reveal">安装只是入口，真正开始用是跑完第一次 <code>init</code>。</h2>
-      <p class="lead reveal">
-        将仓库添加为 marketplace 后即可安装。安装完成，切到目标仓库跑 <code>init</code> 即可。
-      </p>
-
-      <div class="install-grid">
-        <div class="install-card reveal delay-1">
-          <h3>🟣 Claude Code</h3>
-          <p class="label">添加 marketplace 仓库：</p>
-          <code>/plugin marketplace add crayonYYxm/project-intelligence</code>
-          <p class="label" style="margin-top:14px;">安装插件：</p>
-          <code>/plugin install project-intelligence@project-intelligence</code>
-        </div>
-        <div class="install-card reveal delay-2">
-          <h3>🟢 Codex CLI</h3>
-          <p class="label">添加 marketplace 仓库：</p>
-          <code>codex plugin marketplace add crayonYYxm/project-intelligence</code>
-          <p class="label" style="margin-top:14px;">安装插件：</p>
-          <code>codex plugin install project-intelligence@project-intelligence</code>
+        <div class="notice reveal delay-3">
+          <strong>推荐第一步</strong>
+          <p>在目标仓库说“初始化这个项目规范”。Agent 会检查工具、提示图谱选项、生成 `.project-intel/`，然后进入日常项目工作流。</p>
         </div>
       </div>
+    </section>
+  </main>
 
-      <div class="notice reveal delay-3">
-        <strong>下一步</strong>
-        <p>安装完成后，<code>cd</code> 到目标仓库，执行 <code>project-intel init</code> 即可。init 会自动检测图谱工具状态并引导后续步骤。</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- ─── footer ─── -->
   <footer>
-    <div class="shell">
-      Project Intelligence — 让 specs、plans、standards、knowledge、debugging 和 lifecycle maintenance 成为 agent 的默认工作底座。
-    </div>
+    Project Intelligence - specs, plans, standards, graph context, quality, debug, review, maintain.
   </footer>
 
-  <!-- ─── scroll reveal script ─── -->
   <script>
     const reveals = Array.from(document.querySelectorAll(".reveal"));
-
     const revealObserver = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add("visible");
-        }
+        if (entry.isIntersecting) entry.target.classList.add("visible");
       });
-    }, { threshold: 0.12, rootMargin: "0px 0px -6% 0px" });
-
+    }, { threshold: 0.12, rootMargin: "0px 0px -7% 0px" });
     reveals.forEach((node) => revealObserver.observe(node));
 
-    // nav active state
     const navLinks = Array.from(document.querySelectorAll(".nav a"));
     const sections = Array.from(document.querySelectorAll("section[id]"));
-
     const navObserver = new IntersectionObserver((entries) => {
       const visible = entries
-        .filter((e) => e.isIntersecting)
+        .filter((entry) => entry.isIntersecting)
         .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
       if (!visible) return;
       navLinks.forEach((link) => {
         link.classList.toggle("active", link.getAttribute("href") === "#" + visible.target.id);
       });
-    }, { threshold: [0.3, 0.5] });
-
-    sections.forEach((s) => navObserver.observe(s));
+    }, { threshold: [0.32, 0.56] });
+    sections.forEach((section) => navObserver.observe(section));
   </script>
 </body>
 </html>
