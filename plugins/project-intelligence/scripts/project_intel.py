@@ -24,6 +24,14 @@ from typing import Any
 
 VERSION = "0.1.0"
 UNDERSTAND_AGENT_COMMAND = "/understand . --language zh"
+UNDERSTAND_REPO = "Lum1104/Understand-Anything"
+UNDERSTAND_CODEX_INSTALL_COMMAND = "curl -fsSL https://raw.githubusercontent.com/Lum1104/Understand-Anything/main/install.sh | bash -s codex"
+UNDERSTAND_CLAUDE_MARKETPLACE_COMMAND = f"claude plugin marketplace add {UNDERSTAND_REPO}"
+UNDERSTAND_CLAUDE_INSTALL_COMMAND = "claude plugin install understand-anything@understand-anything"
+UNDERSTAND_CLAUDE_ENABLE_COMMAND = "claude plugin enable understand-anything"
+UNDERSTAND_MANUAL_INSTALL_HINT = (
+    f"{UNDERSTAND_CLAUDE_MARKETPLACE_COMMAND} && {UNDERSTAND_CLAUDE_INSTALL_COMMAND}"
+)
 EXCLUDED_DIRS = {
     ".git",
     ".idea",
@@ -295,6 +303,10 @@ def understand_plugin_roots() -> list[Path]:
         home / ".pi" / "understand-anything" / "understand-anything-plugin",
         home / "understand-anything" / "understand-anything-plugin",
     ]
+    claude_cache = home / ".claude" / "plugins" / "cache"
+    if claude_cache.exists():
+        candidates.extend(claude_cache.glob("*/understand-anything"))
+        candidates.extend(claude_cache.glob("*/understand-anything/*"))
     roots = []
     for candidate in candidates:
         if str(candidate) and (candidate / "package.json").exists() and (candidate / "pnpm-workspace.yaml").exists():
@@ -302,19 +314,119 @@ def understand_plugin_roots() -> list[Path]:
     return roots
 
 
-def default_understand_install_command() -> str | None:
+def current_agent_platform() -> str:
+    configured = os.environ.get("PROJECT_INTEL_AGENT", "").strip().lower()
+    if configured in {"codex", "claude"}:
+        return configured
+    if os.environ.get("CODEX_THREAD_ID") or os.environ.get("CODEX_CI") or os.environ.get("CODEX_HOME"):
+        return "codex"
+    if (
+        os.environ.get("CLAUDE_PLUGIN_ROOT")
+        or os.environ.get("CLAUDECODE")
+        or os.environ.get("CLAUDE_CODE")
+        or os.environ.get("CLAUDE_CODE_ENTRYPOINT")
+    ):
+        return "claude"
+    return "unknown"
+
+
+def claude_understand_installs() -> list[dict[str, Any]]:
+    installed = load_json(Path.home() / ".claude" / "plugins" / "installed_plugins.json", {})
+    plugins = installed.get("plugins", {}) if isinstance(installed, dict) else {}
+    results = []
+    for plugin_id, entries in plugins.items():
+        if not str(plugin_id).startswith("understand-anything@"):
+            continue
+        for entry in entries or []:
+            if isinstance(entry, dict):
+                item = {"id": plugin_id, **entry}
+                results.append(item)
+    return results
+
+
+def understand_installed_platforms(roots: list[Path], claude_installs: list[dict[str, Any]]) -> list[str]:
+    platforms = set()
+    home = Path.home()
+    for root in roots:
+        text = str(root)
+        if ".claude/plugins/cache" in text or os.environ.get("CLAUDE_PLUGIN_ROOT") == text:
+            platforms.add("claude")
+        if root == home / ".understand-anything-plugin" or ".codex/understand-anything" in text or ".agents/skills" in text:
+            platforms.add("codex")
+    if claude_installs:
+        platforms.add("claude")
+    return sorted(platforms)
+
+
+def understand_install_options() -> list[dict[str, Any]]:
+    configured = os.environ.get("PROJECT_INTEL_UNDERSTAND_INSTALL_COMMAND", "").strip()
+    if configured:
+        return [
+            {
+                "platform": "custom",
+                "label": "自定义安装命令",
+                "command": configured,
+                "commands": [configured],
+                "canRun": True,
+            }
+        ]
+
+    options: list[dict[str, Any]] = []
+    if command_exists("claude"):
+        options.append(
+            {
+                "platform": "claude",
+                "label": "Claude Code 插件安装",
+                "command": UNDERSTAND_MANUAL_INSTALL_HINT,
+                "commands": [UNDERSTAND_CLAUDE_MARKETPLACE_COMMAND, UNDERSTAND_CLAUDE_INSTALL_COMMAND],
+                "canRun": True,
+            }
+        )
     if os.name == "nt":
-        shell = "powershell" if command_exists("powershell") else "pwsh" if command_exists("pwsh") else ""
-        if shell:
-            return (
-                f"{shell} -NoProfile -ExecutionPolicy Bypass -Command "
-                "\"& ([scriptblock]::Create((Invoke-WebRequest -UseBasicParsing "
-                "'https://raw.githubusercontent.com/Egonex-AI/Understand-Anything/main/install.ps1').Content)) codex\""
+        powershell_command = (
+            "powershell -NoProfile -ExecutionPolicy Bypass -Command "
+            '"iwr -useb https://raw.githubusercontent.com/Lum1104/Understand-Anything/main/install.ps1 | iex"'
+        )
+        if command_exists("powershell") or command_exists("pwsh"):
+            options.append(
+                {
+                    "platform": "codex",
+                    "label": "Codex skills 安装",
+                    "command": powershell_command,
+                    "commands": [powershell_command],
+                    "canRun": True,
+                }
             )
-        return None
-    if command_exists("curl") and command_exists("bash"):
-        return "curl -fsSL https://raw.githubusercontent.com/Egonex-AI/Understand-Anything/main/install.sh | bash -s codex"
-    return None
+    elif command_exists("curl") and command_exists("bash"):
+        options.append(
+            {
+                "platform": "codex",
+                "label": "Codex skills 安装",
+                "command": UNDERSTAND_CODEX_INSTALL_COMMAND,
+                "commands": [UNDERSTAND_CODEX_INSTALL_COMMAND],
+                "canRun": True,
+            }
+        )
+    return options
+
+
+def filter_understand_install_options(options: list[dict[str, Any]], installed_platforms: list[str]) -> list[dict[str, Any]]:
+    platform = current_agent_platform()
+    installed = set(installed_platforms)
+    if platform in {"codex", "claude"}:
+        if platform in installed:
+            return []
+        return [option for option in options if option.get("platform") in {platform, "custom"}]
+    return [option for option in options if option.get("platform") not in installed or option.get("platform") == "custom"]
+
+
+def default_understand_install_command(options: list[dict[str, Any]] | None = None) -> str | None:
+    platform = current_agent_platform()
+    options = options if options is not None else understand_install_options()
+    for option in options:
+        if option.get("platform") == platform:
+            return option.get("command")
+    return options[0].get("command") if options else None
 
 
 def understand_analyze_command() -> str | None:
@@ -349,21 +461,47 @@ def detect_graph_actions(root: Path) -> list[dict[str, Any]]:
     ]
 
     ua_roots = understand_plugin_roots()
+    ua_claude_installs = claude_understand_installs()
     ua_command = understand_analyze_command()
-    ua_install_command = default_understand_install_command()
-    ua_state = "installed" if ua_command else "agent-installed" if ua_roots else "installable" if ua_install_command else "missing"
+    ua_installed_platforms = understand_installed_platforms(ua_roots, ua_claude_installs)
+    ua_install_options = filter_understand_install_options(understand_install_options(), ua_installed_platforms)
+    ua_install_command = default_understand_install_command(ua_install_options)
+    current_platform = current_agent_platform()
+    ua_installed_for_current = (
+        current_platform in ua_installed_platforms if current_platform in {"codex", "claude"} else bool(ua_installed_platforms)
+    )
+    ua_state = (
+        "installed"
+        if ua_command
+        else "agent-installed"
+        if ua_installed_for_current
+        else "installable"
+        if ua_install_options
+        else "missing"
+    )
+    ua_state_label = {
+        "installed": "已安装，可直接分析",
+        "agent-installed": "已安装到 agent；当前 shell 不能直接分析",
+        "installable": "未安装，可选择安装",
+        "missing": "未安装且未找到可执行安装命令",
+    }.get(ua_state, ua_state)
     actions.append(
         {
             "tool": "Understand-Anything",
             "reason": "架构概览、模块关系、领域流、入职图谱",
             "state": ua_state,
-            "stateLabel": "已安装，可直接分析" if ua_command else "已安装插件，需在 agent 中运行" if ua_roots else "可安装到 Codex" if ua_install_command else "不可用",
+            "stateLabel": ua_state_label,
             "analyzeCommand": ua_command,
             "installCommand": ua_install_command,
+            "installOptions": ua_install_options,
             "agentCommand": UNDERSTAND_AGENT_COMMAND,
+            "claudeInstallCommand": UNDERSTAND_MANUAL_INSTALL_HINT,
             "canAnalyze": bool(ua_command),
             "canInstall": bool(ua_install_command),
             "pluginRoots": [str(path) for path in ua_roots],
+            "claudeInstalls": ua_claude_installs,
+            "installedPlatforms": ua_installed_platforms,
+            "currentPlatform": current_platform,
         }
     )
     return actions
@@ -438,7 +576,12 @@ def detect_tooling(root: Path, package: dict[str, Any]) -> dict[str, Any]:
                 "tool": "Understand-Anything",
                 "reason": understand_action.get("reason"),
                 "command": understand_action.get("agentCommand"),
-                "detail": f"插件已安装到 agent，重启后在会话中运行 {UNDERSTAND_AGENT_COMMAND}，再执行 refresh 记录图谱元数据。",
+                "detail": (
+                    f"Understand-Anything 已安装到 Codex/Claude Code agent，但当前 shell 没有 `understand` 命令。"
+                    f"请在当前 agent 会话中运行 {UNDERSTAND_AGENT_COMMAND} 或触发 Understand-Anything skill，"
+                    f"生成图谱后再执行 project-intel refresh。"
+                    f"如果 Claude Code 显示插件 disabled，请先运行 {UNDERSTAND_CLAUDE_ENABLE_COMMAND} 或在 /plugin 中启用。"
+                ),
                 "canRun": False,
             }
         )
@@ -448,6 +591,7 @@ def detect_tooling(root: Path, package: dict[str, Any]) -> dict[str, Any]:
                 "tool": "Understand-Anything",
                 "reason": understand_action.get("reason"),
                 "command": understand_action.get("installCommand") or understand_action.get("agentCommand"),
+                "installOptions": understand_action.get("installOptions", []),
                 "canRun": understand_action.get("canInstall") or understand_action.get("canAnalyze"),
             }
         )
@@ -480,6 +624,7 @@ def detect_tooling(root: Path, package: dict[str, Any]) -> dict[str, Any]:
                 "status": understand_status,
                 "graphPath": ".understand-anything/knowledge-graph.json" if ua_graph.exists() else None,
                 "pluginRoots": [str(path) for path in ua_roots],
+                "claudeInstalls": understand_action.get("claudeInstalls", []),
             },
             "qualityTools": detect_quality_tool_status(root, quality_commands),
         },
@@ -539,24 +684,19 @@ def setup_missing_tools(root: Path, tooling: dict[str, Any], with_graph: bool = 
     results: list[dict[str, Any]] = []
     for action in tooling.get("recommendedActions", []):
         tool = action.get("tool")
-        if tool != "GitNexus":
-            results.append({"tool": tool, "status": "skipped", "detail": action.get("command")})
-            continue
         if not action.get("canRun"):
-            results.append({"tool": tool, "status": "skipped", "detail": "未检测到可运行的 GitNexus 命令。"})
+            results.append({"tool": tool, "status": "skipped", "detail": f"未检测到可运行的 {tool} 命令。"})
             continue
-        command = action.get("command") or "npx gitnexus analyze"
-        code, out, err = run_shell(command, root, timeout=300)
-        results.append(
-            {
-                "tool": tool,
-                "status": "ok" if code == 0 else "failed",
-                "command": command,
-                "exitCode": code,
-                "stdout": out[-4000:],
-                "stderr": err[-4000:],
-            }
-        )
+        if action.get("installOptions"):
+            option = choose_install_option(action, auto_approve=True)
+            if option:
+                results.extend(run_install_option(root, action, option))
+            continue
+        command = action.get("command") or ("npx gitnexus analyze" if tool == "GitNexus" else None)
+        if not command:
+            results.append({"tool": tool, "status": "skipped", "detail": f"未检测到可运行的 {tool} 命令。"})
+            continue
+        results.append(run_graph_command(root, action, command))
     return results
 
 
@@ -572,22 +712,72 @@ def run_graph_command(root: Path, action: dict[str, Any], command: str) -> dict[
     }
 
 
-def confirm_graph_install(action: dict[str, Any], auto_approve: bool) -> bool:
+def install_options_for_action(action: dict[str, Any]) -> list[dict[str, Any]]:
+    options = action.get("installOptions") or []
+    if options:
+        return options
+    command = action.get("installCommand")
+    if command:
+        return [{"platform": "default", "label": "默认安装命令", "command": command, "commands": [command], "canRun": True}]
+    return []
+
+
+def choose_install_option(action: dict[str, Any], auto_approve: bool) -> dict[str, Any] | None:
+    options = install_options_for_action(action)
+    if not options:
+        return None
+    platform = current_agent_platform()
     if auto_approve:
-        return True
-    command = action.get("installCommand") or action.get("agentCommand") or ""
+        for option in options:
+            if option.get("platform") == platform:
+                return option
+        return options[0]
+
     state_label = action.get("stateLabel") or "需要准备后才能运行分析"
     print(f"\n检测到 {action.get('tool')}：{state_label}。")
     print(f"用途：{action.get('reason')}")
-    print(f"准备/初始化命令：{command}")
-    print("[y] 继续执行并分析")
-    print("[n] 跳过，继续初始化 .project-intel")
+    if len(options) == 1:
+        print(f"准备/初始化命令：{options[0].get('command')}")
+        print("[y] 继续执行并分析")
+        print("[n] 跳过，继续初始化 .project-intel")
+    else:
+        print("请选择安装目标：")
+        for idx, option in enumerate(options, start=1):
+            marker = "（推荐）" if option.get("platform") == platform else ""
+            print(f"{idx}. {option.get('label') or option.get('platform')} {marker}")
+            print(f"   命令：{option.get('command')}")
+        print(f"{len(options) + 1}. 跳过，继续初始化 .project-intel")
     try:
         choice = input("> ").strip().lower()
     except EOFError:
         print("未读取到交互输入，跳过该图谱工具。")
-        return False
-    return choice in ("y", "yes", "是")
+        return None
+    if len(options) == 1:
+        return options[0] if choice in ("y", "yes", "是") else None
+    if choice in ("", "y", "yes", "是"):
+        for option in options:
+            if option.get("platform") == platform:
+                return option
+        return options[0]
+    if choice.isdigit():
+        index = int(choice)
+        if 1 <= index <= len(options):
+            return options[index - 1]
+    return None
+
+
+def run_install_option(root: Path, action: dict[str, Any], option: dict[str, Any]) -> list[dict[str, Any]]:
+    results = []
+    commands = option.get("commands") or [option.get("command")]
+    for command in commands:
+        if not command:
+            continue
+        result = run_graph_command(root, action, command)
+        result["platform"] = option.get("platform")
+        results.append(result)
+        if result.get("status") != "ok":
+            break
+    return results
 
 
 def setup_graph_tools(root: Path, tooling: dict[str, Any], auto_approve: bool = False) -> list[dict[str, Any]]:
@@ -595,7 +785,6 @@ def setup_graph_tools(root: Path, tooling: dict[str, Any], auto_approve: bool = 
     for action in tooling.get("graphActions", []):
         tool = action.get("tool")
         analyze_command = action.get("analyzeCommand")
-        install_command = action.get("installCommand")
         state = action.get("state")
 
         if analyze_command:
@@ -603,26 +792,33 @@ def setup_graph_tools(root: Path, tooling: dict[str, Any], auto_approve: bool = 
             results.append(run_graph_command(root, action, analyze_command))
             continue
 
-        if state == "agent-installed":
-            detail = f"检测到 Understand-Anything 插件，但 CLI 无法直接执行 agent 指令；请在 agent 会话运行 {action.get('agentCommand')}。"
+        if tool == "Understand-Anything" and state == "agent-installed":
+            detail = (
+                f"Understand-Anything 已安装到 agent；当前 shell 不能直接分析。"
+                f"请在 Codex/Claude Code 会话中运行 {action.get('agentCommand')}，"
+                f"或触发 Understand-Anything skill 后再执行 refresh。"
+                f"如果 Claude Code 显示插件 disabled，请先运行 {UNDERSTAND_CLAUDE_ENABLE_COMMAND} 或在 /plugin 中启用。"
+            )
             print(detail)
             results.append({"tool": tool, "status": "skipped", "detail": detail})
             continue
 
-        if not install_command:
+        install_options = install_options_for_action(action)
+        install_option = choose_install_option(action, auto_approve=auto_approve)
+        if not install_options:
             detail = "未检测到可安装或可运行的命令。"
             print(f"{tool}：{detail}")
             results.append({"tool": tool, "status": "skipped", "detail": detail})
             continue
-
-        if not confirm_graph_install(action, auto_approve=auto_approve):
+        if not install_option:
             results.append({"tool": tool, "status": "skipped", "detail": "用户选择跳过。"})
             continue
 
-        print(f"开始准备并执行 {tool}：{install_command}")
-        install_result = run_graph_command(root, action, install_command)
-        results.append(install_result)
-        if tool == "Understand-Anything" and install_result.get("status") == "ok":
+        print(f"开始准备并执行 {tool}：{install_option.get('command')}")
+        install_results = run_install_option(root, action, install_option)
+        results.extend(install_results)
+        install_ok = bool(install_results) and all(result.get("status") == "ok" for result in install_results)
+        if tool == "Understand-Anything" and install_ok:
             refreshed_command = understand_analyze_command()
             if refreshed_command:
                 results.append(run_graph_command(root, action, refreshed_command))
@@ -1029,7 +1225,7 @@ def ensure_gitignore(root: Path) -> None:
 def build_init_report(root: Path, manifest: dict[str, Any], frontend: dict[str, Any], backend: dict[str, Any], config: dict[str, Any], tooling: dict[str, Any]) -> str:
     source_rows = [[s.get("name"), s.get("status"), s.get("role"), s.get("path")] for s in manifest.get("graphSources", [])]
     quality_rows = [[c.get("kind"), c.get("command"), c.get("source")] for c in config.get("quality", {}).get("commands", [])]
-    action_rows = [[a.get("tool"), a.get("command"), "yes" if a.get("canRun") else "manual"] for a in tooling.get("recommendedActions", [])]
+    action_rows = [[a.get("tool"), a.get("command"), "yes" if a.get("canRun") else "no"] for a in tooling.get("recommendedActions", [])]
     follow_up_rows = [[a.get("tool"), a.get("command"), a.get("detail")] for a in tooling.get("followUpActions", [])]
     return f"""# 项目智能报告
 
@@ -1088,7 +1284,7 @@ def build_tooling_report(tooling: dict[str, Any], setup_results: list[dict[str, 
     optional = tooling.get("optional", {})
     pm_rows = [[item.get("name"), item.get("status"), "yes" if item.get("selected") else ""] for item in optional.get("packageManagers", [])]
     quality_rows = [[item.get("kind"), item.get("status"), item.get("command")] for item in optional.get("qualityTools", [])]
-    action_rows = [[item.get("tool"), item.get("command"), "yes" if item.get("canRun") else "manual"] for item in tooling.get("recommendedActions", [])]
+    action_rows = [[item.get("tool"), item.get("command"), "yes" if item.get("canRun") else "no"] for item in tooling.get("recommendedActions", [])]
     follow_up_rows = [[item.get("tool"), item.get("command"), item.get("detail")] for item in tooling.get("followUpActions", [])]
     setup_rows = [[item.get("tool"), item.get("status"), item.get("command") or item.get("detail"), item.get("exitCode", "")] for item in setup_results]
     return f"""# 工具报告

@@ -553,8 +553,8 @@
 checking package manager, project structure...
 checking optional graph tools...
 
-<span class="highlight">GitNexus</span>   -> installed? analyze automatically
-<span class="highlight">Understand</span> -> agent-installed? record steps
+<span class="highlight">GitNexus</span>   -> installable? ask, then analyze
+<span class="highlight">Understand</span> -> missing? choose Codex or Claude
 
 writing:
   .project-intel/manifest.json
@@ -628,7 +628,7 @@ writing:
               <span class="step-num">3</span>
               <div>
                 <h3>按工具状态分支</h3>
-                <p>已安装的自动分析；未准备好的进入选择流。GitNexus 通常是 <code>npx gitnexus analyze</code>。</p>
+                <p>已安装的自动分析；未准备好的进入选择流。GitNexus 走 <code>npx gitnexus analyze</code>，Understand-Anything 按 Codex/Claude Code 分别安装。</p>
               </div>
             </article>
             <article class="step reveal delay-4">
@@ -652,13 +652,14 @@ writing:
             <pre><code><span class="prompt">$</span> <span class="cmd">project-intel graph-tools --json</span>
 [
   { "tool": "GitNexus", "state": "installable" },
-  { "tool": "Understand-Anything", "state": "agent-installed" }
+  { "tool": "Understand-Anything", "state": "installable",
+    "installOptions": ["codex", "claude"] }
 ]
 
 <span class="comment">agent next step:</span>
 <span class="comment">1. 中文提示用户选择</span>
-<span class="comment">2. 如用户同意，执行 setup / init</span>
-<span class="comment">3. 不在同一会话里死循环补跑 init</span></code></pre>
+<span class="comment">2. 如用户同意，安装对应平台</span>
+<span class="comment">3. 再执行 setup / init / refresh</span></code></pre>
           </div>
 
           <div class="notice reveal delay-2">

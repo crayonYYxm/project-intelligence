@@ -22,8 +22,14 @@ python3 /Users/xumeng/plugins/project-intelligence/scripts/project_intel.py inst
 
 `refresh` scans current workspace contents relative to the last generated project facts. It includes code pulled from other authors because project intelligence is based on file facts, not author identity.
 
-`init` checks optional tools such as GitNexus, Understand-Anything, Node/package managers, and quality commands. By default it runs installed graph analysis commands automatically and asks whether missing supported graph tools should be prepared/initialized. In noninteractive agent shells, run `graph-tools --json` first and ask the user in Chinese before calling `init`. Use `--setup-missing` only after the user has already approved automatic setup. For GitNexus this typically means `npx gitnexus analyze`; for Understand-Anything it means installing the Codex-targeted plugin unless an `understand` shell command already exists. If Understand-Anything is only available as an agent slash command, run `/understand . --language zh` and then `refresh` so `.project-intel` can record the resulting graph metadata.
+`init` checks optional tools such as GitNexus, Understand-Anything, Node/package managers, and quality commands. By default it runs installed graph analysis commands automatically and asks before preparing missing graph tools. In noninteractive agent shells, run `graph-tools --json` first and ask the user in Chinese before calling `init --setup-missing`.
 
-If `init` reports that Understand-Anything is `agent-installed`, do not loop on `init` or call it again in the same session to "finish bootstrap". Treat initialization as done, explain the remaining restart requirement in Chinese, and only use `refresh` after the user has actually run `/understand . --language zh`.
+Understand-Anything behavior:
+
+- If it is `installed`, `init` can run the configured analysis command.
+- If it is `agent-installed`, ask the user to run `/understand . --language zh` or trigger the installed Understand-Anything skill, then run `refresh`.
+- If it is `installable`, ask whether to install it for Codex, Claude Code, or both. Only install after approval.
+- For Codex, use the Understand-Anything installer with the `codex` platform.
+- For Claude Code, use `claude plugin marketplace add Lum1104/Understand-Anything` and `claude plugin install understand-anything@understand-anything`; do not fall back to the official Anthropic marketplace name.
 
 The CLI intentionally does not read `.cgraphx`.
