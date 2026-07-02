@@ -24,8 +24,8 @@ from typing import Any
 
 VERSION = "0.1.0"
 UNDERSTAND_AGENT_COMMAND = "/understand . --language zh"
-UNDERSTAND_REPO = "Lum1104/Understand-Anything"
-UNDERSTAND_CODEX_INSTALL_COMMAND = "curl -fsSL https://raw.githubusercontent.com/Lum1104/Understand-Anything/main/install.sh | bash -s codex"
+UNDERSTAND_REPO = "Egonex-AI/Understand-Anything"
+UNDERSTAND_CODEX_INSTALL_COMMAND = "curl -fsSL https://raw.githubusercontent.com/Egonex-AI/Understand-Anything/main/install.sh | bash -s codex"
 UNDERSTAND_CLAUDE_PLUGIN_ID = "understand-anything@understand-anything"
 UNDERSTAND_CLAUDE_MARKETPLACE_COMMAND = f"claude plugin marketplace add {UNDERSTAND_REPO}"
 UNDERSTAND_CLAUDE_INSTALL_COMMAND = f"claude plugin install {UNDERSTAND_CLAUDE_PLUGIN_ID}"
@@ -452,7 +452,7 @@ def understand_install_options(claude_installs: list[dict[str, Any]] | None = No
     if os.name == "nt":
         powershell_command = (
             "powershell -NoProfile -ExecutionPolicy Bypass -Command "
-            '"iwr -useb https://raw.githubusercontent.com/Lum1104/Understand-Anything/main/install.ps1 | iex"'
+            '"iwr -useb https://raw.githubusercontent.com/Egonex-AI/Understand-Anything/main/install.ps1 | iex"'
         )
         if command_exists("powershell") or command_exists("pwsh"):
             options.append(

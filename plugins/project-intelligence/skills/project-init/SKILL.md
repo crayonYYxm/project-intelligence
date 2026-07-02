@@ -57,8 +57,9 @@ After the user answers:
 
 Use `--setup-missing` only when the user has already approved automatic setup. For GitNexus this usually means downloading the CLI via `npx` and immediately running `analyze`, not a separate global install. For Understand-Anything, install according to the chosen target:
 
-- Codex: `curl -fsSL https://raw.githubusercontent.com/Lum1104/Understand-Anything/main/install.sh | bash -s codex`
-- Claude Code: `claude plugin marketplace add Lum1104/Understand-Anything`, then `claude plugin install understand-anything@understand-anything`, then `claude plugin enable understand-anything@understand-anything`. Verify with `claude plugin list`; do not report success if the plugin is disabled or failed to load.
+- Codex: `curl -fsSL https://raw.githubusercontent.com/Egonex-AI/Understand-Anything/main/install.sh | bash -s codex`
+- Claude Code CLI: `claude plugin marketplace add Egonex-AI/Understand-Anything`, then `claude plugin install understand-anything@understand-anything`, then `claude plugin enable understand-anything@understand-anything`. Verify with `claude plugin list`; do not report success if the plugin is disabled or failed to load.
+- Claude Code slash UI equivalent: `/plugin marketplace add Egonex-AI/Understand-Anything`, then `/plugin install understand-anything`. The plugin name is `understand-anything`; the CLI form uses `understand-anything@understand-anything` only to specify the marketplace explicitly.
 
 Do not use the Codex installer as a substitute for Claude Code plugin installation, and do not claim Claude Code cannot install it just because it is absent from the official Anthropic marketplace. Use the Understand-Anything marketplace repo instead.
 
