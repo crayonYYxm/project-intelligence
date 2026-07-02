@@ -60,7 +60,7 @@ plugins/project-intelligence/scripts/project-intel --project /path/to/repo query
 说明：
 
 - `init` 默认会检查 GitNexus 和 Understand-Anything。已安装且有可执行分析命令时会自动分析。
-- `graph-tools --json` 可用于在非交互 agent 会话里先读取图谱工具状态，再由 agent 用中文向用户确认安装选择。
+- `graph-tools --json` 可用于在非交互 agent 会话里先读取图谱工具状态，再由 agent 用中文向用户确认安装选择；当多个图谱动作可用时，应提供“全部”和组合选择。
 - 图谱工具未准备好但有支持的 setup 命令时，`init` 会询问是否继续。GitNexus 通常是 `npx gitnexus analyze` 这种“下载并运行分析”；Understand-Anything 会按当前环境安装到 Codex 或 Claude Code。
 - `init --setup-missing` 会跳过询问并直接运行支持的安装/初始化命令。
 - Understand-Anything 的 Codex 安装使用官方 `install.sh codex`；Claude Code 安装使用 `claude plugin marketplace add Lum1104/Understand-Anything` 和 `claude plugin install understand-anything@understand-anything`。

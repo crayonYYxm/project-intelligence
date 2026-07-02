@@ -411,12 +411,7 @@ def understand_install_options() -> list[dict[str, Any]]:
 
 
 def filter_understand_install_options(options: list[dict[str, Any]], installed_platforms: list[str]) -> list[dict[str, Any]]:
-    platform = current_agent_platform()
     installed = set(installed_platforms)
-    if platform in {"codex", "claude"}:
-        if platform in installed:
-            return []
-        return [option for option in options if option.get("platform") in {platform, "custom"}]
     return [option for option in options if option.get("platform") not in installed or option.get("platform") == "custom"]
 
 
@@ -473,6 +468,8 @@ def detect_graph_actions(root: Path) -> list[dict[str, Any]]:
     ua_state = (
         "installed"
         if ua_command
+        else "partially-installed"
+        if ua_installed_for_current and ua_install_options
         else "agent-installed"
         if ua_installed_for_current
         else "installable"
@@ -481,6 +478,7 @@ def detect_graph_actions(root: Path) -> list[dict[str, Any]]:
     )
     ua_state_label = {
         "installed": "已安装，可直接分析",
+        "partially-installed": "当前 agent 已安装；其他平台可选安装",
         "agent-installed": "已安装到 agent；当前 shell 不能直接分析",
         "installable": "未安装，可选择安装",
         "missing": "未安装且未找到可执行安装命令",
@@ -570,7 +568,7 @@ def detect_tooling(root: Path, package: dict[str, Any]) -> dict[str, Any]:
                 "canRun": gitnexus_action.get("canInstall") or gitnexus_action.get("canAnalyze"),
             }
         )
-    if understand_action.get("state") == "agent-installed":
+    if understand_action.get("state") in {"agent-installed", "partially-installed"}:
         follow_up_actions.append(
             {
                 "tool": "Understand-Anything",
@@ -585,7 +583,7 @@ def detect_tooling(root: Path, package: dict[str, Any]) -> dict[str, Any]:
                 "canRun": False,
             }
         )
-    elif understand_action.get("state") != "installed":
+    if understand_action.get("state") in {"installable", "partially-installed"}:
         recommended_actions.append(
             {
                 "tool": "Understand-Anything",
@@ -640,8 +638,8 @@ def tooling_has_missing_optional(tooling: dict[str, Any]) -> bool:
 
 def print_tooling_summary(tooling: dict[str, Any]) -> None:
     actions = tooling.get("recommendedActions", [])
+    follow_ups = tooling.get("followUpActions", [])
     if not actions:
-        follow_ups = tooling.get("followUpActions", [])
         if follow_ups:
             print("项目智能工具检查：初始化已完成，但以下图谱需要在 agent 中继续执行：")
             for idx, action in enumerate(follow_ups, start=1):
@@ -655,6 +653,12 @@ def print_tooling_summary(tooling: dict[str, Any]) -> None:
         print(f"{idx}. {action.get('tool')}：{runnable}")
         print(f"   用途：{action.get('reason')}")
         print(f"   命令：{action.get('command')}")
+    if follow_ups:
+        print("后续 Agent 步骤：")
+        for idx, action in enumerate(follow_ups, start=1):
+            print(f"{idx}. {action.get('tool')}：{action.get('detail')}")
+    if len(actions) + len(follow_ups) > 1:
+        print("提示：可以选择全部，也可以组合执行，例如 GitNexus + Understand-Anything。")
 
 
 def print_graph_tools_report(tooling: dict[str, Any], as_json: bool = False) -> None:
@@ -669,6 +673,7 @@ def print_graph_tools_report(tooling: dict[str, Any], as_json: bool = False) -> 
     state_map = {
         "installed": "已安装，可直接分析",
         "installable": "可安装",
+        "partially-installed": "当前 agent 已安装；其他平台可选安装",
         "agent-installed": "已安装插件，需在 agent 中运行",
         "missing": "不可用",
     }
@@ -792,7 +797,9 @@ def setup_graph_tools(root: Path, tooling: dict[str, Any], auto_approve: bool = 
             results.append(run_graph_command(root, action, analyze_command))
             continue
 
-        if tool == "Understand-Anything" and state == "agent-installed":
+        install_options = install_options_for_action(action)
+
+        if tool == "Understand-Anything" and state == "agent-installed" and not install_options:
             detail = (
                 f"Understand-Anything 已安装到 agent；当前 shell 不能直接分析。"
                 f"请在 Codex/Claude Code 会话中运行 {action.get('agentCommand')}，"
@@ -803,7 +810,6 @@ def setup_graph_tools(root: Path, tooling: dict[str, Any], auto_approve: bool = 
             results.append({"tool": tool, "status": "skipped", "detail": detail})
             continue
 
-        install_options = install_options_for_action(action)
         install_option = choose_install_option(action, auto_approve=auto_approve)
         if not install_options:
             detail = "未检测到可安装或可运行的命令。"

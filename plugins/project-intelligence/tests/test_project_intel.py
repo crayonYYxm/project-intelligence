@@ -245,6 +245,36 @@ class GraphToolCommandTests(unittest.TestCase):
         self.assertEqual(understand["stateLabel"], "未安装，可选择安装")
         self.assertEqual(understand["installOptions"], options)
 
+    def test_detect_graph_actions_marks_understand_as_partially_installed(self):
+        options = [
+            {
+                "platform": "claude",
+                "label": "Claude Code 插件安装",
+                "command": project_intel.UNDERSTAND_MANUAL_INSTALL_HINT,
+                "commands": [project_intel.UNDERSTAND_CLAUDE_MARKETPLACE_COMMAND, project_intel.UNDERSTAND_CLAUDE_INSTALL_COMMAND],
+                "canRun": True,
+            },
+            {
+                "platform": "codex",
+                "label": "Codex skills 安装",
+                "command": project_intel.UNDERSTAND_CODEX_INSTALL_COMMAND,
+                "commands": [project_intel.UNDERSTAND_CODEX_INSTALL_COMMAND],
+                "canRun": True,
+            },
+        ]
+        with patch.object(project_intel, "command_exists", return_value=False), patch.object(
+            project_intel, "understand_plugin_roots", return_value=[Path("/tmp/.understand-anything-plugin")]
+        ), patch.object(project_intel, "claude_understand_installs", return_value=[]), patch.object(
+            project_intel, "understand_installed_platforms", return_value=["codex"]
+        ), patch.object(project_intel, "current_agent_platform", return_value="codex"), patch.object(
+            project_intel, "understand_analyze_command", return_value=None
+        ), patch.object(project_intel, "understand_install_options", return_value=options):
+            actions = project_intel.detect_graph_actions(Path("."))
+
+        understand = next(action for action in actions if action["tool"] == "Understand-Anything")
+        self.assertEqual(understand["state"], "partially-installed")
+        self.assertEqual([option["platform"] for option in understand["installOptions"]], ["claude"])
+
     def test_detect_tooling_treats_agent_installed_understand_as_follow_up(self):
         package = {"hasPackageJson": False}
         graph_actions = [
@@ -280,6 +310,49 @@ class GraphToolCommandTests(unittest.TestCase):
         self.assertEqual(tooling["followUpActions"][0]["tool"], "Understand-Anything")
         self.assertEqual(tooling["followUpActions"][0]["command"], "/understand . --language zh")
         self.assertIn("已安装到 Codex/Claude Code agent", tooling["followUpActions"][0]["detail"])
+
+    def test_detect_tooling_treats_partially_installed_understand_as_install_and_follow_up(self):
+        package = {"hasPackageJson": False}
+        graph_actions = [
+            {
+                "tool": "GitNexus",
+                "state": "installed",
+                "reason": "impact",
+                "analyzeCommand": "gitnexus analyze",
+                "canAnalyze": True,
+            },
+            {
+                "tool": "Understand-Anything",
+                "state": "partially-installed",
+                "reason": "architecture",
+                "installCommand": project_intel.UNDERSTAND_MANUAL_INSTALL_HINT,
+                "installOptions": [
+                    {
+                        "platform": "claude",
+                        "label": "Claude Code 插件安装",
+                        "command": project_intel.UNDERSTAND_MANUAL_INSTALL_HINT,
+                        "commands": [
+                            project_intel.UNDERSTAND_CLAUDE_MARKETPLACE_COMMAND,
+                            project_intel.UNDERSTAND_CLAUDE_INSTALL_COMMAND,
+                        ],
+                        "canRun": True,
+                    }
+                ],
+                "agentCommand": "/understand . --language zh",
+                "canAnalyze": False,
+                "canInstall": True,
+            },
+        ]
+
+        with patch.object(project_intel, "detect_quality_commands", return_value=[]), patch.object(
+            project_intel, "package_manager", return_value="npm"
+        ), patch.object(project_intel, "command_exists", return_value=True), patch.object(
+            project_intel, "detect_graph_actions", return_value=graph_actions
+        ), patch.object(project_intel, "understand_plugin_roots", return_value=[]):
+            tooling = project_intel.detect_tooling(Path("."), package)
+
+        self.assertEqual(tooling["recommendedActions"][0]["tool"], "Understand-Anything")
+        self.assertEqual(tooling["followUpActions"][0]["tool"], "Understand-Anything")
 
 
 class UnderstandSetupFlowTests(unittest.TestCase):
@@ -337,6 +410,42 @@ class UnderstandSetupFlowTests(unittest.TestCase):
             result = project_intel.setup_graph_tools(Path("."), tooling, auto_approve=True)
 
         self.assertEqual(result[0]["status"], "ok")
+        self.assertEqual(result[0]["command"], project_intel.UNDERSTAND_CLAUDE_MARKETPLACE_COMMAND)
+        self.assertEqual(result[1]["command"], project_intel.UNDERSTAND_CLAUDE_INSTALL_COMMAND)
+        self.assertEqual(result[2]["status"], "needs-agent")
+        self.assertEqual(run_shell.call_count, 2)
+
+    def test_understand_partially_installed_state_can_install_missing_platform(self):
+        tooling = {
+            "graphActions": [
+                {
+                    "tool": "Understand-Anything",
+                    "state": "partially-installed",
+                    "reason": "architecture",
+                    "installCommand": project_intel.UNDERSTAND_MANUAL_INSTALL_HINT,
+                    "installOptions": [
+                        {
+                            "platform": "claude",
+                            "label": "Claude Code 插件安装",
+                            "command": project_intel.UNDERSTAND_MANUAL_INSTALL_HINT,
+                            "commands": [
+                                project_intel.UNDERSTAND_CLAUDE_MARKETPLACE_COMMAND,
+                                project_intel.UNDERSTAND_CLAUDE_INSTALL_COMMAND,
+                            ],
+                            "canRun": True,
+                        }
+                    ],
+                    "agentCommand": "/understand . --language zh",
+                    "canInstall": True,
+                }
+            ]
+        }
+
+        with patch.object(project_intel, "current_agent_platform", return_value="codex"), patch.object(
+            project_intel, "understand_analyze_command", return_value=None
+        ), patch.object(project_intel, "run_shell", return_value=(0, "ok", "")) as run_shell:
+            result = project_intel.setup_graph_tools(Path("."), tooling, auto_approve=True)
+
         self.assertEqual(result[0]["command"], project_intel.UNDERSTAND_CLAUDE_MARKETPLACE_COMMAND)
         self.assertEqual(result[1]["command"], project_intel.UNDERSTAND_CLAUDE_INSTALL_COMMAND)
         self.assertEqual(result[2]["status"], "needs-agent")

@@ -28,8 +28,11 @@ Understand-Anything behavior:
 
 - If it is `installed`, `init` can run the configured analysis command.
 - If it is `agent-installed`, ask the user to run `/understand . --language zh` or trigger the installed Understand-Anything skill, then run `refresh`.
+- If it is `partially-installed`, keep the `/understand` follow-up and also offer installation/enabling for the missing platform.
 - If it is `installable`, ask whether to install it for Codex, Claude Code, or both. Only install after approval.
 - For Codex, use the Understand-Anything installer with the `codex` platform.
 - For Claude Code, use `claude plugin marketplace add Lum1104/Understand-Anything` and `claude plugin install understand-anything@understand-anything`; do not fall back to the official Anthropic marketplace name.
+
+When presenting choices, always include an “全部” option when more than one graph action is available, and accept combination answers such as `1,2` or `GitNexus + Understand-Anything`. If the user asks for “1 和 2” or “都要”, execute the shell-runnable setup first, then tell them the remaining `/understand . --language zh` step if it cannot be run from shell.
 
 The CLI intentionally does not read `.cgraphx`.
