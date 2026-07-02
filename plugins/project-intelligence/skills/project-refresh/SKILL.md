@@ -1,6 +1,6 @@
 ---
 name: project-refresh
-description: Use when initializing, refreshing, updating, installing, or setting up project standards, knowledge, graph summaries, quality configuration, tooling checks, reports, hooks, or Claude adapters. 刷新, 更新, 刷新项目, 更新项目, 刷新知识库, 更新知识库.
+description: Use when initializing, refreshing, updating, installing, or setting up project standards, knowledge, graph summaries, quality configuration, tooling checks, reports, hooks, Claude adapters, or after Understand-Anything finishes generating a graph. 刷新, 更新, 刷新项目, 更新项目, 刷新知识库, 更新知识库, 图谱完成, understand完成.
 ---
 
 # Project Refresh
@@ -22,12 +22,14 @@ python3 /Users/xumeng/plugins/project-intelligence/scripts/project_intel.py inst
 
 `refresh` scans current workspace contents relative to the last generated project facts. It includes code pulled from other authors because project intelligence is based on file facts, not author identity.
 
+When the user says `/understand . --language zh` completed, graph generation finished, or `.understand-anything/knowledge-graph.json` was updated, immediately run `project-intel refresh` without asking another confirmation. In Claude Code, prefer `/project-refresh` as the user-facing continuation; if the agent cannot issue slash commands programmatically, run the CLI refresh command directly.
+
 `init` checks optional tools such as GitNexus, Understand-Anything, Node/package managers, and quality commands. By default it runs installed graph analysis commands automatically and asks before preparing missing graph tools. In noninteractive agent shells, run `graph-tools --json` first and ask the user in Chinese before calling `init --setup-missing`.
 
 Understand-Anything behavior:
 
 - If it is `installed`, `init` can run the configured analysis command.
-- If it is `agent-installed`, ask the user to run `/reload-plugins` after a fresh Claude Code install/enable, then `/understand . --language zh` or trigger the installed Understand-Anything skill, then run `refresh`.
+- If it is `agent-installed`, ask the user to run `/reload-plugins` after a fresh Claude Code install/enable, then `/understand . --language zh` or trigger the installed Understand-Anything skill. After the graph finishes, immediately run `/project-refresh` or `project-intel refresh`.
 - If it is `partially-installed`, keep the `/understand` follow-up and also offer installation/enabling for the missing platform.
 - If it is `installable`, ask whether to install/enable/repair it for Codex, Claude Code, or both. Only install after approval.
 - For Codex, use the Understand-Anything installer with the `codex` platform from `Egonex-AI/Understand-Anything`.
@@ -35,6 +37,6 @@ Understand-Anything behavior:
 - In Claude Code slash UI, `/plugin marketplace add Egonex-AI/Understand-Anything` followed by `/plugin install understand-anything` is equivalent after the marketplace is added.
 - If Claude Code shows `understand-anything@local` with `failed to load` or `Marketplace local not found`, treat it as broken and run the marketplace repair flow instead of telling the user `/understand` is ready.
 
-When presenting choices, always include an “全部” option when more than one graph action is available, and accept combination answers such as `1,2` or `GitNexus + Understand-Anything`. If the user asks for “1 和 2” or “都要”, execute the shell-runnable setup first. If the remaining step is a Claude Code slash command, explain that shell code cannot inject it into the active prompt; tell the user to run `/reload-plugins`, then `/understand . --language zh`, then refresh.
+When presenting choices, always include an “全部” option when more than one graph action is available, and accept combination answers such as `1,2` or `GitNexus + Understand-Anything`. If the user asks for “1 和 2” or “都要”, execute the shell-runnable setup first. If the remaining step is a Claude Code slash command, explain that shell code cannot inject it into the active prompt; tell the user to run `/reload-plugins`, then `/understand . --language zh`. Once they report completion, immediately refresh project intelligence.
 
 The CLI intentionally does not read `.cgraphx`.

@@ -31,6 +31,8 @@ UNDERSTAND_CLAUDE_MARKETPLACE_COMMAND = f"claude plugin marketplace add {UNDERST
 UNDERSTAND_CLAUDE_INSTALL_COMMAND = f"claude plugin install {UNDERSTAND_CLAUDE_PLUGIN_ID}"
 UNDERSTAND_CLAUDE_ENABLE_COMMAND = f"claude plugin enable {UNDERSTAND_CLAUDE_PLUGIN_ID}"
 UNDERSTAND_CLAUDE_RELOAD_COMMAND = "/reload-plugins"
+PROJECT_REFRESH_AGENT_COMMAND = "/project-refresh"
+PROJECT_REFRESH_CLI_COMMAND = "project-intel refresh"
 UNDERSTAND_MANUAL_INSTALL_HINT = (
     f"{UNDERSTAND_CLAUDE_MARKETPLACE_COMMAND} && {UNDERSTAND_CLAUDE_INSTALL_COMMAND} && {UNDERSTAND_CLAUDE_ENABLE_COMMAND}"
 )
@@ -641,11 +643,13 @@ def detect_tooling(root: Path, package: dict[str, Any]) -> dict[str, Any]:
                 "tool": "Understand-Anything",
                 "reason": understand_action.get("reason"),
                 "command": understand_action.get("agentCommand"),
+                "refreshCommand": PROJECT_REFRESH_AGENT_COMMAND,
+                "fallbackRefreshCommand": PROJECT_REFRESH_CLI_COMMAND,
                 "detail": (
                     f"Understand-Anything 已安装到 Codex/Claude Code agent，但当前 shell 没有 `understand` 命令。"
                     f"如果是在 Claude Code 刚完成安装/启用，请先运行 {UNDERSTAND_CLAUDE_RELOAD_COMMAND} 重新加载插件，"
                     f"再在当前 agent 会话中运行 {UNDERSTAND_AGENT_COMMAND} 或触发 Understand-Anything skill，"
-                    f"生成图谱后再执行 project-intel refresh。"
+                    f"生成图谱后立即执行 {PROJECT_REFRESH_AGENT_COMMAND}；如果不能触发 slash command，执行 {PROJECT_REFRESH_CLI_COMMAND}。"
                 ),
                 "canRun": False,
             }
@@ -864,7 +868,7 @@ def verify_understand_claude_install() -> dict[str, Any]:
             "detail": (
                 f"Claude Code 已启用 {plugin_id}。"
                 f"在当前 Claude Code 会话运行 {UNDERSTAND_CLAUDE_RELOAD_COMMAND} 后，"
-                f"再运行 {UNDERSTAND_AGENT_COMMAND} 生成图谱。"
+                f"再运行 {UNDERSTAND_AGENT_COMMAND} 生成图谱；完成后立即运行 {PROJECT_REFRESH_AGENT_COMMAND}。"
             ),
             "pluginId": plugin_id,
         }
@@ -912,7 +916,8 @@ def setup_graph_tools(root: Path, tooling: dict[str, Any], auto_approve: bool = 
                 f"Understand-Anything 已安装到 agent；当前 shell 不能直接分析。"
                 f"如果是在 Claude Code，请先运行 {UNDERSTAND_CLAUDE_RELOAD_COMMAND}，"
                 f"再在 Codex/Claude Code 会话中运行 {action.get('agentCommand')}，"
-                f"或触发 Understand-Anything skill 后再执行 refresh。"
+                f"或触发 Understand-Anything skill；图谱完成后立即执行 {PROJECT_REFRESH_AGENT_COMMAND}，"
+                f"不能触发 slash command 时执行 {PROJECT_REFRESH_CLI_COMMAND}。"
             )
             print(detail)
             results.append({"tool": tool, "status": "skipped", "detail": detail})
@@ -947,13 +952,13 @@ def setup_graph_tools(root: Path, tooling: dict[str, Any], auto_approve: bool = 
                     detail = (
                         f"Understand-Anything 已安装/启用到 Claude Code，但当前 shell 不能执行 slash command；"
                         f"请在 Claude Code 当前会话运行 {UNDERSTAND_CLAUDE_RELOAD_COMMAND}，"
-                        f"再运行 {action.get('agentCommand')}，完成后执行 refresh。"
+                        f"再运行 {action.get('agentCommand')}，完成后立即执行 {PROJECT_REFRESH_AGENT_COMMAND}。"
                     )
                 else:
                     detail = (
                         f"Understand-Anything 已安装到 agent，但当前 shell 不能直接识别它；"
                         f"请触发 Understand-Anything skill 或运行 {action.get('agentCommand')}，"
-                        f"完成后执行 refresh。"
+                        f"完成后立即执行 {PROJECT_REFRESH_AGENT_COMMAND}；不能触发 slash command 时执行 {PROJECT_REFRESH_CLI_COMMAND}。"
                     )
                 print(detail)
                 results.append(
@@ -961,6 +966,8 @@ def setup_graph_tools(root: Path, tooling: dict[str, Any], auto_approve: bool = 
                         "tool": tool,
                         "status": "needs-agent",
                         "command": action.get("agentCommand"),
+                        "refreshCommand": PROJECT_REFRESH_AGENT_COMMAND,
+                        "fallbackRefreshCommand": PROJECT_REFRESH_CLI_COMMAND,
                         "detail": detail,
                     }
                 )
@@ -1354,7 +1361,10 @@ def build_init_report(root: Path, manifest: dict[str, Any], frontend: dict[str, 
     source_rows = [[s.get("name"), s.get("status"), s.get("role"), s.get("path")] for s in manifest.get("graphSources", [])]
     quality_rows = [[c.get("kind"), c.get("command"), c.get("source")] for c in config.get("quality", {}).get("commands", [])]
     action_rows = [[a.get("tool"), a.get("command"), "yes" if a.get("canRun") else "no"] for a in tooling.get("recommendedActions", [])]
-    follow_up_rows = [[a.get("tool"), a.get("command"), a.get("detail")] for a in tooling.get("followUpActions", [])]
+    follow_up_rows = [
+        [a.get("tool"), a.get("command"), a.get("refreshCommand") or a.get("fallbackRefreshCommand"), a.get("detail")]
+        for a in tooling.get("followUpActions", [])
+    ]
     return f"""# 项目智能报告
 
 生成时间：`{manifest.get("generatedAt")}`
@@ -1390,7 +1400,7 @@ def build_init_report(root: Path, manifest: dict[str, Any], frontend: dict[str, 
 
 ## 后续 Agent 步骤
 
-{table(["工具", "命令", "说明"], follow_up_rows)}
+{table(["工具", "图谱命令", "刷新命令", "说明"], follow_up_rows)}
 """
 
 
@@ -1413,7 +1423,10 @@ def build_tooling_report(tooling: dict[str, Any], setup_results: list[dict[str, 
     pm_rows = [[item.get("name"), item.get("status"), "yes" if item.get("selected") else ""] for item in optional.get("packageManagers", [])]
     quality_rows = [[item.get("kind"), item.get("status"), item.get("command")] for item in optional.get("qualityTools", [])]
     action_rows = [[item.get("tool"), item.get("command"), "yes" if item.get("canRun") else "no"] for item in tooling.get("recommendedActions", [])]
-    follow_up_rows = [[item.get("tool"), item.get("command"), item.get("detail")] for item in tooling.get("followUpActions", [])]
+    follow_up_rows = [
+        [item.get("tool"), item.get("command"), item.get("refreshCommand") or item.get("fallbackRefreshCommand"), item.get("detail")]
+        for item in tooling.get("followUpActions", [])
+    ]
     setup_rows = [[item.get("tool"), item.get("status"), item.get("command") or item.get("detail"), item.get("exitCode", "")] for item in setup_results]
     return f"""# 工具报告
 
@@ -1444,7 +1457,7 @@ def build_tooling_report(tooling: dict[str, Any], setup_results: list[dict[str, 
 
 ## 后续 Agent 步骤
 
-{table(["工具", "命令", "说明"], follow_up_rows)}
+{table(["工具", "图谱命令", "刷新命令", "说明"], follow_up_rows)}
 
 ## 安装结果
 

@@ -23,7 +23,7 @@ python3 plugins/project-intelligence/scripts/project_intel.py init --strict
 By default, `init` checks graph tools before writing project facts. If GitNexus has an executable analysis command, `init` can run analysis automatically. Understand-Anything is optional but supported on both Codex and Claude Code:
 
 - `installed`: a real `understand` CLI or `PROJECT_INTEL_UNDERSTAND_COMMAND` is available, so `init` can run analysis directly.
-- `agent-installed`: Codex/Claude Code plugin files are installed and enabled, but the shell cannot run analysis. In Claude Code, tell the user to run `/reload-plugins` after a fresh install/enable, then `/understand . --language zh`, then `refresh`.
+- `agent-installed`: Codex/Claude Code plugin files are installed and enabled, but the shell cannot run analysis. In Claude Code, tell the user to run `/reload-plugins` after a fresh install/enable, then `/understand . --language zh`. After the graph finishes, immediately continue with `/project-refresh` or `project-intel refresh`.
 - `partially-installed`: current agent already has Understand-Anything, but another platform still has an install option. Offer both the `/understand` follow-up and the missing-platform install option.
 - `installable`: Understand-Anything is not installed, disabled, or the Claude Code install is broken. Ask whether to install/enable/repair it. If approved, use `init --setup-missing` or run the selected install command before `init`.
 - `missing`: no supported install path was detected. Print the setup suggestion and continue without graph enhancement.
@@ -51,7 +51,7 @@ Use a concise Chinese choice prompt, for example:
 After the user answers:
 - If they approved all supported installs, run `init --setup-missing`.
 - If they approved only part of the list, install that subset first, run installed shell analyzers such as GitNexus, then run `init`.
-- If they choose any Understand-Anything analysis option and only an agent skill is available, explain that shell code cannot inject slash commands into the active Claude Code prompt. After Claude Code install/enable succeeds, the remaining action is `/reload-plugins`, then `/understand . --language zh`, then `refresh`.
+- If they choose any Understand-Anything analysis option and only an agent skill is available, explain that shell code cannot inject slash commands into the active Claude Code prompt. After Claude Code install/enable succeeds, the remaining action is `/reload-plugins`, then `/understand . --language zh`. Once the graph finishes, immediately run `/project-refresh` or the CLI fallback `project-intel refresh`.
 - If they chose to skip, run `init --no-graph` or plain `init` only after explicitly telling them graph tools will be skipped.
 - Keep all user-facing narration in Chinese unless the user asked for another language.
 
@@ -65,4 +65,4 @@ Do not use the Codex installer as a substitute for Claude Code plugin installati
 
 If Claude Code shows `understand-anything@local` with `failed to load` or `Marketplace local not found`, treat it as a broken install rather than a usable plugin. Run the marketplace install/repair flow above and ask for `/reload-plugins` only after verification succeeds.
 
-After initialization, use `/project-refresh` to update existing project facts.
+After initialization or after any external graph generation finishes, use `/project-refresh` to update existing project facts. If slash commands cannot be issued programmatically, run `project-intel refresh`.

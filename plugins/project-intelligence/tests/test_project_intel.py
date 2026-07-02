@@ -309,6 +309,8 @@ class GraphToolCommandTests(unittest.TestCase):
         self.assertEqual(len(tooling["followUpActions"]), 1)
         self.assertEqual(tooling["followUpActions"][0]["tool"], "Understand-Anything")
         self.assertEqual(tooling["followUpActions"][0]["command"], "/understand . --language zh")
+        self.assertEqual(tooling["followUpActions"][0]["refreshCommand"], "/project-refresh")
+        self.assertEqual(tooling["followUpActions"][0]["fallbackRefreshCommand"], "project-intel refresh")
         self.assertIn("已安装到 Codex/Claude Code agent", tooling["followUpActions"][0]["detail"])
 
     def test_detect_tooling_treats_partially_installed_understand_as_install_and_follow_up(self):
