@@ -24,6 +24,16 @@ python3 /Users/xumeng/plugins/project-intelligence/scripts/project_intel.py inst
 
 When the user says `/understand . --language zh` completed, graph generation finished, or `.understand-anything/knowledge-graph.json` was updated, immediately run `project-intel refresh` without asking another confirmation. In Claude Code, prefer `/project-refresh` as the user-facing continuation; if the agent cannot issue slash commands programmatically, run the CLI refresh command directly.
 
+After installing or enabling Understand-Anything in Claude Code, use this exact Claude Code slash-command sequence:
+
+```text
+/reload-plugins
+/understand . --language zh
+/project-refresh
+```
+
+If the user says `/reload skills`, treat it as a request for `/reload-plugins`; do not repeat the incorrect command.
+
 `init` checks optional tools such as GitNexus, Understand-Anything, Node/package managers, and quality commands. By default it runs installed graph analysis commands automatically and asks before preparing missing graph tools. In noninteractive agent shells, run `graph-tools --json` first and ask the user in Chinese before calling `init --setup-missing`.
 
 Understand-Anything behavior:
@@ -37,6 +47,6 @@ Understand-Anything behavior:
 - In Claude Code slash UI, `/plugin marketplace add Egonex-AI/Understand-Anything` followed by `/plugin install understand-anything` is equivalent after the marketplace is added.
 - If Claude Code shows `understand-anything@local` with `failed to load` or `Marketplace local not found`, treat it as broken and run the marketplace repair flow instead of telling the user `/understand` is ready.
 
-When presenting choices, always include an “全部” option when more than one graph action is available, and accept combination answers such as `1,2` or `GitNexus + Understand-Anything`. If the user asks for “1 和 2” or “都要”, execute the shell-runnable setup first. If the remaining step is a Claude Code slash command, explain that shell code cannot inject it into the active prompt; tell the user to run `/reload-plugins`, then `/understand . --language zh`. Once they report completion, immediately refresh project intelligence.
+When presenting choices, always include an “全部” option when more than one graph action is available, and accept combination answers such as `1,2` or `GitNexus + Understand-Anything`. If the user asks for “1 和 2” or “都要”, execute the shell-runnable setup first. If the remaining step is a Claude Code slash command, explain that shell code cannot inject it into the active prompt; tell the user to run the three-command sequence above. Once they report completion, immediately refresh project intelligence.
 
 The CLI intentionally does not read `.cgraphx`.
