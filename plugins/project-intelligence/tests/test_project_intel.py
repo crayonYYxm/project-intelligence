@@ -1,6 +1,7 @@
 import importlib.util
 import io
 import json
+import tempfile
 import unittest
 from contextlib import redirect_stdout
 from pathlib import Path
@@ -474,6 +475,55 @@ class UnderstandSetupFlowTests(unittest.TestCase):
         )
 
         self.assertNotIn("claude", platforms)
+
+
+class AgentEntrypointInstallTests(unittest.TestCase):
+    def test_init_writes_root_agent_entrypoints(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "src").mkdir()
+            (root / "src" / "index.ts").write_text("export const answer = 42;\n", encoding="utf-8")
+
+            result = project_intel.init_project(root, with_graph=False)
+
+            agents = (root / "AGENTS.md").read_text(encoding="utf-8")
+            claude = (root / "CLAUDE.md").read_text(encoding="utf-8")
+            self.assertIn(project_intel.PROJECT_INTEL_BLOCK_START, agents)
+            self.assertIn("Before implementing, debugging, reviewing", agents)
+            self.assertIn(project_intel.PROJECT_INTEL_BLOCK_START, claude)
+            self.assertEqual(result["agentFiles"], [str(root / "AGENTS.md"), str(root / "CLAUDE.md")])
+
+    def test_install_writes_root_agent_entrypoints_without_overwriting_existing_content(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "AGENTS.md").write_text("# Team Notes\n\nKeep this section.\n", encoding="utf-8")
+
+            result = project_intel.install_claude(root)
+
+            agents = (root / "AGENTS.md").read_text(encoding="utf-8")
+            claude = (root / "CLAUDE.md").read_text(encoding="utf-8")
+            nested = (root / ".claude" / "CLAUDE.md").read_text(encoding="utf-8")
+            self.assertIn("# Team Notes", agents)
+            self.assertIn(project_intel.PROJECT_INTEL_BLOCK_START, agents)
+            self.assertIn("This repository uses `.project-intel/`", agents)
+            self.assertIn(project_intel.PROJECT_INTEL_BLOCK_START, claude)
+            self.assertIn("Do not read or rely on `.cgraphx`", nested)
+            self.assertIn(str(root / "AGENTS.md"), result["agentFiles"])
+            self.assertIn(str(root / "CLAUDE.md"), result["agentFiles"])
+
+    def test_install_updates_managed_agent_block_without_duplicates(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+
+            project_intel.install_claude(root)
+            project_intel.install_claude(root)
+
+            agents = (root / "AGENTS.md").read_text(encoding="utf-8")
+            claude = (root / "CLAUDE.md").read_text(encoding="utf-8")
+            self.assertEqual(agents.count(project_intel.PROJECT_INTEL_BLOCK_START), 1)
+            self.assertEqual(agents.count(project_intel.PROJECT_INTEL_BLOCK_END), 1)
+            self.assertEqual(claude.count(project_intel.PROJECT_INTEL_BLOCK_START), 1)
+            self.assertEqual(claude.count(project_intel.PROJECT_INTEL_BLOCK_END), 1)
 
 
 if __name__ == "__main__":

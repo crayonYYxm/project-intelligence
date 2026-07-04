@@ -36,6 +36,8 @@ PROJECT_REFRESH_CLI_COMMAND = "project-intel refresh"
 UNDERSTAND_MANUAL_INSTALL_HINT = (
     f"{UNDERSTAND_CLAUDE_MARKETPLACE_COMMAND} && {UNDERSTAND_CLAUDE_INSTALL_COMMAND} && {UNDERSTAND_CLAUDE_ENABLE_COMMAND}"
 )
+PROJECT_INTEL_BLOCK_START = "<!-- project-intelligence:start -->"
+PROJECT_INTEL_BLOCK_END = "<!-- project-intelligence:end -->"
 EXCLUDED_DIRS = {
     ".git",
     ".idea",
@@ -167,6 +169,22 @@ def write_json(path: Path, data: Any) -> None:
 def write_text(path: Path, text: str) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(text.rstrip() + "\n", encoding="utf-8")
+
+
+def upsert_managed_block(path: Path, block: str) -> None:
+    current = read_text(path)
+    managed = f"{PROJECT_INTEL_BLOCK_START}\n{block.strip()}\n{PROJECT_INTEL_BLOCK_END}"
+    pattern = re.compile(
+        rf"{re.escape(PROJECT_INTEL_BLOCK_START)}.*?{re.escape(PROJECT_INTEL_BLOCK_END)}",
+        re.DOTALL,
+    )
+    if pattern.search(current):
+        next_text = pattern.sub(managed, current).rstrip()
+    elif current.strip():
+        next_text = current.rstrip() + "\n\n" + managed
+    else:
+        next_text = managed
+    write_text(path, next_text)
 
 
 def load_json(path: Path, default: Any) -> Any:
@@ -1340,7 +1358,8 @@ def init_project(root: Path, refresh: bool = False, interactive: bool = False, s
     write_text(pdir / "reports" / "redundancy-report.md", build_redundancy_report(frontend))
     write_text(pdir / "reports" / "tooling-report.md", build_tooling_report(tooling, setup_results))
     ensure_gitignore(root)
-    return {"manifest": manifest, "frontend": frontend, "backend": backend, "config": config, "tooling": tooling, "setupResults": setup_results}
+    agent_files = write_agent_entrypoints(root)
+    return {"manifest": manifest, "frontend": frontend, "backend": backend, "config": config, "tooling": tooling, "setupResults": setup_results, "agentFiles": agent_files}
 
 
 def ensure_gitignore(root: Path) -> None:
@@ -1822,19 +1841,46 @@ def activate_git_hooks(root: Path) -> list[dict[str, Any]]:
     return results
 
 
+def project_agent_rules() -> str:
+    return """## Project Intelligence
+
+This repository uses `.project-intel/` as the project-level fact source.
+
+Before implementing, debugging, reviewing, planning, writing specs, answering component/API questions, or modifying behavior:
+
+1. Check `.project-intel/manifest.json` for project metadata and refresh status.
+2. Read only the relevant files under `.project-intel/standards/`, `.project-intel/knowledge/`, `.project-intel/graph/`, and `.project-intel/reports/`.
+3. Apply `hard` standards as requirements; treat `preferred` as default project style; treat `inferred` and `candidate` as suggestions that need confirmation before enforcement.
+4. Prefer existing public components, Hooks, utilities, API wrappers, services, DTO/VO/entity patterns, permission checks, transaction boundaries, and error-code conventions before adding new ones.
+5. For bug investigation, first gather symptoms, reproduce or locate evidence, trace likely paths through project knowledge/graph context, then propose fixes.
+6. After meaningful code changes, run or recommend `project-intel maintain --task "<summary>"`; use `--run-quality` only when real lint/type/style/format checks should run.
+7. If GitNexus or Understand-Anything graph context is available, use it for impact analysis and architecture/domain relationships.
+8. Do not read or rely on `.cgraphx`.
+
+If the dedicated Project Intelligence skill does not trigger automatically, still follow these rules and use `project-intel query`, `project-intel refresh`, `project-intel check`, `project-intel spec`, `project-intel plan`, or `project-intel maintain` as needed."""
+
+
+def write_agent_entrypoints(root: Path) -> list[str]:
+    targets = [root / "AGENTS.md", root / "CLAUDE.md"]
+    rules = project_agent_rules()
+    for target in targets:
+        upsert_managed_block(target, rules)
+    return [str(target) for target in targets]
+
+
 def install_claude(root: Path, hooks: bool = False, activate_hooks: bool = False) -> dict[str, Any]:
     claude = root / ".claude"
     skills = claude / "skills"
     standards = claude / "standards"
     skills.mkdir(parents=True, exist_ok=True)
     standards.mkdir(parents=True, exist_ok=True)
+    agent_rules = project_agent_rules()
+    agent_files = write_agent_entrypoints(root)
     write_text(
         claude / "CLAUDE.md",
-        """# 项目智能
+        f"""# 项目智能
 
-在执行项目任务、代码审查、组件/API 查询、质量检查、需求脑暴、需求文档、实施计划或任务后维护前，先检查 `.project-intel/manifest.json` 以及 `.project-intel/standards` 和 `.project-intel/knowledge` 下的相关文件。
-
-可用时使用 GitNexus 获取符号级调用/影响，使用 Understand-Anything 获取架构/领域上下文。不要读取或依赖 `.cgraphx`。
+{agent_rules}
 """,
     )
     skill_template = """---
@@ -1866,7 +1912,12 @@ description: {description}
     write_text(standards / "project-intelligence.md", "Project standards are generated under `.project-intel/standards/`.\n")
     hook_templates = write_hook_templates(root) if hooks or activate_hooks else []
     hook_results = activate_git_hooks(root) if activate_hooks else []
-    return {"claude": str(claude), "hookTemplates": [str(path) for path in hook_templates], "hookResults": hook_results}
+    return {
+        "claude": str(claude),
+        "agentFiles": agent_files + [str(claude / "CLAUDE.md")],
+        "hookTemplates": [str(path) for path in hook_templates],
+        "hookResults": hook_results,
+    }
 
 
 def run_check(root: Path, run_quality: bool) -> int:
@@ -1986,14 +2037,20 @@ def main(argv: list[str]) -> int:
     if args.command == "init":
         result = init_project(root, refresh=False, interactive=args.interactive, setup_missing=args.setup_missing, with_graph=args.with_graph, strict=args.strict)
         print(f"已初始化 .project-intel，索引了 {result['manifest']['fileCount']} 个文本文件。")
+        if result.get("agentFiles"):
+            print("已维护项目级 Agent 入口：" + ", ".join(result["agentFiles"]))
         return 0
     if args.command == "refresh":
         result = init_project(root, refresh=True)
         print(f"已刷新 .project-intel，索引了 {result['manifest']['fileCount']} 个文本文件。")
+        if result.get("agentFiles"):
+            print("已维护项目级 Agent 入口：" + ", ".join(result["agentFiles"]))
         return 0
     if args.command == "install":
         result = install_claude(root, hooks=args.hooks, activate_hooks=args.activate_git_hooks)
         print(f"已安装 Claude 适配器到 {result['claude']}")
+        if result.get("agentFiles"):
+            print("已维护项目级 Agent 入口：" + ", ".join(result["agentFiles"]))
         if result.get("hookTemplates"):
             print(f"已生成钩子模板：{len(result['hookTemplates'])}")
         for item in result.get("hookResults", []):

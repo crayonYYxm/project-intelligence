@@ -834,7 +834,7 @@
               <span class="step-num">A</span>
               <div>
                 <h3>初始化项目规范</h3>
-                <p>检测工具、生成规范、扫描知识库、安装 Claude 适配入口。</p>
+                <p>检测工具、生成规范、扫描知识库，并维护 AGENTS.md / CLAUDE.md 项目入口。</p>
               </div>
             </article>
             <article class="step reveal delay-2">
@@ -960,7 +960,7 @@ after graph:
         <span class="section-label reveal">Install</span>
         <h2 class="reveal">装上插件，切到仓库，开始沉淀项目智能。</h2>
         <p class="lead reveal">
-          安装只是入口。第一次 `init` 负责把项目规范、知识库和图谱状态接起来，后续需求和 review 都会复用这些事实。
+          安装只是入口。第一次 `init` 负责把项目规范、知识库、图谱状态和 AGENTS.md / CLAUDE.md 项目规则接起来，后续需求和 review 都会复用这些事实。
         </p>
         <div class="install-grid">
           <div class="install-card reveal delay-1">
@@ -980,7 +980,7 @@ after graph:
         </div>
         <div class="notice reveal delay-3">
           <strong>推荐第一步</strong>
-          <p>在目标仓库说“初始化这个项目规范”。Agent 会检查工具、提示图谱选项、生成 `.project-intel/`，然后进入日常项目工作流。</p>
+          <p>在目标仓库说“初始化这个项目规范”。Agent 会检查工具、提示图谱选项、生成 `.project-intel/`，并写入 AGENTS.md / CLAUDE.md managed block，让 skill 未触发时也会先看项目事实。</p>
         </div>
       </div>
     </section>

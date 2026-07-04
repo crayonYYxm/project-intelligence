@@ -18,7 +18,9 @@ python3 plugins/project-intelligence/scripts/project_intel.py init --setup-missi
 python3 plugins/project-intelligence/scripts/project_intel.py init --strict
 ```
 
-`init` generates `.project-intel/` with standards, knowledge, graph summaries, quality configuration, tooling checks, and reports. It checks optional tools such as GitNexus, Understand-Anything, Node/package managers, and quality commands. Missing optional tools do not block initialization unless strict graph setup is requested.
+`init` generates `.project-intel/` with standards, knowledge, graph summaries, quality configuration, tooling checks, and reports. It also maintains root-level `AGENTS.md` and `CLAUDE.md` managed blocks so project rules are visible even when a dedicated Project Intelligence skill does not trigger. It checks optional tools such as GitNexus, Understand-Anything, Node/package managers, and quality commands. Missing optional tools do not block initialization unless strict graph setup is requested.
+
+Preserve user/team content in `AGENTS.md` and `CLAUDE.md`; only update the Project Intelligence managed block.
 
 By default, `init` checks graph tools before writing project facts. If GitNexus has an executable analysis command, `init` can run analysis automatically. Understand-Anything is optional but supported on both Codex and Claude Code:
 
