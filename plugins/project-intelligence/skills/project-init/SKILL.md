@@ -28,16 +28,6 @@ By default, `init` checks graph tools before writing project facts. If GitNexus 
 - `installable`: Understand-Anything is not installed, disabled, or the Claude Code install is broken. Ask whether to install/enable/repair it. If approved, use `init --setup-missing` or run the selected install command before `init`.
 - `missing`: no supported install path was detected. Print the setup suggestion and continue without graph enhancement.
 
-After installing or enabling Understand-Anything in Claude Code, use this exact slash-command sequence:
-
-```text
-/reload-plugins
-/understand . --language zh
-/project-refresh
-```
-
-`/reload-plugins` is the correct Claude Code command. If the user says `/reload skills`, treat it as `/reload-plugins` and do not repeat the incorrect command.
-
 In noninteractive agent shells such as Codex/Claude tool runs, do not rely on the CLI `input()` prompt to collect that choice. First run `graph-tools --json`, inspect `installOptions`, and ask the user in Chinese whether to run all graph setup, install GitNexus, install/enable Understand-Anything for Codex or Claude Code, run the `/understand` follow-up, or skip. Support combination answers such as `1,2`, `1+3`, `全部`, or `all`.
 
 Use a concise Chinese choice prompt, for example:
@@ -61,7 +51,7 @@ Use a concise Chinese choice prompt, for example:
 After the user answers:
 - If they approved all supported installs, run `init --setup-missing`.
 - If they approved only part of the list, install that subset first, run installed shell analyzers such as GitNexus, then run `init`.
-- If they choose any Understand-Anything analysis option and only an agent skill is available, explain that shell code cannot inject slash commands into the active Claude Code prompt. After Claude Code install/enable succeeds, the remaining action is the three-command sequence above. If `/project-refresh` cannot be issued as a slash command, run the CLI fallback `project-intel refresh`.
+- If they choose any Understand-Anything analysis option and only an agent skill is available, explain that shell code cannot inject slash commands into the active Claude Code prompt. After Claude Code install/enable succeeds, the remaining action is `/reload-plugins`, then `/understand . --language zh`. Once the graph finishes, immediately run `/project-refresh` or the CLI fallback `project-intel refresh`.
 - If they chose to skip, run `init --no-graph` or plain `init` only after explicitly telling them graph tools will be skipped.
 - Keep all user-facing narration in Chinese unless the user asked for another language.
 
