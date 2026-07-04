@@ -22,7 +22,7 @@ from pathlib import Path
 from typing import Any
 
 
-VERSION = "0.1.3"
+VERSION = "0.1.4"
 UNDERSTAND_AGENT_COMMAND = "/understand . --language zh"
 UNDERSTAND_REPO = "Egonex-AI/Understand-Anything"
 UNDERSTAND_CODEX_INSTALL_COMMAND = "curl -fsSL https://raw.githubusercontent.com/Egonex-AI/Understand-Anything/main/install.sh | bash -s codex"
@@ -1927,14 +1927,24 @@ description: {description}
         ("project-standards", "查询、说明、确认、升级或降级项目规范和规则等级时使用。项目规范, 规范, 代码规范, 标准。", "项目规范"),
         ("project-quality", "运行或解读前端/后端 lint、类型、格式、样式、冗余和规范检查时使用。质量检查, 代码质量, 检查工具。", "质量检查"),
     ]
+    skill_files = []
     for name, desc, title in entries:
-        write_text(skills / f"{name}.md", skill_template.format(name=name, description=desc, title=title))
+        skill_path = skills / name / "SKILL.md"
+        write_text(skill_path, skill_template.format(name=name, description=desc, title=title))
+        skill_files.append(str(skill_path))
+        legacy_path = skills / f"{name}.md"
+        if legacy_path.exists() and "以 `.project-intel` 作为项目事实来源" in read_text(legacy_path):
+            try:
+                legacy_path.unlink()
+            except OSError:
+                pass
     write_text(standards / "project-intelligence.md", "Project standards are generated under `.project-intel/standards/`.\n")
     hook_templates = write_hook_templates(root) if hooks or activate_hooks else []
     hook_results = activate_git_hooks(root) if activate_hooks else []
     return {
         "claude": str(claude),
         "agentFiles": agent_files + [str(claude / "CLAUDE.md")],
+        "skillFiles": skill_files,
         "hookTemplates": [str(path) for path in hook_templates],
         "hookResults": hook_results,
     }
@@ -2071,6 +2081,8 @@ def main(argv: list[str]) -> int:
         print(f"已安装 Claude 适配器到 {result['claude']}")
         if result.get("agentFiles"):
             print("已维护项目级 Agent 入口：" + ", ".join(result["agentFiles"]))
+        if result.get("skillFiles"):
+            print(f"已生成 Claude skills：{len(result['skillFiles'])}")
         if result.get("hookTemplates"):
             print(f"已生成钩子模板：{len(result['hookTemplates'])}")
         for item in result.get("hookResults", []):

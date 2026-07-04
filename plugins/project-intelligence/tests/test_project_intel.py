@@ -519,6 +519,20 @@ class AgentEntrypointInstallTests(unittest.TestCase):
             self.assertIn("Do not read or rely on `.cgraphx`", nested)
             self.assertIn(str(root / "AGENTS.md"), result["agentFiles"])
             self.assertIn(str(root / "CLAUDE.md"), result["agentFiles"])
+            self.assertTrue((root / ".claude" / "skills" / "project-task" / "SKILL.md").exists())
+            self.assertIn(str(root / ".claude" / "skills" / "project-task" / "SKILL.md"), result["skillFiles"])
+
+    def test_install_writes_claude_skill_directories_and_removes_generated_legacy_flat_files(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            legacy = root / ".claude" / "skills" / "project-task.md"
+            legacy.parent.mkdir(parents=True, exist_ok=True)
+            legacy.write_text("以 `.project-intel` 作为项目事实来源。\n", encoding="utf-8")
+
+            project_intel.install_claude(root)
+
+            self.assertTrue((root / ".claude" / "skills" / "project-task" / "SKILL.md").exists())
+            self.assertFalse(legacy.exists())
 
     def test_install_updates_managed_agent_block_without_duplicates(self):
         with tempfile.TemporaryDirectory() as tmp:
