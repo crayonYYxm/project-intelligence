@@ -499,7 +499,12 @@ class AgentEntrypointInstallTests(unittest.TestCase):
             self.assertIn("GitNexus impact/explore/detect_changes", agents)
             self.assertIn("do not use `cgraphx explore`", agents)
             self.assertIn(project_intel.PROJECT_INTEL_BLOCK_START, claude)
-            self.assertEqual(result["agentFiles"], [str(root / "AGENTS.md"), str(root / "CLAUDE.md")])
+            self.assertIn(str(root / "AGENTS.md"), result["agentFiles"])
+            self.assertIn(str(root / "CLAUDE.md"), result["agentFiles"])
+            self.assertIn(str(root / ".claude" / "CLAUDE.md"), result["agentFiles"])
+            self.assertTrue((root / ".claude" / "skills" / "project-init" / "SKILL.md").exists())
+            self.assertTrue((root / ".claude" / "skills" / "project-task" / "SKILL.md").exists())
+            self.assertIn(str(root / ".claude" / "skills" / "project-init" / "SKILL.md"), result["skillFiles"])
 
     def test_install_writes_root_agent_entrypoints_without_overwriting_existing_content(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -519,7 +524,9 @@ class AgentEntrypointInstallTests(unittest.TestCase):
             self.assertIn("Do not read or rely on `.cgraphx`", nested)
             self.assertIn(str(root / "AGENTS.md"), result["agentFiles"])
             self.assertIn(str(root / "CLAUDE.md"), result["agentFiles"])
+            self.assertTrue((root / ".claude" / "skills" / "project-init" / "SKILL.md").exists())
             self.assertTrue((root / ".claude" / "skills" / "project-task" / "SKILL.md").exists())
+            self.assertIn(str(root / ".claude" / "skills" / "project-init" / "SKILL.md"), result["skillFiles"])
             self.assertIn(str(root / ".claude" / "skills" / "project-task" / "SKILL.md"), result["skillFiles"])
 
     def test_install_writes_claude_skill_directories_and_removes_generated_legacy_flat_files(self):

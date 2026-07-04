@@ -22,7 +22,7 @@ from pathlib import Path
 from typing import Any
 
 
-VERSION = "0.1.4"
+VERSION = "0.1.5"
 UNDERSTAND_AGENT_COMMAND = "/understand . --language zh"
 UNDERSTAND_REPO = "Egonex-AI/Understand-Anything"
 UNDERSTAND_CODEX_INSTALL_COMMAND = "curl -fsSL https://raw.githubusercontent.com/Egonex-AI/Understand-Anything/main/install.sh | bash -s codex"
@@ -1358,8 +1358,18 @@ def init_project(root: Path, refresh: bool = False, interactive: bool = False, s
     write_text(pdir / "reports" / "redundancy-report.md", build_redundancy_report(frontend))
     write_text(pdir / "reports" / "tooling-report.md", build_tooling_report(tooling, setup_results))
     ensure_gitignore(root)
-    agent_files = write_agent_entrypoints(root)
-    return {"manifest": manifest, "frontend": frontend, "backend": backend, "config": config, "tooling": tooling, "setupResults": setup_results, "agentFiles": agent_files}
+    adapter = install_claude(root)
+    return {
+        "manifest": manifest,
+        "frontend": frontend,
+        "backend": backend,
+        "config": config,
+        "tooling": tooling,
+        "setupResults": setup_results,
+        "agentFiles": adapter.get("agentFiles", []),
+        "skillFiles": adapter.get("skillFiles", []),
+        "claude": adapter.get("claude"),
+    }
 
 
 def ensure_gitignore(root: Path) -> None:
@@ -1863,7 +1873,8 @@ Before implementing, debugging, reviewing, planning, writing specs, answering co
    - Project knowledge, component/API/service usage, architecture questions: `/project-intelligence:project-knowledge`
    - Standards lookup, rule promotion/demotion, hard/preferred/inferred/candidate explanation: `/project-intelligence:project-standards`
    - Post-task refresh and lifecycle maintenance: `/project-intelligence:project-maintain`
-   - Initialization or refresh of project facts: `/project-intelligence:project-refresh`
+   - Initialization of project facts and local adapters: `/project-intelligence:project-init`
+   - Refresh of project facts, tooling reports, and adapters: `/project-intelligence:project-refresh`
 2. If slash skills are not available or do not trigger automatically, follow the same workflow manually before using execution tools and state which Project Intelligence workflow is being followed.
 3. Check `.project-intel/manifest.json` for project metadata and refresh status.
 4. Read only the relevant files under `.project-intel/standards/`, `.project-intel/knowledge/`, `.project-intel/graph/`, and `.project-intel/reports/`.
@@ -1915,6 +1926,7 @@ description: {description}
 不要使用 `.cgraphx`。可用时优先使用 GitNexus 获取符号级影响，使用 Understand-Anything 获取架构/领域上下文。
 """
     entries = [
+        ("project-init", "初始化、首次设置或引导项目智能时使用。初始化项目, 项目初始化, 搭建项目, 创建项目, 项目搭建, 初始化。", "项目初始化"),
         ("project-task", "实现、修改、修复、重构或添加项目功能时使用，需要复用、规范、组件、API、服务或图谱上下文。需求开发, 功能开发, 实现需求, 开发任务, 做需求, 写功能。", "项目任务"),
         ("project-brainstorm", "塑造项目需求、脑暴方案、明确范围或在编写代码前选择实现方向时使用。需求脑暴, 脑暴, 讨论需求。", "需求脑暴"),
         ("project-spec", "编写或更新项目需求文档、设计说明、验收标准或任务影响摘要时使用。需求文档, 需求设计, 需求涉及关系和规范。", "需求文档"),
@@ -2069,12 +2081,16 @@ def main(argv: list[str]) -> int:
         print(f"已初始化 .project-intel，索引了 {result['manifest']['fileCount']} 个文本文件。")
         if result.get("agentFiles"):
             print("已维护项目级 Agent 入口：" + ", ".join(result["agentFiles"]))
+        if result.get("skillFiles"):
+            print(f"已生成 Claude skills：{len(result['skillFiles'])}")
         return 0
     if args.command == "refresh":
         result = init_project(root, refresh=True)
         print(f"已刷新 .project-intel，索引了 {result['manifest']['fileCount']} 个文本文件。")
         if result.get("agentFiles"):
             print("已维护项目级 Agent 入口：" + ", ".join(result["agentFiles"]))
+        if result.get("skillFiles"):
+            print(f"已生成 Claude skills：{len(result['skillFiles'])}")
         return 0
     if args.command == "install":
         result = install_claude(root, hooks=args.hooks, activate_hooks=args.activate_git_hooks)
