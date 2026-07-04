@@ -7,6 +7,8 @@ description: Use when implementing, building, adding, modifying, fixing, refacto
 
 Before implementing, read `.project-intel/manifest.json`. Then load only the relevant files under `.project-intel/standards`, `.project-intel/knowledge`, `.project-intel/graph`, and `.project-intel/reports`.
 
+If a conversation begins as discussion, explanation, spec, or plan and then turns into code modification, pause before the first `Edit`/`Write` and switch into this task workflow. Basic tools such as Grep, Read, Edit, Bash, Glob, or Write do not replace this workflow.
+
 Use this sequence:
 
 1. Identify related modules, components, Hooks, APIs, services, routes, and standards.
@@ -14,8 +16,9 @@ Use this sequence:
 3. Treat redundancy findings as `candidate` unless a rule has been promoted to `hard`.
 4. Use GitNexus for symbol-level calls, impact, and change risk when available.
 5. Use Understand-Anything for architecture, module, and domain-flow context when available.
-6. If implementation reveals a bug, error, test failure, or regression, switch to `project-debug` before proposing fixes.
-7. Do not read or rely on `.cgraphx`.
+6. Before the first code edit, run impact/reuse analysis with GitNexus impact/explore tools when available; otherwise use `.project-intel` and `project-intel lifecycle --task "<requirement>"` or `project-intel query "<symbol-or-feature>"`.
+7. If implementation reveals a bug, error, test failure, or regression, switch to `project-debug` before proposing fixes.
+8. Do not read or rely on `.cgraphx`; do not use `cgraphx explore` as a fallback for this plugin.
 
 If `.project-intel` is missing or stale, run:
 
@@ -35,3 +38,5 @@ After implementation, run:
 python3 /Users/xumeng/plugins/project-intelligence/scripts/project_intel.py check
 python3 /Users/xumeng/plugins/project-intelligence/scripts/project_intel.py maintain --task "<summary>"
 ```
+
+Also inspect the git diff after edits and use GitNexus change/impact tools when available before finalizing.

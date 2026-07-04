@@ -491,9 +491,13 @@ class AgentEntrypointInstallTests(unittest.TestCase):
             self.assertIn(project_intel.PROJECT_INTEL_BLOCK_START, agents)
             self.assertIn("Project Intelligence is the workflow layer", agents)
             self.assertIn("Tools such as Grep, Read, Edit, Bash", agents)
+            self.assertIn("pause before the first Edit/Write", agents)
+            self.assertIn("state which Project Intelligence workflow is being followed", agents)
             self.assertIn("/project-intelligence:project-task", agents)
             self.assertIn("/project-intelligence:project-review", agents)
             self.assertIn("/project-intelligence:project-maintain", agents)
+            self.assertIn("GitNexus impact/explore/detect_changes", agents)
+            self.assertIn("do not use `cgraphx explore`", agents)
             self.assertIn(project_intel.PROJECT_INTEL_BLOCK_START, claude)
             self.assertEqual(result["agentFiles"], [str(root / "AGENTS.md"), str(root / "CLAUDE.md")])
 

@@ -32,6 +32,8 @@ Use managed Project Intelligence blocks in root entrypoint files so existing tea
 
 The managed entrypoint rules must distinguish tools from skills: Grep/Read/Edit/Bash are execution tools only, while Project Intelligence skills define the workflow. Keep task-to-skill routing explicit so implementation work uses `project-task`, bug investigation uses `project-debug`, review uses `project-review`, and completed work uses `project-maintain` even when the agent ultimately edits files with basic tools.
 
+The managed entrypoint rules must also handle conversation transitions: if a discussion/spec/plan turns into code changes, the agent must pause before the first `Edit`/`Write`, enter `project-task`, run impact/reuse analysis, and only then edit. After edits, it must inspect the diff, run project checks/maintenance, and use GitNexus change or impact tools when available. Do not recommend `cgraphx explore` or cgraphx `detect_changes`; this plugin does not use cgraphx.
+
 When the user says `/understand . --language zh` completed, graph generation finished, or `.understand-anything/knowledge-graph.json` was updated, immediately run `project-intel refresh` without asking another confirmation. In Claude Code, prefer `/project-refresh` as the user-facing continuation; if the agent cannot issue slash commands programmatically, run the CLI refresh command directly.
 
 `init` checks optional tools such as GitNexus, Understand-Anything, Node/package managers, and quality commands. By default it runs installed graph analysis commands automatically and asks before preparing missing graph tools. In noninteractive agent shells, run `graph-tools --json` first and ask the user in Chinese before calling `init --setup-missing`.
