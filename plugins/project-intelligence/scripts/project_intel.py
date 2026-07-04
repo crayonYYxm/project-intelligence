@@ -22,7 +22,7 @@ from pathlib import Path
 from typing import Any
 
 
-VERSION = "0.1.1"
+VERSION = "0.1.2"
 UNDERSTAND_AGENT_COMMAND = "/understand . --language zh"
 UNDERSTAND_REPO = "Egonex-AI/Understand-Anything"
 UNDERSTAND_CODEX_INSTALL_COMMAND = "curl -fsSL https://raw.githubusercontent.com/Egonex-AI/Understand-Anything/main/install.sh | bash -s codex"
@@ -1846,18 +1846,35 @@ def project_agent_rules() -> str:
 
 This repository uses `.project-intel/` as the project-level fact source.
 
+Project Intelligence is the workflow layer. Tools such as Grep, Read, Edit, Bash, Glob, or Write are only execution tools; using them does not replace the required Project Intelligence workflow.
+
 Before implementing, debugging, reviewing, planning, writing specs, answering component/API questions, or modifying behavior:
 
-1. Check `.project-intel/manifest.json` for project metadata and refresh status.
-2. Read only the relevant files under `.project-intel/standards/`, `.project-intel/knowledge/`, `.project-intel/graph/`, and `.project-intel/reports/`.
-3. Apply `hard` standards as requirements; treat `preferred` as default project style; treat `inferred` and `candidate` as suggestions that need confirmation before enforcement.
-4. Prefer existing public components, Hooks, utilities, API wrappers, services, DTO/VO/entity patterns, permission checks, transaction boundaries, and error-code conventions before adding new ones.
-5. For bug investigation, first gather symptoms, reproduce or locate evidence, trace likely paths through project knowledge/graph context, then propose fixes.
-6. After meaningful code changes, run or recommend `project-intel maintain --task "<summary>"`; use `--run-quality` only when real lint/type/style/format checks should run.
-7. If GitNexus or Understand-Anything graph context is available, use it for impact analysis and architecture/domain relationships.
-8. Do not read or rely on `.cgraphx`.
+1. Classify the request and use the matching Project Intelligence skill when available:
+   - Requirement shaping or brainstorming: `/project-intelligence:project-brainstorm`
+   - Requirement/spec/acceptance criteria/impact: `/project-intelligence:project-spec`
+   - Implementation plan or checklist: `/project-intelligence:project-plan`
+   - Implementation, modification, fix, refactor, or feature work: `/project-intelligence:project-task`
+   - Bug, error, regression, failed test, or unexpected behavior: `/project-intelligence:project-debug`
+   - Code review, PR review, diff review, reuse/quality risk review: `/project-intelligence:project-review`
+   - Quality, lint, type, format, style, redundancy checks: `/project-intelligence:project-quality`
+   - Project knowledge, component/API/service usage, architecture questions: `/project-intelligence:project-knowledge`
+   - Standards lookup, rule promotion/demotion, hard/preferred/inferred/candidate explanation: `/project-intelligence:project-standards`
+   - Post-task refresh and lifecycle maintenance: `/project-intelligence:project-maintain`
+   - Initialization or refresh of project facts: `/project-intelligence:project-refresh`
+2. If slash skills are not available or do not trigger automatically, follow the same workflow manually before using execution tools.
+3. Check `.project-intel/manifest.json` for project metadata and refresh status.
+4. Read only the relevant files under `.project-intel/standards/`, `.project-intel/knowledge/`, `.project-intel/graph/`, and `.project-intel/reports/`.
+5. Apply `hard` standards as requirements; treat `preferred` as default project style; treat `inferred` and `candidate` as suggestions that need confirmation before enforcement.
+6. Prefer existing public components, Hooks, utilities, API wrappers, services, DTO/VO/entity patterns, permission checks, transaction boundaries, and error-code conventions before adding new ones.
+7. For implementation work, check reuse and affected modules before editing; after meaningful code changes, run or recommend `project-intel maintain --task "<summary>"`.
+8. For bug investigation, first gather symptoms, reproduce or locate evidence, trace likely paths through project knowledge/graph context, then propose fixes.
+9. For review, inspect diff plus `.project-intel` standards/knowledge/graph context and report findings by severity before summaries.
+10. Use `--run-quality` only when real lint/type/style/format checks should run.
+11. If GitNexus or Understand-Anything graph context is available, use it for impact analysis and architecture/domain relationships.
+12. Do not read or rely on `.cgraphx`.
 
-If the dedicated Project Intelligence skill does not trigger automatically, still follow these rules and use `project-intel query`, `project-intel refresh`, `project-intel check`, `project-intel spec`, `project-intel plan`, or `project-intel maintain` as needed."""
+Useful CLI fallbacks: `project-intel query`, `project-intel refresh`, `project-intel check`, `project-intel spec`, `project-intel plan`, `project-intel debug`, and `project-intel maintain`."""
 
 
 def write_agent_entrypoints(root: Path) -> list[str]:
