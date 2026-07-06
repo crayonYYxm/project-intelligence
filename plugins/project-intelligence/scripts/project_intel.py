@@ -22,7 +22,7 @@ from pathlib import Path
 from typing import Any, Optional
 
 
-VERSION = "0.1.7"
+VERSION = "0.1.8"
 UNDERSTAND_AGENT_COMMAND = "/understand . --language zh"
 UNDERSTAND_REPO = "Egonex-AI/Understand-Anything"
 UNDERSTAND_CODEX_INSTALL_COMMAND = "curl -fsSL https://raw.githubusercontent.com/Egonex-AI/Understand-Anything/main/install.sh | bash -s codex"
@@ -40,8 +40,6 @@ PROJECT_INTEL_BLOCK_START = "<!-- project-intelligence:start -->"
 PROJECT_INTEL_BLOCK_END = "<!-- project-intelligence:end -->"
 AGENT_PROJECT_INTEL_BLOCK_START = "<!-- agent-project-intelligence:start -->"
 AGENT_PROJECT_INTEL_BLOCK_END = "<!-- agent-project-intelligence:end -->"
-CLAUDE_LOCAL_SKILLS_BLOCK_START = "<!-- local-project-skills:start -->"
-CLAUDE_LOCAL_SKILLS_BLOCK_END = "<!-- local-project-skills:end -->"
 EXCLUDED_DIRS = {
     ".git",
     ".idea",
@@ -1377,7 +1375,6 @@ def init_project(root: Path, refresh: bool = False, interactive: bool = False, s
         "tooling": tooling,
         "setupResults": setup_results,
         "agentFiles": adapter.get("agentFiles", []),
-        "skillFiles": adapter.get("skillFiles", []),
         "claude": adapter.get("claude"),
     }
 
@@ -1971,29 +1968,6 @@ def activate_git_hooks(root: Path) -> list[dict[str, Any]]:
     return results
 
 
-def claude_local_project_skills_rules() -> str:
-    return """## Project Skills First for Claude Code
-
-Before any code change, debugging, review, requirement analysis, planning, spec work, or standards update, first check and use this repository's local `.claude/skills/project-*` skills.
-
-In Claude Code, prefer the local slash skills:
-
-- `/project-brainstorm`
-- `/project-spec`
-- `/project-plan`
-- `/project-task`
-- `/project-debug`
-- `/project-review`
-- `/project-quality`
-- `/project-knowledge`
-- `/project-standards`
-- `/project-maintain`
-- `/project-init`
-- `/project-refresh`
-
-Do not skip the project skill workflow and proceed with only Read/Edit/Bash. When local `.claude/skills/project-*` skills exist, prefer them over plugin namespace variants such as `/project-intelligence:project-task`; use plugin namespace variants only if the local skills are unavailable."""
-
-
 def agent_project_intelligence_priority_rules() -> str:
     return """## Project Intelligence First
 
@@ -2078,12 +2052,7 @@ def claude_project_agent_rules() -> str:
     }
     for old, new in replacements.items():
         rules = rules.replace(old, new)
-    rules = rules.replace(
-        "14. Do not read or rely on `.cgraphx`; do not use `cgraphx explore` or cgraphx `detect_changes` as a Project Intelligence fallback.\n\nStable generated files",
-        "14. Do not read or rely on `.cgraphx`; do not use `cgraphx explore` or cgraphx `detect_changes` as a Project Intelligence fallback.\n"
-        "15. In Claude Code, local `.claude/skills/project-*` skills take precedence over plugin namespace variants. Use `/project-*` when available.\n\n"
-        "Stable generated files",
-    )
+    # Rule 15 removed — skills come from the plugin, not local copies.
     return rules
 
 
@@ -2098,79 +2067,27 @@ def write_agent_entrypoints(root: Path) -> list[str]:
         prepend=True,
     )
     upsert_managed_block(agents, project_agent_rules())
-    upsert_managed_block_with_markers(
-        claude,
-        claude_local_project_skills_rules(),
-        CLAUDE_LOCAL_SKILLS_BLOCK_START,
-        CLAUDE_LOCAL_SKILLS_BLOCK_END,
-        prepend=True,
-    )
     upsert_managed_block(claude, claude_project_agent_rules())
     return [str(agents), str(claude)]
 
 
 def install_claude(root: Path, hooks: bool = False, activate_hooks: bool = False) -> dict[str, Any]:
     claude = root / ".claude"
-    skills = claude / "skills"
-    standards = claude / "standards"
-    skills.mkdir(parents=True, exist_ok=True)
-    standards.mkdir(parents=True, exist_ok=True)
+    claude.mkdir(parents=True, exist_ok=True)
     agent_rules = claude_project_agent_rules()
     agent_files = write_agent_entrypoints(root)
     write_text(
         claude / "CLAUDE.md",
         f"""# 项目智能
 
-{claude_local_project_skills_rules()}
-
 {agent_rules}
 """,
     )
-    skill_template = """---
-name: {name}
-description: {description}
----
-
-# {title}
-
-以 `.project-intel` 作为项目事实来源。从 `.project-intel/manifest.json` 开始，然后只读取相关的规范、知识 JSON、报告和图谱摘要。
-
-实现类任务在首次编辑前先整理中文轻量需求、验收点、影响范围和复用候选，不要默认生成 spec 文件。任务完成后用中文需求摘要维护文件级需求记录：`project-intel maintain --task "<中文简短需求摘要>" --files <changed-source-files>`。
-
-不要使用 `.cgraphx`。可用时优先使用 GitNexus 获取符号级影响，使用 Understand-Anything 获取架构/领域上下文。
-"""
-    entries = [
-        ("project-init", "初始化、首次设置或引导项目智能时使用。初始化项目, 项目初始化, 搭建项目, 创建项目, 项目搭建, 初始化。", "项目初始化"),
-        ("project-task", "实现、修改、修复、重构或添加项目功能时使用，需要复用、规范、组件、API、服务或图谱上下文。需求开发, 功能开发, 实现需求, 开发任务, 做需求, 写功能。", "项目任务"),
-        ("project-brainstorm", "塑造项目需求、脑暴方案、明确范围或在编写代码前选择实现方向时使用。需求脑暴, 脑暴, 讨论需求。", "需求脑暴"),
-        ("project-spec", "编写或更新项目需求文档、设计说明、验收标准或任务影响摘要时使用。需求文档, 需求设计, 需求涉及关系和规范。", "需求文档"),
-        ("project-plan", "将已批准的项目需求或规格转化为包含项目规范和验证步骤的实施计划时使用。技术方案, 实施计划, 开发计划。", "实施计划"),
-        ("project-debug", "调查 bug、错误、测试失败、回归、异常行为或调试问题时使用。查询bug, 排查bug, 定位问题。", "调试"),
-        ("project-maintain", "项目任务完成或需要刷新规范、知识库、报告、钩子或生命周期产物时使用。维护, 项目维护, 更新知识库。", "项目维护"),
-        ("project-review", "根据项目规范、图谱影响、质量检查、冗余和测试审查代码变更时使用。代码审查, 代码评审, PR审查, 代码检查, review, review代码。", "代码审查"),
-        ("project-knowledge", "回答项目结构、组件、API、服务、模块、规范或业务流程相关问题时使用。项目知识, 项目结构, 项目架构。", "项目知识"),
-        ("project-refresh", "更新或初始化项目规范、知识库、图谱摘要和报告时使用。刷新, 更新, 刷新项目, 更新项目。", "刷新项目"),
-        ("project-standards", "查询、说明、确认、升级或降级项目规范和规则等级时使用。项目规范, 规范, 代码规范, 标准。", "项目规范"),
-        ("project-quality", "运行或解读前端/后端 lint、类型、格式、样式、冗余和规范检查时使用。质量检查, 代码质量, 检查工具。", "质量检查"),
-    ]
-    skill_files = []
-    for name, desc, title in entries:
-        skill_path = skills / name / "SKILL.md"
-        write_text(skill_path, skill_template.format(name=name, description=desc, title=title))
-        skill_files.append(str(skill_path))
-        legacy_path = skills / f"{name}.md"
-        if legacy_path.exists() and "以 `.project-intel` 作为项目事实来源" in read_text(legacy_path):
-            try:
-                legacy_path.unlink()
-            except OSError:
-                pass
-    write_text(standards / "project-intelligence.md", "Project standards are generated under `.project-intel/standards/`.\n")
     hook_templates = write_hook_templates(root) if hooks or activate_hooks else []
     hook_results = activate_git_hooks(root) if activate_hooks else []
     return {
         "claude": str(claude),
         "agentFiles": agent_files + [str(claude / "CLAUDE.md")],
-        "skillFiles": skill_files,
         "hookTemplates": [str(path) for path in hook_templates],
         "hookResults": hook_results,
     }
@@ -2303,24 +2220,18 @@ def main(argv: list[str]) -> int:
         print(f"已初始化 .project-intel，索引了 {result['manifest']['fileCount']} 个文本文件。")
         if result.get("agentFiles"):
             print("已维护项目级 Agent 入口：" + ", ".join(result["agentFiles"]))
-        if result.get("skillFiles"):
-            print(f"已生成 Claude skills：{len(result['skillFiles'])}")
         return 0
     if args.command == "refresh":
         result = init_project(root, refresh=True)
         print(f"已刷新 .project-intel，索引了 {result['manifest']['fileCount']} 个文本文件。")
         if result.get("agentFiles"):
             print("已维护项目级 Agent 入口：" + ", ".join(result["agentFiles"]))
-        if result.get("skillFiles"):
-            print(f"已生成 Claude skills：{len(result['skillFiles'])}")
         return 0
     if args.command == "install":
         result = install_claude(root, hooks=args.hooks, activate_hooks=args.activate_git_hooks)
         print(f"已安装 Claude 适配器到 {result['claude']}")
         if result.get("agentFiles"):
             print("已维护项目级 Agent 入口：" + ", ".join(result["agentFiles"]))
-        if result.get("skillFiles"):
-            print(f"已生成 Claude skills：{len(result['skillFiles'])}")
         if result.get("hookTemplates"):
             print(f"已生成钩子模板：{len(result['hookTemplates'])}")
         for item in result.get("hookResults", []):

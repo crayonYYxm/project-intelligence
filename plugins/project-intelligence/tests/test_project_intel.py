@@ -490,7 +490,7 @@ class AgentEntrypointInstallTests(unittest.TestCase):
             claude = (root / "CLAUDE.md").read_text(encoding="utf-8")
             nested = (root / ".claude" / "CLAUDE.md").read_text(encoding="utf-8")
             self.assertTrue(agents.startswith(project_intel.AGENT_PROJECT_INTEL_BLOCK_START))
-            self.assertTrue(claude.startswith(project_intel.CLAUDE_LOCAL_SKILLS_BLOCK_START))
+            self.assertTrue(claude.startswith(project_intel.PROJECT_INTEL_BLOCK_START))
             self.assertIn(project_intel.PROJECT_INTEL_BLOCK_START, agents)
             self.assertIn("Project Intelligence is the workflow layer", agents)
             self.assertIn("Tools such as Grep, Read, Edit, Bash", agents)
@@ -503,15 +503,12 @@ class AgentEntrypointInstallTests(unittest.TestCase):
             self.assertIn("do not use `cgraphx explore`", agents)
             self.assertIn(project_intel.PROJECT_INTEL_BLOCK_START, claude)
             self.assertIn("/project-task", claude)
-            self.assertIn("local `.claude/skills/project-*` skills take precedence", claude)
-            self.assertIn("Project Skills First for Claude Code", nested)
             self.assertIn("/project-task", nested)
             self.assertIn(str(root / "AGENTS.md"), result["agentFiles"])
             self.assertIn(str(root / "CLAUDE.md"), result["agentFiles"])
             self.assertIn(str(root / ".claude" / "CLAUDE.md"), result["agentFiles"])
-            self.assertTrue((root / ".claude" / "skills" / "project-init" / "SKILL.md").exists())
-            self.assertTrue((root / ".claude" / "skills" / "project-task" / "SKILL.md").exists())
-            self.assertIn(str(root / ".claude" / "skills" / "project-init" / "SKILL.md"), result["skillFiles"])
+            # Skills come from the plugin, not copied into the project
+            self.assertFalse((root / ".claude" / "skills").exists())
 
     def test_install_writes_root_agent_entrypoints_without_overwriting_existing_content(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -524,7 +521,7 @@ class AgentEntrypointInstallTests(unittest.TestCase):
             claude = (root / "CLAUDE.md").read_text(encoding="utf-8")
             nested = (root / ".claude" / "CLAUDE.md").read_text(encoding="utf-8")
             self.assertTrue(agents.startswith(project_intel.AGENT_PROJECT_INTEL_BLOCK_START))
-            self.assertTrue(claude.startswith(project_intel.CLAUDE_LOCAL_SKILLS_BLOCK_START))
+            self.assertTrue(claude.startswith(project_intel.PROJECT_INTEL_BLOCK_START))
             self.assertIn("# Team Notes", agents)
             self.assertIn(project_intel.PROJECT_INTEL_BLOCK_START, agents)
             self.assertIn("This repository uses `.project-intel/`", agents)
@@ -535,22 +532,17 @@ class AgentEntrypointInstallTests(unittest.TestCase):
             self.assertIn("Do not read or rely on `.cgraphx`", nested)
             self.assertIn(str(root / "AGENTS.md"), result["agentFiles"])
             self.assertIn(str(root / "CLAUDE.md"), result["agentFiles"])
-            self.assertTrue((root / ".claude" / "skills" / "project-init" / "SKILL.md").exists())
-            self.assertTrue((root / ".claude" / "skills" / "project-task" / "SKILL.md").exists())
-            self.assertIn(str(root / ".claude" / "skills" / "project-init" / "SKILL.md"), result["skillFiles"])
-            self.assertIn(str(root / ".claude" / "skills" / "project-task" / "SKILL.md"), result["skillFiles"])
+            # Skills come from the plugin, not copied into the project
+            self.assertFalse((root / ".claude" / "skills").exists())
 
-    def test_install_writes_claude_skill_directories_and_removes_generated_legacy_flat_files(self):
+    def test_install_does_not_generate_skill_files(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
-            legacy = root / ".claude" / "skills" / "project-task.md"
-            legacy.parent.mkdir(parents=True, exist_ok=True)
-            legacy.write_text("以 `.project-intel` 作为项目事实来源。\n", encoding="utf-8")
 
             project_intel.install_claude(root)
 
-            self.assertTrue((root / ".claude" / "skills" / "project-task" / "SKILL.md").exists())
-            self.assertFalse(legacy.exists())
+            # Skills come from the plugin itself — no local copies needed
+            self.assertFalse((root / ".claude" / "skills").exists())
 
     def test_install_updates_managed_agent_block_without_duplicates(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -563,8 +555,6 @@ class AgentEntrypointInstallTests(unittest.TestCase):
             claude = (root / "CLAUDE.md").read_text(encoding="utf-8")
             self.assertEqual(agents.count(project_intel.AGENT_PROJECT_INTEL_BLOCK_START), 1)
             self.assertEqual(agents.count(project_intel.AGENT_PROJECT_INTEL_BLOCK_END), 1)
-            self.assertEqual(claude.count(project_intel.CLAUDE_LOCAL_SKILLS_BLOCK_START), 1)
-            self.assertEqual(claude.count(project_intel.CLAUDE_LOCAL_SKILLS_BLOCK_END), 1)
             self.assertEqual(agents.count(project_intel.PROJECT_INTEL_BLOCK_START), 1)
             self.assertEqual(agents.count(project_intel.PROJECT_INTEL_BLOCK_END), 1)
             self.assertEqual(claude.count(project_intel.PROJECT_INTEL_BLOCK_START), 1)
