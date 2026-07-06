@@ -627,6 +627,62 @@ class LifecycleArtifactTests(unittest.TestCase):
                 self.assertEqual(len(archives), 1)
                 self.assertIn("archive task", archives[0].read_text(encoding="utf-8"))
 
+    def test_file_requirements_use_one_markdown_per_source_file(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source = root / "src" / "utils" / "common.ts"
+            source.parent.mkdir(parents=True)
+            source.write_text("export const answer = 42;\n", encoding="utf-8")
+
+            written = project_intel.update_file_requirement_docs(root, "支持校园预充值金额可选", [str(source)])
+
+            expected = root / ".project-intel" / "requirements" / "files" / "src" / "utils" / "common.ts.md"
+            self.assertEqual(written, [expected])
+            body = expected.read_text(encoding="utf-8")
+            self.assertIn("源文件：`src/utils/common.ts`", body)
+            self.assertIn("支持校园预充值金额可选", body)
+
+            project_intel.update_file_requirement_docs(root, "保持单值传入不可点开选择", ["src/utils/common.ts"])
+            docs = list((root / ".project-intel" / "requirements" / "files").rglob("*.md"))
+            self.assertEqual(docs, [expected])
+            body = expected.read_text(encoding="utf-8")
+            self.assertIn("支持校园预充值金额可选", body)
+            self.assertIn("保持单值传入不可点开选择", body)
+
+    def test_maintain_updates_file_requirements_for_explicit_files(self):
+        refresh_result = {
+            "manifest": {"fileCount": 1},
+            "frontend": {"components": [], "hooks": [], "redundancyCandidates": []},
+            "backend": {"apis": [], "services": [], "candidateEntrypoints": []},
+        }
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source = root / "src" / "page.vue"
+            source.parent.mkdir(parents=True)
+            source.write_text("<template />\n", encoding="utf-8")
+
+            with patch.object(project_intel, "init_project", return_value=refresh_result), patch.object(
+                project_intel, "run_check", return_value=0
+            ):
+                project_intel.maintain_project(root, "支持校园预充值金额可选", run_quality=False, files=["src/page.vue"])
+
+            expected = root / ".project-intel" / "requirements" / "files" / "src" / "page.vue.md"
+            self.assertTrue(expected.exists())
+            self.assertIn("支持校园预充值金额可选", expected.read_text(encoding="utf-8"))
+            latest = root / ".project-intel" / "maintenance" / "latest.md"
+            self.assertIn("src/page.vue", latest.read_text(encoding="utf-8"))
+
+    def test_file_requirements_require_chinese_summary(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source = root / "src" / "page.vue"
+            source.parent.mkdir(parents=True)
+            source.write_text("<template />\n", encoding="utf-8")
+
+            with self.assertRaises(SystemExit):
+                project_intel.update_file_requirement_docs(root, "support selectable prepay amounts", ["src/page.vue"])
+
 
 if __name__ == "__main__":
     unittest.main()

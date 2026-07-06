@@ -22,7 +22,7 @@ from pathlib import Path
 from typing import Any, Optional
 
 
-VERSION = "0.1.6"
+VERSION = "0.1.7"
 UNDERSTAND_AGENT_COMMAND = "/understand . --language zh"
 UNDERSTAND_REPO = "Egonex-AI/Understand-Anything"
 UNDERSTAND_CODEX_INSTALL_COMMAND = "curl -fsSL https://raw.githubusercontent.com/Egonex-AI/Understand-Anything/main/install.sh | bash -s codex"
@@ -1354,7 +1354,7 @@ def init_project(root: Path, refresh: bool = False, interactive: bool = False, s
         },
     }
     pdir = project_dir(root)
-    for sub in ("standards", "knowledge", "graph", "reports", "specs", "plans", "maintenance", "hooks", "cache", "tmp"):
+    for sub in ("standards", "knowledge", "graph", "reports", "specs", "plans", "maintenance", "requirements", "requirements/files", "hooks", "cache", "tmp"):
         (pdir / sub).mkdir(parents=True, exist_ok=True)
     write_json(pdir / "manifest.json", manifest)
     write_json(pdir / "config.json", config)
@@ -1611,7 +1611,7 @@ def build_plan_doc(root: Path, title: str, spec_path: Path, spec_text: str, snap
 - [ ] 根据项目测试配置添加或更新针对性测试。
 - [ ] 实现需求行为，同时保持 hard 规范和现有边界。
 - [ ] 运行 `project-intel check` 及相关的项目 test/type/lint 命令。
-- [ ] 实现完成后运行 `project-intel maintain --task "{title}"` 以刷新知识库并覆盖最新维护报告；需要保留历史时加 `--archive`。
+- [ ] 实现完成后运行 `project-intel maintain --task "<中文简短需求摘要>" --files <changed-source-files>` 以刷新知识库、覆盖最新维护报告并维护文件级需求记录；需要保留历史时加 `--archive`。
 
 ## 质量命令
 
@@ -1671,7 +1671,7 @@ def build_task_impact_doc(root: Path, task: str, snapshot: dict[str, Any]) -> st
 实现完成后运行：
 
 ```bash
-python3 /Users/xumeng/plugins/project-intelligence/scripts/project_intel.py maintain --task "{task[:120].replace('"', "'")}"
+python3 /Users/xumeng/plugins/project-intelligence/scripts/project_intel.py maintain --task "<中文简短需求摘要>" --files <changed-source-files>
 ```
 """
 
@@ -1761,10 +1761,104 @@ def write_debug_context(root: Path, bug: str, write_report: bool = False) -> Opt
     return path
 
 
-def build_maintenance_report(root: Path, task: str, refresh_result: dict[str, Any], check_exit: int, run_quality: bool) -> str:
+def contains_cjk(value: str) -> bool:
+    return bool(re.search(r"[\u4e00-\u9fff]", value))
+
+
+def normalize_requirement_summary(task: str) -> str:
+    summary = " ".join(task.split())
+    return truncate(summary or "未填写需求摘要", 500).replace("\n", " ")
+
+
+def normalize_project_file(root: Path, value: str | Path) -> Optional[str]:
+    path = Path(value).expanduser()
+    if path.is_absolute():
+        try:
+            rel_path = path.resolve().relative_to(root.resolve())
+        except ValueError:
+            return None
+    else:
+        rel_path = Path(path.as_posix())
+    if str(rel_path).startswith(".."):
+        return None
+    return rel_path.as_posix()
+
+
+def should_track_requirement_file(rel_path: str) -> bool:
+    if not rel_path:
+        return False
+    parts = Path(rel_path).parts
+    if not parts:
+        return False
+    if parts[0] in {".git", ".project-intel", ".claude"}:
+        return False
+    if rel_path in {"AGENTS.md", "CLAUDE.md", ".gitignore"}:
+        return False
+    return True
+
+
+def changed_requirement_files(root: Path) -> list[str]:
+    code, out, _ = run(["git", "diff", "--name-only", "HEAD", "--"], root, timeout=20)
+    if code != 0:
+        return []
+    files = []
+    for line in out.splitlines():
+        rel_path = normalize_project_file(root, line.strip())
+        if rel_path and should_track_requirement_file(rel_path):
+            files.append(rel_path)
+    return sorted(dict.fromkeys(files))
+
+
+def requirement_doc_path(root: Path, rel_path: str) -> Path:
+    return project_dir(root) / "requirements" / "files" / Path(rel_path + ".md")
+
+
+def build_file_requirement_doc(rel_path: str, task: str, current: str = "") -> str:
+    summary = normalize_requirement_summary(task)
+    entry = f"- {now_iso()}：{summary}"
+    if current.strip():
+        if summary in current:
+            return current
+        return current.rstrip() + "\n" + entry + "\n"
+    return f"""# {rel_path} 需求变更
+
+源文件：`{rel_path}`
+
+这里只维护与该源码文件相关的简短中文需求描述，不记录完整对话、实现日志或长篇方案。
+
+## 需求记录
+
+{entry}
+"""
+
+
+def update_file_requirement_docs(root: Path, task: str, files: Optional[list[str]] = None) -> list[Path]:
+    selected = files if files is not None else changed_requirement_files(root)
+    rel_paths = []
+    for item in selected:
+        rel_path = normalize_project_file(root, item)
+        if rel_path and should_track_requirement_file(rel_path):
+            rel_paths.append(rel_path)
+    rel_paths = sorted(dict.fromkeys(rel_paths))
+    if rel_paths and task and not contains_cjk(task):
+        raise SystemExit("文件需求沉淀要求使用中文需求描述；请用 --task 传入中文摘要。")
+    written = []
+    for rel_path in rel_paths:
+        path = requirement_doc_path(root, rel_path)
+        write_text(path, build_file_requirement_doc(rel_path, task, read_text(path)))
+        written.append(path)
+    if written:
+        print(f"已更新文件级需求记录：{len(written)} 个文件")
+    elif files is not None:
+        print("未更新文件级需求记录：没有可记录的源码文件。")
+    return written
+
+
+def build_maintenance_report(root: Path, task: str, refresh_result: dict[str, Any], check_exit: int, run_quality: bool, requirement_docs: list[Path]) -> str:
     manifest = refresh_result.get("manifest", {})
     frontend = refresh_result.get("frontend", {})
     backend = refresh_result.get("backend", {})
+    requirement_rows = [[rel(root, path).removeprefix(".project-intel/requirements/files/").removesuffix(".md"), rel(root, path)] for path in requirement_docs]
     return f"""# 维护报告
 
 生成时间：`{now_iso()}`
@@ -1788,18 +1882,23 @@ def build_maintenance_report(root: Path, task: str, refresh_result: dict[str, An
 - `project-intel check` 退出码：{check_exit}
 - 是否运行了 lint/type/style/format 命令：{"是" if run_quality else "否"}
 
+## 文件级需求沉淀
+
+{table(["源码文件", "需求记录"], requirement_rows)}
+
 详情请查看 `.project-intel/reports/frontend-quality.md`。
 """
 
 
-def maintain_project(root: Path, task: str, run_quality: bool, archive: bool = False) -> int:
+def maintain_project(root: Path, task: str, run_quality: bool, archive: bool = False, files: Optional[list[str]] = None) -> int:
+    requirement_docs = update_file_requirement_docs(root, task, files)
     refresh_result = init_project(root, refresh=True)
     check_exit = run_check(root, run_quality=run_quality)
     if archive:
         path = project_dir(root) / "maintenance" / spec_filename(task, "maintenance")
     else:
         path = project_dir(root) / "maintenance" / "latest.md"
-    write_text(path, build_maintenance_report(root, task, refresh_result, check_exit, run_quality))
+    write_text(path, build_maintenance_report(root, task, refresh_result, check_exit, run_quality, requirement_docs))
     print(f"已写入维护报告：{path}")
     return check_exit
 
@@ -1947,17 +2046,18 @@ Before implementing, debugging, reviewing, planning, writing specs, answering co
 4. Read only the relevant files under `.project-intel/standards/`, `.project-intel/knowledge/`, `.project-intel/graph/`, and `.project-intel/reports/`.
 5. Apply `hard` standards as requirements; treat `preferred` as default project style; treat `inferred` and `candidate` as suggestions that need confirmation before enforcement.
 6. Prefer existing public components, Hooks, utilities, API wrappers, services, DTO/VO/entity patterns, permission checks, transaction boundaries, and error-code conventions before adding new ones.
-7. For implementation work, before the first Edit/Write, run the `project-task` workflow: check reuse, affected modules, relevant standards, and impact. Use GitNexus impact/explore/detect_changes tools when available; otherwise use `.project-intel` plus `project-intel lifecycle --task "<requirement>"` or `project-intel query "<symbol-or-feature>"`. `lifecycle` prints by default; use `--write` only when a persistent task-impact report is explicitly needed.
-8. After meaningful code changes, run change review and maintenance: inspect the diff, run `project-intel check`, and run or recommend `project-intel maintain --task "<summary>"`. `maintain` overwrites `.project-intel/maintenance/latest.md` by default; use `--archive` only when the user wants a historical maintenance record.
-9. For bug investigation, first gather symptoms, reproduce or locate evidence, trace likely paths through project knowledge/graph context, then propose fixes.
-10. For review, inspect diff plus `.project-intel` standards/knowledge/graph context and report findings by severity before summaries.
-11. Use `--run-quality` only when real lint/type/style/format checks should run.
-12. If GitNexus or Understand-Anything graph context is available, use it for impact analysis and architecture/domain relationships.
-13. Do not read or rely on `.cgraphx`; do not use `cgraphx explore` or cgraphx `detect_changes` as a Project Intelligence fallback.
+7. For implementation work, before the first Edit/Write, run the `project-task` workflow: check reuse, affected modules, relevant standards, and impact. First produce or internally confirm a lightweight Chinese task spec: requirement summary, acceptance points, affected files/modules, reuse candidates, and assumptions/open questions. Do not create a spec file unless the user explicitly asks for one.
+8. Use GitNexus impact/explore/detect_changes tools when available; otherwise use `.project-intel` plus `project-intel lifecycle --task "<requirement>"` or `project-intel query "<symbol-or-feature>"`. `lifecycle` prints by default; use `--write` only when a persistent task-impact report is explicitly needed.
+9. After meaningful code changes, run change review and maintenance: inspect the diff, run `project-intel check`, and run or recommend `project-intel maintain --task "<中文简短需求摘要>" --files <changed-source-files>`. The `--task` value used for requirement deposition must be Chinese. `maintain` overwrites `.project-intel/maintenance/latest.md` by default and updates one short requirement markdown per affected source file under `.project-intel/requirements/files/`; use `--archive` only when the user wants a historical maintenance record.
+10. For bug investigation, first gather symptoms, reproduce or locate evidence, trace likely paths through project knowledge/graph context, then propose fixes.
+11. For review, inspect diff plus `.project-intel` standards/knowledge/graph context and report findings by severity before summaries.
+12. Use `--run-quality` only when real lint/type/style/format checks should run.
+13. If GitNexus or Understand-Anything graph context is available, use it for impact analysis and architecture/domain relationships.
+14. Do not read or rely on `.cgraphx`; do not use `cgraphx explore` or cgraphx `detect_changes` as a Project Intelligence fallback.
 
-Stable generated files are preferred for routine runs: refresh/tooling/quality reports are overwritten in place, `debug` and `lifecycle` only print unless `--write` is passed, and `maintain` writes `maintenance/latest.md` unless `--archive` is passed.
+Stable generated files are preferred for routine runs: refresh/tooling/quality reports are overwritten in place, `debug` and `lifecycle` only print unless `--write` is passed, `maintain` writes `maintenance/latest.md` unless `--archive` is passed, and file-level requirements are maintained as one concise Chinese markdown per source file.
 
-Useful CLI fallbacks: `project-intel query`, `project-intel refresh`, `project-intel check`, `project-intel spec`, `project-intel plan`, `project-intel debug`, and `project-intel maintain`."""
+Useful CLI fallbacks: `project-intel query`, `project-intel refresh`, `project-intel check`, `project-intel spec`, `project-intel plan`, `project-intel debug`, `project-intel requirements`, and `project-intel maintain`."""
 
 
 def claude_project_agent_rules() -> str:
@@ -1979,9 +2079,9 @@ def claude_project_agent_rules() -> str:
     for old, new in replacements.items():
         rules = rules.replace(old, new)
     rules = rules.replace(
-        "13. Do not read or rely on `.cgraphx`; do not use `cgraphx explore` or cgraphx `detect_changes` as a Project Intelligence fallback.\n\nStable generated files",
-        "13. Do not read or rely on `.cgraphx`; do not use `cgraphx explore` or cgraphx `detect_changes` as a Project Intelligence fallback.\n"
-        "14. In Claude Code, local `.claude/skills/project-*` skills take precedence over plugin namespace variants. Use `/project-*` when available.\n\n"
+        "14. Do not read or rely on `.cgraphx`; do not use `cgraphx explore` or cgraphx `detect_changes` as a Project Intelligence fallback.\n\nStable generated files",
+        "14. Do not read or rely on `.cgraphx`; do not use `cgraphx explore` or cgraphx `detect_changes` as a Project Intelligence fallback.\n"
+        "15. In Claude Code, local `.claude/skills/project-*` skills take precedence over plugin namespace variants. Use `/project-*` when available.\n\n"
         "Stable generated files",
     )
     return rules
@@ -2034,6 +2134,8 @@ description: {description}
 # {title}
 
 以 `.project-intel` 作为项目事实来源。从 `.project-intel/manifest.json` 开始，然后只读取相关的规范、知识 JSON、报告和图谱摘要。
+
+实现类任务在首次编辑前先整理中文轻量需求、验收点、影响范围和复用候选，不要默认生成 spec 文件。任务完成后用中文需求摘要维护文件级需求记录：`project-intel maintain --task "<中文简短需求摘要>" --files <changed-source-files>`。
 
 不要使用 `.cgraphx`。可用时优先使用 GitNexus 获取符号级影响，使用 Understand-Anything 获取架构/领域上下文。
 """
@@ -2125,7 +2227,8 @@ def query_project(root: Path, text: str) -> int:
         return 1
     needle = text.lower()
     matches: list[tuple[str, str]] = []
-    for path in list((pdir / "standards").glob("*.md")) + list((pdir / "reports").glob("*.md")):
+    docs = list((pdir / "standards").glob("*.md")) + list((pdir / "reports").glob("*.md")) + list((pdir / "requirements").rglob("*.md"))
+    for path in docs:
         body = read_text(path)
         if needle in body.lower():
             matches.append((rel(root, path), body[:1200]))
@@ -2181,6 +2284,10 @@ def main(argv: list[str]) -> int:
     maintain.add_argument("--task", required=True)
     maintain.add_argument("--run-quality", action="store_true", help="实际运行检测到的 lint/type/style/format 命令")
     maintain.add_argument("--archive", action="store_true", help="保留带时间戳的维护历史；默认覆盖 .project-intel/maintenance/latest.md")
+    maintain.add_argument("--files", nargs="*", help="本次需求实际影响的源码文件；用于维护每个文件唯一的简短中文需求记录")
+    requirements = sub.add_parser("requirements", help="按源码文件维护简短中文需求记录")
+    requirements.add_argument("--task", required=True, help="中文需求摘要")
+    requirements.add_argument("--files", nargs="+", required=True, help="要沉淀需求的源码文件")
     query = sub.add_parser("query", help="搜索项目智能产物")
     query.add_argument("text")
     graph_tools = sub.add_parser("graph-tools", help="查询可选图谱工具的状态与命令")
@@ -2234,7 +2341,10 @@ def main(argv: list[str]) -> int:
         write_debug_context(root, args.bug, write_report=args.write)
         return 0
     if args.command == "maintain":
-        return maintain_project(root, args.task, args.run_quality, archive=args.archive)
+        return maintain_project(root, args.task, args.run_quality, archive=args.archive, files=args.files)
+    if args.command == "requirements":
+        update_file_requirement_docs(root, args.task, args.files)
+        return 0
     if args.command == "query":
         return query_project(root, args.text)
     if args.command == "graph-tools":

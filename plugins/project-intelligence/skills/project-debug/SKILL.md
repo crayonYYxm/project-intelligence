@@ -18,6 +18,6 @@ python3 /Users/xumeng/plugins/project-intelligence/scripts/project_intel.py debu
 4. Complete root-cause investigation before fixes: read the full error, reproduce, inspect recent changes, trace data/control flow, compare with working project examples, then state one testable hypothesis.
 5. Use GitNexus for call chains, impact, changed-code risk, and “what calls this” questions when available. Use Understand-Anything for architecture/domain context.
 6. Add a failing regression test or minimal reproduction before implementing the fix when the project supports tests.
-7. After the fix, run `project-intel check`; then run `project-intel maintain --task "<bug summary>"`. `maintain` overwrites `.project-intel/maintenance/latest.md` by default; use `--archive` only when historical maintenance records are requested.
+7. After the fix, run `project-intel check`; then run `project-intel maintain --task "<中文 bug 修复摘要>" --files <changed-source-files>`. `maintain` overwrites `.project-intel/maintenance/latest.md` by default and updates file-level Chinese requirement records; use `--archive` only when historical maintenance records are requested.
 
 Do not guess fixes, stack multiple changes, or read/rely on `.cgraphx`.

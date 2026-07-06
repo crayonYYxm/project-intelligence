@@ -14,6 +14,7 @@ Answer from `.project-intel` first:
 - `.project-intel/specs/*.md` and `.project-intel/plans/*.md` only when the user explicitly generated specs/plans
 - `.project-intel/reports/*.md` for stable initialization, tooling, quality, and optional task/debug reports
 - `.project-intel/maintenance/latest.md` for the latest post-task refresh; timestamped maintenance files exist only when `--archive` was requested
+- `.project-intel/requirements/files/**/*.md` for one concise Chinese requirement history per affected source file
 
 Use GitNexus for precise symbol-level questions. Use Understand-Anything for architecture/domain questions.
 
