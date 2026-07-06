@@ -488,17 +488,24 @@ class AgentEntrypointInstallTests(unittest.TestCase):
 
             agents = (root / "AGENTS.md").read_text(encoding="utf-8")
             claude = (root / "CLAUDE.md").read_text(encoding="utf-8")
+            nested = (root / ".claude" / "CLAUDE.md").read_text(encoding="utf-8")
+            self.assertTrue(agents.startswith(project_intel.AGENT_PROJECT_INTEL_BLOCK_START))
+            self.assertTrue(claude.startswith(project_intel.CLAUDE_LOCAL_SKILLS_BLOCK_START))
             self.assertIn(project_intel.PROJECT_INTEL_BLOCK_START, agents)
             self.assertIn("Project Intelligence is the workflow layer", agents)
             self.assertIn("Tools such as Grep, Read, Edit, Bash", agents)
             self.assertIn("pause before the first Edit/Write", agents)
             self.assertIn("state which Project Intelligence workflow is being followed", agents)
-            self.assertIn("/project-intelligence:project-task", agents)
-            self.assertIn("/project-intelligence:project-review", agents)
-            self.assertIn("/project-intelligence:project-maintain", agents)
+            self.assertIn("project-task` or `project-intelligence:project-task", agents)
+            self.assertIn("project-review` or `project-intelligence:project-review", agents)
+            self.assertIn("project-maintain` or `project-intelligence:project-maintain", agents)
             self.assertIn("GitNexus impact/explore/detect_changes", agents)
             self.assertIn("do not use `cgraphx explore`", agents)
             self.assertIn(project_intel.PROJECT_INTEL_BLOCK_START, claude)
+            self.assertIn("/project-task", claude)
+            self.assertIn("local `.claude/skills/project-*` skills take precedence", claude)
+            self.assertIn("Project Skills First for Claude Code", nested)
+            self.assertIn("/project-task", nested)
             self.assertIn(str(root / "AGENTS.md"), result["agentFiles"])
             self.assertIn(str(root / "CLAUDE.md"), result["agentFiles"])
             self.assertIn(str(root / ".claude" / "CLAUDE.md"), result["agentFiles"])
@@ -516,11 +523,15 @@ class AgentEntrypointInstallTests(unittest.TestCase):
             agents = (root / "AGENTS.md").read_text(encoding="utf-8")
             claude = (root / "CLAUDE.md").read_text(encoding="utf-8")
             nested = (root / ".claude" / "CLAUDE.md").read_text(encoding="utf-8")
+            self.assertTrue(agents.startswith(project_intel.AGENT_PROJECT_INTEL_BLOCK_START))
+            self.assertTrue(claude.startswith(project_intel.CLAUDE_LOCAL_SKILLS_BLOCK_START))
             self.assertIn("# Team Notes", agents)
             self.assertIn(project_intel.PROJECT_INTEL_BLOCK_START, agents)
             self.assertIn("This repository uses `.project-intel/`", agents)
             self.assertIn("If slash skills are not available", agents)
+            self.assertIn("project-intelligence:*", agents)
             self.assertIn(project_intel.PROJECT_INTEL_BLOCK_START, claude)
+            self.assertIn("/project-task", claude)
             self.assertIn("Do not read or rely on `.cgraphx`", nested)
             self.assertIn(str(root / "AGENTS.md"), result["agentFiles"])
             self.assertIn(str(root / "CLAUDE.md"), result["agentFiles"])
@@ -550,10 +561,71 @@ class AgentEntrypointInstallTests(unittest.TestCase):
 
             agents = (root / "AGENTS.md").read_text(encoding="utf-8")
             claude = (root / "CLAUDE.md").read_text(encoding="utf-8")
+            self.assertEqual(agents.count(project_intel.AGENT_PROJECT_INTEL_BLOCK_START), 1)
+            self.assertEqual(agents.count(project_intel.AGENT_PROJECT_INTEL_BLOCK_END), 1)
+            self.assertEqual(claude.count(project_intel.CLAUDE_LOCAL_SKILLS_BLOCK_START), 1)
+            self.assertEqual(claude.count(project_intel.CLAUDE_LOCAL_SKILLS_BLOCK_END), 1)
             self.assertEqual(agents.count(project_intel.PROJECT_INTEL_BLOCK_START), 1)
             self.assertEqual(agents.count(project_intel.PROJECT_INTEL_BLOCK_END), 1)
             self.assertEqual(claude.count(project_intel.PROJECT_INTEL_BLOCK_START), 1)
             self.assertEqual(claude.count(project_intel.PROJECT_INTEL_BLOCK_END), 1)
+
+
+class LifecycleArtifactTests(unittest.TestCase):
+    def test_lifecycle_and_debug_print_by_default_and_write_only_when_requested(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "src").mkdir()
+            (root / "src" / "index.ts").write_text("export const answer = 42;\n", encoding="utf-8")
+            project_intel.init_project(root, with_graph=False)
+
+            buffer = io.StringIO()
+            with redirect_stdout(buffer):
+                lifecycle_path = project_intel.write_lifecycle(root, "demo task")
+                debug_path = project_intel.write_debug_context(root, "demo bug")
+
+            self.assertIsNone(lifecycle_path)
+            self.assertIsNone(debug_path)
+            self.assertIn("# 任务影响", buffer.getvalue())
+            self.assertIn("# 调试上下文", buffer.getvalue())
+            self.assertFalse((root / ".project-intel" / "reports" / "task-impact.md").exists())
+            self.assertFalse((root / ".project-intel" / "reports" / "debug-context.md").exists())
+
+            lifecycle_path = project_intel.write_lifecycle(root, "demo task", write_report=True)
+            debug_path = project_intel.write_debug_context(root, "demo bug", write_report=True)
+
+            self.assertEqual(lifecycle_path, root / ".project-intel" / "reports" / "task-impact.md")
+            self.assertEqual(debug_path, root / ".project-intel" / "reports" / "debug-context.md")
+            self.assertTrue(lifecycle_path.exists())
+            self.assertTrue(debug_path.exists())
+
+    def test_maintain_defaults_to_latest_and_archives_only_when_requested(self):
+        refresh_result = {
+            "manifest": {"fileCount": 1},
+            "frontend": {"components": [], "hooks": [], "redundancyCandidates": []},
+            "backend": {"apis": [], "services": [], "candidateEntrypoints": []},
+        }
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            with patch.object(project_intel, "init_project", return_value=refresh_result), patch.object(
+                project_intel, "run_check", return_value=0
+            ):
+                exit_code = project_intel.maintain_project(root, "first task", run_quality=False)
+                self.assertEqual(exit_code, 0)
+                latest = root / ".project-intel" / "maintenance" / "latest.md"
+                self.assertTrue(latest.exists())
+                self.assertIn("first task", latest.read_text(encoding="utf-8"))
+                self.assertEqual(list((root / ".project-intel" / "maintenance").glob("*-maintenance.md")), [])
+
+                project_intel.maintain_project(root, "second task", run_quality=False)
+                self.assertIn("second task", latest.read_text(encoding="utf-8"))
+                self.assertEqual(list((root / ".project-intel" / "maintenance").glob("*-maintenance.md")), [])
+
+                project_intel.maintain_project(root, "archive task", run_quality=False, archive=True)
+                archives = list((root / ".project-intel" / "maintenance").glob("*-maintenance.md"))
+                self.assertEqual(len(archives), 1)
+                self.assertIn("archive task", archives[0].read_text(encoding="utf-8"))
 
 
 if __name__ == "__main__":

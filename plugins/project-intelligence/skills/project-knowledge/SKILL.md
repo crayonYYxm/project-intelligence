@@ -11,8 +11,9 @@ Answer from `.project-intel` first:
 - `.project-intel/standards/*.md` for rules and conventions
 - `.project-intel/knowledge/*.json` for components, Hooks, APIs, services, files, and candidates
 - `.project-intel/graph/project-graph.json` for graph summary
-- `.project-intel/specs/*.md` and `.project-intel/plans/*.md` for task lifecycle docs
-- `.project-intel/reports/*.md` for initialization, tooling, quality, task impact, and redundancy reports
+- `.project-intel/specs/*.md` and `.project-intel/plans/*.md` only when the user explicitly generated specs/plans
+- `.project-intel/reports/*.md` for stable initialization, tooling, quality, and optional task/debug reports
+- `.project-intel/maintenance/latest.md` for the latest post-task refresh; timestamped maintenance files exist only when `--archive` was requested
 
 Use GitNexus for precise symbol-level questions. Use Understand-Anything for architecture/domain questions.
 

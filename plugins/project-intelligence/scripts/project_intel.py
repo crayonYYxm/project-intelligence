@@ -19,10 +19,10 @@ import subprocess
 import sys
 from collections import Counter, defaultdict
 from pathlib import Path
-from typing import Any
+from typing import Any, Optional
 
 
-VERSION = "0.1.5"
+VERSION = "0.1.6"
 UNDERSTAND_AGENT_COMMAND = "/understand . --language zh"
 UNDERSTAND_REPO = "Egonex-AI/Understand-Anything"
 UNDERSTAND_CODEX_INSTALL_COMMAND = "curl -fsSL https://raw.githubusercontent.com/Egonex-AI/Understand-Anything/main/install.sh | bash -s codex"
@@ -38,6 +38,10 @@ UNDERSTAND_MANUAL_INSTALL_HINT = (
 )
 PROJECT_INTEL_BLOCK_START = "<!-- project-intelligence:start -->"
 PROJECT_INTEL_BLOCK_END = "<!-- project-intelligence:end -->"
+AGENT_PROJECT_INTEL_BLOCK_START = "<!-- agent-project-intelligence:start -->"
+AGENT_PROJECT_INTEL_BLOCK_END = "<!-- agent-project-intelligence:end -->"
+CLAUDE_LOCAL_SKILLS_BLOCK_START = "<!-- local-project-skills:start -->"
+CLAUDE_LOCAL_SKILLS_BLOCK_END = "<!-- local-project-skills:end -->"
 EXCLUDED_DIRS = {
     ".git",
     ".idea",
@@ -171,20 +175,26 @@ def write_text(path: Path, text: str) -> None:
     path.write_text(text.rstrip() + "\n", encoding="utf-8")
 
 
-def upsert_managed_block(path: Path, block: str) -> None:
+def upsert_managed_block_with_markers(path: Path, block: str, start: str, end: str, prepend: bool = False) -> None:
     current = read_text(path)
-    managed = f"{PROJECT_INTEL_BLOCK_START}\n{block.strip()}\n{PROJECT_INTEL_BLOCK_END}"
+    managed = f"{start}\n{block.strip()}\n{end}"
     pattern = re.compile(
-        rf"{re.escape(PROJECT_INTEL_BLOCK_START)}.*?{re.escape(PROJECT_INTEL_BLOCK_END)}",
+        rf"{re.escape(start)}.*?{re.escape(end)}",
         re.DOTALL,
     )
     if pattern.search(current):
         next_text = pattern.sub(managed, current).rstrip()
+    elif current.strip() and prepend:
+        next_text = managed + "\n\n" + current.rstrip()
     elif current.strip():
         next_text = current.rstrip() + "\n\n" + managed
     else:
         next_text = managed
     write_text(path, next_text)
+
+
+def upsert_managed_block(path: Path, block: str) -> None:
+    upsert_managed_block_with_markers(path, block, PROJECT_INTEL_BLOCK_START, PROJECT_INTEL_BLOCK_END)
 
 
 def load_json(path: Path, default: Any) -> Any:
@@ -1601,7 +1611,7 @@ def build_plan_doc(root: Path, title: str, spec_path: Path, spec_text: str, snap
 - [ ] 根据项目测试配置添加或更新针对性测试。
 - [ ] 实现需求行为，同时保持 hard 规范和现有边界。
 - [ ] 运行 `project-intel check` 及相关的项目 test/type/lint 命令。
-- [ ] 实现完成后运行 `project-intel maintain --task "{title}"` 以刷新知识库和维护报告。
+- [ ] 实现完成后运行 `project-intel maintain --task "{title}"` 以刷新知识库并覆盖最新维护报告；需要保留历史时加 `--archive`。
 
 ## 质量命令
 
@@ -1666,11 +1676,15 @@ python3 /Users/xumeng/plugins/project-intelligence/scripts/project_intel.py main
 """
 
 
-def write_lifecycle(root: Path, task: str) -> Path:
+def write_lifecycle(root: Path, task: str, write_report: bool = False) -> Optional[Path]:
     snapshot = load_project_snapshot(root)
+    body = build_task_impact_doc(root, task, snapshot)
+    print(body)
+    if not write_report:
+        return None
     path = project_dir(root) / "reports" / "task-impact.md"
-    write_text(path, build_task_impact_doc(root, task, snapshot))
-    print(f"已写入任务影响报告：{path}")
+    write_text(path, body)
+    print(f"\n已写入任务影响报告：{path}")
     return path
 
 
@@ -1735,11 +1749,15 @@ def build_debug_doc(root: Path, bug: str, snapshot: dict[str, Any]) -> str:
 """
 
 
-def write_debug_context(root: Path, bug: str) -> Path:
+def write_debug_context(root: Path, bug: str, write_report: bool = False) -> Optional[Path]:
     snapshot = load_project_snapshot(root)
+    body = build_debug_doc(root, bug, snapshot)
+    print(body)
+    if not write_report:
+        return None
     path = project_dir(root) / "reports" / "debug-context.md"
-    write_text(path, build_debug_doc(root, bug, snapshot))
-    print(f"已写入调试上下文报告：{path}")
+    write_text(path, body)
+    print(f"\n已写入调试上下文报告：{path}")
     return path
 
 
@@ -1774,10 +1792,13 @@ def build_maintenance_report(root: Path, task: str, refresh_result: dict[str, An
 """
 
 
-def maintain_project(root: Path, task: str, run_quality: bool) -> int:
+def maintain_project(root: Path, task: str, run_quality: bool, archive: bool = False) -> int:
     refresh_result = init_project(root, refresh=True)
     check_exit = run_check(root, run_quality=run_quality)
-    path = project_dir(root) / "maintenance" / spec_filename(task, "maintenance")
+    if archive:
+        path = project_dir(root) / "maintenance" / spec_filename(task, "maintenance")
+    else:
+        path = project_dir(root) / "maintenance" / "latest.md"
     write_text(path, build_maintenance_report(root, task, refresh_result, check_exit, run_quality))
     print(f"已写入维护报告：{path}")
     return check_exit
@@ -1851,6 +1872,52 @@ def activate_git_hooks(root: Path) -> list[dict[str, Any]]:
     return results
 
 
+def claude_local_project_skills_rules() -> str:
+    return """## Project Skills First for Claude Code
+
+Before any code change, debugging, review, requirement analysis, planning, spec work, or standards update, first check and use this repository's local `.claude/skills/project-*` skills.
+
+In Claude Code, prefer the local slash skills:
+
+- `/project-brainstorm`
+- `/project-spec`
+- `/project-plan`
+- `/project-task`
+- `/project-debug`
+- `/project-review`
+- `/project-quality`
+- `/project-knowledge`
+- `/project-standards`
+- `/project-maintain`
+- `/project-init`
+- `/project-refresh`
+
+Do not skip the project skill workflow and proceed with only Read/Edit/Bash. When local `.claude/skills/project-*` skills exist, prefer them over plugin namespace variants such as `/project-intelligence:project-task`; use plugin namespace variants only if the local skills are unavailable."""
+
+
+def agent_project_intelligence_priority_rules() -> str:
+    return """## Project Intelligence First
+
+Before any code change, debugging, review, requirement analysis, planning, spec work, or standards update, use the project-level intelligence workflow first.
+
+Prefer available project skills such as:
+
+- `project-brainstorm`
+- `project-spec`
+- `project-plan`
+- `project-task`
+- `project-debug`
+- `project-review`
+- `project-quality`
+- `project-knowledge`
+- `project-standards`
+- `project-maintain`
+- `project-init`
+- `project-refresh`
+
+If skills are exposed through a plugin namespace, use the equivalent `project-intelligence:*` skill. If slash skills are unavailable, follow the same workflow manually with `.project-intel/` and the `project-intel` CLI. Do not rely only on basic file tools when project skills or project facts are available."""
+
+
 def project_agent_rules() -> str:
     return """## Project Intelligence
 
@@ -1863,40 +1930,83 @@ If a conversation starts as explanation or discussion and later turns into code 
 Before implementing, debugging, reviewing, planning, writing specs, answering component/API questions, or modifying behavior:
 
 1. Classify the request and explicitly invoke the matching Project Intelligence skill when available:
-   - Requirement shaping or brainstorming: `/project-intelligence:project-brainstorm`
-   - Requirement/spec/acceptance criteria/impact: `/project-intelligence:project-spec`
-   - Implementation plan or checklist: `/project-intelligence:project-plan`
-   - Implementation, modification, fix, refactor, or feature work: `/project-intelligence:project-task`
-   - Bug, error, regression, failed test, or unexpected behavior: `/project-intelligence:project-debug`
-   - Code review, PR review, diff review, reuse/quality risk review: `/project-intelligence:project-review`
-   - Quality, lint, type, format, style, redundancy checks: `/project-intelligence:project-quality`
-   - Project knowledge, component/API/service usage, architecture questions: `/project-intelligence:project-knowledge`
-   - Standards lookup, rule promotion/demotion, hard/preferred/inferred/candidate explanation: `/project-intelligence:project-standards`
-   - Post-task refresh and lifecycle maintenance: `/project-intelligence:project-maintain`
-   - Initialization of project facts and local adapters: `/project-intelligence:project-init`
-   - Refresh of project facts, tooling reports, and adapters: `/project-intelligence:project-refresh`
+   - Requirement shaping or brainstorming: `project-brainstorm` or `project-intelligence:project-brainstorm`
+   - Requirement/spec/acceptance criteria/impact: `project-spec` or `project-intelligence:project-spec`
+   - Implementation plan or checklist: `project-plan` or `project-intelligence:project-plan`
+   - Implementation, modification, fix, refactor, or feature work: `project-task` or `project-intelligence:project-task`
+   - Bug, error, regression, failed test, or unexpected behavior: `project-debug` or `project-intelligence:project-debug`
+   - Code review, PR review, diff review, reuse/quality risk review: `project-review` or `project-intelligence:project-review`
+   - Quality, lint, type, format, style, redundancy checks: `project-quality` or `project-intelligence:project-quality`
+   - Project knowledge, component/API/service usage, architecture questions: `project-knowledge` or `project-intelligence:project-knowledge`
+   - Standards lookup, rule promotion/demotion, hard/preferred/inferred/candidate explanation: `project-standards` or `project-intelligence:project-standards`
+   - Post-task refresh and lifecycle maintenance: `project-maintain` or `project-intelligence:project-maintain`
+   - Initialization of project facts and local adapters: `project-init` or `project-intelligence:project-init`
+   - Refresh of project facts, tooling reports, and adapters: `project-refresh` or `project-intelligence:project-refresh`
 2. If slash skills are not available or do not trigger automatically, follow the same workflow manually before using execution tools and state which Project Intelligence workflow is being followed.
 3. Check `.project-intel/manifest.json` for project metadata and refresh status.
 4. Read only the relevant files under `.project-intel/standards/`, `.project-intel/knowledge/`, `.project-intel/graph/`, and `.project-intel/reports/`.
 5. Apply `hard` standards as requirements; treat `preferred` as default project style; treat `inferred` and `candidate` as suggestions that need confirmation before enforcement.
 6. Prefer existing public components, Hooks, utilities, API wrappers, services, DTO/VO/entity patterns, permission checks, transaction boundaries, and error-code conventions before adding new ones.
-7. For implementation work, before the first Edit/Write, run the `project-task` workflow: check reuse, affected modules, relevant standards, and impact. Use GitNexus impact/explore/detect_changes tools when available; otherwise use `.project-intel` plus `project-intel lifecycle --task "<requirement>"` or `project-intel query "<symbol-or-feature>"`.
-8. After meaningful code changes, run change review and maintenance: inspect the diff, run `project-intel check`, and run or recommend `project-intel maintain --task "<summary>"`.
+7. For implementation work, before the first Edit/Write, run the `project-task` workflow: check reuse, affected modules, relevant standards, and impact. Use GitNexus impact/explore/detect_changes tools when available; otherwise use `.project-intel` plus `project-intel lifecycle --task "<requirement>"` or `project-intel query "<symbol-or-feature>"`. `lifecycle` prints by default; use `--write` only when a persistent task-impact report is explicitly needed.
+8. After meaningful code changes, run change review and maintenance: inspect the diff, run `project-intel check`, and run or recommend `project-intel maintain --task "<summary>"`. `maintain` overwrites `.project-intel/maintenance/latest.md` by default; use `--archive` only when the user wants a historical maintenance record.
 9. For bug investigation, first gather symptoms, reproduce or locate evidence, trace likely paths through project knowledge/graph context, then propose fixes.
 10. For review, inspect diff plus `.project-intel` standards/knowledge/graph context and report findings by severity before summaries.
 11. Use `--run-quality` only when real lint/type/style/format checks should run.
 12. If GitNexus or Understand-Anything graph context is available, use it for impact analysis and architecture/domain relationships.
 13. Do not read or rely on `.cgraphx`; do not use `cgraphx explore` or cgraphx `detect_changes` as a Project Intelligence fallback.
 
+Stable generated files are preferred for routine runs: refresh/tooling/quality reports are overwritten in place, `debug` and `lifecycle` only print unless `--write` is passed, and `maintain` writes `maintenance/latest.md` unless `--archive` is passed.
+
 Useful CLI fallbacks: `project-intel query`, `project-intel refresh`, `project-intel check`, `project-intel spec`, `project-intel plan`, `project-intel debug`, and `project-intel maintain`."""
 
 
-def write_agent_entrypoints(root: Path) -> list[str]:
-    targets = [root / "AGENTS.md", root / "CLAUDE.md"]
+def claude_project_agent_rules() -> str:
     rules = project_agent_rules()
-    for target in targets:
-        upsert_managed_block(target, rules)
-    return [str(target) for target in targets]
+    replacements = {
+        "Requirement shaping or brainstorming: `project-brainstorm` or `project-intelligence:project-brainstorm`": "Requirement shaping or brainstorming: `/project-brainstorm`",
+        "Requirement/spec/acceptance criteria/impact: `project-spec` or `project-intelligence:project-spec`": "Requirement/spec/acceptance criteria/impact: `/project-spec`",
+        "Implementation plan or checklist: `project-plan` or `project-intelligence:project-plan`": "Implementation plan or checklist: `/project-plan`",
+        "Implementation, modification, fix, refactor, or feature work: `project-task` or `project-intelligence:project-task`": "Implementation, modification, fix, refactor, or feature work: `/project-task`",
+        "Bug, error, regression, failed test, or unexpected behavior: `project-debug` or `project-intelligence:project-debug`": "Bug, error, regression, failed test, or unexpected behavior: `/project-debug`",
+        "Code review, PR review, diff review, reuse/quality risk review: `project-review` or `project-intelligence:project-review`": "Code review, PR review, diff review, reuse/quality risk review: `/project-review`",
+        "Quality, lint, type, format, style, redundancy checks: `project-quality` or `project-intelligence:project-quality`": "Quality, lint, type, format, style, redundancy checks: `/project-quality`",
+        "Project knowledge, component/API/service usage, architecture questions: `project-knowledge` or `project-intelligence:project-knowledge`": "Project knowledge, component/API/service usage, architecture questions: `/project-knowledge`",
+        "Standards lookup, rule promotion/demotion, hard/preferred/inferred/candidate explanation: `project-standards` or `project-intelligence:project-standards`": "Standards lookup, rule promotion/demotion, hard/preferred/inferred/candidate explanation: `/project-standards`",
+        "Post-task refresh and lifecycle maintenance: `project-maintain` or `project-intelligence:project-maintain`": "Post-task refresh and lifecycle maintenance: `/project-maintain`",
+        "Initialization of project facts and local adapters: `project-init` or `project-intelligence:project-init`": "Initialization of project facts and local adapters: `/project-init`",
+        "Refresh of project facts, tooling reports, and adapters: `project-refresh` or `project-intelligence:project-refresh`": "Refresh of project facts, tooling reports, and adapters: `/project-refresh`",
+    }
+    for old, new in replacements.items():
+        rules = rules.replace(old, new)
+    rules = rules.replace(
+        "13. Do not read or rely on `.cgraphx`; do not use `cgraphx explore` or cgraphx `detect_changes` as a Project Intelligence fallback.\n\nStable generated files",
+        "13. Do not read or rely on `.cgraphx`; do not use `cgraphx explore` or cgraphx `detect_changes` as a Project Intelligence fallback.\n"
+        "14. In Claude Code, local `.claude/skills/project-*` skills take precedence over plugin namespace variants. Use `/project-*` when available.\n\n"
+        "Stable generated files",
+    )
+    return rules
+
+
+def write_agent_entrypoints(root: Path) -> list[str]:
+    agents = root / "AGENTS.md"
+    claude = root / "CLAUDE.md"
+    upsert_managed_block_with_markers(
+        agents,
+        agent_project_intelligence_priority_rules(),
+        AGENT_PROJECT_INTEL_BLOCK_START,
+        AGENT_PROJECT_INTEL_BLOCK_END,
+        prepend=True,
+    )
+    upsert_managed_block(agents, project_agent_rules())
+    upsert_managed_block_with_markers(
+        claude,
+        claude_local_project_skills_rules(),
+        CLAUDE_LOCAL_SKILLS_BLOCK_START,
+        CLAUDE_LOCAL_SKILLS_BLOCK_END,
+        prepend=True,
+    )
+    upsert_managed_block(claude, claude_project_agent_rules())
+    return [str(agents), str(claude)]
 
 
 def install_claude(root: Path, hooks: bool = False, activate_hooks: bool = False) -> dict[str, Any]:
@@ -1905,11 +2015,13 @@ def install_claude(root: Path, hooks: bool = False, activate_hooks: bool = False
     standards = claude / "standards"
     skills.mkdir(parents=True, exist_ok=True)
     standards.mkdir(parents=True, exist_ok=True)
-    agent_rules = project_agent_rules()
+    agent_rules = claude_project_agent_rules()
     agent_files = write_agent_entrypoints(root)
     write_text(
         claude / "CLAUDE.md",
         f"""# 项目智能
+
+{claude_local_project_skills_rules()}
 
 {agent_rules}
 """,
@@ -2059,13 +2171,16 @@ def main(argv: list[str]) -> int:
     plan = sub.add_parser("plan", help="在 .project-intel/plans 下写入实施计划")
     plan.add_argument("--title", required=True)
     plan.add_argument("--from-spec", required=True)
-    lifecycle = sub.add_parser("lifecycle", help="写入任务影响报告")
+    lifecycle = sub.add_parser("lifecycle", help="输出任务影响分析")
     lifecycle.add_argument("--task", required=True)
-    debug = sub.add_parser("debug", help="写入系统化调试上下文报告")
+    lifecycle.add_argument("--write", action="store_true", help="写入固定报告 .project-intel/reports/task-impact.md；默认只输出")
+    debug = sub.add_parser("debug", help="输出系统化调试上下文")
     debug.add_argument("--bug", required=True)
+    debug.add_argument("--write", action="store_true", help="写入固定报告 .project-intel/reports/debug-context.md；默认只输出")
     maintain = sub.add_parser("maintain", help="任务完成后刷新项目智能")
     maintain.add_argument("--task", required=True)
     maintain.add_argument("--run-quality", action="store_true", help="实际运行检测到的 lint/type/style/format 命令")
+    maintain.add_argument("--archive", action="store_true", help="保留带时间戳的维护历史；默认覆盖 .project-intel/maintenance/latest.md")
     query = sub.add_parser("query", help="搜索项目智能产物")
     query.add_argument("text")
     graph_tools = sub.add_parser("graph-tools", help="查询可选图谱工具的状态与命令")
@@ -2113,13 +2228,13 @@ def main(argv: list[str]) -> int:
         write_plan(root, args.title, args.from_spec)
         return 0
     if args.command == "lifecycle":
-        write_lifecycle(root, args.task)
+        write_lifecycle(root, args.task, write_report=args.write)
         return 0
     if args.command == "debug":
-        write_debug_context(root, args.bug)
+        write_debug_context(root, args.bug, write_report=args.write)
         return 0
     if args.command == "maintain":
-        return maintain_project(root, args.task, args.run_quality)
+        return maintain_project(root, args.task, args.run_quality, archive=args.archive)
     if args.command == "query":
         return query_project(root, args.text)
     if args.command == "graph-tools":

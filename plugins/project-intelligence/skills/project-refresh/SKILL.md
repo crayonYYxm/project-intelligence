@@ -30,6 +30,8 @@ python3 /Users/xumeng/plugins/project-intelligence/scripts/project_intel.py inst
 
 Use managed Project Intelligence blocks in root entrypoint files so existing team instructions are preserved. These rules are required because skill triggering is not guaranteed; agents must still consult `.project-intel` even when no dedicated Project Intelligence skill fires.
 
+Routine refresh/check commands should keep stable files rather than producing a new file for every conversation. `init`, `refresh`, tooling, and quality reports overwrite their fixed outputs. `project-intel lifecycle` and `project-intel debug` print by default and write fixed reports only with `--write`. `project-intel maintain` overwrites `.project-intel/maintenance/latest.md`; add `--archive` only when the user wants timestamped history.
+
 `init` and `refresh` already write the local Claude adapter. Do not ask the user to run `project-intel install` after initialization just to see Project Intelligence skills. Use `install` only to repair/regenerate adapter files or to generate/activate optional hooks.
 
 The managed entrypoint rules must distinguish tools from skills: Grep/Read/Edit/Bash are execution tools only, while Project Intelligence skills define the workflow. Keep task-to-skill routing explicit so implementation work uses `project-task`, bug investigation uses `project-debug`, review uses `project-review`, and completed work uses `project-maintain` even when the agent ultimately edits files with basic tools.

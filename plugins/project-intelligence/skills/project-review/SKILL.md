@@ -15,8 +15,8 @@ Workflow:
 4. Use Understand-Anything for architecture/domain context when available.
 5. Run `project-intel check`; use `--run-quality` only when the user asks to run lint/type/style/format commands.
 6. Flag hard-rule violations, behavioral risks, missing tests, repeated implementations, ignored reuse opportunities, and stale `.project-intel` facts.
-7. If a finding is a bug or failed behavior, use `project-intel debug --bug "<finding>"` before recommending a fix.
-8. After fixes are completed, use `project-intel maintain --task "<summary>"` to refresh facts and reports.
+7. If a finding is a bug or failed behavior, use `project-intel debug --bug "<finding>"` before recommending a fix. `debug` prints by default; use `--write` only when a persistent debug report is explicitly needed.
+8. After fixes are completed, use `project-intel maintain --task "<summary>"` to refresh facts and update `.project-intel/maintenance/latest.md`. Use `--archive` only when the user wants a historical maintenance record.
 
 Command:
 

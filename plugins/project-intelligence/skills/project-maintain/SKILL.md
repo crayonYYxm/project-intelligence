@@ -7,10 +7,16 @@ description: Use when a task is finished, after implementation, after review fix
 
 Close project tasks by refreshing facts and recording what changed.
 
-Run:
+Run. By default this overwrites `.project-intel/maintenance/latest.md` instead of creating a new history file:
 
 ```bash
 python3 /Users/xumeng/plugins/project-intelligence/scripts/project_intel.py maintain --task "<summary>"
+```
+
+Use `--archive` only when the user explicitly wants a timestamped maintenance record:
+
+```bash
+python3 /Users/xumeng/plugins/project-intelligence/scripts/project_intel.py maintain --task "<summary>" --archive
 ```
 
 Use `--run-quality` only when the user asks to run real lint/type/style/format commands:
@@ -19,4 +25,4 @@ Use `--run-quality` only when the user asks to run real lint/type/style/format c
 python3 /Users/xumeng/plugins/project-intelligence/scripts/project_intel.py maintain --task "<summary>" --run-quality
 ```
 
-Maintenance refreshes `.project-intel`, writes a maintenance report, runs `project-intel check`, and keeps redundancy findings at `candidate` unless a human promotes them. Do not read or rely on `.cgraphx`.
+Maintenance refreshes `.project-intel`, writes the latest maintenance report, runs `project-intel check`, and keeps redundancy findings at `candidate` unless a human promotes them. Do not read or rely on `.cgraphx`.

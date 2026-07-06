@@ -22,4 +22,6 @@ For impact-only requests, run:
 python3 /Users/xumeng/plugins/project-intelligence/scripts/project_intel.py lifecycle --task "<requirement>"
 ```
 
+This prints impact by default. Add `--write` only when the user explicitly wants `.project-intel/reports/task-impact.md`.
+
 Do not read or rely on `.cgraphx`.
