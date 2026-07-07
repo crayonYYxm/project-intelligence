@@ -714,18 +714,25 @@ class InferStandardsTests(unittest.TestCase):
                 {"name": "OrderList", "path": "src/components/OrderList.vue", "kind": "vue"},
                 {"name": "SearchBar", "path": "src/components/SearchBar.vue", "kind": "vue"},
                 {"name": "DetailDialog", "path": "src/components/DetailDialog.vue", "kind": "vue"},
+                {"name": "OrderForm", "path": "src/pages/order/components/OrderForm.vue", "kind": "vue", "scope": "page-local"},
+                {"name": "OrderCoupon", "path": "src/pages/order/components/OrderCoupon.vue", "kind": "vue", "scope": "page-local"},
+                {"name": "OrderAmount", "path": "src/pages/order/components/OrderAmount.vue", "kind": "vue", "scope": "page-local"},
             ],
             "hooks": [
                 {"name": "usePagination", "path": "src/hooks/usePagination.ts"},
                 {"name": "useSearch", "path": "src/hooks/useSearch.ts"},
                 {"name": "useExport", "path": "src/hooks/useExport.ts"},
             ],
-            "routes": [],
             "apiModules": [
-                {"path": "src/api/user.ts", "signals": ["request"]},
-                {"path": "src/api/order.ts", "signals": ["request"]},
-                {"path": "src/api/goods.ts", "signals": ["request"]},
+                {"path": "src/api/user.ts", "signals": ["request"], "wrappers": ["$post"], "servicePrefixes": [{"name": "miniName", "value": "/so-mini-service/openapi"}]},
+                {"path": "src/api/order.ts", "signals": ["request"], "wrappers": ["$post"], "servicePrefixes": [{"name": "serviceName", "value": "/order-service/service"}]},
+                {"path": "src/api/goods.ts", "signals": ["request"], "wrappers": ["$post"], "servicePrefixes": [{"name": "adaptName", "value": "/order-service/adapt"}]},
             ],
+            "routes": [
+                {"path": "src/router/modules/subpackages/order/order.js", "baseUrls": ["pages/subPages/order/"], "routes": ["orderConfirm/orderConfirm", "payResult/payResult"], "routeCount": 2, "customNavigationCount": 2, "pluginProviders": []},
+                {"path": "src/router/modules/subpackages/information/index.js", "baseUrls": ["pages/subPages/information/"], "routes": ["login/login", "pickNumber/pickNumber"], "routeCount": 2, "customNavigationCount": 1, "pluginProviders": ["wx2fe3215291922d97"]},
+            ],
+            "stores": [{"path": "src/stores/module/order.ts", "definesStore": True}],
             "styles": [
                 {"path": "src/components/UserTable.vue", "hardcodedValuesSample": ["#fff", "12px"], "count": 30},
                 {"path": "src/pages/home.vue", "hardcodedValuesSample": ["#333"], "count": 25},
@@ -779,14 +786,107 @@ class InferStandardsTests(unittest.TestCase):
         self.assertIn("structure", categories)
         self.assertIn("style", categories)
         self.assertIn("request", categories)
+        self.assertIn("api-prefix", categories)
+        self.assertIn("router", categories)
+        self.assertIn("component-reuse", categories)
         self.assertIn("ui-pattern", categories)
         self.assertIn("backend-layering", categories)
+
+    def test_extract_emits_does_not_read_prop_defaults_as_events(self):
+        text = """
+        const props = defineProps({
+          type: { type: String, default: 'primary' },
+          visible: { type: Boolean, default: false }
+        })
+        const emit = defineEmits(['update:visible', 'onConfirm'])
+        """
+        self.assertEqual(project_intel.extract_emits(text), ["onConfirm", "update:visible"])
+
+    def test_extract_vue_props_only_reads_top_level_runtime_props(self):
+        text = """
+        const props = defineProps({
+          type: { type: String, default: 'primary', required: true },
+          visible: { type: Boolean, default: false },
+          "order-info": {
+            type: Object,
+            default: () => ({ id: '', name: '' })
+          }
+        })
+        """
+        self.assertEqual(project_intel.extract_vue_props(text), ["order-info", "type", "visible"])
+
+    def test_scan_frontend_extracts_mini_app_api_route_store_and_component_scope(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "src" / "components" / "common").mkdir(parents=True)
+            (root / "src" / "components" / "common" / "dx-dialog.vue").write_text(
+                "<script setup>const emit = defineEmits(['update:visible'])</script>\n",
+                encoding="utf-8",
+            )
+            (root / "src" / "api" / "order").mkdir(parents=True)
+            (root / "src" / "api" / "order" / "index.ts").write_text(
+                "const miniName = '/so-mini-service/openapi'\n"
+                "export const saveOrder = (params) => $post(`${miniName}/somini_api_saveOrder`, [params])\n",
+                encoding="utf-8",
+            )
+            (root / "src" / "router" / "modules" / "subpackages" / "order").mkdir(parents=True)
+            (root / "src" / "router" / "modules" / "subpackages" / "order" / "order.js").write_text(
+                "module.exports={baseUrl:'pages/subPages/order/',children:[{path:'orderConfirm/orderConfirm',style:{navigationStyle:'custom'}}]}\n",
+                encoding="utf-8",
+            )
+            (root / "src" / "stores" / "module").mkdir(parents=True)
+            (root / "src" / "stores" / "module" / "order.ts").write_text("export const useOrder = defineStore('order', {})\n", encoding="utf-8")
+
+            files = list(root.rglob("*"))
+            frontend = project_intel.scan_frontend(root, [path for path in files if path.is_file()])
+
+        self.assertEqual(frontend["components"][0]["scope"], "public")
+        self.assertEqual(frontend["components"][0]["emits"], ["update:visible"])
+        self.assertEqual(frontend["apiModules"][0]["wrappers"], ["$post"])
+        self.assertIn("${miniName}/somini_api_saveOrder", frontend["apiModules"][0]["endpoints"])
+        self.assertEqual(frontend["apiModules"][0]["servicePrefixes"][0]["value"], "/so-mini-service/openapi")
+        self.assertEqual(frontend["routes"][0]["baseUrls"], ["pages/subPages/order/"])
+        self.assertEqual(frontend["routes"][0]["customNavigationCount"], 1)
+        self.assertTrue(frontend["stores"][0]["definesStore"])
+
+    def test_standards_docs_include_detailed_frontend_files(self):
+        frontend = self._frontend(
+            components=[
+                {"name": "DxDialog", "path": "src/components/common/dx-dialog.vue", "kind": "vue", "scope": "public", "props": ["visible", "content"], "emits": ["update:visible"]},
+                {"name": "OrderForm", "path": "src/pages/subPages/order/orderConfirm/components/orderForm.vue", "kind": "vue", "scope": "page-local", "props": ["orderInfo"], "emits": ["change"]},
+            ],
+        )
+        graph = {
+            "understandSummary": {
+                "domains": [{"name": "订单/支付", "count": 2, "paths": ["src/pages/subPages/order/orderConfirm/orderConfirm.vue"], "summaries": ["订单确认页面负责提交和支付前确认。"]}],
+                "keyModules": [{"path": "src/api/order/index.ts", "name": "order api", "summary": "订单接口", "tags": ["order"]}],
+                "topPathPrefixes": [["src/pages/subPages/order", 10]],
+            }
+        }
+        docs = project_intel.standards_docs(
+            {
+                "frontend": frontend,
+                "backend": self._backend(),
+                "config": {"quality": {"commands": []}, "rules": {"inferred": []}},
+                "graph": graph,
+            }
+        )
+        self.assertIn("components.md", docs)
+        self.assertIn("api.md", docs)
+        self.assertIn("router.md", docs)
+        self.assertIn("domain-flows.md", docs)
+        self.assertIn("DxDialog", docs["components.md"])
+        self.assertIn("/so-mini-service/openapi", docs["api.md"])
+        self.assertIn("pages/subPages/order/", docs["router.md"])
+        self.assertIn("订单/支付", docs["domain-flows.md"])
 
     def test_infer_standards_skips_low_sample_signals(self):
         frontend = self._frontend(
             components=[{"name": "One", "path": "src/components/One.vue", "kind": "vue"}],
             hooks=[],
+            routes=[],
             apiModules=[],
+            stores=[],
             styles=[],
             redundancyCandidates=[],
         )

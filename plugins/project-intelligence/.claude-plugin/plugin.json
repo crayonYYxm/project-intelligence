@@ -1,6 +1,6 @@
 {
   "name": "project-intelligence",
-  "version": "0.1.9",
+  "version": "0.1.10",
   "description": "Project-level intelligence for specs, plans, standards, knowledge, graph context, systematic debugging, quality checks, lifecycle maintenance, and reuse guidance.",
   "author": {
     "name": "crayonYYxm"

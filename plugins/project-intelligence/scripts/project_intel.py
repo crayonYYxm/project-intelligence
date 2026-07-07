@@ -22,7 +22,7 @@ from pathlib import Path
 from typing import Any, Optional
 
 
-VERSION = "0.1.9"
+VERSION = "0.1.10"
 UNDERSTAND_AGENT_COMMAND = "/understand . --language zh"
 UNDERSTAND_REPO = "Egonex-AI/Understand-Anything"
 UNDERSTAND_CODEX_INSTALL_COMMAND = "curl -fsSL https://raw.githubusercontent.com/Egonex-AI/Understand-Anything/main/install.sh | bash -s codex"
@@ -1064,6 +1064,79 @@ def handle_tooling_setup(root: Path, tooling: dict[str, Any], interactive: bool,
     return setup_graph_tools(root, tooling, auto_approve=setup_missing)
 
 
+def extract_object_argument_blocks(text: str, function_name: str) -> list[str]:
+    blocks: list[str] = []
+    pattern = re.compile(rf"\b{re.escape(function_name)}\s*\(\s*{{")
+    for match in pattern.finditer(text):
+        start = match.end() - 1
+        depth = 0
+        quote = ""
+        escaped = False
+        for idx in range(start, len(text)):
+            char = text[idx]
+            if quote:
+                if escaped:
+                    escaped = False
+                elif char == "\\":
+                    escaped = True
+                elif char == quote:
+                    quote = ""
+                continue
+            if char in {"'", '"', "`"}:
+                quote = char
+                continue
+            if char == "{":
+                depth += 1
+            elif char == "}":
+                depth -= 1
+                if depth == 0:
+                    blocks.append(text[start + 1 : idx])
+                    break
+    return blocks
+
+
+def split_top_level_items(block: str) -> list[str]:
+    items: list[str] = []
+    start = 0
+    depth = 0
+    quote = ""
+    escaped = False
+    for idx, char in enumerate(block):
+        if quote:
+            if escaped:
+                escaped = False
+            elif char == "\\":
+                escaped = True
+            elif char == quote:
+                quote = ""
+            continue
+        if char in {"'", '"', "`"}:
+            quote = char
+            continue
+        if char in "([{":
+            depth += 1
+        elif char in ")]}":
+            depth = max(0, depth - 1)
+        elif char == "," and depth == 0:
+            item = block[start:idx].strip()
+            if item:
+                items.append(item)
+            start = idx + 1
+    tail = block[start:].strip()
+    if tail:
+        items.append(tail)
+    return items
+
+
+def top_level_object_keys(block: str) -> list[str]:
+    names: list[str] = []
+    for item in split_top_level_items(block):
+        match = re.match(r"(?:['\"]([^'\"]+)['\"]|([A-Za-z_$][\w$]*))\??\s*:", item)
+        if match:
+            names.append(match.group(1) or match.group(2))
+    return names
+
+
 def extract_vue_props(text: str) -> list[str]:
     names: set[str] = set()
     inline_blocks = re.findall(r"defineProps\s*<\s*{([^}]*)}", text, re.S)
@@ -1073,18 +1146,81 @@ def extract_vue_props(text: str) -> list[str]:
         pattern = rf"(?:interface\s+{re.escape(type_name)}|type\s+{re.escape(type_name)}\s*=)\s*{{([^}}]*)}}"
         for block in re.findall(pattern, text, re.S):
             names.update(re.findall(r"\b([A-Za-z_$][\w$]*)\??\s*:", block))
-    runtime = re.findall(r"defineProps\s*\(\s*{([^}]*)}", text, re.S)
+    runtime = extract_object_argument_blocks(text, "defineProps")
     for block in runtime:
-        names.update(re.findall(r"\b([A-Za-z_$][\w$]*)\s*:", block))
+        names.update(top_level_object_keys(block))
     return sorted(names)
 
 
 def extract_emits(text: str) -> list[str]:
-    names = set(re.findall(r"['\"]([A-Za-z0-9:_-]+)['\"]\s*:", text))
+    names: set[str] = set()
     array_blocks = re.findall(r"defineEmits\s*\(\s*\[([^\]]*)]", text, re.S)
     for block in array_blocks:
         names.update(re.findall(r"['\"]([^'\"]+)['\"]", block))
-    return sorted(names)
+    object_blocks = re.findall(r"defineEmits\s*\(\s*{([^}]*)}", text, re.S)
+    for block in object_blocks:
+        names.update(re.findall(r"(?:^|[,{\s])(?:['\"]([^'\"]+)['\"]|([A-Za-z_$][\w$]*))\s*:", block))
+    generic_blocks = re.findall(r"defineEmits\s*<([^>]*)>", text, re.S)
+    for block in generic_blocks:
+        names.update(re.findall(r"['\"]([A-Za-z0-9:_-]+)['\"]", block))
+    flattened = set()
+    for item in names:
+        if isinstance(item, tuple):
+            flattened.update(part for part in item if part)
+        elif item:
+            flattened.add(item)
+    return sorted(name for name in flattened if re.match(r"^[A-Za-z][A-Za-z0-9:_-]*$", name))
+
+
+def component_scope(path: str) -> str:
+    if path.startswith("src/components/") or path.startswith("components/"):
+        return "public"
+    if "/components/" in path:
+        return "page-local"
+    if path.startswith("src/pages/") or path.startswith("pages/"):
+        return "page"
+    return "module"
+
+
+def extract_service_prefixes(text: str) -> list[dict[str, str]]:
+    prefixes = []
+    for name, value in re.findall(r"\bconst\s+([A-Za-z_$][\w$]*)\s*=\s*['\"]([^'\"]*/[^'\"]*)['\"]", text):
+        if any(token in value for token in ("service", "openapi", "api", "adapt")):
+            prefixes.append({"name": name, "value": value.rstrip("/") or value})
+    return prefixes[:20]
+
+
+def extract_api_endpoints(text: str) -> list[str]:
+    endpoints: list[str] = []
+    for match in re.finditer(r"(?<![\w$])(?:\$post|\$get|\$put|\$delete|request|fetch|axios)\s*\(\s*(`([^`]+)`|['\"]([^'\"]+)['\"])", text):
+        raw = match.group(2) or match.group(3) or ""
+        if raw:
+            endpoints.append(raw)
+    for value in re.findall(r"['\"](/[^'\"]*(?:service|openapi|api|adapt)[^'\"]*)['\"]", text):
+        endpoints.append(value)
+    return sorted(dict.fromkeys(endpoints))[:40]
+
+
+def extract_exported_functions(text: str) -> list[str]:
+    names = re.findall(r"\bexport\s+const\s+([A-Za-z_$][\w$]*)\s*=", text)
+    names += re.findall(r"\bexport\s+function\s+([A-Za-z_$][\w$]*)\s*\(", text)
+    return sorted(dict.fromkeys(names))[:80]
+
+
+def route_module_info(text: str) -> dict[str, Any]:
+    base_urls = re.findall(r"baseUrl\s*:\s*['\"]([^'\"]+)['\"]", text)
+    route_hits = re.findall(r"path\s*:\s*['\"]([^'\"]+)['\"]", text)
+    custom_nav = len(re.findall(r"navigationStyle\s*:\s*['\"]custom['\"]", text))
+    plugin_providers = sorted(set(re.findall(r"provider\s*:\s*['\"]([^'\"]+)['\"]", text)))
+    titles = re.findall(r"navigationBarTitleText\s*:\s*['\"]([^'\"]+)['\"]", text)
+    return {
+        "baseUrls": sorted(set(base_urls)),
+        "routes": sorted(set(route_hits)),
+        "routeCount": len(set(route_hits)),
+        "customNavigationCount": custom_nav,
+        "pluginProviders": plugin_providers,
+        "titlesSample": titles[:20],
+    }
 
 
 def extract_react_props(text: str) -> list[str]:
@@ -1103,6 +1239,7 @@ def scan_frontend(root: Path, files: list[Path]) -> dict[str, Any]:
     hooks: list[dict[str, Any]] = []
     routes: list[dict[str, Any]] = []
     api_modules: list[dict[str, Any]] = []
+    stores: list[dict[str, Any]] = []
     styles: list[dict[str, Any]] = []
     patterns: Counter[str] = Counter()
     pattern_locations: dict[str, list[str]] = defaultdict(list)
@@ -1120,6 +1257,7 @@ def scan_frontend(root: Path, files: list[Path]) -> dict[str, Any]:
                     "name": name,
                     "path": rp,
                     "kind": "vue" if suffix == ".vue" else "react",
+                    "scope": component_scope(rp),
                     "props": extract_vue_props(text) if suffix == ".vue" else extract_react_props(text),
                     "emits": extract_emits(text) if suffix == ".vue" else [],
                     "level": "candidate",
@@ -1128,11 +1266,23 @@ def scan_frontend(root: Path, files: list[Path]) -> dict[str, Any]:
         if re.search(r"(^|/)use[A-Z][A-Za-z0-9_]*\.(ts|tsx|js|jsx)$", rp):
             hooks.append({"name": path.stem, "path": rp, "level": "candidate"})
         if "/router" in lower or "route" in path.stem.lower():
-            route_hits = re.findall(r"path\s*:\s*['\"]([^'\"]+)['\"]", text)
-            if route_hits:
-                routes.append({"path": rp, "routes": sorted(set(route_hits))})
+            route_info = route_module_info(text)
+            if route_info["routes"]:
+                routes.append({"path": rp, **route_info})
         if "/api/" in lower or re.search(r"\b(axios|fetch|request)\s*[.(]", text):
-            api_modules.append({"path": rp, "signals": sorted(set(re.findall(r"\b(axios|fetch|request)\b", text)))})
+            wrappers = sorted(set(re.findall(r"(?<![\w$])(\$post|\$get|\$put|\$delete|axios|fetch|request)\s*\(", text)))
+            api_modules.append(
+                {
+                    "path": rp,
+                    "signals": sorted(set(re.findall(r"\b(axios|fetch|request)\b", text))),
+                    "wrappers": wrappers,
+                    "endpoints": extract_api_endpoints(text),
+                    "servicePrefixes": extract_service_prefixes(text),
+                    "exports": extract_exported_functions(text),
+                }
+            )
+        if "/stores/" in lower and suffix in {".ts", ".js"}:
+            stores.append({"path": rp, "definesStore": bool(re.search(r"\bdefineStore\s*\(", text)), "exports": extract_exported_functions(text)})
         if suffix in {".scss", ".css", ".less", ".sass", ".vue"}:
             hardcoded = re.findall(r"#[0-9a-fA-F]{3,8}|\b\d+px\b", text)
             if hardcoded:
@@ -1140,7 +1290,7 @@ def scan_frontend(root: Path, files: list[Path]) -> dict[str, Any]:
         pattern_defs = {
             "table": [r"<(el-table|ProTable)\b", r"\bcolumns\s*=", r"type:\s*['\"]selection"],
             "pagination": [r"<(el-pagination|Pagination)\b", r"page(Size|Num|Index)", r"usePagination"],
-            "dialog-drawer": [r"<(el-dialog|el-drawer|Drawer)\b", r"v-model:visible", r"defineEmits"],
+            "dialog-drawer": [r"<(el-dialog|el-drawer|Drawer|nut-popup|dx-dialog)\b", r"v-model:visible", r"defineEmits|showModal"],
             "search-form": [r"<el-form\b", r"handle(Search|Reset)", r"search(Form|Params)"],
             "permission": [r"\b(permission|auth|v-permission|hasPermission)\b"],
             "export-download": [r"\b(export|download|导出)\b"],
@@ -1167,6 +1317,7 @@ def scan_frontend(root: Path, files: list[Path]) -> dict[str, Any]:
         "hooks": hooks,
         "routes": routes,
         "apiModules": api_modules,
+        "stores": stores,
         "styles": styles,
         "redundancyCandidates": redundancy,
     }
@@ -1237,6 +1388,66 @@ def detect_graph_sources(root: Path) -> list[dict[str, Any]]:
     else:
         sources.append({"name": "Understand-Anything", "path": ".understand-anything/knowledge-graph.json", "role": "架构、模块、领域流、入职", "status": "missing"})
     return sources
+
+
+DOMAIN_KEYWORDS = {
+    "订单/支付": ["order", "订单", "custorder", "pay", "支付", "预充值", "prepaid", "recharge"],
+    "登录/认证": ["login", "登录", "auth", "认证", "identity", "实名", "face", "人脸", "subscribe", "订阅"],
+    "政企业务": ["government", "政企", "approve", "审批", "customer", "客户"],
+    "选号/信息填写": ["information", "选号", "pick", "address", "地址", "addinfo", "fill"],
+    "礼包/活动": ["gift", "礼包", "activity", "活动"],
+}
+
+
+def path_prefix(path: str, depth: int = 3) -> str:
+    parts = Path(path).parts
+    if len(parts) <= depth:
+        return Path(path).as_posix()
+    return Path(*parts[:depth]).as_posix()
+
+
+def detect_domain_name(path: str, summary: str = "", tags: list[str] | None = None) -> Optional[str]:
+    haystack = " ".join([path, summary, " ".join(tags or [])]).lower()
+    for name, keywords in DOMAIN_KEYWORDS.items():
+        if any(keyword.lower() in haystack for keyword in keywords):
+            return name
+    return None
+
+
+def understand_graph_summary(root: Path) -> dict[str, Any]:
+    graph = load_json(root / ".understand-anything" / "knowledge-graph.json", {})
+    nodes = graph.get("nodes", []) or []
+    edges = graph.get("edges", []) or []
+    domain_buckets: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    key_modules: list[dict[str, Any]] = []
+    for node in nodes:
+        path = node.get("filePath") or node.get("id") or ""
+        summary = node.get("summary") or ""
+        tags = node.get("tags") or []
+        if not path:
+            continue
+        domain = detect_domain_name(path, summary, tags)
+        if domain:
+            domain_buckets[domain].append({"path": path, "summary": summary, "tags": tags[:8]})
+        if path.startswith(("src/api/", "src/components/", "src/pages/subPages/", "src/router/")):
+            key_modules.append({"path": path, "name": node.get("name") or Path(path).name, "summary": summary, "tags": tags[:8]})
+    domains = []
+    for name, items in sorted(domain_buckets.items(), key=lambda item: len(item[1]), reverse=True):
+        domains.append(
+            {
+                "name": name,
+                "count": len(items),
+                "paths": [item["path"] for item in items[:12]],
+                "summaries": [item["summary"] for item in items if item.get("summary")][:5],
+            }
+        )
+    return {
+        "nodes": len(nodes),
+        "edges": len(edges),
+        "domains": domains[:12],
+        "keyModules": key_modules[:30],
+        "topPathPrefixes": Counter(path_prefix(node.get("filePath") or node.get("id") or "", 4) for node in nodes if node.get("filePath") or node.get("id")).most_common(20),
+    }
 
 
 def file_index(root: Path, files: list[Path]) -> list[dict[str, Any]]:
@@ -1316,7 +1527,9 @@ def infer_standards(frontend: dict[str, Any], backend: dict[str, Any]) -> list[d
 
     components = frontend.get("components", [])
     hooks = frontend.get("hooks", [])
+    routes = frontend.get("routes", [])
     api_modules = frontend.get("apiModules", [])
+    stores = frontend.get("stores", [])
     styles = frontend.get("styles", [])
     redundancy = frontend.get("redundancyCandidates", [])
 
@@ -1341,19 +1554,44 @@ def infer_standards(frontend: dict[str, Any], backend: dict[str, Any]) -> list[d
             if dom:
                 directory, hits, total = dom
                 add("frontend", "structure", f"{label}统一放在 `{directory}/` 目录", f"{hits}/{total} 个文件位于该目录")
+    public_count = sum(1 for item in components if (item.get("scope") or component_scope(item.get("path", ""))) == "public")
+    page_local_count = sum(1 for item in components if (item.get("scope") or component_scope(item.get("path", ""))) == "page-local")
+    if public_count >= 3 and page_local_count >= 3:
+        add(
+            "frontend",
+            "component-reuse",
+            "跨业务复用能力优先沉淀到公共组件目录，页面私有组件仅服务当前业务域",
+            f"公共组件 {public_count} 个，页面局部组件 {page_local_count} 个",
+        )
 
     # 请求封装：API 模块统一封装
     if len(api_modules) >= 3:
-        signal_counts = Counter(signal for module in api_modules for signal in module.get("signals", []))
+        signal_counts = Counter(signal for module in api_modules for signal in (module.get("wrappers") or module.get("signals", [])))
         if signal_counts:
             top_signal, hits = signal_counts.most_common(1)[0]
-            if hits / len(api_modules) >= 0.8:
+            if hits / len(api_modules) >= 0.5:
                 add(
                     "frontend",
                     "request",
                     f"API 请求统一通过 `{top_signal}` 封装发起；组件内不要直接调用 axios/fetch",
                     f"{hits}/{len(api_modules)} 个 API 模块使用 {top_signal}",
                 )
+        prefix_counts = Counter(prefix.get("value") for module in api_modules for prefix in module.get("servicePrefixes", []) if prefix.get("value"))
+        for prefix, hits in prefix_counts.most_common(5):
+            if hits >= 1:
+                add("frontend", "api-prefix", f"接口服务前缀 `{prefix}` 已在 API 模块中声明，新增接口应复用同域前缀常量", f"{hits} 处声明服务前缀")
+
+    if len(routes) >= 2:
+        route_count = sum(route.get("routeCount", len(route.get("routes", []))) for route in routes)
+        custom_count = sum(route.get("customNavigationCount", 0) for route in routes)
+        add("frontend", "router", "小程序页面入口通过路由/分包配置维护，新增页面需同步路由配置和页面跳转路径", f"{len(routes)} 个路由配置文件，{route_count} 个页面路径")
+        if custom_count >= max(3, route_count // 2):
+            add("frontend", "router", "业务页面普遍使用自定义导航，新增页面应保持导航风格一致", f"{custom_count}/{route_count} 个页面配置 custom navigation")
+
+    if stores:
+        pinia_count = sum(1 for store in stores if store.get("definesStore"))
+        if pinia_count:
+            add("frontend", "state", "状态管理集中在 stores 目录，新增跨页面状态优先使用既有 Pinia store", f"{pinia_count}/{len(stores)} 个 store 文件使用 defineStore")
 
     # 样式：硬编码值治理
     hardcoded_total = sum(style.get("count", 0) for style in styles)
@@ -1419,10 +1657,196 @@ def render_inferred_rules(rules: list[dict[str, Any]], scope: str) -> str:
     return "\n".join(f"- {rule['rule']}（证据：{rule['evidence']}）" for rule in subset)
 
 
+def render_components_standard(frontend: dict[str, Any]) -> str:
+    components = frontend.get("components", [])
+    scope_counts = Counter(c.get("scope") or component_scope(c.get("path", "")) for c in components)
+    public_components = [c for c in components if (c.get("scope") or component_scope(c.get("path", ""))) == "public"]
+    repeated = [[name, count] for name, count in Counter(c.get("name") for c in components if c.get("name")).most_common(20) if count > 1]
+    prop_rows = [[name, count] for name, count in Counter(prop for c in components for prop in c.get("props", [])).most_common(30)]
+    emit_rows = [[name, count] for name, count in Counter(emit for c in components for emit in c.get("emits", [])).most_common(30)]
+    page_dirs = Counter(path_prefix(c.get("path", ""), 4) for c in components if (c.get("scope") or component_scope(c.get("path", ""))) == "page-local")
+    public_rows = [
+        [c.get("name"), c.get("path"), ", ".join(c.get("props", [])[:8]), ", ".join(c.get("emits", [])[:8])]
+        for c in public_components[:40]
+    ]
+    return f"""# 组件与复用规范
+
+## 组件分布
+
+{table(["范围", "数量"], [[scope, count] for scope, count in scope_counts.most_common()])}
+
+## 公共组件清单
+
+以下组件位于公共组件目录，新增页面能力前优先检索和复用：
+
+{table(["组件", "路径", "Props", "Emits"], public_rows)}
+
+## 页面局部组件热点
+
+{table(["目录", "组件数"], [[directory, count] for directory, count in page_dirs.most_common(20)])}
+
+## 重名/相似组件候选
+
+重名组件通常意味着跨业务线复制或同类能力未沉淀，默认作为 `candidate` 检查：
+
+{table(["组件名", "出现次数"], repeated)}
+
+## 常见 Props / Emits
+
+{table(["Prop", "出现次数"], prop_rows)}
+
+{table(["Emit", "出现次数"], emit_rows)}
+
+## 约定
+
+- `src/components/**` 下组件视为公共能力，新增前必须先检索是否已有同类组件。
+- `src/pages/**/components/**` 下组件视为页面局部能力；跨两个以上业务域重复时应评估沉淀为公共组件。
+- 修改公共组件时需要检查 Props、Emits 和所有引用页面，避免破坏订单、政企、信息填写、认证等页面。
+- 重名组件和相同页面模式默认是 `candidate`，人工确认后再升级为 `preferred` 或 `hard`。
+"""
+
+
+def render_api_standard(frontend: dict[str, Any]) -> str:
+    modules = frontend.get("apiModules", [])
+    wrapper_counts = Counter(wrapper for module in modules for wrapper in module.get("wrappers", []))
+    signal_counts = Counter(signal for module in modules for signal in module.get("signals", []))
+    prefixes = []
+    for module in modules:
+        for item in module.get("servicePrefixes", []):
+            prefixes.append([item.get("name"), item.get("value"), module.get("path")])
+    endpoint_prefixes = Counter()
+    for module in modules:
+        for endpoint in module.get("endpoints", []):
+            normalized = re.sub(r"\$\{([^}]+)}", r"${\1}", endpoint)
+            endpoint_prefixes[path_prefix(normalized.strip("/"), 2)] += 1
+    module_rows = [
+        [
+            module.get("path"),
+            ", ".join(module.get("wrappers", []) or module.get("signals", [])),
+            len(module.get("exports", [])),
+            "; ".join(module.get("endpoints", [])[:4]),
+        ]
+        for module in modules[:40]
+    ]
+    return f"""# API 与请求规范
+
+## 请求封装
+
+{table(["封装/信号", "出现次数"], [[name, count] for name, count in (wrapper_counts + signal_counts).most_common(20)])}
+
+## 服务前缀
+
+{table(["常量", "服务前缀", "来源"], prefixes[:30])}
+
+## 接口路径热点
+
+{table(["接口路径前缀", "出现次数"], [[name, count] for name, count in endpoint_prefixes.most_common(30)])}
+
+## API 模块清单
+
+{table(["模块", "请求封装", "导出函数数", "接口样例"], module_rows)}
+
+## 约定
+
+- 新增接口优先放在 `src/api/<domain>/index.ts` 或既有同域 API 模块中。
+- 页面和组件不要直接调用 `uni.request`、`axios` 或裸 `fetch`；优先复用项目请求封装和已有 API 方法。
+- 接口参数包装方式应跟随同域模块，例如是否使用数组包裹参数、是否传入 headerInfo、是否关闭缓存。
+- 涉及登录态、错误上报、订阅消息、支付链路的接口变更，需要同步检查 `src/api/request.ts` 的拦截、错误处理和缓存逻辑。
+"""
+
+
+def render_router_standard(frontend: dict[str, Any]) -> str:
+    routes = frontend.get("routes", [])
+    route_rows = [
+        [
+            route.get("path"),
+            ", ".join(route.get("baseUrls", [])),
+            route.get("routeCount", len(route.get("routes", []))),
+            route.get("customNavigationCount", 0),
+            ", ".join(route.get("pluginProviders", [])),
+        ]
+        for route in routes
+    ]
+    title_words = Counter(title for route in routes for title in route.get("titlesSample", []))
+    return f"""# 路由与分包规范
+
+## 路由模块
+
+{table(["配置文件", "baseUrl", "页面数", "custom 导航数", "插件 provider"], route_rows)}
+
+## 页面标题热点
+
+{table(["标题", "出现次数"], [[name, count] for name, count in title_words.most_common(30)])}
+
+## 约定
+
+- 新增页面优先放入对应 `src/router/modules/subpackages/*` 分包配置，保持 `baseUrl` 与实际页面目录一致。
+- 已使用 `navigationStyle: 'custom'` 的业务线新增页面应保持导航风格一致，并复用现有导航组件。
+- 使用小程序插件的页面需要在路由配置里保留 provider/version 信息，避免只改页面文件漏改路由配置。
+- 页面路径、标题和分包归属是需求影响分析的一部分；改页面入口时需要同步检查跳转 URL 和 `uni.navigateTo/redirectTo` 调用。
+"""
+
+
+def fallback_domain_rows(frontend: dict[str, Any]) -> list[list[Any]]:
+    buckets: dict[str, set[str]] = defaultdict(set)
+    for route in frontend.get("routes", []):
+        for path in route.get("routes", []):
+            domain = detect_domain_name(path)
+            if domain:
+                buckets[domain].add(f"{route.get('path')}::{path}")
+    for module in frontend.get("apiModules", []):
+        domain = detect_domain_name(module.get("path", ""), " ".join(module.get("endpoints", [])))
+        if domain:
+            buckets[domain].add(module.get("path", ""))
+    for component in frontend.get("components", []):
+        domain = detect_domain_name(component.get("path", ""), component.get("name", ""))
+        if domain:
+            buckets[domain].add(component.get("path", ""))
+    return [[name, len(paths), ", ".join(sorted(paths)[:8])] for name, paths in sorted(buckets.items(), key=lambda item: len(item[1]), reverse=True)]
+
+
+def render_domain_flows_standard(frontend: dict[str, Any], graph: dict[str, Any]) -> str:
+    understand = graph.get("understandSummary", {}) if isinstance(graph, dict) else {}
+    domain_rows = [
+        [item.get("name"), item.get("count"), ", ".join(item.get("paths", [])[:8]), "；".join(item.get("summaries", [])[:2])]
+        for item in understand.get("domains", [])
+    ]
+    if not domain_rows:
+        domain_rows = fallback_domain_rows(frontend)
+    module_rows = [
+        [item.get("path"), item.get("name"), item.get("summary"), ", ".join(item.get("tags", []))]
+        for item in understand.get("keyModules", [])[:30]
+    ]
+    prefix_rows = [[prefix, count] for prefix, count in understand.get("topPathPrefixes", [])[:20]]
+    return f"""# 业务流与图谱规范
+
+## 业务域候选
+
+以下内容来自 Understand-Anything 图谱摘要和项目轻量扫描，默认是 `inferred/candidate`，用于需求前影响分析：
+
+{table(["业务域", "节点/文件数", "关键路径", "图谱摘要"], domain_rows)}
+
+## 关键模块摘要
+
+{table(["路径", "名称", "摘要", "标签"], module_rows)}
+
+## 图谱路径热点
+
+{table(["路径前缀", "节点数"], prefix_rows)}
+
+## 约定
+
+- 需求涉及订单、支付、预充值、订阅消息、登录认证、政企业务、选号或信息填写时，先查本文件对应业务域，再查 GitNexus/Understand-Anything 影响面。
+- 修改业务流入口时需要同时检查页面、路由、API 模块、store、公共组件和错误处理链路。
+- 图谱摘要只作为项目理解和影响分析输入，不替代源码确认；最终实现仍以源码和 `.project-intel/knowledge` 为准。
+"""
+
+
 def standards_docs(data: dict[str, Any]) -> dict[str, str]:
     frontend = data["frontend"]
     backend = data["backend"]
     config = data["config"]
+    graph = data.get("graph", {})
     quality = config.get("quality", {}).get("commands", [])
     inferred_rules = config.get("rules", {}).get("inferred", [])
     docs = {}
@@ -1453,7 +1877,15 @@ def standards_docs(data: dict[str, Any]) -> dict[str, str]:
 - 发现的 Hooks 数：{len(frontend.get("hooks", []))}
 - 发现的路由文件数：{len(frontend.get("routes", []))}
 - 发现的 API 相关模块数：{len(frontend.get("apiModules", []))}
+- 发现的状态管理文件数：{len(frontend.get("stores", []))}
 - 冗余候选数：{len(frontend.get("redundancyCandidates", []))}
+
+## 细分规范
+
+- 公共组件与页面局部组件：`components.md`
+- API 请求封装与服务前缀：`api.md`
+- 路由、分包和页面入口：`router.md`
+- 业务流与图谱摘要：`domain-flows.md`
 
 ## 推断规范
 
@@ -1499,15 +1931,25 @@ def standards_docs(data: dict[str, Any]) -> dict[str, str]:
 - 重复的 UI、数据转换、校验、请求构建和样式块默认视为 `candidate` 发现。
 - 候选升级为 `preferred` 或 `hard` 需人工确认。
 """
+    docs["components.md"] = render_components_standard(frontend)
+    docs["api.md"] = render_api_standard(frontend)
+    docs["router.md"] = render_router_standard(frontend)
+    docs["domain-flows.md"] = render_domain_flows_standard(frontend, graph)
     return docs
 
 
 def table(headers: list[str], rows: list[list[Any]]) -> str:
     if not rows:
         return "_None detected._"
+    def clean(cell: Any) -> str:
+        if isinstance(cell, (list, tuple, set)):
+            value = ", ".join(str(item) for item in cell)
+        else:
+            value = str(cell or "")
+        return value.replace("\n", " ").replace("|", "\\|")
     out = ["| " + " | ".join(headers) + " |", "| " + " | ".join(["---"] * len(headers)) + " |"]
     for row in rows:
-        out.append("| " + " | ".join(str(cell or "") for cell in row) + " |")
+        out.append("| " + " | ".join(clean(cell) for cell in row) + " |")
     return "\n".join(out)
 
 
@@ -1544,6 +1986,7 @@ def init_project(root: Path, refresh: bool = False, interactive: bool = False, s
             "services": len(backend.get("services", [])),
             "candidateEntrypoints": len(backend.get("candidateEntrypoints", [])),
         },
+        "understandSummary": understand_graph_summary(root),
     }
     pdir = project_dir(root)
     for sub in ("standards", "knowledge", "graph", "reports", "specs", "plans", "maintenance", "requirements", "requirements/files", "hooks", "cache", "tmp"):
@@ -1554,7 +1997,7 @@ def init_project(root: Path, refresh: bool = False, interactive: bool = False, s
     write_json(pdir / "knowledge" / "backend.json", backend)
     write_json(pdir / "knowledge" / "files.json", file_index(root, files))
     write_json(pdir / "graph" / "project-graph.json", graph)
-    for name, text in standards_docs({"frontend": frontend, "backend": backend, "config": config}).items():
+    for name, text in standards_docs({"frontend": frontend, "backend": backend, "config": config, "graph": graph}).items():
         write_text(pdir / "standards" / name, text)
     write_text(pdir / "reports" / ("refresh-report.md" if refresh else "init-report.md"), build_init_report(root, manifest, frontend, backend, config, tooling))
     write_text(pdir / "reports" / "redundancy-report.md", build_redundancy_report(frontend))
