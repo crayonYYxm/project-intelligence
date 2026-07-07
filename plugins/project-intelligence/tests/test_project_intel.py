@@ -674,5 +674,231 @@ class LifecycleArtifactTests(unittest.TestCase):
                 project_intel.update_file_requirement_docs(root, "support selectable prepay amounts", ["src/page.vue"])
 
 
+class SkillCommandPathTests(unittest.TestCase):
+    def test_skill_files_use_plugin_root_variable_for_script_commands(self):
+        skills_dir = MODULE_PATH.parents[1] / "skills"
+        skill_files = sorted(skills_dir.glob("*/SKILL.md"))
+        self.assertTrue(skill_files, "未找到任何 SKILL.md")
+        for skill_md in skill_files:
+            text = skill_md.read_text(encoding="utf-8")
+            self.assertNotIn("/Users/", text, f"{skill_md} 包含硬编码的用户路径")
+            for line in text.splitlines():
+                if "project_intel.py" in line:
+                    self.assertIn(
+                        "${CLAUDE_PLUGIN_ROOT}",
+                        line,
+                        f"{skill_md} 引用脚本时未使用 ${{CLAUDE_PLUGIN_ROOT}}：{line.strip()}",
+                    )
+
+    def test_generated_task_impact_doc_uses_runtime_script_path(self):
+        snapshot = {
+            "manifest": {"graphSources": []},
+            "frontend": {"components": [], "hooks": []},
+            "backend": {"services": []},
+        }
+        doc = project_intel.build_task_impact_doc(Path("/tmp/example"), "示例任务", snapshot)
+        self.assertNotIn("/Users/xumeng/plugins", doc)
+        self.assertIn(str(MODULE_PATH.resolve()), doc)
+
+    def test_generated_hook_script_uses_runtime_script_path(self):
+        body = project_intel.hook_script_body("post-commit")
+        self.assertNotIn("/Users/xumeng/plugins", body)
+        self.assertIn(str(MODULE_PATH.resolve()), body)
+
+
+class InferStandardsTests(unittest.TestCase):
+    def _frontend(self, **overrides):
+        base = {
+            "components": [
+                {"name": "UserTable", "path": "src/components/UserTable.vue", "kind": "vue"},
+                {"name": "OrderList", "path": "src/components/OrderList.vue", "kind": "vue"},
+                {"name": "SearchBar", "path": "src/components/SearchBar.vue", "kind": "vue"},
+                {"name": "DetailDialog", "path": "src/components/DetailDialog.vue", "kind": "vue"},
+            ],
+            "hooks": [
+                {"name": "usePagination", "path": "src/hooks/usePagination.ts"},
+                {"name": "useSearch", "path": "src/hooks/useSearch.ts"},
+                {"name": "useExport", "path": "src/hooks/useExport.ts"},
+            ],
+            "routes": [],
+            "apiModules": [
+                {"path": "src/api/user.ts", "signals": ["request"]},
+                {"path": "src/api/order.ts", "signals": ["request"]},
+                {"path": "src/api/goods.ts", "signals": ["request"]},
+            ],
+            "styles": [
+                {"path": "src/components/UserTable.vue", "hardcodedValuesSample": ["#fff", "12px"], "count": 30},
+                {"path": "src/pages/home.vue", "hardcodedValuesSample": ["#333"], "count": 25},
+            ],
+            "redundancyCandidates": [
+                {
+                    "type": "frontend-pattern",
+                    "name": "table",
+                    "count": 5,
+                    "locations": ["src/pages/a.vue", "src/pages/b.vue"],
+                    "level": "candidate",
+                },
+            ],
+        }
+        base.update(overrides)
+        return base
+
+    def _backend(self, **overrides):
+        base = {
+            "apis": [
+                {"path": "server/controller/UserController.java", "signals": ["RestController"], "endpoints": ["/user"]},
+                {"path": "server/controller/OrderController.java", "signals": ["RestController"], "endpoints": ["/order"]},
+            ],
+            "services": [
+                {"name": "UserService", "path": "server/service/UserService.java"},
+                {"name": "OrderService", "path": "server/service/OrderService.java"},
+            ],
+            "dataTypes": [
+                {"name": "UserDTO", "path": "server/dto/UserDTO.java"},
+                {"name": "OrderDTO", "path": "server/dto/OrderDTO.java"},
+            ],
+            "repositories": [
+                {"name": "UserRepository", "path": "server/repository/UserRepository.java"},
+            ],
+            "configs": [],
+            "candidateEntrypoints": [],
+        }
+        base.update(overrides)
+        return base
+
+    def test_infers_naming_directory_style_request_pattern_and_backend_rules(self):
+        rules = project_intel.infer_standards(self._frontend(), self._backend())
+        self.assertTrue(rules, "应至少推断出一条规范")
+        for rule in rules:
+            self.assertEqual(rule["level"], "inferred")
+            self.assertTrue(project_intel.contains_cjk(rule["rule"]), f"规则文案应为中文：{rule}")
+            self.assertIn("category", rule)
+            self.assertIn("evidence", rule)
+        categories = {rule["category"] for rule in rules}
+        self.assertIn("naming", categories)
+        self.assertIn("structure", categories)
+        self.assertIn("style", categories)
+        self.assertIn("request", categories)
+        self.assertIn("ui-pattern", categories)
+        self.assertIn("backend-layering", categories)
+
+    def test_infer_standards_skips_low_sample_signals(self):
+        frontend = self._frontend(
+            components=[{"name": "One", "path": "src/components/One.vue", "kind": "vue"}],
+            hooks=[],
+            apiModules=[],
+            styles=[],
+            redundancyCandidates=[],
+        )
+        backend = self._backend(apis=[], services=[], dataTypes=[], repositories=[])
+        rules = project_intel.infer_standards(frontend, backend)
+        self.assertEqual(rules, [], "样本不足时不应产出推断规范")
+
+    def test_init_writes_inferred_rules_into_config_and_standards_md(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            comp_dir = root / "src" / "components"
+            comp_dir.mkdir(parents=True)
+            for name in ("UserTable", "OrderList", "SearchBar", "DetailDialog"):
+                (comp_dir / f"{name}.vue").write_text(
+                    "<template><div /></template>\n", encoding="utf-8"
+                )
+            hooks_dir = root / "src" / "hooks"
+            hooks_dir.mkdir(parents=True)
+            for name in ("usePagination", "useSearch", "useExport"):
+                (hooks_dir / f"{name}.ts").write_text("export default () => {}\n", encoding="utf-8")
+
+            with patch.object(project_intel, "detect_tooling", return_value={"optional": {}, "recommendedActions": []}), patch.object(
+                project_intel, "handle_tooling_setup", return_value=[]
+            ):
+                project_intel.init_project(root, refresh=False, with_graph=False)
+
+            config = json.loads((root / ".project-intel" / "config.json").read_text(encoding="utf-8"))
+            inferred = config["rules"]["inferred"]
+            self.assertTrue(inferred, "config.rules.inferred 应包含推断规范")
+            frontend_md = (root / ".project-intel" / "standards" / "frontend.md").read_text(encoding="utf-8")
+            self.assertIn("## 推断规范", frontend_md)
+
+    def test_refresh_preserves_user_rules_and_replaces_inferred(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "src").mkdir(parents=True)
+            pdir = root / ".project-intel"
+            pdir.mkdir(parents=True)
+            (pdir / "config.json").write_text(
+                json.dumps(
+                    {
+                        "schemaVersion": 1,
+                        "rules": {
+                            "hard": [{"rule": "禁止直接操作 DOM"}],
+                            "preferred": [],
+                            "inferred": [{"rule": "过时的旧推断", "level": "inferred"}],
+                            "candidate": [],
+                        },
+                    },
+                    ensure_ascii=False,
+                ),
+                encoding="utf-8",
+            )
+
+            with patch.object(project_intel, "detect_tooling", return_value={"optional": {}, "recommendedActions": []}), patch.object(
+                project_intel, "handle_tooling_setup", return_value=[]
+            ):
+                project_intel.init_project(root, refresh=True, with_graph=False)
+
+            config = json.loads((pdir / "config.json").read_text(encoding="utf-8"))
+            self.assertEqual(config["rules"]["hard"], [{"rule": "禁止直接操作 DOM"}])
+            self.assertNotIn(
+                {"rule": "过时的旧推断", "level": "inferred"},
+                config["rules"]["inferred"],
+                "旧的 inferred 规则应被重算结果替换",
+            )
+
+
+class LegacyLocalSkillCleanupTests(unittest.TestCase):
+    def test_cleanup_removes_legacy_skill_copies_and_claude_md_block(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            legacy = root / ".claude" / "skills" / "project-task"
+            legacy.mkdir(parents=True)
+            (legacy / "SKILL.md").write_text("---\nname: project-task\n---\n", encoding="utf-8")
+            custom = root / ".claude" / "skills" / "my-own"
+            custom.mkdir(parents=True)
+            (custom / "SKILL.md").write_text("---\nname: my-own\n---\n", encoding="utf-8")
+            claude_md = root / "CLAUDE.md"
+            claude_md.write_text(
+                "<!-- local-project-skills:start -->\n旧规则\n<!-- local-project-skills:end -->\n\n# 用户内容\n保留我\n",
+                encoding="utf-8",
+            )
+
+            removed = project_intel.cleanup_legacy_local_skills(root)
+
+            self.assertFalse(legacy.exists())
+            self.assertTrue(custom.exists())
+            text = claude_md.read_text(encoding="utf-8")
+            self.assertNotIn("local-project-skills", text)
+            self.assertNotIn("旧规则", text)
+            self.assertIn("保留我", text)
+            self.assertTrue(removed)
+
+    def test_cleanup_is_noop_for_clean_project(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            removed = project_intel.cleanup_legacy_local_skills(root)
+            self.assertEqual(removed, [])
+
+    def test_install_claude_runs_legacy_cleanup(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            legacy = root / ".claude" / "skills" / "project-debug"
+            legacy.mkdir(parents=True)
+            (legacy / "SKILL.md").write_text("---\nname: project-debug\n---\n", encoding="utf-8")
+
+            result = project_intel.install_claude(root)
+
+            self.assertFalse(legacy.exists())
+            self.assertTrue(result.get("legacyCleanup"))
+
+
 if __name__ == "__main__":
     unittest.main()

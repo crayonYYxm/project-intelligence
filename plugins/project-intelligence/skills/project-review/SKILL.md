@@ -21,7 +21,7 @@ Workflow:
 Command:
 
 ```bash
-python3 /Users/xumeng/plugins/project-intelligence/scripts/project_intel.py check
+python3 "${CLAUDE_PLUGIN_ROOT}/scripts/project_intel.py" check
 ```
 
 Do not use `.cgraphx`.

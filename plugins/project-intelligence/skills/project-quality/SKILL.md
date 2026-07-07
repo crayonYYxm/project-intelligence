@@ -11,13 +11,13 @@ Also read `.project-intel/reports/tooling-report.md` to see missing optional too
 Default command:
 
 ```bash
-python3 /Users/xumeng/plugins/project-intelligence/scripts/project_intel.py check
+python3 "${CLAUDE_PLUGIN_ROOT}/scripts/project_intel.py" check
 ```
 
 Run real lint/type/style/format commands only when requested:
 
 ```bash
-python3 /Users/xumeng/plugins/project-intelligence/scripts/project_intel.py check --run-quality
+python3 "${CLAUDE_PLUGIN_ROOT}/scripts/project_intel.py" check --run-quality
 ```
 
 Redundancy findings are `candidate` by default. They should inform refactoring and reuse discussions but should not block unless promoted by team policy.

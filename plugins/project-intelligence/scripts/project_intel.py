@@ -22,7 +22,7 @@ from pathlib import Path
 from typing import Any, Optional
 
 
-VERSION = "0.1.8"
+VERSION = "0.1.9"
 UNDERSTAND_AGENT_COMMAND = "/understand . --language zh"
 UNDERSTAND_REPO = "Egonex-AI/Understand-Anything"
 UNDERSTAND_CODEX_INSTALL_COMMAND = "curl -fsSL https://raw.githubusercontent.com/Egonex-AI/Understand-Anything/main/install.sh | bash -s codex"
@@ -40,6 +40,23 @@ PROJECT_INTEL_BLOCK_START = "<!-- project-intelligence:start -->"
 PROJECT_INTEL_BLOCK_END = "<!-- project-intelligence:end -->"
 AGENT_PROJECT_INTEL_BLOCK_START = "<!-- agent-project-intelligence:start -->"
 AGENT_PROJECT_INTEL_BLOCK_END = "<!-- agent-project-intelligence:end -->"
+# v0.1.7 及更早版本会把 skill 副本写入目标项目，以下常量仅用于清理这些残留。
+LEGACY_LOCAL_SKILLS_BLOCK_START = "<!-- local-project-skills:start -->"
+LEGACY_LOCAL_SKILLS_BLOCK_END = "<!-- local-project-skills:end -->"
+LEGACY_LOCAL_SKILL_NAMES = (
+    "project-brainstorm",
+    "project-debug",
+    "project-init",
+    "project-knowledge",
+    "project-maintain",
+    "project-plan",
+    "project-quality",
+    "project-refresh",
+    "project-review",
+    "project-spec",
+    "project-standards",
+    "project-task",
+)
 EXCLUDED_DIRS = {
     ".git",
     ".idea",
@@ -87,6 +104,11 @@ BACKEND_SUFFIXES = {".java", ".kt", ".py", ".go", ".ts", ".js"}
 
 def now_iso() -> str:
     return _dt.datetime.now(_dt.timezone.utc).isoformat()
+
+
+def script_path() -> Path:
+    """返回当前脚本安装位置，供生成的文档与 hook 引用。"""
+    return Path(__file__).resolve()
 
 
 def run(cmd: list[str], cwd: Path, timeout: int = 30) -> tuple[int, str, str]:
@@ -193,6 +215,40 @@ def upsert_managed_block_with_markers(path: Path, block: str, start: str, end: s
 
 def upsert_managed_block(path: Path, block: str) -> None:
     upsert_managed_block_with_markers(path, block, PROJECT_INTEL_BLOCK_START, PROJECT_INTEL_BLOCK_END)
+
+
+def remove_managed_block_with_markers(path: Path, start: str, end: str) -> bool:
+    current = read_text(path)
+    if start not in current:
+        return False
+    pattern = re.compile(
+        rf"{re.escape(start)}.*?{re.escape(end)}\n*",
+        re.DOTALL,
+    )
+    next_text = pattern.sub("", current).strip()
+    path.write_text(next_text + "\n" if next_text else "", encoding="utf-8")
+    return True
+
+
+def cleanup_legacy_local_skills(root: Path) -> list[str]:
+    """移除旧版本 init 写入项目的本地 skill 副本与 CLAUDE.md 规则块。
+
+    v0.1.7 及更早版本会把插件 skill 复制到目标项目的 .claude/skills/ 下，并在
+    CLAUDE.md 写入 local-project-skills 块，导致与插件命名空间 skill 冲突。
+    """
+    removed: list[str] = []
+    skills_dir = root / ".claude" / "skills"
+    for name in LEGACY_LOCAL_SKILL_NAMES:
+        skill_dir = skills_dir / name
+        if (skill_dir / "SKILL.md").exists():
+            shutil.rmtree(skill_dir, ignore_errors=True)
+            removed.append(str(skill_dir))
+    if skills_dir.is_dir() and not any(skills_dir.iterdir()):
+        skills_dir.rmdir()
+    for doc in (root / "CLAUDE.md", root / "AGENTS.md", root / ".claude" / "CLAUDE.md"):
+        if remove_managed_block_with_markers(doc, LEGACY_LOCAL_SKILLS_BLOCK_START, LEGACY_LOCAL_SKILLS_BLOCK_END):
+            removed.append(f"{doc} 中的 local-project-skills 块")
+    return removed
 
 
 def load_json(path: Path, default: Any) -> Any:
@@ -1240,11 +1296,135 @@ def default_config(root: Path, package: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def dominant_parent(paths: list[str], min_ratio: float = 0.8) -> Optional[tuple[str, int, int]]:
+    """返回占比最高的父目录（目录、命中数、总数），占比不足时返回 None。"""
+    parents = [str(Path(p).parent.as_posix()) for p in paths if p]
+    if not parents:
+        return None
+    directory, hits = Counter(parents).most_common(1)[0]
+    if hits / len(parents) < min_ratio:
+        return None
+    return directory, hits, len(parents)
+
+
+def infer_standards(frontend: dict[str, Any], backend: dict[str, Any]) -> list[dict[str, Any]]:
+    """从扫描事实推断项目规范，全部标记为 inferred 等级，需人工确认后升级。"""
+    rules: list[dict[str, Any]] = []
+
+    def add(scope: str, category: str, rule: str, evidence: str) -> None:
+        rules.append({"scope": scope, "category": category, "rule": rule, "evidence": evidence, "level": "inferred"})
+
+    components = frontend.get("components", [])
+    hooks = frontend.get("hooks", [])
+    api_modules = frontend.get("apiModules", [])
+    styles = frontend.get("styles", [])
+    redundancy = frontend.get("redundancyCandidates", [])
+
+    # 命名：组件文件命名风格
+    comp_names = [c.get("name", "") for c in components if c.get("name")]
+    if len(comp_names) >= 3:
+        pascal = [n for n in comp_names if re.fullmatch(r"[A-Z][A-Za-z0-9]+", n)]
+        kebab = [n for n in comp_names if re.fullmatch(r"[a-z][a-z0-9]*(-[a-z0-9]+)+", n)]
+        for style_name, matched in (("PascalCase", pascal), ("kebab-case", kebab)):
+            if len(matched) / len(comp_names) >= 0.8:
+                add("frontend", "naming", f"组件文件使用 {style_name} 命名", f"{len(matched)}/{len(comp_names)} 个组件符合")
+                break
+
+    # 命名：自定义 Hook
+    if len(hooks) >= 2:
+        add("frontend", "naming", "自定义 Hook 统一使用 useXxx 命名，一个文件一个 Hook", f"{len(hooks)} 个 Hook 均符合")
+
+    # 目录结构：组件 / Hook / API 模块集中目录
+    for label, items in (("公共组件", components), ("自定义 Hook 文件", hooks), ("API 请求模块", api_modules)):
+        if len(items) >= 3:
+            dom = dominant_parent([item.get("path", "") for item in items])
+            if dom:
+                directory, hits, total = dom
+                add("frontend", "structure", f"{label}统一放在 `{directory}/` 目录", f"{hits}/{total} 个文件位于该目录")
+
+    # 请求封装：API 模块统一封装
+    if len(api_modules) >= 3:
+        signal_counts = Counter(signal for module in api_modules for signal in module.get("signals", []))
+        if signal_counts:
+            top_signal, hits = signal_counts.most_common(1)[0]
+            if hits / len(api_modules) >= 0.8:
+                add(
+                    "frontend",
+                    "request",
+                    f"API 请求统一通过 `{top_signal}` 封装发起；组件内不要直接调用 axios/fetch",
+                    f"{hits}/{len(api_modules)} 个 API 模块使用 {top_signal}",
+                )
+
+    # 样式：硬编码值治理
+    hardcoded_total = sum(style.get("count", 0) for style in styles)
+    if len(styles) >= 2 and hardcoded_total >= 20:
+        add(
+            "frontend",
+            "style",
+            "新增样式应使用主题变量/设计令牌，避免继续新增硬编码颜色和像素值",
+            f"检测到 {hardcoded_total} 处硬编码值，分布于 {len(styles)} 个文件",
+        )
+
+    # 高频 UI 模式：重复模式应复用
+    for candidate in redundancy:
+        count = candidate.get("count", 0)
+        name = candidate.get("name", "")
+        if count >= 3 and name:
+            locations = "、".join(candidate.get("locations", [])[:3])
+            add(
+                "frontend",
+                "ui-pattern",
+                f"「{name}」模式在项目中重复出现，新页面应复用已有实现或抽取公共组件/Hook",
+                f"{count} 处出现，如 {locations}",
+            )
+
+    apis = backend.get("apis", [])
+    services = backend.get("services", [])
+    data_types = backend.get("dataTypes", [])
+    repositories = backend.get("repositories", [])
+
+    # 后端命名：Service / DTO 后缀
+    service_names = [s.get("name", "") for s in services if s.get("name")]
+    if len(service_names) >= 2:
+        matched = [n for n in service_names if n.endswith(("Service", "Manager", "UseCase"))]
+        if len(matched) / len(service_names) >= 0.8:
+            add("backend", "naming", "服务类使用 Service 等后缀命名", f"{len(matched)}/{len(service_names)} 个服务符合")
+    type_names = [t.get("name", "") for t in data_types if t.get("name")]
+    if len(type_names) >= 2:
+        for suffix in ("DTO", "Dto", "VO", "Entity", "Model"):
+            matched = [n for n in type_names if n.endswith(suffix)]
+            if len(matched) / len(type_names) >= 0.8:
+                add("backend", "naming", f"数据类型使用 {suffix} 后缀命名", f"{len(matched)}/{len(type_names)} 个数据类型符合")
+                break
+
+    # 后端分层：Controller→Service→Repository
+    if len(apis) >= 2 and len(services) >= 2 and len(repositories) >= 1:
+        add(
+            "backend",
+            "backend-layering",
+            "后端遵循 Controller→Service→Repository 分层，新接口按此分层组织，不要跨层直接访问数据",
+            f"{len(apis)} 个入口、{len(services)} 个服务、{len(repositories)} 个仓库层文件",
+        )
+        annotation_hits = sum(1 for api in apis if "RestController" in (api.get("signals") or []))
+        if annotation_hits / len(apis) >= 0.8:
+            add("backend", "backend-layering", "HTTP 入口统一使用 @RestController 注解风格", f"{annotation_hits}/{len(apis)} 个入口符合")
+
+    return rules
+
+
+def render_inferred_rules(rules: list[dict[str, Any]], scope: str) -> str:
+    subset = [rule for rule in rules if rule.get("scope") == scope]
+    if not subset:
+        return "_本次扫描未推断出规范：样本不足或缺少该类信号。_"
+    return "\n".join(f"- {rule['rule']}（证据：{rule['evidence']}）" for rule in subset)
+
+
 def standards_docs(data: dict[str, Any]) -> dict[str, str]:
     frontend = data["frontend"]
     backend = data["backend"]
     config = data["config"]
     quality = config.get("quality", {}).get("commands", [])
+    inferred_rules = config.get("rules", {}).get("inferred", [])
     docs = {}
     docs["quality.md"] = f"""# 质量检查
 
@@ -1275,6 +1455,12 @@ def standards_docs(data: dict[str, Any]) -> dict[str, str]:
 - 发现的 API 相关模块数：{len(frontend.get("apiModules", []))}
 - 冗余候选数：{len(frontend.get("redundancyCandidates", []))}
 
+## 推断规范
+
+以下规范由扫描器从项目实际代码推断（`inferred` 等级），默认作为项目约定遵循；经人工确认后可升级为 `preferred` 或 `hard`：
+
+{render_inferred_rules(inferred_rules, "frontend")}
+
 ## 默认规则
 
 - 添加新组件或 Hook 前，优先复用已有的组件和 Hook。
@@ -1291,6 +1477,12 @@ def standards_docs(data: dict[str, Any]) -> dict[str, str]:
 - 发现的 DTO/VO/Entity/模型文件数：{len(backend.get("dataTypes", []))}
 - 发现的 Repository/Mapper 文件数：{len(backend.get("repositories", []))}
 - 候选非标准入口点数：{len(backend.get("candidateEntrypoints", []))}
+
+## 推断规范
+
+以下规范由扫描器从项目实际代码推断（`inferred` 等级），默认作为项目约定遵循；经人工确认后可升级为 `preferred` 或 `hard`：
+
+{render_inferred_rules(inferred_rules, "backend")}
 
 ## 默认规则
 
@@ -1336,6 +1528,8 @@ def init_project(root: Path, refresh: bool = False, interactive: bool = False, s
         config["tooling"] = tooling
     frontend = scan_frontend(root, files)
     backend = scan_backend(root, files)
+    rules = config.setdefault("rules", {"hard": [], "preferred": [], "inferred": [], "candidate": []})
+    rules["inferred"] = infer_standards(frontend, backend)
     manifest = build_manifest(root, files, package, graph_sources, tooling)
     if strict and with_graph and not any(source.get("status") == "present" for source in graph_sources):
         raise SystemExit("请求了严格的图谱初始化，但没有 GitNexus 或 Understand-Anything 图谱。")
@@ -1376,6 +1570,7 @@ def init_project(root: Path, refresh: bool = False, interactive: bool = False, s
         "setupResults": setup_results,
         "agentFiles": adapter.get("agentFiles", []),
         "claude": adapter.get("claude"),
+        "legacyCleanup": adapter.get("legacyCleanup", []),
     }
 
 
@@ -1668,7 +1863,7 @@ def build_task_impact_doc(root: Path, task: str, snapshot: dict[str, Any]) -> st
 实现完成后运行：
 
 ```bash
-python3 /Users/xumeng/plugins/project-intelligence/scripts/project_intel.py maintain --task "<中文简短需求摘要>" --files <changed-source-files>
+python3 "{script_path()}" maintain --task "<中文简短需求摘要>" --files <changed-source-files>
 ```
 """
 
@@ -1908,7 +2103,7 @@ if [ "${{PROJECT_INTEL_SKIP_HOOKS:-0}}" = "1" ]; then
   exit 0
 fi
 
-SCRIPT="/Users/xumeng/plugins/project-intelligence/scripts/project_intel.py"
+SCRIPT="{script_path()}"
 if command -v python3 >/dev/null 2>&1 && [ -f "$SCRIPT" ]; then
   PROJECT_INTEL_SKIP_HOOKS=1 python3 "$SCRIPT" maintain --task "git hook: {hook_name}" >/dev/null 2>&1 || true
 fi
@@ -2074,6 +2269,7 @@ def write_agent_entrypoints(root: Path) -> list[str]:
 def install_claude(root: Path, hooks: bool = False, activate_hooks: bool = False) -> dict[str, Any]:
     claude = root / ".claude"
     claude.mkdir(parents=True, exist_ok=True)
+    legacy_cleanup = cleanup_legacy_local_skills(root)
     agent_rules = claude_project_agent_rules()
     agent_files = write_agent_entrypoints(root)
     write_text(
@@ -2090,6 +2286,7 @@ def install_claude(root: Path, hooks: bool = False, activate_hooks: bool = False
         "agentFiles": agent_files + [str(claude / "CLAUDE.md")],
         "hookTemplates": [str(path) for path in hook_templates],
         "hookResults": hook_results,
+        "legacyCleanup": legacy_cleanup,
     }
 
 
@@ -2220,18 +2417,24 @@ def main(argv: list[str]) -> int:
         print(f"已初始化 .project-intel，索引了 {result['manifest']['fileCount']} 个文本文件。")
         if result.get("agentFiles"):
             print("已维护项目级 Agent 入口：" + ", ".join(result["agentFiles"]))
+        if result.get("legacyCleanup"):
+            print("已清理旧版本地 skill 残留：" + ", ".join(result["legacyCleanup"]))
         return 0
     if args.command == "refresh":
         result = init_project(root, refresh=True)
         print(f"已刷新 .project-intel，索引了 {result['manifest']['fileCount']} 个文本文件。")
         if result.get("agentFiles"):
             print("已维护项目级 Agent 入口：" + ", ".join(result["agentFiles"]))
+        if result.get("legacyCleanup"):
+            print("已清理旧版本地 skill 残留：" + ", ".join(result["legacyCleanup"]))
         return 0
     if args.command == "install":
         result = install_claude(root, hooks=args.hooks, activate_hooks=args.activate_git_hooks)
         print(f"已安装 Claude 适配器到 {result['claude']}")
         if result.get("agentFiles"):
             print("已维护项目级 Agent 入口：" + ", ".join(result["agentFiles"]))
+        if result.get("legacyCleanup"):
+            print("已清理旧版本地 skill 残留：" + ", ".join(result["legacyCleanup"]))
         if result.get("hookTemplates"):
             print(f"已生成钩子模板：{len(result['hookTemplates'])}")
         for item in result.get("hookResults", []):

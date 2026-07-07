@@ -15,13 +15,13 @@ For implementation requests handled by `project-task`, do not force creation of 
 4. Generate the spec when useful:
 
 ```bash
-python3 /Users/xumeng/plugins/project-intelligence/scripts/project_intel.py spec --title "<title>" --from "<requirement>"
+python3 "${CLAUDE_PLUGIN_ROOT}/scripts/project_intel.py" spec --title "<title>" --from "<requirement>"
 ```
 
 For impact-only requests, run:
 
 ```bash
-python3 /Users/xumeng/plugins/project-intelligence/scripts/project_intel.py lifecycle --task "<requirement>"
+python3 "${CLAUDE_PLUGIN_ROOT}/scripts/project_intel.py" lifecycle --task "<requirement>"
 ```
 
 This prints impact by default. Add `--write` only when the user explicitly wants `.project-intel/reports/task-impact.md`.

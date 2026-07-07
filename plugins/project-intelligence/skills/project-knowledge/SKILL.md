@@ -21,7 +21,7 @@ Use GitNexus for precise symbol-level questions. Use Understand-Anything for arc
 Search with:
 
 ```bash
-python3 /Users/xumeng/plugins/project-intelligence/scripts/project_intel.py query "<question>"
+python3 "${CLAUDE_PLUGIN_ROOT}/scripts/project_intel.py" query "<question>"
 ```
 
 Do not read or rely on `.cgraphx`.

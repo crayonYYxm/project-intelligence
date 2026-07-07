@@ -13,7 +13,7 @@ Create plans that preserve project standards and are ready to execute.
 4. Generate a plan file when a spec exists:
 
 ```bash
-python3 /Users/xumeng/plugins/project-intelligence/scripts/project_intel.py plan --title "<title>" --from-spec <spec-path>
+python3 "${CLAUDE_PLUGIN_ROOT}/scripts/project_intel.py" plan --title "<title>" --from-spec <spec-path>
 ```
 
 If there is no spec yet, create one first with `project-intel spec`. Do not read or rely on `.cgraphx`.

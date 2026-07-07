@@ -14,7 +14,7 @@ Start with project facts, then turn the idea into a concrete direction.
 5. When the direction is stable, create a spec with:
 
 ```bash
-python3 /Users/xumeng/plugins/project-intelligence/scripts/project_intel.py spec --title "<title>" --from "<requirement>"
+python3 "${CLAUDE_PLUGIN_ROOT}/scripts/project_intel.py" spec --title "<title>" --from "<requirement>"
 ```
 
 Prefer existing components, Hooks, services, APIs, domain flows, and standards. Use GitNexus for precise impact when available and Understand-Anything for architecture/domain context. Do not read or rely on `.cgraphx`.

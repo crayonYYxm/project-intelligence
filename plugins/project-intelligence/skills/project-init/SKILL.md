@@ -10,12 +10,12 @@ Use this skill when the user says to initialize, set up, or bootstrap project in
 Commands:
 
 ```bash
-python3 plugins/project-intelligence/scripts/project_intel.py graph-tools --json
-python3 plugins/project-intelligence/scripts/project_intel.py init
-python3 plugins/project-intelligence/scripts/project_intel.py init --no-graph
-python3 plugins/project-intelligence/scripts/project_intel.py init --interactive
-python3 plugins/project-intelligence/scripts/project_intel.py init --setup-missing
-python3 plugins/project-intelligence/scripts/project_intel.py init --strict
+python3 "${CLAUDE_PLUGIN_ROOT}/scripts/project_intel.py" graph-tools --json
+python3 "${CLAUDE_PLUGIN_ROOT}/scripts/project_intel.py" init
+python3 "${CLAUDE_PLUGIN_ROOT}/scripts/project_intel.py" init --no-graph
+python3 "${CLAUDE_PLUGIN_ROOT}/scripts/project_intel.py" init --interactive
+python3 "${CLAUDE_PLUGIN_ROOT}/scripts/project_intel.py" init --setup-missing
+python3 "${CLAUDE_PLUGIN_ROOT}/scripts/project_intel.py" init --strict
 ```
 
 `init` generates `.project-intel/` with standards, knowledge, graph summaries, quality configuration, tooling checks, and reports. It also installs/refreshes the local Claude adapter under `.claude/CLAUDE.md` and maintains root-level `AGENTS.md` and `CLAUDE.md` managed blocks so project rules are visible even when a dedicated Project Intelligence skill does not trigger. Project Intelligence skills are provided by the plugin itself — `init` does not duplicate them into the project. It checks optional tools such as GitNexus, Understand-Anything, Node/package managers, and quality commands. Missing optional tools do not block initialization unless strict graph setup is requested.
