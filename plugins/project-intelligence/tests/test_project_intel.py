@@ -753,8 +753,8 @@ class InferStandardsTests(unittest.TestCase):
     def _backend(self, **overrides):
         base = {
             "apis": [
-                {"path": "server/controller/UserController.java", "signals": ["RestController"], "endpoints": ["/user"]},
-                {"path": "server/controller/OrderController.java", "signals": ["RestController"], "endpoints": ["/order"]},
+                {"path": "server/controller/UserController.java", "framework": "Spring", "signals": ["RestController"], "endpoints": ["/user"]},
+                {"path": "server/controller/OrderController.java", "framework": "Spring", "signals": ["RestController"], "endpoints": ["/order"]},
             ],
             "services": [
                 {"name": "UserService", "path": "server/service/UserService.java"},
@@ -767,7 +767,27 @@ class InferStandardsTests(unittest.TestCase):
             "repositories": [
                 {"name": "UserRepository", "path": "server/repository/UserRepository.java"},
             ],
-            "configs": [],
+            "configs": [
+                {"path": "server/src/main/resources/application.yml", "kind": "yml", "keys": ["spring", "server", "order.timeout"]}
+            ],
+            "permissionChecks": [
+                {"path": "server/controller/OrderController.java", "signals": ["@PreAuthorize(\"hasRole('ORDER')\")"], "level": "candidate"}
+            ],
+            "transactions": [
+                {"path": "server/service/OrderService.java", "signals": ["@Transactional"], "level": "candidate"}
+            ],
+            "remoteCalls": [
+                {"path": "server/service/OrderService.java", "signals": ["RestTemplate"], "level": "candidate"}
+            ],
+            "messagesJobs": [
+                {"path": "server/job/OrderJob.java", "signals": ["@Scheduled(cron = \"0 * * * * ?\")"], "level": "candidate"}
+            ],
+            "errorCodes": [
+                {"path": "server/service/OrderService.java", "signals": ["ORDER_FAILED", "BusinessException"], "level": "candidate"}
+            ],
+            "utilities": [
+                {"name": "OrderUtils", "path": "server/common/OrderUtils.java", "exports": ["normalizeOrder"]}
+            ],
             "candidateEntrypoints": [],
         }
         base.update(overrides)
@@ -791,6 +811,14 @@ class InferStandardsTests(unittest.TestCase):
         self.assertIn("component-reuse", categories)
         self.assertIn("ui-pattern", categories)
         self.assertIn("backend-layering", categories)
+        self.assertIn("backend-api", categories)
+        self.assertIn("config", categories)
+        self.assertIn("permission", categories)
+        self.assertIn("transaction", categories)
+        self.assertIn("remote-call", categories)
+        self.assertIn("message-job", categories)
+        self.assertIn("error-code", categories)
+        self.assertIn("utility", categories)
 
     def test_extract_emits_does_not_read_prop_defaults_as_events(self):
         text = """
@@ -880,6 +908,42 @@ class InferStandardsTests(unittest.TestCase):
         self.assertIn("pages/subPages/order/", docs["router.md"])
         self.assertIn("订单/支付", docs["domain-flows.md"])
 
+    def test_standards_docs_include_detailed_backend_files(self):
+        docs = project_intel.standards_docs(
+            {
+                "frontend": self._frontend(),
+                "backend": self._backend(),
+                "config": {"quality": {"commands": []}, "rules": {"inferred": []}},
+                "graph": {},
+            }
+        )
+        expected = {
+            "backend-api.md",
+            "backend-services.md",
+            "backend-models.md",
+            "backend-repository.md",
+            "backend-config.md",
+            "backend-security.md",
+            "backend-transactions.md",
+            "backend-remote-calls.md",
+            "backend-async.md",
+            "backend-errors.md",
+            "backend-utilities.md",
+        }
+        self.assertTrue(expected.issubset(docs.keys()))
+        self.assertIn("API 与入口", docs["backend-api.md"])
+        self.assertIn("OrderService", docs["backend-services.md"])
+        self.assertIn("UserDTO", docs["backend-models.md"])
+        self.assertIn("UserRepository", docs["backend-repository.md"])
+        self.assertIn("order.timeout", docs["backend-config.md"])
+        self.assertIn("PreAuthorize", docs["backend-security.md"])
+        self.assertIn("Transactional", docs["backend-transactions.md"])
+        self.assertIn("RestTemplate", docs["backend-remote-calls.md"])
+        self.assertIn("Scheduled", docs["backend-async.md"])
+        self.assertIn("ORDER_FAILED", docs["backend-errors.md"])
+        self.assertIn("OrderUtils", docs["backend-utilities.md"])
+        self.assertIn("backend-api.md", docs["backend.md"])
+
     def test_infer_standards_skips_low_sample_signals(self):
         frontend = self._frontend(
             components=[{"name": "One", "path": "src/components/One.vue", "kind": "vue"}],
@@ -890,9 +954,91 @@ class InferStandardsTests(unittest.TestCase):
             styles=[],
             redundancyCandidates=[],
         )
-        backend = self._backend(apis=[], services=[], dataTypes=[], repositories=[])
+        backend = self._backend(
+            apis=[],
+            services=[],
+            dataTypes=[],
+            repositories=[],
+            configs=[],
+            permissionChecks=[],
+            transactions=[],
+            remoteCalls=[],
+            messagesJobs=[],
+            errorCodes=[],
+            utilities=[],
+        )
         rules = project_intel.infer_standards(frontend, backend)
         self.assertEqual(rules, [], "样本不足时不应产出推断规范")
+
+    def test_scan_backend_extracts_detailed_spring_signals(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            controller = root / "server" / "src" / "main" / "java" / "com" / "demo" / "controller" / "OrderController.java"
+            controller.parent.mkdir(parents=True)
+            controller.write_text(
+                """
+                @RestController
+                @RequestMapping("/api/orders")
+                public class OrderController {
+                  @PreAuthorize("hasRole('ORDER')")
+                  @PostMapping("/create")
+                  public OrderDTO create(@RequestBody OrderDTO req) { return null; }
+                }
+                """,
+                encoding="utf-8",
+            )
+            service = root / "server" / "src" / "main" / "java" / "com" / "demo" / "service" / "OrderService.java"
+            service.parent.mkdir(parents=True)
+            service.write_text(
+                """
+                @Service
+                public class OrderService {
+                  private RestTemplate restTemplate;
+                  @Transactional
+                  public OrderDTO createOrder(OrderDTO req) {
+                    throw new BusinessException(ErrorCode.ORDER_FAILED);
+                  }
+                }
+                """,
+                encoding="utf-8",
+            )
+            dto = root / "server" / "src" / "main" / "java" / "com" / "demo" / "dto" / "OrderDTO.java"
+            dto.parent.mkdir(parents=True)
+            dto.write_text(
+                """
+                public class OrderDTO {
+                  private String orderId;
+                  private Integer amount;
+                }
+                """,
+                encoding="utf-8",
+            )
+            mapper = root / "server" / "src" / "main" / "resources" / "mapper" / "OrderMapper.xml"
+            mapper.parent.mkdir(parents=True)
+            mapper.write_text("<mapper><select id=\"selectOrder\">SELECT * FROM ord_order</select></mapper>", encoding="utf-8")
+            config = root / "server" / "src" / "main" / "resources" / "application.yml"
+            config.write_text("server:\n  port: 8080\norder:\n  timeout: 30\n", encoding="utf-8")
+            job = root / "server" / "src" / "main" / "java" / "com" / "demo" / "job" / "OrderJob.java"
+            job.parent.mkdir(parents=True)
+            job.write_text("@Scheduled(cron = \"0 * * * * ?\") public void syncOrders() {}\n", encoding="utf-8")
+            util = root / "server" / "src" / "main" / "java" / "com" / "demo" / "common" / "OrderUtils.java"
+            util.parent.mkdir(parents=True)
+            util.write_text("public class OrderUtils { public static String normalizeOrder(String id) { return id; } }\n", encoding="utf-8")
+
+            files = [path for path in root.rglob("*") if path.is_file()]
+            backend = project_intel.scan_backend(root, files)
+
+        self.assertEqual(backend["apis"][0]["framework"], "Spring")
+        self.assertIn("/api/orders", backend["apis"][0]["endpoints"])
+        self.assertTrue(backend["permissionChecks"])
+        self.assertTrue(backend["transactions"])
+        self.assertTrue(backend["remoteCalls"])
+        self.assertTrue(backend["messagesJobs"])
+        self.assertTrue(backend["errorCodes"])
+        self.assertEqual(backend["dataTypes"][0]["fields"], ["orderId", "amount"])
+        self.assertEqual(backend["repositories"][0]["methods"], ["selectOrder"])
+        self.assertIn("server", backend["configs"][0]["keys"])
+        self.assertEqual(backend["utilities"][0]["name"], "OrderUtils")
 
     def test_init_writes_inferred_rules_into_config_and_standards_md(self):
         with tempfile.TemporaryDirectory() as tmp:

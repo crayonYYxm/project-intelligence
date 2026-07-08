@@ -22,7 +22,7 @@ from pathlib import Path
 from typing import Any, Optional
 
 
-VERSION = "0.1.10"
+VERSION = "0.1.11"
 UNDERSTAND_AGENT_COMMAND = "/understand . --language zh"
 UNDERSTAND_REPO = "Egonex-AI/Understand-Anything"
 UNDERSTAND_CODEX_INSTALL_COMMAND = "curl -fsSL https://raw.githubusercontent.com/Egonex-AI/Understand-Anything/main/install.sh | bash -s codex"
@@ -1223,6 +1223,179 @@ def route_module_info(text: str) -> dict[str, Any]:
     }
 
 
+def unique_limited(items: list[Any], limit: int = 40) -> list[Any]:
+    values: list[Any] = []
+    seen: set[str] = set()
+    for item in items:
+        key = json.dumps(item, ensure_ascii=False, sort_keys=True) if isinstance(item, (dict, list)) else str(item)
+        if not key or key in seen:
+            continue
+        seen.add(key)
+        values.append(item)
+        if len(values) >= limit:
+            break
+    return values
+
+
+def flatten_regex_hits(hits: list[Any]) -> list[str]:
+    values: list[str] = []
+    for hit in hits:
+        if isinstance(hit, tuple):
+            values.extend(str(part) for part in hit if part)
+        elif hit:
+            values.append(str(hit))
+    return unique_limited(values)
+
+
+def annotation_values(text: str, names: str) -> list[str]:
+    values: list[str] = []
+    for args in re.findall(rf"@(?:{names})\s*(?:\(([^)]*)\))?", text, re.S):
+        if not args:
+            values.append("")
+            continue
+        values.extend(re.findall(r"['\"]([^'\"]+)['\"]", args))
+        values.extend(re.findall(r"\bvalue\s*=\s*([^,\n)]+)", args))
+    return unique_limited([value.strip() for value in values if value is not None], 40)
+
+
+def detect_backend_framework(path: str, text: str) -> str:
+    if re.search(r"@(RestController|RequestMapping|GetMapping|PostMapping|PutMapping|DeleteMapping|PatchMapping|Service|Repository|Mapper|Transactional|Scheduled|MessageListener|KafkaListener|RabbitListener)\b", text):
+        return "Spring"
+    if re.search(r"@(Controller|Get|Post|Put|Delete|Patch|Injectable|UseGuards|MessagePattern|Cron)\b", text):
+        return "NestJS"
+    if re.search(r"\b(router|app)\.(get|post|put|delete|use)\s*\(", text):
+        return "Express/Koa/Fastify"
+    if re.search(r"@(app|router)\.(get|post|put|delete|route)\s*\(", text):
+        return "FastAPI/Flask"
+    if re.search(r"\b(GET|POST|PUT|DELETE|PATCH)\s*\(\s*['\"]", text):
+        return "Go Gin"
+    if path.endswith(".xml"):
+        return "Mapper XML"
+    return "Unknown"
+
+
+def extract_backend_endpoints(text: str) -> list[str]:
+    endpoints: list[str] = []
+    endpoints.extend(annotation_values(text, r"RequestMapping|GetMapping|PostMapping|PutMapping|DeleteMapping|PatchMapping"))
+    endpoints.extend(annotation_values(text, r"Controller"))
+    endpoints.extend(re.findall(r"\b(?:router|app|server)\.(?:get|post|put|delete|patch|use)\s*\(\s*['\"]([^'\"]+)['\"]", text))
+    endpoints.extend(re.findall(r"@(?:app|router|bp)\.(?:get|post|put|delete|patch|route)\s*\(\s*['\"]([^'\"]+)['\"]", text))
+    endpoints.extend(re.findall(r"\b(?:GET|POST|PUT|DELETE|PATCH)\s*\(\s*['\"]([^'\"]+)['\"]", text))
+    endpoints.extend(re.findall(r"\b(?:HandleFunc|Handle)\s*\(\s*['\"]([^'\"]+)['\"]", text))
+    return unique_limited([item.strip() for item in endpoints if item.strip()], 40)
+
+
+def extract_backend_methods(text: str, suffix: str) -> list[str]:
+    names: list[str] = []
+    if suffix in {".java", ".kt"}:
+        names.extend(re.findall(r"\b(?:public|private|protected)\s+(?:static\s+)?(?:[\w<>\[\], ?]+\s+)+([A-Za-z_$][\w$]*)\s*\(", text))
+    if suffix in {".ts", ".js"}:
+        names.extend(re.findall(r"\b(?:async\s+)?([A-Za-z_$][\w$]*)\s*\([^)]*\)\s*[{:]?", text))
+    if suffix == ".py":
+        names.extend(re.findall(r"\bdef\s+([A-Za-z_][\w]*)\s*\(", text))
+    if suffix == ".go":
+        names.extend(re.findall(r"\bfunc\s+(?:\([^)]*\)\s*)?([A-Za-z_][\w]*)\s*\(", text))
+    return unique_limited([name for name in names if name not in {"if", "for", "while", "switch", "catch"}], 40)
+
+
+def extract_backend_fields(text: str, suffix: str) -> list[str]:
+    fields: list[str] = []
+    if suffix in {".java", ".kt"}:
+        fields.extend(re.findall(r"\b(?:private|protected|public)\s+(?:final\s+)?[\w<>\[\], ?]+\s+([A-Za-z_$][\w$]*)\s*[;=]", text))
+    if suffix in {".ts", ".js"}:
+        fields.extend(re.findall(r"\b([A-Za-z_$][\w$]*)\??\s*:\s*(?:string|number|boolean|Date|Array|Record|[A-Z][\w<>]*)", text))
+    if suffix == ".py":
+        fields.extend(re.findall(r"^\s*([A-Za-z_][\w]*)\s*:\s*[\w\[\].\"']+", text, re.M))
+    if suffix == ".go":
+        fields.extend(re.findall(r"^\s*([A-Z][A-Za-z0-9_]*)\s+[\w\[\]*.]+", text, re.M))
+    return unique_limited(fields, 40)
+
+
+def extract_repository_methods(text: str, suffix: str) -> list[str]:
+    names = extract_backend_methods(text, suffix)
+    if suffix == ".xml":
+        names.extend(re.findall(r"\b(?:select|insert|update|delete)\b[^>]*\bid\s*=\s*['\"]([^'\"]+)['\"]", text, re.I))
+    names.extend(re.findall(r"\b(?:find|query|get|select|insert|update|delete|save|remove)[A-Z][A-Za-z0-9_]*\b", text))
+    return unique_limited(names, 50)
+
+
+def extract_sql_ops(text: str) -> list[str]:
+    ops = re.findall(r"\b(SELECT|INSERT|UPDATE|DELETE|MERGE)\b", text, re.I)
+    return unique_limited([op.upper() for op in ops], 10)
+
+
+def extract_config_keys(text: str, suffix: str) -> list[str]:
+    keys: list[str] = []
+    if suffix == ".properties":
+        keys.extend(re.findall(r"^\s*([A-Za-z0-9_.-]+)\s*=", text, re.M))
+    elif suffix in {".yaml", ".yml"}:
+        keys.extend(re.findall(r"^\s*([A-Za-z0-9_.-]+)\s*:", text, re.M))
+    elif suffix == ".xml":
+        keys.extend(re.findall(r"\b(?:id|name|key)\s*=\s*['\"]([^'\"]+)['\"]", text))
+    keys.extend(re.findall(r"@Value\s*\(\s*['\"]\$\{([^}:]+)", text))
+    keys.extend(re.findall(r"@ConfigurationProperties\s*\(\s*(?:prefix\s*=\s*)?['\"]([^'\"]+)['\"]", text))
+    keys.extend(re.findall(r"process\.env\.([A-Z0-9_]+)", text))
+    return unique_limited(keys, 60)
+
+
+def extract_permission_signals(text: str) -> list[str]:
+    patterns = [
+        r"@(?:PreAuthorize|PostAuthorize|Secured|RolesAllowed|RequiresPermissions|SaCheckPermission|PermitAll|UseGuards)\b[^\n\r{;]*",
+        r"\b(?:hasPermission|checkPermission|checkAuth|authorize|isAuthorized)\s*\(",
+        r"\b(?:jwt|token|session|principal|SecurityContext|AuthGuard|CanActivate)\b",
+    ]
+    values: list[str] = []
+    for pattern in patterns:
+        values.extend(re.findall(pattern, text))
+    return unique_limited([str(value).strip() for value in values if value], 30)
+
+
+def extract_transaction_signals(text: str) -> list[str]:
+    patterns = [
+        r"@Transactional\b(?:\([^)]*\))?",
+        r"\b(?:TransactionTemplate|DataSourceTransactionManager|EntityManager|UnitOfWork)\b",
+        r"\b(?:transaction|withTransaction|db\.transaction|sequelize\.transaction)\s*\(",
+    ]
+    values: list[str] = []
+    for pattern in patterns:
+        values.extend(re.findall(pattern, text))
+    return unique_limited([str(value).strip() for value in values if value], 30)
+
+
+def extract_remote_call_signals(text: str) -> list[str]:
+    patterns = [
+        r"@FeignClient\b(?:\([^)]*\))?",
+        r"@(?:DubboReference|Reference|GrpcClient)\b(?:\([^)]*\))?",
+        r"\b(?:RestTemplate|WebClient|Feign|HttpClient|OkHttpClient|ServiceMeshAdapter|grpc|requests\.|axios|fetch)\b",
+        r"\b(?:call|invoke|proxy|exchange|getForObject|postForObject)\s*\(",
+    ]
+    values: list[str] = []
+    for pattern in patterns:
+        values.extend(re.findall(pattern, text))
+    return unique_limited([str(value).strip() for value in values if value], 30)
+
+
+def extract_message_job_signals(text: str) -> list[str]:
+    patterns = [
+        r"@(?:Scheduled|KafkaListener|RabbitListener|JmsListener|MessageListener|SqsListener|EventListener|Cron|MessagePattern)\b(?:\([^)]*\))?",
+        r"\b(?:Queue|Topic|Consumer|Producer|BullMQ|agenda|cron|schedule)\b",
+    ]
+    values: list[str] = []
+    for pattern in patterns:
+        values.extend(re.findall(pattern, text))
+    return unique_limited([str(value).strip() for value in values if value], 30)
+
+
+def extract_error_code_signals(text: str) -> list[str]:
+    values: list[str] = []
+    values.extend(re.findall(r"\b(?:ErrorCode|ErrCode|ResultCode|ResponseCode)\.([A-Z0-9_]+)", text))
+    values.extend(re.findall(r"\b([A-Z][A-Z0-9_]*(?:_ERROR|_FAILED|_FAIL|_INVALID|_NOT_FOUND|_DENIED))\b", text))
+    values.extend(re.findall(r"['\"]([A-Z]\d{3,}|[BE]\d{3,}|ERR[_-][A-Z0-9_-]+)['\"]", text))
+    values.extend(re.findall(r"\bthrow\s+new\s+([A-Za-z_$][\w$]*(?:Exception|Error))\b", text))
+    values.extend(re.findall(r"@ResponseStatus\s*\(([^)]*)\)", text))
+    return unique_limited([str(value).strip() for value in values if value], 40)
+
+
 def extract_react_props(text: str) -> list[str]:
     names: set[str] = set()
     for block in re.findall(r"(?:interface|type)\s+\w*Props\w*\s*(?:=\s*)?{([^}]*)}", text, re.S):
@@ -1329,6 +1502,12 @@ def scan_backend(root: Path, files: list[Path]) -> dict[str, Any]:
     data_types: list[dict[str, Any]] = []
     repositories: list[dict[str, Any]] = []
     configs: list[dict[str, Any]] = []
+    permission_checks: list[dict[str, Any]] = []
+    transactions: list[dict[str, Any]] = []
+    remote_calls: list[dict[str, Any]] = []
+    messages_jobs: list[dict[str, Any]] = []
+    error_codes: list[dict[str, Any]] = []
+    utilities: list[dict[str, Any]] = []
     entrypoint_candidates: list[dict[str, Any]] = []
     for path in files:
         suffix = path.suffix.lower()
@@ -1337,23 +1516,82 @@ def scan_backend(root: Path, files: list[Path]) -> dict[str, Any]:
         rp = rel(root, path)
         text = read_text(path)
         lower = rp.lower()
+        is_mapper_xml = suffix == ".xml" and ("<mapper" in text.lower() or "/mapper" in lower)
         route_signals = re.findall(
-            r"@(RestController|Controller|RequestMapping|GetMapping|PostMapping|PutMapping|DeleteMapping|MessageListener|Scheduled)|\b(router|app)\.(get|post|put|delete|use)\s*\(",
+            r"@(RestController|Controller|RequestMapping|GetMapping|PostMapping|PutMapping|DeleteMapping|PatchMapping|MessageListener|Scheduled)|\b(router|app|server)\.(get|post|put|delete|patch|use)\s*\(|@(app|router|bp)\.(get|post|put|delete|patch|route)\s*\(",
             text,
         )
         decorators = re.findall(r"@(Controller|Get|Post|Put|Delete|Patch|Injectable|MessagePattern|Cron)\b", text)
+        route_signal_values = flatten_regex_hits(route_signals + decorators)
+        framework = detect_backend_framework(rp, text)
         if route_signals or decorators:
-            endpoints = re.findall(r"@(?:RequestMapping|GetMapping|PostMapping|PutMapping|DeleteMapping)\s*\(([^)]*)\)", text)
-            endpoints += re.findall(r"\b(?:router|app)\.(?:get|post|put|delete)\s*\(\s*['\"]([^'\"]+)['\"]", text)
-            apis.append({"path": rp, "signals": sorted(set(str(s) for s in route_signals + decorators))[:20], "endpoints": endpoints[:20]})
+            apis.append(
+                {
+                    "path": rp,
+                    "framework": framework,
+                    "signals": sorted(set(route_signal_values))[:20],
+                    "endpoints": extract_backend_endpoints(text),
+                    "methods": extract_backend_methods(text, suffix)[:20],
+                }
+            )
         if re.search(r"(Service|Manager|UseCase|Facade)\.(java|kt|ts|js|py)$", rp) or "@Service" in text or "@Injectable" in text:
-            services.append({"name": path.stem, "path": rp})
+            service_permissions = extract_permission_signals(text)
+            service_transactions = extract_transaction_signals(text)
+            service_remote_calls = extract_remote_call_signals(text)
+            services.append(
+                {
+                    "name": path.stem,
+                    "path": rp,
+                    "framework": framework,
+                    "methods": extract_backend_methods(text, suffix)[:30],
+                    "transactions": service_transactions,
+                    "remoteCalls": service_remote_calls,
+                    "permissionSignals": service_permissions,
+                }
+            )
         if re.search(r"(DTO|Dto|VO|Entity|Model|Schema)\.(java|kt|ts|js|py)$", rp) or re.search(r"@(Entity|Table|Column)\b", text):
-            data_types.append({"name": path.stem, "path": rp})
-        if re.search(r"(Repository|Mapper|Dao|DAO)\.(java|kt|ts|js|py)$", rp) or re.search(r"@(Repository|Mapper)\b", text):
-            repositories.append({"name": path.stem, "path": rp})
-        if suffix in {".yaml", ".yml", ".properties", ".xml"} or "/config" in lower:
-            configs.append({"path": rp})
+            data_types.append(
+                {
+                    "name": path.stem,
+                    "path": rp,
+                    "kind": "Entity" if re.search(r"@(Entity|Table)\b", text) or path.stem.endswith("Entity") else "DTO/VO/Model",
+                    "fields": extract_backend_fields(text, suffix)[:40],
+                    "annotations": sorted(set(re.findall(r"@(Entity|Table|Column|NotNull|NotBlank|Size|Schema|JsonProperty)\b", text)))[:20],
+                }
+            )
+        if (
+            re.search(r"(Repository|Mapper|Dao|DAO)\.(java|kt|ts|js|py)$", rp)
+            or re.search(r"@(Repository|Mapper)\b", text)
+            or is_mapper_xml
+        ):
+            repositories.append(
+                {
+                    "name": path.stem,
+                    "path": rp,
+                    "kind": "Mapper" if re.search(r"(Mapper)\.(java|kt|ts|js|py|xml)$", rp) or "@Mapper" in text or is_mapper_xml else "Repository/DAO",
+                    "methods": extract_repository_methods(text, suffix)[:50],
+                    "sqlOps": extract_sql_ops(text),
+                }
+            )
+        if suffix in {".yaml", ".yml", ".properties"} or (suffix == ".xml" and not is_mapper_xml) or "/config" in lower:
+            configs.append({"path": rp, "keys": extract_config_keys(text, suffix), "kind": suffix.removeprefix(".") or "config"})
+        permission_signals = extract_permission_signals(text)
+        if permission_signals:
+            permission_checks.append({"path": rp, "signals": permission_signals, "level": "candidate"})
+        transaction_signals = extract_transaction_signals(text)
+        if transaction_signals:
+            transactions.append({"path": rp, "signals": transaction_signals, "level": "candidate"})
+        remote_call_signals = extract_remote_call_signals(text)
+        if remote_call_signals:
+            remote_calls.append({"path": rp, "signals": remote_call_signals, "level": "candidate"})
+        message_job_signals = extract_message_job_signals(text)
+        if message_job_signals:
+            messages_jobs.append({"path": rp, "signals": message_job_signals, "level": "candidate"})
+        error_code_signals = extract_error_code_signals(text)
+        if error_code_signals:
+            error_codes.append({"path": rp, "signals": error_code_signals, "level": "candidate"})
+        if re.search(r"(^|/)(utils?|common|helpers?|support)/", lower) and suffix in BACKEND_SUFFIXES:
+            utilities.append({"name": path.stem, "path": rp, "exports": extract_exported_functions(text) or extract_backend_methods(text, suffix)[:30]})
         if not (route_signals or decorators) and re.search(r"(handler|endpoint|facade|adapter|action)", lower):
             entrypoint_candidates.append({"path": rp, "reason": "路径/名称暗示非标准入口点", "level": "candidate"})
     return {
@@ -1362,6 +1600,12 @@ def scan_backend(root: Path, files: list[Path]) -> dict[str, Any]:
         "dataTypes": data_types,
         "repositories": repositories,
         "configs": configs,
+        "permissionChecks": permission_checks,
+        "transactions": transactions,
+        "remoteCalls": remote_calls,
+        "messagesJobs": messages_jobs,
+        "errorCodes": error_codes,
+        "utilities": utilities,
         "candidateEntrypoints": entrypoint_candidates,
     }
 
@@ -1620,6 +1864,13 @@ def infer_standards(frontend: dict[str, Any], backend: dict[str, Any]) -> list[d
     services = backend.get("services", [])
     data_types = backend.get("dataTypes", [])
     repositories = backend.get("repositories", [])
+    configs = backend.get("configs", [])
+    permission_checks = backend.get("permissionChecks", [])
+    transactions = backend.get("transactions", [])
+    remote_calls = backend.get("remoteCalls", [])
+    messages_jobs = backend.get("messagesJobs", [])
+    error_codes = backend.get("errorCodes", [])
+    utilities = backend.get("utilities", [])
 
     # 后端命名：Service / DTO 后缀
     service_names = [s.get("name", "") for s in services if s.get("name")]
@@ -1646,6 +1897,34 @@ def infer_standards(frontend: dict[str, Any], backend: dict[str, Any]) -> list[d
         annotation_hits = sum(1 for api in apis if "RestController" in (api.get("signals") or []))
         if annotation_hits / len(apis) >= 0.8:
             add("backend", "backend-layering", "HTTP 入口统一使用 @RestController 注解风格", f"{annotation_hits}/{len(apis)} 个入口符合")
+
+    if len(apis) >= 1:
+        framework_counts = Counter(api.get("framework") for api in apis if api.get("framework"))
+        if framework_counts:
+            framework, hits = framework_counts.most_common(1)[0]
+            add("backend", "backend-api", f"后端入口主要使用 {framework} 风格，新增 API 应跟随同框架入口声明方式", f"{hits}/{len(apis)} 个入口匹配")
+
+    if configs:
+        key_count = sum(len(config.get("keys", [])) for config in configs)
+        add("backend", "config", "配置项应集中在已有配置文件或配置类中维护，新增配置需同步默认值和环境差异", f"{len(configs)} 个配置文件/类，{key_count} 个配置键候选")
+
+    if permission_checks:
+        add("backend", "permission", "已有权限/认证信号需要作为接口改动前置检查，新增入口不能绕过认证边界", f"{len(permission_checks)} 个文件包含权限或认证信号")
+
+    if transactions:
+        add("backend", "transaction", "涉及写操作、订单、支付或跨表修改时复用已有事务边界，避免把事务拆散到调用方", f"{len(transactions)} 个文件包含事务信号")
+
+    if remote_calls:
+        add("backend", "remote-call", "远程调用应复用已有客户端/适配器，变更前需要检查超时、重试、错误映射和调用链影响", f"{len(remote_calls)} 个文件包含远程调用信号")
+
+    if messages_jobs:
+        add("backend", "message-job", "消息消费者和定时任务属于异步入口，修改时需要检查幂等、重试和调度配置", f"{len(messages_jobs)} 个文件包含消息或任务信号")
+
+    if error_codes:
+        add("backend", "error-code", "业务异常和错误码应复用既有错误码体系，新增错误需同步前端/调用方可识别的语义", f"{len(error_codes)} 个文件包含错误码或异常信号")
+
+    if utilities:
+        add("backend", "utility", "公共工具方法优先放在已有 util/common/helper 目录，业务代码不要复制相同转换、校验或封装逻辑", f"{len(utilities)} 个公共工具候选文件")
 
     return rules
 
@@ -1842,6 +2121,323 @@ def render_domain_flows_standard(frontend: dict[str, Any], graph: dict[str, Any]
 """
 
 
+def render_backend_api_standard(backend: dict[str, Any]) -> str:
+    apis = backend.get("apis", [])
+    candidates = backend.get("candidateEntrypoints", [])
+    framework_rows = [[name, count] for name, count in Counter(api.get("framework") for api in apis if api.get("framework")).most_common()]
+    endpoint_prefixes = Counter()
+    for api in apis:
+        for endpoint in api.get("endpoints", []):
+            endpoint_prefixes[path_prefix(str(endpoint).strip("/"), 2)] += 1
+    api_rows = [
+        [
+            api.get("path"),
+            api.get("framework"),
+            ", ".join(api.get("signals", [])[:6]),
+            "; ".join(api.get("endpoints", [])[:6]),
+            ", ".join(api.get("methods", [])[:8]),
+        ]
+        for api in apis[:60]
+    ]
+    candidate_rows = [[item.get("path"), item.get("reason"), item.get("level")] for item in candidates[:40]]
+    return f"""# 后端 API 与入口规范
+
+## 框架入口分布
+
+{table(["框架/入口风格", "文件数"], framework_rows)}
+
+## API/入口清单
+
+{table(["路径", "框架", "入口信号", "路径样例", "方法样例"], api_rows)}
+
+## 路径热点
+
+{table(["路径前缀", "出现次数"], [[name, count] for name, count in endpoint_prefixes.most_common(30)])}
+
+## 非标准入口候选
+
+{table(["路径", "原因", "等级"], candidate_rows)}
+
+## 约定
+
+- 新增 API 入口应跟随同模块已有框架风格，例如 Spring 注解、Nest 装饰器或 router 注册。
+- 不要只靠文件名判断入口；handler、facade、adapter、action 等候选入口需要在初始化后人工确认。
+- 入口层只做参数接收、权限/校验编排和响应转换，业务编排应下沉到 Service/UseCase。
+- 改入口路径时同步检查调用方、路由/网关配置、鉴权配置、测试和接口文档。
+"""
+
+
+def render_backend_services_standard(backend: dict[str, Any]) -> str:
+    services = backend.get("services", [])
+    method_words = Counter()
+    for service in services:
+        for method in service.get("methods", []):
+            prefix = re.match(r"[a-z]+", str(method))
+            if prefix:
+                method_words[prefix.group(0)] += 1
+    service_rows = [
+        [
+            service.get("name"),
+            service.get("path"),
+            ", ".join(service.get("methods", [])[:10]),
+            len(service.get("transactions", [])),
+            len(service.get("remoteCalls", [])),
+            len(service.get("permissionSignals", [])),
+        ]
+        for service in services[:60]
+    ]
+    return f"""# 后端 Service 与业务编排规范
+
+## Service 清单
+
+{table(["名称", "路径", "方法样例", "事务信号", "远程调用", "权限信号"], service_rows)}
+
+## 方法命名前缀热点
+
+{table(["前缀", "出现次数"], [[name, count] for name, count in method_words.most_common(30)])}
+
+## 约定
+
+- Controller/API 层不要绕过 Service 直接访问 Repository/Mapper。
+- 新增业务流程优先找同域 Service、Manager、UseCase、Facade，复用已有编排方式。
+- 涉及写操作、支付、订单、库存、状态机等流程时，先确认事务边界和幂等策略。
+- Service 内远程调用要复用已有客户端/适配器，并保留错误映射、超时、重试和日志链路。
+"""
+
+
+def render_backend_models_standard(backend: dict[str, Any]) -> str:
+    data_types = backend.get("dataTypes", [])
+    kind_rows = [[name, count] for name, count in Counter(item.get("kind") for item in data_types if item.get("kind")).most_common()]
+    field_rows = [[name, count] for name, count in Counter(field for item in data_types for field in item.get("fields", [])).most_common(40)]
+    annotation_rows = [[name, count] for name, count in Counter(annotation for item in data_types for annotation in item.get("annotations", [])).most_common(30)]
+    model_rows = [
+        [item.get("name"), item.get("kind"), item.get("path"), ", ".join(item.get("fields", [])[:12]), ", ".join(item.get("annotations", [])[:8])]
+        for item in data_types[:60]
+    ]
+    return f"""# 后端 DTO/VO/Entity 规范
+
+## 类型分布
+
+{table(["类型", "数量"], kind_rows)}
+
+## 数据类型清单
+
+{table(["名称", "类型", "路径", "字段样例", "注解样例"], model_rows)}
+
+## 字段热点
+
+{table(["字段", "出现次数"], field_rows)}
+
+## 注解热点
+
+{table(["注解", "出现次数"], annotation_rows)}
+
+## 约定
+
+- DTO/VO 用于接口入参和出参，Entity/Model 用于持久化或领域状态，不要混用职责。
+- 新增字段时同步检查序列化名称、校验注解、默认值、兼容性和前后端字段映射。
+- Entity 改动需要检查 Mapper/Repository SQL、数据库迁移、缓存键和历史数据兼容。
+- 相同字段组合重复出现时，优先复用已有 DTO/VO 或抽取公共片段。
+"""
+
+
+def render_backend_repository_standard(backend: dict[str, Any]) -> str:
+    repositories = backend.get("repositories", [])
+    kind_rows = [[name, count] for name, count in Counter(item.get("kind") for item in repositories if item.get("kind")).most_common()]
+    sql_rows = [[op, count] for op, count in Counter(op for item in repositories for op in item.get("sqlOps", [])).most_common()]
+    repo_rows = [
+        [item.get("name"), item.get("kind"), item.get("path"), ", ".join(item.get("methods", [])[:12]), ", ".join(item.get("sqlOps", [])[:8])]
+        for item in repositories[:60]
+    ]
+    return f"""# 后端 Repository/Mapper 规范
+
+## 仓库层分布
+
+{table(["类型", "数量"], kind_rows)}
+
+## Repository/Mapper 清单
+
+{table(["名称", "类型", "路径", "方法/SQL id 样例", "SQL 操作"], repo_rows)}
+
+## SQL 操作热点
+
+{table(["操作", "出现次数"], sql_rows)}
+
+## 约定
+
+- Repository/Mapper 只负责数据访问，不承载业务流程、权限判断或跨服务编排。
+- 新增查询优先复用已有方法；确需新增时保持同域命名、参数对象和分页约定。
+- 修改 SQL 或 Mapper XML 时检查关联 DTO/Entity 字段、索引、排序、分页和空值行为。
+- 写操作必须回看 Service 层事务边界，避免 Repository 内隐式提交破坏业务一致性。
+"""
+
+
+def render_backend_config_standard(backend: dict[str, Any]) -> str:
+    configs = backend.get("configs", [])
+    key_prefix_rows = []
+    key_counter = Counter()
+    for config in configs:
+        for key in config.get("keys", []):
+            key_counter[str(key).split(".")[0]] += 1
+    key_prefix_rows = [[name, count] for name, count in key_counter.most_common(40)]
+    config_rows = [[item.get("path"), item.get("kind"), ", ".join(item.get("keys", [])[:15])] for item in configs[:80]]
+    return f"""# 后端配置规范
+
+## 配置文件/配置类
+
+{table(["路径", "类型", "配置键样例"], config_rows)}
+
+## 配置前缀热点
+
+{table(["前缀", "出现次数"], key_prefix_rows)}
+
+## 约定
+
+- 新增配置项优先放到同域已有配置文件或配置类，并保持前缀命名一致。
+- 配置变更需要同步默认值、环境变量、测试环境配置、部署文档和回滚策略。
+- 涉及开关、限流、超时、重试、灰度的配置，需要在 review 中说明默认行为。
+- 不要把密钥、token、密码或私有地址沉淀到项目规范；这里只保留配置键和路径。
+"""
+
+
+def render_backend_security_standard(backend: dict[str, Any]) -> str:
+    checks = backend.get("permissionChecks", [])
+    signal_rows = [[name, count] for name, count in Counter(signal for item in checks for signal in item.get("signals", [])).most_common(40)]
+    check_rows = [[item.get("path"), ", ".join(item.get("signals", [])[:12]), item.get("level")] for item in checks[:80]]
+    return f"""# 后端权限与认证规范
+
+## 权限/认证信号
+
+{table(["路径", "信号样例", "等级"], check_rows)}
+
+## 信号热点
+
+{table(["信号", "出现次数"], signal_rows)}
+
+## 约定
+
+- 新增入口必须检查同模块已有认证、鉴权、token、session、角色和权限注解。
+- 权限判断优先复用已有 guard/interceptor/filter/helper，不要在业务方法里复制判断。
+- 修改鉴权逻辑时同步检查匿名访问、内部调用、批量接口、管理端和定时任务入口。
+- 权限缺失默认是 review 阻断风险；扫描命中仍为 `candidate`，最终以源码和人工确认升级。
+"""
+
+
+def render_backend_transaction_standard(backend: dict[str, Any]) -> str:
+    transactions = backend.get("transactions", [])
+    signal_rows = [[name, count] for name, count in Counter(signal for item in transactions for signal in item.get("signals", [])).most_common(40)]
+    transaction_rows = [[item.get("path"), ", ".join(item.get("signals", [])[:12]), item.get("level")] for item in transactions[:80]]
+    return f"""# 后端事务边界规范
+
+## 事务信号
+
+{table(["路径", "信号样例", "等级"], transaction_rows)}
+
+## 信号热点
+
+{table(["信号", "出现次数"], signal_rows)}
+
+## 约定
+
+- 涉及订单、支付、库存、状态变更、多表写入时，先确认已有事务边界。
+- 不要把一个原子业务流程拆成多个无保护写操作；异步流程需要说明补偿和幂等。
+- 远程调用和事务混用时要特别审查超时、重复提交、回滚语义和最终一致性。
+- 新增事务注解或事务模板时同步检查调用链是否经过代理，避免事务不生效。
+"""
+
+
+def render_backend_remote_calls_standard(backend: dict[str, Any]) -> str:
+    remote_calls = backend.get("remoteCalls", [])
+    signal_rows = [[name, count] for name, count in Counter(signal for item in remote_calls for signal in item.get("signals", [])).most_common(40)]
+    remote_rows = [[item.get("path"), ", ".join(item.get("signals", [])[:12]), item.get("level")] for item in remote_calls[:80]]
+    return f"""# 后端远程调用规范
+
+## 远程调用信号
+
+{table(["路径", "信号样例", "等级"], remote_rows)}
+
+## 信号热点
+
+{table(["信号", "出现次数"], signal_rows)}
+
+## 约定
+
+- 远程调用优先复用已有 Feign/Dubbo/gRPC/HTTP 客户端或公司内部适配器。
+- 新增调用必须检查超时、重试、熔断、错误码映射、日志追踪和调用方降级行为。
+- 变更远程接口入参/出参时同步检查 DTO、调用链、Mock、契约测试和下游兼容。
+- Review 时把远程调用视为影响面扩大点，优先结合 GitNexus 调用链或图谱上下文确认风险。
+"""
+
+
+def render_backend_async_standard(backend: dict[str, Any]) -> str:
+    messages_jobs = backend.get("messagesJobs", [])
+    signal_rows = [[name, count] for name, count in Counter(signal for item in messages_jobs for signal in item.get("signals", [])).most_common(40)]
+    async_rows = [[item.get("path"), ", ".join(item.get("signals", [])[:12]), item.get("level")] for item in messages_jobs[:80]]
+    return f"""# 后端消息与任务规范
+
+## 消息/任务信号
+
+{table(["路径", "信号样例", "等级"], async_rows)}
+
+## 信号热点
+
+{table(["信号", "出现次数"], signal_rows)}
+
+## 约定
+
+- 消息消费者、事件监听器和定时任务都是后端入口，需求影响分析不能只看 HTTP Controller。
+- 修改异步入口需要检查幂等、重试、死信/补偿、并发控制、调度频率和监控告警。
+- 新增任务配置时同步检查配置文件、部署环境、开关和测试数据隔离。
+- 定时任务或消费者调用 Service 时，复用同一套事务、权限边界和错误处理策略。
+"""
+
+
+def render_backend_errors_standard(backend: dict[str, Any]) -> str:
+    error_codes = backend.get("errorCodes", [])
+    signal_rows = [[name, count] for name, count in Counter(signal for item in error_codes for signal in item.get("signals", [])).most_common(60)]
+    error_rows = [[item.get("path"), ", ".join(item.get("signals", [])[:15]), item.get("level")] for item in error_codes[:80]]
+    return f"""# 后端错误码与异常规范
+
+## 错误码/异常信号
+
+{table(["路径", "信号样例", "等级"], error_rows)}
+
+## 信号热点
+
+{table(["信号", "出现次数"], signal_rows)}
+
+## 约定
+
+- 新增业务异常前先搜索既有 ErrorCode/ResultCode/ResponseCode 和异常类型。
+- 错误码语义需要让前端、调用方和日志排障都能识别，不要只抛通用异常。
+- 改错误码或异常映射时同步检查接口响应、重试逻辑、告警、埋点和用户提示。
+- 异常处理属于硬规范候选；团队确认后可升级为 `preferred` 或 `hard`。
+"""
+
+
+def render_backend_utilities_standard(backend: dict[str, Any]) -> str:
+    utilities = backend.get("utilities", [])
+    utility_rows = [[item.get("name"), item.get("path"), ", ".join(item.get("exports", [])[:12])] for item in utilities[:80]]
+    dir_rows = [[directory, count] for directory, count in Counter(path_prefix(item.get("path", ""), 4) for item in utilities).most_common(30)]
+    return f"""# 后端公共工具规范
+
+## 工具类/公共函数
+
+{table(["名称", "路径", "导出/方法样例"], utility_rows)}
+
+## 工具目录热点
+
+{table(["目录", "数量"], dir_rows)}
+
+## 约定
+
+- 新增转换、校验、签名、时间、序列化、缓存 key 等逻辑前先检索已有工具。
+- 工具函数应保持无业务副作用；需要访问数据库、远程服务或上下文时应放回 Service/Adapter。
+- 多处复制的工具逻辑默认作为 `candidate` 沉淀建议，人工确认后再升级规则等级。
+- 修改公共工具需要检查调用面和单元测试，因为它通常跨模块复用。
+"""
+
+
 def standards_docs(data: dict[str, Any]) -> dict[str, str]:
     frontend = data["frontend"]
     backend = data["backend"]
@@ -1908,7 +2504,28 @@ def standards_docs(data: dict[str, Any]) -> dict[str, str]:
 - 发现的服务数：{len(backend.get("services", []))}
 - 发现的 DTO/VO/Entity/模型文件数：{len(backend.get("dataTypes", []))}
 - 发现的 Repository/Mapper 文件数：{len(backend.get("repositories", []))}
+- 发现的配置文件/配置类数：{len(backend.get("configs", []))}
+- 发现的权限/认证信号文件数：{len(backend.get("permissionChecks", []))}
+- 发现的事务信号文件数：{len(backend.get("transactions", []))}
+- 发现的远程调用信号文件数：{len(backend.get("remoteCalls", []))}
+- 发现的消息/任务信号文件数：{len(backend.get("messagesJobs", []))}
+- 发现的错误码/异常信号文件数：{len(backend.get("errorCodes", []))}
+- 发现的公共工具候选数：{len(backend.get("utilities", []))}
 - 候选非标准入口点数：{len(backend.get("candidateEntrypoints", []))}
+
+## 细分规范
+
+- API 与入口：`backend-api.md`
+- Service 与业务编排：`backend-services.md`
+- DTO/VO/Entity：`backend-models.md`
+- Repository/Mapper：`backend-repository.md`
+- 配置项：`backend-config.md`
+- 权限与认证：`backend-security.md`
+- 事务边界：`backend-transactions.md`
+- 远程调用：`backend-remote-calls.md`
+- 消息与任务：`backend-async.md`
+- 错误码与异常：`backend-errors.md`
+- 公共工具：`backend-utilities.md`
 
 ## 推断规范
 
@@ -1935,6 +2552,17 @@ def standards_docs(data: dict[str, Any]) -> dict[str, str]:
     docs["api.md"] = render_api_standard(frontend)
     docs["router.md"] = render_router_standard(frontend)
     docs["domain-flows.md"] = render_domain_flows_standard(frontend, graph)
+    docs["backend-api.md"] = render_backend_api_standard(backend)
+    docs["backend-services.md"] = render_backend_services_standard(backend)
+    docs["backend-models.md"] = render_backend_models_standard(backend)
+    docs["backend-repository.md"] = render_backend_repository_standard(backend)
+    docs["backend-config.md"] = render_backend_config_standard(backend)
+    docs["backend-security.md"] = render_backend_security_standard(backend)
+    docs["backend-transactions.md"] = render_backend_transaction_standard(backend)
+    docs["backend-remote-calls.md"] = render_backend_remote_calls_standard(backend)
+    docs["backend-async.md"] = render_backend_async_standard(backend)
+    docs["backend-errors.md"] = render_backend_errors_standard(backend)
+    docs["backend-utilities.md"] = render_backend_utilities_standard(backend)
     return docs
 
 
