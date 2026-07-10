@@ -24,20 +24,20 @@ Use this sequence:
 If `.project-intel` is missing or stale, run:
 
 ```bash
-python3 "${CLAUDE_PLUGIN_ROOT}/scripts/project_intel.py" init
+project-intel init
 ```
 
 Before broad implementation, inspect task impact when useful. This does not create a report file by default:
 
 ```bash
-python3 "${CLAUDE_PLUGIN_ROOT}/scripts/project_intel.py" lifecycle --task "<requirement>"
+project-intel lifecycle --task "<requirement>"
 ```
 
 After implementation, run check and maintain. Pass the actual changed source files so each file keeps exactly one concise Chinese requirement markdown:
 
 ```bash
-python3 "${CLAUDE_PLUGIN_ROOT}/scripts/project_intel.py" check
-python3 "${CLAUDE_PLUGIN_ROOT}/scripts/project_intel.py" maintain --task "<中文简短需求摘要>" --files <changed-source-files>
+project-intel check
+project-intel maintain --task "<中文简短需求摘要>" --files <changed-source-files>
 ```
 
 The `--task` value used for maintenance must be Chinese. `maintain` overwrites `.project-intel/maintenance/latest.md` by default and updates `.project-intel/requirements/files/<source-path>.md`; add `--archive` only when the user wants to keep a timestamped maintenance history.

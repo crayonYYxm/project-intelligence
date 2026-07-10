@@ -10,15 +10,15 @@ Use this skill when the user says to initialize or update project standards, kno
 Commands:
 
 ```bash
-python3 "${CLAUDE_PLUGIN_ROOT}/scripts/project_intel.py" graph-tools --json
-python3 "${CLAUDE_PLUGIN_ROOT}/scripts/project_intel.py" init
-python3 "${CLAUDE_PLUGIN_ROOT}/scripts/project_intel.py" init --no-graph
-python3 "${CLAUDE_PLUGIN_ROOT}/scripts/project_intel.py" init --interactive
-python3 "${CLAUDE_PLUGIN_ROOT}/scripts/project_intel.py" init --setup-missing
-python3 "${CLAUDE_PLUGIN_ROOT}/scripts/project_intel.py" refresh
-python3 "${CLAUDE_PLUGIN_ROOT}/scripts/project_intel.py" refresh --with-graph
-python3 "${CLAUDE_PLUGIN_ROOT}/scripts/project_intel.py" install
-python3 "${CLAUDE_PLUGIN_ROOT}/scripts/project_intel.py" install --hooks
+project-intel graph-tools --json
+project-intel init
+project-intel init --no-graph
+project-intel init --interactive
+project-intel init --setup-missing
+project-intel refresh
+project-intel refresh --with-graph
+project-intel install
+project-intel install --hooks
 ```
 
 `refresh` scans current workspace contents relative to the last generated project facts. It includes code pulled from other authors because project intelligence is based on file facts, not author identity.

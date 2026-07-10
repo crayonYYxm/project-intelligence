@@ -21,7 +21,7 @@ Workflow:
 Command:
 
 ```bash
-python3 "${CLAUDE_PLUGIN_ROOT}/scripts/project_intel.py" check
+project-intel check
 ```
 
 Use `.project-intel`, GitNexus impact context when available, Understand-Anything architecture context when available, and direct source reads.

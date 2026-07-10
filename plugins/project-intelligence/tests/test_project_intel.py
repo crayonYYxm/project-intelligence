@@ -998,22 +998,18 @@ class HookTests(unittest.TestCase):
 
 
 class SkillCommandPathTests(unittest.TestCase):
-    def test_skill_files_use_plugin_root_variable_for_script_commands(self):
+    def test_skill_files_use_global_project_intel_command(self):
         skills_dir = MODULE_PATH.parents[1] / "skills"
         skill_files = sorted(skills_dir.glob("*/SKILL.md"))
         self.assertTrue(skill_files, "未找到任何 SKILL.md")
         for skill_md in skill_files:
             text = skill_md.read_text(encoding="utf-8")
             self.assertNotIn("/Users/", text, f"{skill_md} 包含硬编码的用户路径")
-            for line in text.splitlines():
-                if "project_intel.py" in line:
-                    self.assertIn(
-                        "${CLAUDE_PLUGIN_ROOT}",
-                        line,
-                        f"{skill_md} 引用脚本时未使用 ${{CLAUDE_PLUGIN_ROOT}}：{line.strip()}",
-                    )
+            self.assertNotIn("${CLAUDE_PLUGIN_ROOT}", text)
+            self.assertNotIn("project_intel.py", text)
+            self.assertIn("project-intel", text, f"{skill_md} 未提供 CLI 调用")
 
-    def test_generated_task_impact_doc_uses_runtime_script_path(self):
+    def test_generated_task_impact_doc_uses_global_cli(self):
         snapshot = {
             "manifest": {"graphSources": []},
             "frontend": {"components": [], "hooks": []},
@@ -1021,7 +1017,7 @@ class SkillCommandPathTests(unittest.TestCase):
         }
         doc = project_intel.build_task_impact_doc(Path("/tmp/example"), "示例任务", snapshot)
         self.assertNotIn("/Users/xumeng/plugins", doc)
-        self.assertIn(str(MODULE_PATH.resolve()), doc)
+        self.assertIn("project-intel maintain", doc)
 
     def test_generated_hook_script_uses_runtime_script_path(self):
         body = project_intel.hook_script_body("post-commit")
@@ -1061,13 +1057,17 @@ class CliAndReleaseContractTests(unittest.TestCase):
                 self.assertEqual(completed.returncode, 0, completed.stderr + completed.stdout)
 
     def test_versions_prompts_and_publisher_are_consistent(self):
+        repo_root = MODULE_PATH.parents[3]
         plugin_root = MODULE_PATH.parents[1]
         claude = json.loads((plugin_root / ".claude-plugin" / "plugin.json").read_text(encoding="utf-8"))
         codex = json.loads((plugin_root / ".codex-plugin" / "plugin.json").read_text(encoding="utf-8"))
+        npm = json.loads((repo_root / "package.json").read_text(encoding="utf-8"))
 
-        self.assertEqual(project_intel.VERSION, "0.1.12")
+        self.assertEqual(project_intel.VERSION, "0.1.13")
         self.assertEqual(claude["version"], project_intel.VERSION)
         self.assertEqual(codex["version"].split("+")[0], project_intel.VERSION)
+        self.assertEqual(npm["version"], project_intel.VERSION)
+        self.assertEqual(npm["bin"]["project-intel"], "bin/project-intel.mjs")
         self.assertLessEqual(len(codex["interface"]["defaultPrompt"]), 3)
         self.assertEqual(codex["author"]["name"], "crayonYYxm")
         self.assertEqual(codex["interface"]["developerName"], "crayonYYxm")
@@ -1486,6 +1486,161 @@ class InferStandardsTests(unittest.TestCase):
                 config["rules"]["inferred"],
                 "旧的 inferred 规则应被重算结果替换",
             )
+
+
+class StabilityAndPackagingTests(unittest.TestCase):
+    def test_init_keeps_team_facts_portable_and_tooling_local(self):
+        tooling = {
+            "required": [{"name": "python3", "status": "present"}],
+            "optional": {
+                "git": {"status": "present"},
+                "node": {"status": "present"},
+                "packageManagers": [],
+                "gitnexus": {"status": "missing"},
+                "understandAnything": {
+                    "status": "agent-installed",
+                    "pluginRoots": ["/Users/example/.claude/plugins/cache/secret"],
+                },
+                "qualityTools": [],
+            },
+            "graphActions": [],
+            "recommendedActions": [],
+            "followUpActions": [],
+            "generatedAt": "2026-07-11T00:00:00Z",
+        }
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "src").mkdir()
+            (root / "src" / "index.ts").write_text("export const ok = true;\n", encoding="utf-8")
+            with patch.object(project_intel, "detect_tooling", return_value=tooling), patch.object(
+                project_intel, "handle_tooling_setup", return_value=[]
+            ):
+                project_intel.init_project(root, with_graph=False)
+            config_text = (root / ".project-intel" / "config.json").read_text(encoding="utf-8")
+            manifest_text = (root / ".project-intel" / "manifest.json").read_text(encoding="utf-8")
+            local_text = (root / ".project-intel" / "local" / "tooling.json").read_text(encoding="utf-8")
+            self.assertNotIn("pluginRoots", config_text)
+            self.assertNotIn(str(root), manifest_text)
+            self.assertIn('"projectRoot": "."', manifest_text)
+            self.assertIn("pluginRoots", local_text)
+            self.assertIn(".project-intel/local/", (root / ".gitignore").read_text(encoding="utf-8"))
+
+    def test_empty_or_invalid_graph_does_not_satisfy_strict_init(self):
+        tooling = {"optional": {}, "recommendedActions": [], "graphActions": []}
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / ".gitnexus").mkdir()
+            with patch.object(project_intel, "detect_tooling", return_value=tooling), patch.object(
+                project_intel, "handle_tooling_setup", return_value=[]
+            ):
+                with self.assertRaises(SystemExit) as raised:
+                    project_intel.init_project(root, with_graph=True, strict=True)
+            self.assertEqual(raised.exception.code, 2)
+            source = project_intel.detect_graph_sources(root)[0]
+            self.assertEqual(source["status"], "invalid")
+
+    def test_changed_requirement_files_include_untracked_source(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            subprocess.run(["git", "init", "-q"], cwd=root, check=True)
+            subprocess.run(["git", "config", "user.email", "test@example.com"], cwd=root, check=True)
+            subprocess.run(["git", "config", "user.name", "test"], cwd=root, check=True)
+            (root / "README.md").write_text("base\n", encoding="utf-8")
+            subprocess.run(["git", "add", "README.md"], cwd=root, check=True)
+            subprocess.run(["git", "commit", "-qm", "init"], cwd=root, check=True)
+            source = root / "src" / "new.ts"
+            source.parent.mkdir()
+            source.write_text("export const created = true;\n", encoding="utf-8")
+            self.assertEqual(project_intel.changed_requirement_files(root), ["src/new.ts"])
+
+    def test_query_includes_graph_and_prints_match_context(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            pdir = root / ".project-intel"
+            (pdir / "graph").mkdir(parents=True)
+            (pdir / "manifest.json").write_text("{}", encoding="utf-8")
+            (pdir / "graph" / "project-graph.json").write_text(
+                json.dumps({"marker": "inventory-relationship"}), encoding="utf-8"
+            )
+            output = io.StringIO()
+            with redirect_stdout(output):
+                self.assertEqual(project_intel.query_project(root, "relationship"), 0)
+            self.assertIn("project-graph.json", output.getvalue())
+            self.assertIn("inventory-relationship", output.getvalue())
+
+    def test_generated_agent_entrypoints_are_excluded_from_scan(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "AGENTS.md").write_text("generated\n", encoding="utf-8")
+            (root / "CLAUDE.md").write_text("generated\n", encoding="utf-8")
+            source = root / "src" / "index.ts"
+            source.parent.mkdir()
+            source.write_text("export const ok = true;\n", encoding="utf-8")
+            files = {project_intel.rel(root, path) for path in project_intel.iter_files(root)}
+            self.assertEqual(files, {"src/index.ts"})
+
+    def test_dry_run_and_json_cli_do_not_write_project_facts(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "src").mkdir()
+            (root / "src" / "index.ts").write_text("export const ok = true;\n", encoding="utf-8")
+            output = io.StringIO()
+            with redirect_stdout(output):
+                self.assertEqual(project_intel.main(["--project", str(root), "init", "--no-graph", "--dry-run", "--json"]), 0)
+            payload = json.loads(output.getvalue())
+            self.assertTrue(payload["result"]["dryRun"])
+            self.assertFalse((root / ".project-intel").exists())
+
+    def test_workspace_and_multilanguage_quality_commands_are_detected(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "package.json").write_text(json.dumps({"workspaces": ["packages/*"]}), encoding="utf-8")
+            child = root / "packages" / "web"
+            child.mkdir(parents=True)
+            (child / "package.json").write_text(json.dumps({"name": "web", "scripts": {"lint": "eslint .", "test": "vitest"}}), encoding="utf-8")
+            (root / "pom.xml").write_text("<project />", encoding="utf-8")
+            (root / "pyproject.toml").write_text("[tool.ruff]\n[tool.pytest.ini_options]\n", encoding="utf-8")
+            (root / "go.mod").write_text("module demo\n", encoding="utf-8")
+            (root / "Cargo.toml").write_text("[package]\nname='demo'\n", encoding="utf-8")
+            package = project_intel.detect_package(root)
+            commands = project_intel.detect_quality_commands(root, package)
+            rendered = "\n".join(item["command"] for item in commands)
+            self.assertIn("packages/web", rendered)
+            self.assertIn("mvn test", rendered)
+            self.assertIn("python3 -m ruff check .", rendered)
+            self.assertIn("go test ./...", rendered)
+            self.assertIn("cargo check", rendered)
+
+    def test_agent_install_dry_run_is_explicit_and_non_mutating(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            with patch.object(project_intel, "command_exists", return_value=True), patch.object(
+                project_intel, "marketplace_bundle_root", return_value=Path("/bundle")
+            ), patch.object(project_intel, "run") as run:
+                code, result = project_intel.install_agent_plugin(root, "all", dry_run=True)
+            self.assertEqual(code, 0)
+            self.assertTrue(all(item["status"] == "planned" for item in result["results"]))
+            run.assert_not_called()
+
+    def test_refresh_reuses_file_signature_cache_for_unchanged_source(self):
+        tooling = {"optional": {}, "recommendedActions": [], "graphActions": []}
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source = root / "src" / "index.ts"
+            source.parent.mkdir()
+            source.write_text("export const answer = 42;\n", encoding="utf-8")
+            with patch.object(project_intel, "detect_tooling", return_value=tooling), patch.object(
+                project_intel, "handle_tooling_setup", return_value=[]
+            ):
+                project_intel.init_project(root, with_graph=False)
+            with patch.object(project_intel.frontend_scanner, "scan_frontend_file") as frontend_file, patch.object(
+                project_intel.backend_scanner, "scan_backend_file"
+            ) as backend_file, patch.object(project_intel, "detect_tooling", return_value=tooling), patch.object(
+                project_intel, "handle_tooling_setup", return_value=[]
+            ):
+                project_intel.init_project(root, refresh=True, with_graph=False)
+            frontend_file.assert_not_called()
+            backend_file.assert_not_called()
 
 
 class LegacyLocalSkillCleanupTests(unittest.TestCase):

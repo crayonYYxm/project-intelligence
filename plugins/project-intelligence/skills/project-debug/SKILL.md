@@ -11,7 +11,7 @@ Use project facts and systematic debugging before proposing fixes.
 2. Generate debug context. This prints context by default and does not create a report file:
 
 ```bash
-python3 "${CLAUDE_PLUGIN_ROOT}/scripts/project_intel.py" debug --bug "<bug or error>"
+project-intel debug --bug "<bug or error>"
 ```
 
 3. Read relevant standards, knowledge JSON, graph summary, tooling report, and the printed debug context. Use `--write` only when the user explicitly wants `.project-intel/reports/debug-context.md`.

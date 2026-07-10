@@ -1,0 +1,4 @@
+**/__pycache__/
+**/*.pyc
+plugins/project-intelligence/tests/
+.DS_Store

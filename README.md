@@ -6,6 +6,25 @@ Project Intelligence 是一个本地的 Codex/Claude 兼容项目插件，用于
 
 ## 安装
 
+### npm（推荐）
+
+需要 Node.js 18+ 和 Python 3.9+。npm 包会安装 `project-intel` CLI，但不会在安装阶段修改 Claude Code 或 Codex 配置。
+
+```bash
+npm install -g project-intelligence
+project-intel --version
+project-intel agent install --target all
+```
+
+`agent install` 是显式操作：它将当前 npm 包中的 marketplace 和插件注册到 Claude Code、Codex 或两者。完成后启动新的 Agent 会话加载 skills。
+
+也可以直接运行，无需全局安装：
+
+```bash
+npx project-intelligence doctor --json
+npx project-intelligence init --dry-run
+```
+
 ### Claude Code
 
 1. 先添加 marketplace：
@@ -20,12 +39,10 @@ Project Intelligence 是一个本地的 Codex/Claude 兼容项目插件，用于
 
 3. 启动新的 Claude Code 会话以加载插件 skills。
 
-### Codex CLI
+### Codex CLI（不使用 npm 时）
 
 ```bash
-git clone https://github.com/crayonYYxm/project-intelligence.git
-cd project-intelligence
-codex plugin marketplace add .
+codex plugin marketplace add crayonYYxm/project-intelligence
 codex plugin add project-intelligence@project-intelligence
 ```
 
@@ -33,29 +50,23 @@ codex plugin add project-intelligence@project-intelligence
 
 ## CLI
 
-插件 CLI 位于：
-
-```bash
-plugins/project-intelligence/scripts/project-intel
-```
-
 常用命令：
 
 ```bash
-plugins/project-intelligence/scripts/project-intel --project /path/to/repo init
-plugins/project-intelligence/scripts/project-intel --project /path/to/repo graph-tools --json
-plugins/project-intelligence/scripts/project-intel --project /path/to/repo init --interactive
-plugins/project-intelligence/scripts/project-intel --project /path/to/repo init --setup-missing
-plugins/project-intelligence/scripts/project-intel --project /path/to/repo lifecycle --task "新需求"
-plugins/project-intelligence/scripts/project-intel --project /path/to/repo debug --bug "错误或异常行为"
-plugins/project-intelligence/scripts/project-intel --project /path/to/repo spec --title "功能" --from "需求"
-plugins/project-intelligence/scripts/project-intel --project /path/to/repo plan --title "功能" --from-spec .project-intel/specs/...
-plugins/project-intelligence/scripts/project-intel --project /path/to/repo refresh
-plugins/project-intelligence/scripts/project-intel --project /path/to/repo refresh --with-graph
-plugins/project-intelligence/scripts/project-intel --project /path/to/repo check
-plugins/project-intelligence/scripts/project-intel --project /path/to/repo maintain --task "摘要"
-plugins/project-intelligence/scripts/project-intel --project /path/to/repo install --hooks
-plugins/project-intelligence/scripts/project-intel --project /path/to/repo query "表格"
+project-intel --project /path/to/repo init
+project-intel --project /path/to/repo init --dry-run
+project-intel --project /path/to/repo graph-tools --json
+project-intel --project /path/to/repo doctor --json
+project-intel --project /path/to/repo lifecycle --task "新需求"
+project-intel --project /path/to/repo debug --bug "错误或异常行为"
+project-intel --project /path/to/repo spec --title "功能" --from "需求"
+project-intel --project /path/to/repo plan --title "功能" --from-spec .project-intel/specs/...
+project-intel --project /path/to/repo refresh
+project-intel --project /path/to/repo refresh --with-graph
+project-intel --project /path/to/repo check
+project-intel --project /path/to/repo maintain --task "摘要"
+project-intel --project /path/to/repo install --hooks
+project-intel --project /path/to/repo query "表格"
 ```
 
 说明：
@@ -69,6 +80,8 @@ plugins/project-intelligence/scripts/project-intel --project /path/to/repo query
 - Understand-Anything 的 Codex 安装使用官方 `install.sh codex`；Claude Code 安装使用 `claude plugin marketplace add Egonex-AI/Understand-Anything` 和 `claude plugin install understand-anything@understand-anything`。
 - Understand-Anything 如果只能通过 agent slash command 使用，安装后需要重启 agent 并运行 `/understand . --language zh`，随后再运行 `refresh` 让 `.project-intel` 记录图谱元数据。
 - `check` 会执行结构化 hard 规则；纯文本 hard 规则标记为 `manual-review`。退出码 `0` 表示自动检查通过，`1` 表示自动 hard/质量检查失败，`2` 表示未初始化、配置或路径无效。
+- 可提交的 `.project-intel/config.json` 只保存团队规则、扫描范围和质量命令；本机工具状态与扫描缓存写入默认忽略的 `.project-intel/local/`。
+- `--strict` 只接受可验证的 GitNexus 或 Understand-Anything 图谱，空 `.gitnexus/` 目录和损坏 JSON 不会通过。
 
 结构化 hard 规则写在 `.project-intel/config.json`：
 

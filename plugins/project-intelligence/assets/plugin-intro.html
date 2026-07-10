@@ -1421,11 +1421,24 @@ agent rule:
               <h2 class="reveal">Claude Code 和 Codex 都能使用。</h2>
             </div>
             <p class="reveal">
-              安装插件后新开会话加载 skills。进入项目后先运行“初始化这个项目规范”，后续就可以用自然语言触发需求、review、debug 和维护流程。
+              推荐通过 npm 同时安装 CLI 与双端插件包；注册 Agent 是显式动作，不会在安装依赖时静默改写 Claude Code 或 Codex 配置。
             </p>
           </div>
 
           <div class="install-grid">
+            <article class="install-card reveal">
+              <span class="tag amber">npm 推荐</span>
+              <h3>CLI + 双端插件包</h3>
+              <p>需要 Node.js 18+ 与 Python 3.9+：</p>
+              <div class="code-block">
+                <button class="copy" data-copy="npm-cli">copy</button>
+                <pre id="npm-cli">npm install -g project-intelligence
+project-intel agent install --target all
+project-intel init</pre>
+              </div>
+              <p>全局 CLI、skills 和两套 marketplace 会使用同一版本；安装后启动新的 Agent 会话。</p>
+            </article>
+
             <article class="install-card reveal">
               <span class="tag green">Claude Code</span>
               <h3>Slash UI 安装</h3>
@@ -1443,13 +1456,11 @@ agent rule:
 
             <article class="install-card reveal">
               <span class="tag">Codex</span>
-              <h3>本地 marketplace 安装</h3>
+              <h3>Marketplace 安装</h3>
               <p>在终端执行：</p>
               <div class="code-block">
                 <button class="copy" data-copy="codex-cli">copy</button>
-                <pre id="codex-cli">git clone https://github.com/crayonYYxm/project-intelligence.git
-cd project-intelligence
-codex plugin marketplace add .
+                <pre id="codex-cli">codex plugin marketplace add crayonYYxm/project-intelligence
 codex plugin add project-intelligence@project-intelligence</pre>
               </div>
               <p>安装后启动新的 Codex 线程加载插件 skills。</p>

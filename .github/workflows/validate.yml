@@ -9,13 +9,24 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.10", "3.12"]
+        python-version: ["3.9", "3.10", "3.12"]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
       - name: Compile CLI
-        run: python -m py_compile plugins/project-intelligence/scripts/project_intel.py
+        run: python -m py_compile plugins/project-intelligence/scripts/project_intel.py plugins/project-intelligence/scripts/project_intel_lib/*.py plugins/project-intelligence/scripts/project_intel_lib/scanner/*.py
       - name: Run tests
         run: python -m unittest discover -s plugins/project-intelligence/tests -p "test_*.py"
+      - name: Validate plugin manifests and skills
+        run: python scripts/validate_bundle.py
+      - name: Validate npm package metadata
+        run: |
+          node scripts/check-release.mjs
+          node scripts/check-package.mjs
+          node bin/project-intel.mjs --version
+          npm pack --dry-run

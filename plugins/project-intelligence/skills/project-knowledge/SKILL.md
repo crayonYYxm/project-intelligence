@@ -21,7 +21,7 @@ Use GitNexus for precise symbol-level questions. Use Understand-Anything for arc
 Search with:
 
 ```bash
-python3 "${CLAUDE_PLUGIN_ROOT}/scripts/project_intel.py" query "<question>"
+project-intel query "<question>"
 ```
 
 Prefer `.project-intel` facts, GitNexus context, Understand-Anything context, and direct source reads.

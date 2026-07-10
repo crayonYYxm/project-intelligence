@@ -21,5 +21,5 @@ When a task reveals a stable reusable pattern, record it as `candidate` first an
 Use:
 
 ```bash
-python3 "${CLAUDE_PLUGIN_ROOT}/scripts/project_intel.py" query "<standard or rule>"
+project-intel query "<standard or rule>"
 ```

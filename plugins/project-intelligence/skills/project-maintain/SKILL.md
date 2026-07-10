@@ -10,7 +10,7 @@ Close project tasks by refreshing facts and recording what changed.
 Run. By default this overwrites `.project-intel/maintenance/latest.md` instead of creating a new history file. Use a Chinese task summary:
 
 ```bash
-python3 "${CLAUDE_PLUGIN_ROOT}/scripts/project_intel.py" maintain --task "<中文简短需求摘要>" --files <changed-source-files>
+project-intel maintain --task "<中文简短需求摘要>" --files <changed-source-files>
 ```
 
 `--files` should list the source files actually affected by the requirement. Project Intelligence maintains one concise Chinese requirement markdown per source file at `.project-intel/requirements/files/<source-path>.md`; it should not create a new requirement file for every conversation.
@@ -18,13 +18,13 @@ python3 "${CLAUDE_PLUGIN_ROOT}/scripts/project_intel.py" maintain --task "<中�
 Use `--archive` only when the user explicitly wants a timestamped maintenance record:
 
 ```bash
-python3 "${CLAUDE_PLUGIN_ROOT}/scripts/project_intel.py" maintain --task "<中文简短需求摘要>" --files <changed-source-files> --archive
+project-intel maintain --task "<中文简短需求摘要>" --files <changed-source-files> --archive
 ```
 
 Use `--run-quality` only when the user asks to run real lint/type/style/format commands:
 
 ```bash
-python3 "${CLAUDE_PLUGIN_ROOT}/scripts/project_intel.py" maintain --task "<中文简短需求摘要>" --files <changed-source-files> --run-quality
+project-intel maintain --task "<中文简短需求摘要>" --files <changed-source-files> --run-quality
 ```
 
 Maintenance validates the Chinese task summary and affected files, refreshes `.project-intel` without installing or rerunning graph tools, runs `project-intel check`, then updates file-level requirement records and the latest maintenance report. Redundancy findings stay at `candidate` unless a human promotes them.

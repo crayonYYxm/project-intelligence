@@ -1,0 +1,49 @@
+{
+  "name": "project-intelligence",
+  "version": "0.1.13",
+  "description": "Project-level standards, knowledge, graph context, quality checks, lifecycle maintenance, and Claude/Codex plugin installation.",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "project-intel": "bin/project-intel.mjs",
+    "project-intelligence": "bin/project-intel.mjs"
+  },
+  "files": [
+    "bin",
+    ".agents/plugins/marketplace.json",
+    ".claude-plugin/marketplace.json",
+    "plugins/project-intelligence/.claude-plugin",
+    "plugins/project-intelligence/.codex-plugin",
+    "plugins/project-intelligence/scripts",
+    "plugins/project-intelligence/skills",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/crayonYYxm/project-intelligence.git"
+  },
+  "bugs": {
+    "url": "https://github.com/crayonYYxm/project-intelligence/issues"
+  },
+  "homepage": "https://github.com/crayonYYxm/project-intelligence#readme",
+  "keywords": [
+    "codex",
+    "claude-code",
+    "project-intelligence",
+    "code-knowledge",
+    "developer-tools"
+  ],
+  "scripts": {
+    "test": "python3 -m unittest discover -s plugins/project-intelligence/tests -p 'test_*.py'",
+    "check-release": "node scripts/check-release.mjs && node scripts/check-package.mjs",
+    "pack:dry-run": "npm pack --dry-run"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

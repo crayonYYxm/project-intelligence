@@ -9,8 +9,10 @@ GitNexus / Understand-Anything artifacts.
 from __future__ import annotations
 
 import argparse
+import contextlib
 import datetime as _dt
 import hashlib
+import io
 import json
 import os
 import re
@@ -21,8 +23,25 @@ from collections import Counter, defaultdict
 from pathlib import Path
 from typing import Any, Optional
 
+if sys.version_info < (3, 9):
+    print("project-intel requires Python 3.9 or later.", file=sys.stderr)
+    raise SystemExit(2)
 
-VERSION = "0.1.12"
+_SCRIPT_DIR = Path(__file__).resolve().parent
+if str(_SCRIPT_DIR) not in sys.path:
+    sys.path.insert(0, str(_SCRIPT_DIR))
+
+from project_intel_lib import core as core_module
+from project_intel_lib import graph as graph_module
+from project_intel_lib import lifecycle as lifecycle_module
+from project_intel_lib import quality as quality_module
+from project_intel_lib import standards as standards_module
+from project_intel_lib.cli import extract_global_json, json_envelope
+from project_intel_lib.scanner import backend as backend_scanner
+from project_intel_lib.scanner import frontend as frontend_scanner
+
+
+VERSION = "0.1.13"
 UNDERSTAND_AGENT_COMMAND = "/understand . --language zh"
 UNDERSTAND_REPO = "Egonex-AI/Understand-Anything"
 UNDERSTAND_CODEX_INSTALL_COMMAND = "curl -fsSL https://raw.githubusercontent.com/Egonex-AI/Understand-Anything/main/install.sh | bash -s codex"
@@ -67,6 +86,7 @@ EXCLUDED_DIRS = {
     ".claude",
     ".project-intel",
     ".project-intel/cache",
+    ".project-intel/local",
     ".project-intel/tmp",
     "node_modules",
     "dist",
@@ -102,6 +122,9 @@ TEXT_SUFFIXES = {
 }
 FRONTEND_SUFFIXES = {".vue", ".tsx", ".jsx", ".ts", ".js"}
 BACKEND_SUFFIXES = {".java", ".kt", ".py", ".go", ".ts", ".js"}
+
+_TEXT_CACHE: dict[tuple[str, int, int], str] = {}
+_ACTIVE_SCAN_CACHE: core_module.IncrementalScanCache | None = None
 
 
 def now_iso() -> str:
@@ -176,15 +199,25 @@ def truncate(value: str, limit: int = 6000) -> str:
 
 def read_text(path: Path, max_bytes: int = 500_000) -> str:
     try:
+        stat = path.stat()
+    except OSError:
+        return ""
+    key = (str(path.resolve()), stat.st_size, stat.st_mtime_ns)
+    cached = _TEXT_CACHE.get(key)
+    if cached is not None:
+        return cached
+    try:
         data = path.read_bytes()
     except OSError:
         return ""
     if len(data) > max_bytes:
         data = data[:max_bytes]
     try:
-        return data.decode("utf-8")
+        value = data.decode("utf-8")
     except UnicodeDecodeError:
-        return data.decode("utf-8", errors="ignore")
+        value = data.decode("utf-8", errors="ignore")
+    _TEXT_CACHE[key] = value
+    return value
 
 
 def write_json(path: Path, data: Any) -> None:
@@ -364,6 +397,8 @@ def is_excluded(root: Path, path: Path, config: Optional[dict[str, Any]] = None)
     except ValueError:
         return True
     joined = "/".join(parts)
+    if joined in core_module.GENERATED_AGENT_FILES:
+        return True
     _, excludes, exclude_hidden = scan_settings(config)
     if exclude_hidden and any(part.startswith(".") and part not in {".", ".."} for part in parts):
         return True
@@ -485,24 +520,37 @@ def detect_quality_commands(root: Path, package: dict[str, Any]) -> list[dict[st
     return commands
 
 
+# Keep the public functions stable while the implementation lives in a reusable module.
+package_manager = quality_module.package_manager
+detect_package = quality_module.detect_package
+detect_quality_commands = quality_module.detect_quality_commands
+
+
 def understand_plugin_roots() -> list[Path]:
     home = Path.home()
     candidates = [
-        Path(os.environ.get("CLAUDE_PLUGIN_ROOT", "")),
         home / ".understand-anything-plugin",
         home / ".codex" / "understand-anything" / "understand-anything-plugin",
         home / ".opencode" / "understand-anything" / "understand-anything-plugin",
         home / ".pi" / "understand-anything" / "understand-anything-plugin",
         home / "understand-anything" / "understand-anything-plugin",
     ]
+    configured_root = os.environ.get("CLAUDE_PLUGIN_ROOT", "").strip()
+    if configured_root:
+        candidates.insert(0, Path(configured_root))
     claude_cache = home / ".claude" / "plugins" / "cache"
     if claude_cache.exists():
         candidates.extend(claude_cache.glob("*/understand-anything"))
         candidates.extend(claude_cache.glob("*/understand-anything/*"))
     roots = []
     for candidate in candidates:
-        if str(candidate) and (candidate / "package.json").exists() and (candidate / "pnpm-workspace.yaml").exists():
-            roots.append(candidate)
+        package_path = candidate / "package.json"
+        if not package_path.exists() or not (candidate / "pnpm-workspace.yaml").exists():
+            continue
+        package = load_json(package_path, {})
+        package_name = str(package.get("name") or "").lower()
+        if "understand" in package_name or "understand-anything" in candidate.as_posix().lower():
+            roots.append(candidate.resolve())
     return roots
 
 
@@ -1750,30 +1798,6 @@ def detect_graph_sources(root: Path) -> list[dict[str, Any]]:
     return sources
 
 
-DOMAIN_KEYWORDS = {
-    "订单/支付": ["order", "订单", "custorder", "pay", "支付", "预充值", "prepaid", "recharge"],
-    "登录/认证": ["login", "登录", "auth", "认证", "identity", "实名", "face", "人脸", "subscribe", "订阅"],
-    "政企业务": ["government", "政企", "approve", "审批", "customer", "客户"],
-    "选号/信息填写": ["information", "选号", "pick", "address", "地址", "addinfo", "fill"],
-    "礼包/活动": ["gift", "礼包", "activity", "活动"],
-}
-
-
-def path_prefix(path: str, depth: int = 3) -> str:
-    parts = Path(path).parts
-    if len(parts) <= depth:
-        return Path(path).as_posix()
-    return Path(*parts[:depth]).as_posix()
-
-
-def detect_domain_name(path: str, summary: str = "", tags: list[str] | None = None) -> Optional[str]:
-    haystack = " ".join([path, summary, " ".join(tags or [])]).lower()
-    for name, keywords in DOMAIN_KEYWORDS.items():
-        if any(keyword.lower() in haystack for keyword in keywords):
-            return name
-    return None
-
-
 def understand_graph_summary(root: Path) -> dict[str, Any]:
     graph = load_json(root / ".understand-anything" / "knowledge-graph.json", {})
     nodes = graph.get("nodes", []) or []
@@ -1786,10 +1810,10 @@ def understand_graph_summary(root: Path) -> dict[str, Any]:
         tags = node.get("tags") or []
         if not path:
             continue
-        domain = detect_domain_name(path, summary, tags)
+        domain = graph_module.meaningful_domain(path, tags)
         if domain:
             domain_buckets[domain].append({"path": path, "summary": summary, "tags": tags[:8]})
-        if path.startswith(("src/api/", "src/components/", "src/pages/subPages/", "src/router/")):
+        if any(part.lower() in graph_module.MODULE_MARKERS for part in Path(path).parts):
             key_modules.append({"path": path, "name": node.get("name") or Path(path).name, "summary": summary, "tags": tags[:8]})
     domains = []
     for name, items in sorted(domain_buckets.items(), key=lambda item: len(item[1]), reverse=True):
@@ -1806,8 +1830,39 @@ def understand_graph_summary(root: Path) -> dict[str, Any]:
         "edges": len(edges),
         "domains": domains[:12],
         "keyModules": key_modules[:30],
-        "topPathPrefixes": Counter(path_prefix(node.get("filePath") or node.get("id") or "", 4) for node in nodes if node.get("filePath") or node.get("id")).most_common(20),
+        "topPathPrefixes": Counter(graph_module.path_prefix(node.get("filePath") or node.get("id") or "", 4) for node in nodes if node.get("filePath") or node.get("id")).most_common(20),
     }
+
+
+# Public compatibility facade for the extracted scanner and graph modules.
+extract_vue_props = frontend_scanner.extract_vue_props
+extract_emits = frontend_scanner.extract_emits
+detect_backend_framework = backend_scanner.detect_backend_framework
+detect_graph_sources = graph_module.detect_graph_sources
+understand_graph_summary = graph_module.understand_graph_summary
+path_prefix = graph_module.path_prefix
+
+
+def scan_frontend(root: Path, files: list[Path]) -> dict[str, Any]:
+    return frontend_scanner.scan_frontend(
+        root,
+        files,
+        read_text=read_text,
+        rel=rel,
+        cache=_ACTIVE_SCAN_CACHE,
+    )
+
+
+def scan_backend(root: Path, files: list[Path], config: Optional[dict[str, Any]] = None) -> dict[str, Any]:
+    return backend_scanner.scan_backend(
+        root,
+        files,
+        config,
+        read_text=read_text,
+        rel=rel,
+        path_matches_pattern=path_matches_pattern,
+        cache=_ACTIVE_SCAN_CACHE,
+    )
 
 
 def file_index(root: Path, files: list[Path]) -> list[dict[str, Any]]:
@@ -1824,13 +1879,17 @@ def file_index(root: Path, files: list[Path]) -> list[dict[str, Any]]:
 def build_manifest(root: Path, files: list[Path], package: dict[str, Any], graph_sources: list[dict[str, Any]], tooling: dict[str, Any]) -> dict[str, Any]:
     suffix_counts = Counter(path.suffix.lower() or "<none>" for path in files)
     return {
-        "schemaVersion": 1,
+        "schemaVersion": 2,
         "toolVersion": VERSION,
-        "projectRoot": str(root),
+        "projectRoot": ".",
         "generatedAt": now_iso(),
         "git": git_info(root),
         "frameworks": package.get("frameworks", []),
         "packageName": package.get("packageName"),
+        "packages": [
+            {"path": item.get("path"), "name": item.get("name"), "frameworks": item.get("frameworks", [])}
+            for item in package.get("packages", [])
+        ],
         "fileCount": len(files),
         "suffixCounts": dict(suffix_counts.most_common()),
         "graphSources": graph_sources,
@@ -1848,14 +1907,13 @@ def build_manifest(root: Path, files: list[Path], package: dict[str, Any], graph
 
 def default_config(root: Path, package: dict[str, Any], tooling: Optional[dict[str, Any]] = None) -> dict[str, Any]:
     return {
-        "schemaVersion": 1,
+        "schemaVersion": 2,
         "scan": {
             "include": ["**/*"],
             "exclude": sorted(EXCLUDED_DIRS),
             "excludeHidden": True,
         },
         "quality": {"commands": detect_quality_commands(root, package)},
-        "tooling": tooling if tooling is not None else detect_tooling(root, package),
         "backend": {
             "entrypointRules": [
                 {"type": "annotation", "pattern": "@RestController|@Controller|@RequestMapping|@GetMapping|@PostMapping|@MessageListener|@Scheduled"},
@@ -1993,7 +2051,9 @@ def prepare_project_config(root: Path, package: dict[str, Any], tooling: dict[st
     else:
         config = load_json_strict(path, "项目智能配置")
         validate_project_config(config)
-        config.setdefault("schemaVersion", 1)
+        # schema v1 stored machine-specific tooling paths in the team config.
+        config.pop("tooling", None)
+        config["schemaVersion"] = 2
         scan = config.setdefault("scan", defaults["scan"])
         if scan.get("include") == LEGACY_SCAN_INCLUDE:
             scan["include"] = ["**/*"]
@@ -2004,7 +2064,8 @@ def prepare_project_config(root: Path, package: dict[str, Any], tooling: dict[st
         config.setdefault("rules", defaults["rules"])
         quality = config.setdefault("quality", {})
         quality["commands"] = merge_quality_commands(quality.get("commands", []), detect_quality_commands(root, package))
-        config["tooling"] = tooling
+    config.pop("tooling", None)
+    config["schemaVersion"] = 2
     validate_project_config(config)
     return config
 
@@ -2336,21 +2397,8 @@ def render_router_standard(frontend: dict[str, Any]) -> str:
 
 
 def fallback_domain_rows(frontend: dict[str, Any]) -> list[list[Any]]:
-    buckets: dict[str, set[str]] = defaultdict(set)
-    for route in frontend.get("routes", []):
-        for path in route.get("routes", []):
-            domain = detect_domain_name(path)
-            if domain:
-                buckets[domain].add(f"{route.get('path')}::{path}")
-    for module in frontend.get("apiModules", []):
-        domain = detect_domain_name(module.get("path", ""), " ".join(module.get("endpoints", [])))
-        if domain:
-            buckets[domain].add(module.get("path", ""))
-    for component in frontend.get("components", []):
-        domain = detect_domain_name(component.get("path", ""), component.get("name", ""))
-        if domain:
-            buckets[domain].add(component.get("path", ""))
-    return [[name, len(paths), ", ".join(sorted(paths)[:8])] for name, paths in sorted(buckets.items(), key=lambda item: len(item[1]), reverse=True)]
+    candidates = standards_module.project_domain_candidates(frontend, {}, {})
+    return [[item.get("name"), item.get("count"), ", ".join(item.get("paths", [])[:8])] for item in candidates]
 
 
 def render_domain_flows_standard(frontend: dict[str, Any], graph: dict[str, Any]) -> str:
@@ -2384,7 +2432,7 @@ def render_domain_flows_standard(frontend: dict[str, Any], graph: dict[str, Any]
 
 ## 约定
 
-- 需求涉及订单、支付、预充值、订阅消息、登录认证、政企业务、选号或信息填写时，先查本文件对应业务域，再查 GitNexus/Understand-Anything 影响面。
+- 需求涉及任一业务域时，先按项目实际目录、模块和图谱标签定位对应业务域，再查 GitNexus/Understand-Anything 影响面。
 - 修改业务流入口时需要同时检查页面、路由、API 模块、store、公共组件和错误处理链路。
 - 图谱摘要只作为项目理解和影响分析输入，不替代源码确认；最终实现仍以源码和 `.project-intel/knowledge` 为准。
 """
@@ -2852,14 +2900,16 @@ def table(headers: list[str], rows: list[list[Any]]) -> str:
     return "\n".join(out)
 
 
-def init_project(root: Path, refresh: bool = False, interactive: bool = False, setup_missing: bool = False, with_graph: bool = True, strict: bool = False) -> dict[str, Any]:
-    package = detect_package(root)
-    tooling = detect_tooling(root, package)
-    config = prepare_project_config(root, package, tooling)
-    setup_results = handle_tooling_setup(root, tooling, interactive=interactive, setup_missing=setup_missing, with_graph=with_graph)
-    if setup_results:
-        tooling = detect_tooling(root, package)
-        config["tooling"] = tooling
+def collect_project_state(
+    root: Path,
+    package: dict[str, Any],
+    tooling: dict[str, Any],
+    config: dict[str, Any],
+) -> dict[str, Any]:
+    global _ACTIVE_SCAN_CACHE
+    _TEXT_CACHE.clear()
+    cache_path = project_dir(root) / "local" / "scan-cache.json"
+    _ACTIVE_SCAN_CACHE = core_module.IncrementalScanCache.load(cache_path)
     files = iter_files(root, config)
     graph_sources = detect_graph_sources(root)
     frontend = scan_frontend(root, files)
@@ -2867,10 +2917,8 @@ def init_project(root: Path, refresh: bool = False, interactive: bool = False, s
     rules = config.setdefault("rules", {"hard": [], "preferred": [], "inferred": [], "candidate": []})
     rules["inferred"] = infer_standards(frontend, backend)
     manifest = build_manifest(root, files, package, graph_sources, tooling)
-    if strict and with_graph and not any(source.get("status") == "present" for source in graph_sources):
-        raise SystemExit("请求了严格的图谱初始化，但没有 GitNexus 或 Understand-Anything 图谱。")
     graph = {
-        "schemaVersion": 1,
+        "schemaVersion": 2,
         "generatedAt": now_iso(),
         "sources": graph_sources,
         "summary": {
@@ -2880,10 +2928,70 @@ def init_project(root: Path, refresh: bool = False, interactive: bool = False, s
             "services": len(backend.get("services", [])),
             "candidateEntrypoints": len(backend.get("candidateEntrypoints", [])),
         },
+        "gitnexusSummary": next((item for item in graph_sources if item.get("name") == "GitNexus"), {}),
         "understandSummary": understand_graph_summary(root),
     }
+    graph["projectDomains"] = standards_module.project_domain_candidates(frontend, backend, graph)
+    return {
+        "files": files,
+        "frontend": frontend,
+        "backend": backend,
+        "manifest": manifest,
+        "graph": graph,
+        "scanCache": _ACTIVE_SCAN_CACHE.payload(),
+    }
+
+
+def preview_init(root: Path, with_graph: bool = True, strict: bool = False) -> dict[str, Any]:
+    if strict and not with_graph:
+        fail_usage("--strict 不能与 --no-graph 同时使用。")
+    package = detect_package(root)
+    tooling = detect_tooling(root, package)
+    config = prepare_project_config(root, package, tooling)
+    state = collect_project_state(root, package, tooling, config)
+    graph_sources = state["manifest"].get("graphSources", [])
+    if strict and with_graph and not any(source.get("status") == "present" for source in graph_sources):
+        fail_usage("请求了严格的图谱初始化，但没有有效的 GitNexus 或 Understand-Anything 图谱。")
+    return {
+        "dryRun": True,
+        "manifest": state["manifest"],
+        "config": config,
+        "graph": state["graph"],
+        "wouldWrite": [
+            ".project-intel/manifest.json",
+            ".project-intel/config.json",
+            ".project-intel/knowledge/*.json",
+            ".project-intel/graph/project-graph.json",
+            ".project-intel/standards/*.md",
+            ".project-intel/reports/*.md",
+            "AGENTS.md",
+            "CLAUDE.md",
+            ".claude/CLAUDE.md",
+        ],
+        "wouldRunGraph": with_graph and [action.get("analyzeCommand") for action in tooling.get("graphActions", []) if action.get("analyzeCommand")],
+    }
+
+
+def init_project(root: Path, refresh: bool = False, interactive: bool = False, setup_missing: bool = False, with_graph: bool = True, strict: bool = False) -> dict[str, Any]:
+    if strict and not with_graph:
+        fail_usage("--strict 不能与 --no-graph 同时使用。")
+    package = detect_package(root)
+    tooling = detect_tooling(root, package)
+    config = prepare_project_config(root, package, tooling)
+    setup_results = handle_tooling_setup(root, tooling, interactive=interactive, setup_missing=setup_missing, with_graph=with_graph)
+    if setup_results:
+        tooling = detect_tooling(root, package)
+    state = collect_project_state(root, package, tooling, config)
+    files = state["files"]
+    frontend = state["frontend"]
+    backend = state["backend"]
+    manifest = state["manifest"]
+    graph = state["graph"]
+    graph_sources = manifest.get("graphSources", [])
+    if strict and with_graph and not any(source.get("status") == "present" for source in graph_sources):
+        fail_usage("请求了严格的图谱初始化，但没有有效的 GitNexus 或 Understand-Anything 图谱。")
     pdir = project_dir(root)
-    for sub in ("standards", "knowledge", "graph", "reports", "specs", "plans", "maintenance", "requirements", "requirements/files", "hooks", "cache", "tmp"):
+    for sub in ("standards", "knowledge", "graph", "reports", "specs", "plans", "maintenance", "requirements", "requirements/files", "hooks", "cache", "local", "tmp"):
         (pdir / sub).mkdir(parents=True, exist_ok=True)
     write_json(pdir / "manifest.json", manifest)
     write_json(pdir / "config.json", config)
@@ -2891,6 +2999,8 @@ def init_project(root: Path, refresh: bool = False, interactive: bool = False, s
     write_json(pdir / "knowledge" / "backend.json", backend)
     write_json(pdir / "knowledge" / "files.json", file_index(root, files))
     write_json(pdir / "graph" / "project-graph.json", graph)
+    write_json(pdir / "local" / "tooling.json", tooling)
+    write_json(pdir / "local" / "scan-cache.json", state["scanCache"])
     for name, text in standards_docs({"frontend": frontend, "backend": backend, "config": config, "graph": graph}).items():
         write_text(pdir / "standards" / name, text)
     write_text(pdir / "reports" / ("refresh-report.md" if refresh else "init-report.md"), build_init_report(root, manifest, frontend, backend, config, tooling))
@@ -2913,7 +3023,7 @@ def init_project(root: Path, refresh: bool = False, interactive: bool = False, s
 
 def ensure_gitignore(root: Path) -> None:
     path = root / ".gitignore"
-    additions = [".project-intel/cache/", ".project-intel/tmp/"]
+    additions = [".project-intel/cache/", ".project-intel/local/", ".project-intel/tmp/"]
     existing = read_text(path) if path.exists() else ""
     missing = [item for item in additions if item not in existing]
     if missing:
@@ -3070,7 +3180,7 @@ def build_spec_doc(root: Path, title: str, requirement: str, snapshot: dict[str,
 
 ## 项目上下文
 
-- 项目根目录：`{root}`
+- 项目根目录：`.`
 - 框架：{", ".join(manifest.get("frameworks", []) or ["未知"])}
 - 组件数：{len(frontend.get("components", []))}
 - Hooks 数：{len(frontend.get("hooks", []))}
@@ -3196,7 +3306,7 @@ def build_task_impact_doc(root: Path, task: str, snapshot: dict[str, Any]) -> st
 实现完成后运行：
 
 ```bash
-python3 "{script_path()}" maintain --task "<中文简短需求摘要>" --files <changed-source-files>
+project-intel maintain --task "<中文简短需求摘要>" --files <changed-source-files>
 ```
 """
 
@@ -3322,12 +3432,9 @@ def should_track_requirement_file(rel_path: str) -> bool:
 
 
 def changed_requirement_files(root: Path) -> list[str]:
-    code, out, _ = run(["git", "diff", "--name-only", "HEAD", "--"], root, timeout=20)
-    if code != 0:
-        return []
     files = []
-    for line in out.splitlines():
-        rel_path = normalize_project_file(root, line.strip())
+    for line in lifecycle_module.changed_project_files(root, run):
+        rel_path = normalize_project_file(root, line)
         if rel_path and should_track_requirement_file(rel_path):
             files.append(rel_path)
     return sorted(dict.fromkeys(files))
@@ -3807,21 +3914,18 @@ def query_project(root: Path, text: str) -> int:
     if not (pdir / "manifest.json").exists():
         fail_usage("未找到 .project-intel。请先运行 project-intel init。")
     needle = text.lower()
-    matches: list[tuple[str, str]] = []
-    docs = list((pdir / "standards").glob("*.md")) + list((pdir / "reports").glob("*.md")) + list((pdir / "requirements").rglob("*.md"))
-    for path in docs:
+    matches: list[tuple[str, str, int]] = []
+    for path in lifecycle_module.query_paths(pdir):
         body = read_text(path)
-        if needle in body.lower():
-            matches.append((rel(root, path), body[:1200]))
-    for path in (pdir / "knowledge").glob("*.json"):
-        body = read_text(path)
-        if needle in body.lower():
-            matches.append((rel(root, path), body[:1200]))
+        context = lifecycle_module.match_context(body, needle)
+        if context:
+            snippet, line = context
+            matches.append((rel(root, path), snippet, line))
     if not matches:
         print("未找到直接匹配的项目智能结果。请尝试更宽泛的关键词或刷新知识库。")
         return 0
-    for name, snippet in matches[:10]:
-        print(f"\n## {name}\n")
+    for name, snippet, line in matches[:10]:
+        print(f"\n## {name}:{line}\n")
         print(snippet)
     return 0
 
@@ -3833,9 +3937,88 @@ def report_graph_tools(root: Path, as_json: bool = False) -> int:
     return 0
 
 
-def main(argv: list[str]) -> int:
+def marketplace_bundle_root() -> Optional[Path]:
+    candidates = [script_path().parent, *script_path().parents]
+    for candidate in candidates:
+        if (candidate / ".agents" / "plugins" / "marketplace.json").is_file() and (candidate / ".claude-plugin" / "marketplace.json").is_file():
+            return candidate
+    return None
+
+
+def agent_install_commands(target: str) -> dict[str, list[list[str]]]:
+    bundle = marketplace_bundle_root()
+    source = str(bundle) if bundle else "crayonYYxm/project-intelligence"
+    commands: dict[str, list[list[str]]] = {}
+    if target in {"codex", "all"}:
+        commands["codex"] = [
+            ["codex", "plugin", "marketplace", "add", source],
+            ["codex", "plugin", "add", "project-intelligence@project-intelligence", "--json"],
+        ]
+    if target in {"claude", "all"}:
+        commands["claude"] = [
+            ["claude", "plugin", "marketplace", "add", source],
+            ["claude", "plugin", "install", "project-intelligence@project-intelligence"],
+        ]
+    return commands
+
+
+def install_agent_plugin(root: Path, target: str, dry_run: bool = False) -> tuple[int, dict[str, Any]]:
+    commands = agent_install_commands(target)
+    results: list[dict[str, Any]] = []
+    exit_code = 0
+    for platform, platform_commands in commands.items():
+        executable = platform
+        if not command_exists(executable):
+            results.append({"target": platform, "status": "missing", "detail": f"未找到 {executable} CLI"})
+            exit_code = 1
+            continue
+        for command in platform_commands:
+            rendered = " ".join(command)
+            if dry_run:
+                results.append({"target": platform, "status": "planned", "command": rendered})
+                continue
+            code, out, err = run(command, root, timeout=180)
+            combined = (out + "\n" + err).lower()
+            already_exists = "already" in combined and any(token in combined for token in ("exist", "added", "configured", "installed"))
+            status = "present" if code != 0 and already_exists else "ok" if code == 0 else "failed"
+            results.append({"target": platform, "status": status, "command": rendered, "exitCode": code, "stdout": out[-3000:], "stderr": err[-3000:]})
+            if status == "failed":
+                exit_code = 1
+                break
+    return exit_code, {
+        "target": target,
+        "dryRun": dry_run,
+        "bundleRoot": str(marketplace_bundle_root()) if marketplace_bundle_root() else None,
+        "results": results,
+        "restartRequired": not dry_run and exit_code == 0,
+    }
+
+
+def doctor_report(root: Path) -> dict[str, Any]:
+    package = detect_package(root)
+    tooling = detect_tooling(root, package)
+    config_path = project_dir(root) / "config.json"
+    config = load_json(config_path, {}) if config_path.exists() else {}
+    return {
+        "version": VERSION,
+        "python": {"version": sys.version.split()[0], "executable": sys.executable},
+        "project": {
+            "path": ".",
+            "initialized": (project_dir(root) / "manifest.json").is_file(),
+            "configSchemaVersion": config.get("schemaVersion"),
+            "frameworks": package.get("frameworks", []),
+            "packages": package.get("packages", []),
+        },
+        "pluginBundle": {"available": marketplace_bundle_root() is not None},
+        "tooling": core_module.sanitize_tooling(tooling),
+        "graphSources": detect_graph_sources(root),
+    }
+
+
+def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="project-intel", description="项目智能 CLI")
     parser.add_argument("--project", help="项目根目录，默认为当前目录。")
+    parser.add_argument("--version", action="store_true", help="打印版本号")
     sub = parser.add_subparsers(dest="command", required=True)
     init = sub.add_parser("init", help="初始化 .project-intel")
     init.add_argument("--interactive", action="store_true", help="在交互终端询问是否准备缺失图谱工具")
@@ -3843,6 +4026,7 @@ def main(argv: list[str]) -> int:
     init.add_argument("--with-graph", action="store_true", default=True, help="检查图谱工具并运行已安装的分析器，默认启用")
     init.add_argument("--no-graph", dest="with_graph", action="store_false", help="跳过图谱工具初始化")
     init.add_argument("--strict", action="store_true", help="--with-graph 未产生任何图谱来源时失败")
+    init.add_argument("--dry-run", action="store_true", help="只分析将生成的项目事实，不写入文件或运行图谱命令")
     refresh = sub.add_parser("refresh", help="从当前工作区刷新 .project-intel")
     refresh.add_argument("--with-graph", action="store_true", help="刷新前运行已安装的图谱分析器；不会安装缺失工具")
     install = sub.add_parser("install", help="安装 Claude 兼容的项目入口")
@@ -3873,21 +4057,36 @@ def main(argv: list[str]) -> int:
     query = sub.add_parser("query", help="搜索项目智能产物")
     query.add_argument("text")
     graph_tools = sub.add_parser("graph-tools", help="查询可选图谱工具的状态与命令")
-    graph_tools.add_argument("--json", action="store_true", help="以 JSON 输出图谱工具信息")
+    graph_tools.add_argument("--json", action="store_true", help=argparse.SUPPRESS)
+    doctor = sub.add_parser("doctor", help="诊断运行时、项目和图谱工具状态")
+    doctor.add_argument("--json", action="store_true", help=argparse.SUPPRESS)
+    agent = sub.add_parser("agent", help="显式安装 Claude/Codex 插件")
+    agent_sub = agent.add_subparsers(dest="agent_command", required=True)
+    agent_install = agent_sub.add_parser("install", help="安装插件到 Claude、Codex 或两者")
+    agent_install.add_argument("--target", choices=("codex", "claude", "all"), default="all")
+    agent_install.add_argument("--dry-run", action="store_true", help="只输出将执行的安装命令")
     sub.add_parser("version", help="打印版本号")
-    args = parser.parse_args(argv)
-    root = project_root(args.project)
-    if args.command == "version":
+    return parser
+
+
+def dispatch_command(args: argparse.Namespace, root: Path, json_mode: bool) -> tuple[int, Any]:
+    if args.command == "version" or args.version:
         print(VERSION)
-        return 0
+        return 0, {"version": VERSION}
     if args.command == "init":
+        if args.strict and not args.with_graph:
+            fail_usage("--strict 不能与 --no-graph 同时使用。")
+        if args.dry_run:
+            result = preview_init(root, with_graph=args.with_graph, strict=args.strict)
+            print(json.dumps(result, ensure_ascii=False, indent=2))
+            return 0, result
         result = init_project(root, refresh=False, interactive=args.interactive, setup_missing=args.setup_missing, with_graph=args.with_graph, strict=args.strict)
         print(f"已初始化 .project-intel，索引了 {result['manifest']['fileCount']} 个文本文件。")
         if result.get("agentFiles"):
             print("已维护项目级 Agent 入口：" + ", ".join(result["agentFiles"]))
         if result.get("legacyCleanup"):
             print("已清理旧版本地 skill 残留：" + ", ".join(result["legacyCleanup"]))
-        return 0
+        return 0, result
     if args.command == "refresh":
         ensure_initialized(root)
         result = init_project(root, refresh=True, with_graph=args.with_graph)
@@ -3896,7 +4095,7 @@ def main(argv: list[str]) -> int:
             print("已维护项目级 Agent 入口：" + ", ".join(result["agentFiles"]))
         if result.get("legacyCleanup"):
             print("已清理旧版本地 skill 残留：" + ", ".join(result["legacyCleanup"]))
-        return 0
+        return 0, result
     if args.command == "install":
         result = install_claude(root, hooks=args.hooks, activate_hooks=args.activate_git_hooks)
         print(f"已安装 Claude 适配器到 {result['claude']}")
@@ -3908,31 +4107,72 @@ def main(argv: list[str]) -> int:
             print(f"已生成钩子模板：{len(result['hookTemplates'])}")
         for item in result.get("hookResults", []):
             print(f"{item.get('hook')}：{item.get('status')} - {item.get('detail')}")
-        return 0
+        return 0, result
     if args.command == "check":
-        return run_check(root, args.run_quality)
+        code = run_check(root, args.run_quality)
+        return code, {"report": ".project-intel/reports/frontend-quality.md"}
     if args.command == "spec":
-        write_spec(root, args.title, args.requirement)
-        return 0
+        path = write_spec(root, args.title, args.requirement)
+        return 0, {"path": str(path)}
     if args.command == "plan":
-        write_plan(root, args.title, args.from_spec)
-        return 0
+        path = write_plan(root, args.title, args.from_spec)
+        return 0, {"path": str(path)}
     if args.command == "lifecycle":
-        write_lifecycle(root, args.task, write_report=args.write)
-        return 0
+        path = write_lifecycle(root, args.task, write_report=args.write)
+        return 0, {"path": str(path) if path else None}
     if args.command == "debug":
-        write_debug_context(root, args.bug, write_report=args.write)
-        return 0
+        path = write_debug_context(root, args.bug, write_report=args.write)
+        return 0, {"path": str(path) if path else None}
     if args.command == "maintain":
-        return maintain_project(root, args.task, args.run_quality, archive=args.archive, files=args.files)
+        code = maintain_project(root, args.task, args.run_quality, archive=args.archive, files=args.files)
+        return code, {"maintenance": ".project-intel/maintenance/latest.md"}
     if args.command == "requirements":
-        update_file_requirement_docs(root, args.task, args.files)
-        return 0
+        paths = update_file_requirement_docs(root, args.task, args.files)
+        return 0, {"paths": [str(path) for path in paths]}
     if args.command == "query":
-        return query_project(root, args.text)
+        code = query_project(root, args.text)
+        return code, {"query": args.text}
     if args.command == "graph-tools":
-        return report_graph_tools(root, as_json=args.json)
-    return 2
+        if json_mode:
+            tooling = detect_tooling(root, detect_package(root))
+            return 0, tooling.get("graphActions", [])
+        code = report_graph_tools(root, as_json=False)
+        return code, None
+    if args.command == "doctor":
+        result = doctor_report(root)
+        if not json_mode:
+            print(json.dumps(result, ensure_ascii=False, indent=2))
+        return 0, result
+    if args.command == "agent" and args.agent_command == "install":
+        code, result = install_agent_plugin(root, args.target, dry_run=args.dry_run)
+        if not json_mode:
+            for item in result["results"]:
+                print(f"{item.get('target')}：{item.get('status')} - {item.get('command') or item.get('detail')}")
+            if result.get("restartRequired"):
+                print("插件已安装；请启动新的 Codex/Claude Code 会话加载 skills。")
+        return code, result
+    return 2, None
+
+
+def main(argv: list[str]) -> int:
+    clean_argv, json_mode = extract_global_json(argv)
+    if "--version" in clean_argv and len(clean_argv) == 1:
+        if json_mode:
+            print(json.dumps(json_envelope("version", 0, {"version": VERSION}), ensure_ascii=False))
+        else:
+            print(VERSION)
+        return 0
+    parser = build_parser()
+    args = parser.parse_args(clean_argv)
+    root = project_root(args.project)
+    if not json_mode:
+        code, _ = dispatch_command(args, root, False)
+        return code
+    output = io.StringIO()
+    with contextlib.redirect_stdout(output):
+        code, result = dispatch_command(args, root, True)
+    print(json.dumps(json_envelope(args.command, code, result, output.getvalue()), ensure_ascii=False, indent=2, default=str))
+    return code
 
 
 if __name__ == "__main__":
