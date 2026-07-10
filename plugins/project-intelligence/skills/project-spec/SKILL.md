@@ -12,7 +12,7 @@ For implementation requests handled by `project-task`, do not force creation of 
 1. Read `.project-intel/manifest.json`, relevant standards, knowledge JSON, graph summary, and reports.
 2. Capture the requirement, impacted modules, reusable capabilities, standards, quality gates, and acceptance criteria.
 3. Keep unknowns explicit; do not invent hard rules from `candidate` findings.
-4. Generate the spec when useful:
+4. Generate the spec only when the user explicitly asks for a persistent requirements/spec document:
 
 ```bash
 python3 "${CLAUDE_PLUGIN_ROOT}/scripts/project_intel.py" spec --title "<title>" --from "<requirement>"
@@ -26,4 +26,4 @@ python3 "${CLAUDE_PLUGIN_ROOT}/scripts/project_intel.py" lifecycle --task "<requ
 
 This prints impact by default. Add `--write` only when the user explicitly wants `.project-intel/reports/task-impact.md`.
 
-Do not read or rely on `.cgraphx`.
+Base the spec on `.project-intel`, GitNexus context when available, Understand-Anything context when available, and direct source reads.

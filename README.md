@@ -2,7 +2,7 @@
 
 Project Intelligence 是一个本地的 Codex/Claude 兼容项目插件，用于生成和使用仓库级的需求文档、实施计划、规范、知识库、图谱上下文、系统化调试、质量检查、生命周期维护和审查指导。
 
-有意不集成 cgraphx。可用时优先使用 GitNexus 和 Understand-Anything 作为推荐的图谱来源。
+可用时优先使用 GitNexus 和 Understand-Anything 作为推荐的图谱来源。
 
 ## 安装
 
@@ -51,6 +51,7 @@ plugins/project-intelligence/scripts/project-intel --project /path/to/repo debug
 plugins/project-intelligence/scripts/project-intel --project /path/to/repo spec --title "功能" --from "需求"
 plugins/project-intelligence/scripts/project-intel --project /path/to/repo plan --title "功能" --from-spec .project-intel/specs/...
 plugins/project-intelligence/scripts/project-intel --project /path/to/repo refresh
+plugins/project-intelligence/scripts/project-intel --project /path/to/repo refresh --with-graph
 plugins/project-intelligence/scripts/project-intel --project /path/to/repo check
 plugins/project-intelligence/scripts/project-intel --project /path/to/repo maintain --task "摘要"
 plugins/project-intelligence/scripts/project-intel --project /path/to/repo install --hooks
@@ -59,12 +60,38 @@ plugins/project-intelligence/scripts/project-intel --project /path/to/repo query
 
 说明：
 
-- `init` 默认会检查 GitNexus 和 Understand-Anything。已安装且有可执行分析命令时会自动分析。
+- `init` 默认会检查 GitNexus 和 Understand-Anything。已安装且有可执行分析命令时会自动分析；缺失工具只输出建议，不会在非交互环境等待输入。
+- `init --interactive` 只在交互终端询问安装选择；`init --setup-missing` 只应在用户明确授权后使用。
+- `refresh` 默认只刷新当前项目事实并读取已有图谱产物；`refresh --with-graph` 才重新运行已安装的图谱分析器，且不会安装缺失工具。
 - `graph-tools --json` 可用于在非交互 agent 会话里先读取图谱工具状态，再由 agent 用中文向用户确认安装选择；当多个图谱动作可用时，应提供“全部”和组合选择。
 - 图谱工具未准备好但有支持的 setup 命令时，`init` 会询问是否继续。GitNexus 通常是 `npx gitnexus analyze` 这种“下载并运行分析”；Understand-Anything 会按当前环境安装到 Codex 或 Claude Code。
 - `init --setup-missing` 会跳过询问并直接运行支持的安装/初始化命令。
-- Understand-Anything 的 Codex 安装使用官方 `install.sh codex`；Claude Code 安装使用 `claude plugin marketplace add Lum1104/Understand-Anything` 和 `claude plugin install understand-anything@understand-anything`。
+- Understand-Anything 的 Codex 安装使用官方 `install.sh codex`；Claude Code 安装使用 `claude plugin marketplace add Egonex-AI/Understand-Anything` 和 `claude plugin install understand-anything@understand-anything`。
 - Understand-Anything 如果只能通过 agent slash command 使用，安装后需要重启 agent 并运行 `/understand . --language zh`，随后再运行 `refresh` 让 `.project-intel` 记录图谱元数据。
+- `check` 会执行结构化 hard 规则；纯文本 hard 规则标记为 `manual-review`。退出码 `0` 表示自动检查通过，`1` 表示自动 hard/质量检查失败，`2` 表示未初始化、配置或路径无效。
+
+结构化 hard 规则写在 `.project-intel/config.json`：
+
+```json
+{
+  "rules": {
+    "hard": [
+      {
+        "id": "no-direct-console",
+        "rule": "业务源码禁止直接使用 console.log",
+        "check": {
+          "type": "forbid-regex",
+          "pattern": "\\bconsole\\.log\\s*\\(",
+          "include": ["src/**"],
+          "exclude": ["**/*.test.*"]
+        }
+      }
+    ]
+  }
+}
+```
+
+支持 `forbid-regex`、`require-regex`、`require-file`、`forbid-path`。没有 `check` 的 hard 规则保留为人工审查项。
 
 ## Skills
 

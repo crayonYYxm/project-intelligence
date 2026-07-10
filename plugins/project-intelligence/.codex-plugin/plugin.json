@@ -1,16 +1,16 @@
 {
   "name": "project-intelligence",
-  "version": "0.1.11+codex.20260708092602",
+  "version": "0.1.12+codex.20260710090658",
   "description": "Project-level intelligence for specs, plans, standards, knowledge, graph context, systematic debugging, quality checks, lifecycle maintenance, and reuse guidance.",
   "author": {
-    "name": "Local developer"
+    "name": "crayonYYxm"
   },
   "skills": "./skills/",
   "interface": {
     "displayName": "Project Intelligence",
     "shortDescription": "Project specs, standards, knowledge, graph context, debugging, lifecycle maintenance, and review checks.",
-    "longDescription": "Project Intelligence initializes and refreshes a repository-local .project-intel knowledge base for project specs, implementation plans, standards, reusable frontend/backend patterns, optional GitNexus and Understand-Anything graph context, systematic debugging, quality checks, code review workflows, and post-task maintenance. Init checks optional graph tools, runs installed analysis commands automatically, and asks before installing missing supported tools. It intentionally does not integrate with cgraphx.",
-    "developerName": "Local developer",
+    "longDescription": "Project Intelligence maintains a repository-local .project-intel knowledge base for project specs, standards, reusable frontend/backend patterns, optional GitNexus and Understand-Anything graph context, systematic debugging, quality checks, code review workflows, and post-task maintenance. Init detects optional graph tools without blocking noninteractive agents, while refresh, check, and maintain remain predictable and side-effect controlled.",
+    "developerName": "crayonYYxm",
     "category": "Productivity",
     "capabilities": [
       "Read",
@@ -18,12 +18,9 @@
       "Analyze"
     ],
     "defaultPrompt": [
-      "Initialize project standards and knowledge with tooling checks.",
-      "Brainstorm this requirement and write a project spec.",
-      "Write an implementation plan from this spec.",
-      "Investigate this bug with project context.",
-      "Review this change with project intelligence.",
-      "Maintain project knowledge after this task."
+      "Initialize this repository's standards, knowledge, tooling, and graph context.",
+      "Implement this requirement using project standards, reuse, impact analysis, and maintenance.",
+      "Investigate or review this change with project context, hard rules, and quality checks."
     ],
     "brandColor": "#2563EB"
   }

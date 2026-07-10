@@ -22,6 +22,8 @@ python3 "${CLAUDE_PLUGIN_ROOT}/scripts/project_intel.py" check --run-quality
 
 Redundancy findings are `candidate` by default. They should inform refactoring and reuse discussions but should not block unless promoted by team policy.
 
+Structured `hard` checks can fail the command. Natural-language hard rules without a machine check appear as `manual-review`; review them explicitly without treating them as an automatic pass or failure.
+
 When a quality command fails, treat it as a debugging task: read the full failure output, generate debug context with `project-intel debug --bug "<failure>"`, and identify root cause before suggesting fixes.
 
-Do not use `.cgraphx`.
+Use `.project-intel` quality facts and the project's own configured quality commands.

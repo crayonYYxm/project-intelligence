@@ -24,4 +24,4 @@ Search with:
 python3 "${CLAUDE_PLUGIN_ROOT}/scripts/project_intel.py" query "<question>"
 ```
 
-Do not read or rely on `.cgraphx`.
+Prefer `.project-intel` facts, GitNexus context, Understand-Anything context, and direct source reads.

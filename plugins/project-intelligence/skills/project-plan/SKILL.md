@@ -10,10 +10,10 @@ Create plans that preserve project standards and are ready to execute.
 1. Start from the spec or requirement plus `.project-intel` facts.
 2. Include reuse checks before implementation steps.
 3. Include tests, quality commands, review, and post-task maintenance.
-4. Generate a plan file when a spec exists:
+4. Keep the implementation plan in context by default. Generate a plan file only when the user explicitly asks for a persistent plan and provides or requests a spec file:
 
 ```bash
 python3 "${CLAUDE_PLUGIN_ROOT}/scripts/project_intel.py" plan --title "<title>" --from-spec <spec-path>
 ```
 
-If there is no spec yet, create one first with `project-intel spec`. Do not read or rely on `.cgraphx`.
+If there is no persistent spec file, plan directly from the approved requirement. Do not create spec or plan files merely because the skill triggered.

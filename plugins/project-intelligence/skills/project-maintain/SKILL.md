@@ -27,4 +27,4 @@ Use `--run-quality` only when the user asks to run real lint/type/style/format c
 python3 "${CLAUDE_PLUGIN_ROOT}/scripts/project_intel.py" maintain --task "<中文简短需求摘要>" --files <changed-source-files> --run-quality
 ```
 
-Maintenance refreshes `.project-intel`, writes the latest maintenance report, updates file-level requirement records, runs `project-intel check`, and keeps redundancy findings at `candidate` unless a human promotes them. Do not read or rely on `.cgraphx`.
+Maintenance validates the Chinese task summary and affected files, refreshes `.project-intel` without installing or rerunning graph tools, runs `project-intel check`, then updates file-level requirement records and the latest maintenance report. Redundancy findings stay at `candidate` unless a human promotes them.

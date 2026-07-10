@@ -20,4 +20,4 @@ python3 "${CLAUDE_PLUGIN_ROOT}/scripts/project_intel.py" debug --bug "<bug or er
 6. Add a failing regression test or minimal reproduction before implementing the fix when the project supports tests.
 7. After the fix, run `project-intel check`; then run `project-intel maintain --task "<中文 bug 修复摘要>" --files <changed-source-files>`. `maintain` overwrites `.project-intel/maintenance/latest.md` by default and updates file-level Chinese requirement records; use `--archive` only when historical maintenance records are requested.
 
-Do not guess fixes, stack multiple changes, or read/rely on `.cgraphx`.
+Do not guess fixes or stack multiple changes.

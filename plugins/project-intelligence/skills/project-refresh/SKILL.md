@@ -16,6 +16,7 @@ python3 "${CLAUDE_PLUGIN_ROOT}/scripts/project_intel.py" init --no-graph
 python3 "${CLAUDE_PLUGIN_ROOT}/scripts/project_intel.py" init --interactive
 python3 "${CLAUDE_PLUGIN_ROOT}/scripts/project_intel.py" init --setup-missing
 python3 "${CLAUDE_PLUGIN_ROOT}/scripts/project_intel.py" refresh
+python3 "${CLAUDE_PLUGIN_ROOT}/scripts/project_intel.py" refresh --with-graph
 python3 "${CLAUDE_PLUGIN_ROOT}/scripts/project_intel.py" install
 python3 "${CLAUDE_PLUGIN_ROOT}/scripts/project_intel.py" install --hooks
 ```
@@ -26,7 +27,7 @@ python3 "${CLAUDE_PLUGIN_ROOT}/scripts/project_intel.py" install --hooks
 
 - `AGENTS.md` for Codex and other agents that read AGENTS conventions.
 - `CLAUDE.md` for Claude Code.
-- `.claude/CLAUDE.md` plus `.claude/skills/project-*/SKILL.md` for the Claude adapter.
+- `.claude/CLAUDE.md` for the Claude adapter. Skills are loaded from the installed plugin and are not copied into the project.
 
 Use managed Project Intelligence blocks in root entrypoint files so existing team instructions are preserved. These rules are required because skill triggering is not guaranteed; agents must still consult `.project-intel` even when no dedicated Project Intelligence skill fires.
 
@@ -36,11 +37,11 @@ Routine refresh/check commands should keep stable files rather than producing a 
 
 The managed entrypoint rules must distinguish tools from skills: Grep/Read/Edit/Bash are execution tools only, while Project Intelligence skills define the workflow. Keep task-to-skill routing explicit so implementation work uses `project-task`, bug investigation uses `project-debug`, review uses `project-review`, and completed work uses `project-maintain` even when the agent ultimately edits files with basic tools.
 
-The managed entrypoint rules must also handle conversation transitions: if a discussion/spec/plan turns into code changes, the agent must pause before the first `Edit`/`Write`, enter `project-task`, run impact/reuse analysis, and only then edit. After edits, it must inspect the diff, run project checks/maintenance, and use GitNexus change or impact tools when available. Do not recommend `cgraphx explore` or cgraphx `detect_changes`; this plugin does not use cgraphx.
+The managed entrypoint rules must also handle conversation transitions: if a discussion/spec/plan turns into code changes, the agent must pause before the first `Edit`/`Write`, enter `project-task`, run impact/reuse analysis, and only then edit. After edits, it must inspect the diff, run project checks/maintenance, and use GitNexus change or impact tools when available.
 
 When the user says `/understand . --language zh` completed, graph generation finished, or `.understand-anything/knowledge-graph.json` was updated, immediately run `project-intel refresh` without asking another confirmation. In Claude Code, prefer `/project-refresh` as the user-facing continuation; if the agent cannot issue slash commands programmatically, run the CLI refresh command directly.
 
-`init` checks optional tools such as GitNexus, Understand-Anything, Node/package managers, and quality commands. By default it runs installed graph analysis commands automatically and asks before preparing missing graph tools. In noninteractive agent shells, run `graph-tools --json` first and ask the user in Chinese before calling `init --setup-missing`.
+`init` checks optional tools such as GitNexus, Understand-Anything, Node/package managers, and quality commands. By default it runs installed graph analysis commands and only reports missing tools. `init --interactive` asks in a TTY; `init --setup-missing` installs only after approval. Plain `refresh` never installs or runs graph tools; use `refresh --with-graph` to rerun already-installed analyzers. In noninteractive agent shells, run `graph-tools --json` first and ask the user in Chinese before calling `init --setup-missing`.
 
 Understand-Anything behavior:
 
@@ -55,4 +56,4 @@ Understand-Anything behavior:
 
 When presenting choices, always include an “全部” option when more than one graph action is available, and accept combination answers such as `1,2` or `GitNexus + Understand-Anything`. If the user asks for “1 和 2” or “都要”, execute the shell-runnable setup first. If the remaining step is a Claude Code slash command, explain that shell code cannot inject it into the active prompt; tell the user to run `/reload-plugins`, then `/understand . --language zh`. Once they report completion, immediately refresh project intelligence.
 
-The CLI intentionally does not read `.cgraphx`.
+The CLI writes and refreshes `.project-intel` as the project fact layer.

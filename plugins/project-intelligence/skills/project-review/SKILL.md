@@ -24,4 +24,4 @@ Command:
 python3 "${CLAUDE_PLUGIN_ROOT}/scripts/project_intel.py" check
 ```
 
-Do not use `.cgraphx`.
+Use `.project-intel`, GitNexus impact context when available, Understand-Anything architecture context when available, and direct source reads.

@@ -1,6 +1,7 @@
 import importlib.util
 import io
 import json
+import subprocess
 import tempfile
 import unittest
 from contextlib import redirect_stdout
@@ -13,6 +14,21 @@ SPEC = importlib.util.spec_from_file_location("project_intel", MODULE_PATH)
 project_intel = importlib.util.module_from_spec(SPEC)
 assert SPEC and SPEC.loader
 SPEC.loader.exec_module(project_intel)
+
+
+class FileDiscoveryTests(unittest.TestCase):
+    def test_iter_files_excludes_hidden_paths(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "src").mkdir()
+            (root / "src" / "index.ts").write_text("export const ok = true;\n", encoding="utf-8")
+            (root / ".hidden" / "src").mkdir(parents=True)
+            (root / ".hidden" / "src" / "ignored.ts").write_text("export const ignored = true;\n", encoding="utf-8")
+
+            files = {path.relative_to(root).as_posix() for path in project_intel.iter_files(root)}
+
+            self.assertIn("src/index.ts", files)
+            self.assertNotIn(".hidden/src/ignored.ts", files)
 
 
 class HandleToolingSetupTests(unittest.TestCase):
@@ -61,11 +77,13 @@ class HandleToolingSetupTests(unittest.TestCase):
 
         with patch.object(project_intel, "print_tooling_summary"), patch.object(
             project_intel, "run_shell", return_value=(0, "ok", "")
-        ) as run_shell, patch("builtins.input", return_value="y"):
+        ) as run_shell, patch("builtins.input", return_value="y"), patch.object(
+            project_intel.sys.stdin, "isatty", return_value=True
+        ):
             result = project_intel.handle_tooling_setup(
                 Path("."),
                 tooling,
-                interactive=False,
+                interactive=True,
                 setup_missing=False,
                 with_graph=True,
             )
@@ -89,11 +107,13 @@ class HandleToolingSetupTests(unittest.TestCase):
 
         with patch.object(project_intel, "print_tooling_summary"), patch.object(
             project_intel, "run_shell"
-        ) as run_shell, patch("builtins.input", return_value="n"):
+        ) as run_shell, patch("builtins.input", return_value="n"), patch.object(
+            project_intel.sys.stdin, "isatty", return_value=True
+        ):
             result = project_intel.handle_tooling_setup(
                 Path("."),
                 tooling,
-                interactive=False,
+                interactive=True,
                 setup_missing=False,
                 with_graph=True,
             )
@@ -101,6 +121,52 @@ class HandleToolingSetupTests(unittest.TestCase):
         self.assertEqual(result[0]["tool"], "GitNexus")
         self.assertEqual(result[0]["status"], "skipped")
         run_shell.assert_not_called()
+
+    def test_noninteractive_init_never_waits_for_missing_tool_input(self):
+        tooling = {
+            "graphActions": [
+                {
+                    "tool": "GitNexus",
+                    "state": "installable",
+                    "reason": "符号级调用、影响分析、PR/变更风险",
+                    "installCommand": "npx gitnexus analyze",
+                    "canInstall": True,
+                }
+            ]
+        }
+
+        with patch.object(project_intel, "print_tooling_summary"), patch.object(
+            project_intel, "run_shell"
+        ) as run_shell, patch("builtins.input", side_effect=AssertionError("input should not be called")):
+            result = project_intel.handle_tooling_setup(
+                Path("."), tooling, interactive=False, setup_missing=False, with_graph=True
+            )
+
+        self.assertEqual(result, [])
+        run_shell.assert_not_called()
+
+    def test_interactive_flag_without_tty_degrades_without_input(self):
+        tooling = {
+            "graphActions": [
+                {
+                    "tool": "GitNexus",
+                    "state": "installable",
+                    "reason": "符号级调用、影响分析、PR/变更风险",
+                    "installCommand": "npx gitnexus analyze",
+                    "canInstall": True,
+                }
+            ]
+        }
+        output = io.StringIO()
+        with patch.object(project_intel, "print_tooling_summary"), patch.object(
+            project_intel.sys.stdin, "isatty", return_value=False
+        ), patch("builtins.input", side_effect=AssertionError("input should not be called")), redirect_stdout(output):
+            result = project_intel.handle_tooling_setup(
+                Path("."), tooling, interactive=True, setup_missing=False, with_graph=True
+            )
+
+        self.assertEqual(result, [])
+        self.assertIn("不是交互终端", output.getvalue())
 
     def test_init_runs_configured_understand_analysis(self):
         tooling = {
@@ -500,7 +566,7 @@ class AgentEntrypointInstallTests(unittest.TestCase):
             self.assertIn("project-review` or `project-intelligence:project-review", agents)
             self.assertIn("project-maintain` or `project-intelligence:project-maintain", agents)
             self.assertIn("GitNexus impact/explore/detect_changes", agents)
-            self.assertIn("do not use `cgraphx explore`", agents)
+            self.assertIn("project-intel lifecycle", agents)
             self.assertIn(project_intel.PROJECT_INTEL_BLOCK_START, claude)
             self.assertIn("/project-task", claude)
             self.assertIn("/project-task", nested)
@@ -514,6 +580,8 @@ class AgentEntrypointInstallTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             (root / "AGENTS.md").write_text("# Team Notes\n\nKeep this section.\n", encoding="utf-8")
+            (root / ".claude").mkdir()
+            (root / ".claude" / "CLAUDE.md").write_text("# Claude Team Notes\n\nKeep nested content.\n", encoding="utf-8")
 
             result = project_intel.install_claude(root)
 
@@ -529,7 +597,9 @@ class AgentEntrypointInstallTests(unittest.TestCase):
             self.assertIn("project-intelligence:*", agents)
             self.assertIn(project_intel.PROJECT_INTEL_BLOCK_START, claude)
             self.assertIn("/project-task", claude)
-            self.assertIn("Do not read or rely on `.cgraphx`", nested)
+            self.assertIn("GitNexus or Understand-Anything graph context", nested)
+            self.assertIn("Keep nested content.", nested)
+            self.assertEqual(nested.count(project_intel.PROJECT_INTEL_BLOCK_START), 1)
             self.assertIn(str(root / "AGENTS.md"), result["agentFiles"])
             self.assertIn(str(root / "CLAUDE.md"), result["agentFiles"])
             # Skills come from the plugin, not copied into the project
@@ -543,6 +613,22 @@ class AgentEntrypointInstallTests(unittest.TestCase):
 
             # Skills come from the plugin itself — no local copies needed
             self.assertFalse((root / ".claude" / "skills").exists())
+
+    def test_install_migrates_pure_legacy_nested_adapter_to_managed_block(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            nested = root / ".claude" / "CLAUDE.md"
+            nested.parent.mkdir()
+            nested.write_text(
+                "# 项目智能\n\n" + project_intel.claude_project_agent_rules() + "\n",
+                encoding="utf-8",
+            )
+
+            project_intel.install_claude(root)
+
+            body = nested.read_text(encoding="utf-8")
+            self.assertEqual(body.count(project_intel.PROJECT_INTEL_BLOCK_START), 1)
+            self.assertNotIn("# 项目智能", body)
 
     def test_install_updates_managed_agent_block_without_duplicates(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -598,24 +684,26 @@ class LifecycleArtifactTests(unittest.TestCase):
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
+            (root / ".project-intel").mkdir()
+            (root / ".project-intel" / "manifest.json").write_text("{}", encoding="utf-8")
             with patch.object(project_intel, "init_project", return_value=refresh_result), patch.object(
                 project_intel, "run_check", return_value=0
             ):
-                exit_code = project_intel.maintain_project(root, "first task", run_quality=False)
+                exit_code = project_intel.maintain_project(root, "首次维护任务", run_quality=False)
                 self.assertEqual(exit_code, 0)
                 latest = root / ".project-intel" / "maintenance" / "latest.md"
                 self.assertTrue(latest.exists())
-                self.assertIn("first task", latest.read_text(encoding="utf-8"))
+                self.assertIn("首次维护任务", latest.read_text(encoding="utf-8"))
                 self.assertEqual(list((root / ".project-intel" / "maintenance").glob("*-maintenance.md")), [])
 
-                project_intel.maintain_project(root, "second task", run_quality=False)
-                self.assertIn("second task", latest.read_text(encoding="utf-8"))
+                project_intel.maintain_project(root, "第二次维护任务", run_quality=False)
+                self.assertIn("第二次维护任务", latest.read_text(encoding="utf-8"))
                 self.assertEqual(list((root / ".project-intel" / "maintenance").glob("*-maintenance.md")), [])
 
-                project_intel.maintain_project(root, "archive task", run_quality=False, archive=True)
+                project_intel.maintain_project(root, "归档维护任务", run_quality=False, archive=True)
                 archives = list((root / ".project-intel" / "maintenance").glob("*-maintenance.md"))
                 self.assertEqual(len(archives), 1)
-                self.assertIn("archive task", archives[0].read_text(encoding="utf-8"))
+                self.assertIn("归档维护任务", archives[0].read_text(encoding="utf-8"))
 
     def test_file_requirements_use_one_markdown_per_source_file(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -648,6 +736,8 @@ class LifecycleArtifactTests(unittest.TestCase):
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
+            (root / ".project-intel").mkdir()
+            (root / ".project-intel" / "manifest.json").write_text("{}", encoding="utf-8")
             source = root / "src" / "page.vue"
             source.parent.mkdir(parents=True)
             source.write_text("<template />\n", encoding="utf-8")
@@ -672,6 +762,239 @@ class LifecycleArtifactTests(unittest.TestCase):
 
             with self.assertRaises(SystemExit):
                 project_intel.update_file_requirement_docs(root, "support selectable prepay amounts", ["src/page.vue"])
+
+
+class SafetyAndConfigTests(unittest.TestCase):
+    def test_requirement_paths_reject_parent_traversal_and_external_symlink(self):
+        with tempfile.TemporaryDirectory() as tmp, tempfile.TemporaryDirectory() as outside:
+            root = Path(tmp)
+            (root / "src").mkdir()
+            (root / "src" / "external").symlink_to(Path(outside), target_is_directory=True)
+
+            self.assertIsNone(project_intel.normalize_project_file(root, "src/../../../../../escaped.ts"))
+            self.assertIsNone(project_intel.normalize_project_file(root, "src/external/secret.ts"))
+            with self.assertRaises(SystemExit) as raised:
+                project_intel.update_file_requirement_docs(root, "拒绝越界需求路径", ["src/../../../../../escaped.ts"])
+            self.assertEqual(raised.exception.code, 2)
+
+    def test_invalid_config_is_preserved_and_blocks_init(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            config = root / ".project-intel" / "config.json"
+            config.parent.mkdir(parents=True)
+            broken = '{"rules": BROKEN_USER_RULE}'
+            config.write_text(broken, encoding="utf-8")
+
+            with self.assertRaises(SystemExit) as raised:
+                project_intel.init_project(root, with_graph=False)
+
+            self.assertEqual(raised.exception.code, 2)
+            self.assertEqual(config.read_text(encoding="utf-8"), broken)
+            self.assertFalse((root / ".project-intel" / "manifest.json").exists())
+
+    def test_atomic_write_replaces_content_and_leaves_no_temporary_file(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "nested" / "value.md"
+            project_intel.write_text(path, "first")
+            project_intel.write_text(path, "second")
+
+            self.assertEqual(path.read_text(encoding="utf-8"), "second\n")
+            self.assertEqual(list(path.parent.glob(f".{path.name}.*.tmp")), [])
+
+    def test_scan_config_controls_include_exclude_and_hidden_paths(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            for relative in ("src/keep.ts", "src/generated/skip.ts", "docs/skip.ts", ".hidden/skip.ts"):
+                path = root / relative
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text("export const value = true;\n", encoding="utf-8")
+            config = {
+                "scan": {
+                    "include": ["src/**"],
+                    "exclude": ["src/generated/**"],
+                    "excludeHidden": True,
+                }
+            }
+
+            files = {project_intel.rel(root, path) for path in project_intel.iter_files(root, config)}
+
+            self.assertEqual(files, {"src/keep.ts"})
+
+    def test_custom_backend_entrypoint_rule_is_applied(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source = root / "src" / "internal-action.ts"
+            source.parent.mkdir(parents=True)
+            source.write_text("registerInternalAction('sync-order', handler)\n", encoding="utf-8")
+            config = {
+                "backend": {
+                    "entrypointRules": [
+                        {"type": "regex", "pattern": r"registerInternalAction\s*\("}
+                    ]
+                }
+            }
+
+            backend = project_intel.scan_backend(root, [source], config)
+
+            self.assertEqual(len(backend["apis"]), 1)
+            self.assertIn("config:regex:1", backend["apis"][0]["signals"])
+
+    def test_invalid_hard_rule_regex_is_rejected(self):
+        config = {
+            "scan": {"include": ["**/*"], "exclude": [".git"], "excludeHidden": True},
+            "backend": {"entrypointRules": []},
+            "rules": {
+                "hard": [{"rule": "无效规则", "check": {"type": "forbid-regex", "pattern": "["}}],
+                "preferred": [],
+                "inferred": [],
+                "candidate": [],
+            },
+            "quality": {"commands": []},
+        }
+
+        with self.assertRaises(SystemExit) as raised:
+            project_intel.validate_project_config(config)
+
+        self.assertEqual(raised.exception.code, 2)
+
+    def test_refresh_preserves_manual_quality_commands(self):
+        existing = [
+            {"kind": "custom", "command": "make verify", "source": "manual"},
+            {"kind": "lint", "command": "npm run old-lint", "source": "package.json"},
+        ]
+        detected = [{"kind": "lint", "command": "npm run lint", "source": "package.json"}]
+
+        merged = project_intel.merge_quality_commands(existing, detected)
+
+        self.assertEqual([item["command"] for item in merged], ["make verify", "npm run lint"])
+
+
+class HardRuleAndQualityTests(unittest.TestCase):
+    def write_initialized_project(self, root, hard_rules, quality_commands=None):
+        pdir = root / ".project-intel"
+        (pdir / "knowledge").mkdir(parents=True)
+        (pdir / "reports").mkdir()
+        (pdir / "manifest.json").write_text('{"schemaVersion": 1}', encoding="utf-8")
+        config = {
+            "schemaVersion": 1,
+            "scan": {"include": ["**/*"], "exclude": [".git", ".project-intel"], "excludeHidden": True},
+            "backend": {"entrypointRules": []},
+            "rules": {"hard": hard_rules, "preferred": [], "inferred": [], "candidate": []},
+            "quality": {"commands": quality_commands or []},
+        }
+        (pdir / "config.json").write_text(json.dumps(config, ensure_ascii=False), encoding="utf-8")
+        (pdir / "knowledge" / "frontend.json").write_text("{}", encoding="utf-8")
+        (pdir / "knowledge" / "backend.json").write_text("{}", encoding="utf-8")
+
+    def test_hard_rules_fail_pass_and_mark_manual_review(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source = root / "src" / "main.ts"
+            source.parent.mkdir()
+            source.write_text("const forbiddenCall = true;\n", encoding="utf-8")
+            rules = [
+                "所有公共接口必须人工确认兼容性",
+                {
+                    "id": "no-forbidden-call",
+                    "rule": "禁止 forbiddenCall",
+                    "check": {"type": "forbid-regex", "pattern": "forbiddenCall", "include": ["src/**"]},
+                },
+                {
+                    "id": "require-const",
+                    "rule": "源码必须包含 const",
+                    "check": {"type": "require-regex", "pattern": r"\bconst\b", "include": ["src/**"]},
+                },
+            ]
+            self.write_initialized_project(root, rules)
+
+            exit_code = project_intel.run_check(root, run_quality=False)
+            report = (root / ".project-intel" / "reports" / "frontend-quality.md").read_text(encoding="utf-8")
+
+            self.assertEqual(exit_code, 1)
+            self.assertIn("manual-review", report)
+            self.assertIn("no-forbidden-call", report)
+            self.assertIn("src/main.ts:1", report)
+            self.assertIn("require-const", report)
+
+    def test_manual_hard_rule_does_not_fail_check(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            self.write_initialized_project(root, ["人工检查事务边界"])
+
+            self.assertEqual(project_intel.run_check(root, run_quality=False), 0)
+
+    def test_hard_path_checks_support_required_and_forbidden_paths(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "required.txt").write_text("ok\n", encoding="utf-8")
+            rules = [
+                {"id": "required", "rule": "必须有 required.txt", "check": {"type": "require-file", "path": "required.txt"}},
+                {"id": "forbidden", "rule": "禁止提交 secret 文件", "check": {"type": "forbid-path", "path": "**/secret.*"}},
+            ]
+            self.write_initialized_project(root, rules)
+
+            self.assertEqual(project_intel.run_check(root, run_quality=False), 0)
+            (root / "src").mkdir()
+            (root / "src" / "secret.txt").write_text("secret\n", encoding="utf-8")
+            self.assertEqual(project_intel.run_check(root, run_quality=False), 1)
+
+    def test_quality_report_contains_command_output(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            self.write_initialized_project(root, [], [{"kind": "lint", "command": "fake-lint"}])
+
+            with patch.object(project_intel, "run_shell", return_value=(1, "lint stdout detail", "lint stderr detail")):
+                exit_code = project_intel.run_check(root, run_quality=True)
+
+            report = (root / ".project-intel" / "reports" / "frontend-quality.md").read_text(encoding="utf-8")
+            self.assertEqual(exit_code, 1)
+            self.assertIn("lint stdout detail", report)
+            self.assertIn("lint stderr detail", report)
+
+    def test_check_requires_initialization(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            with self.assertRaises(SystemExit) as raised:
+                project_intel.run_check(Path(tmp), run_quality=False)
+            self.assertEqual(raised.exception.code, 2)
+
+
+class HookTests(unittest.TestCase):
+    def test_hook_activation_is_idempotent_and_does_not_run_maintain(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            subprocess.run(["git", "init"], cwd=root, check=True, capture_output=True)
+
+            first = project_intel.activate_git_hooks(root)
+            second = project_intel.activate_git_hooks(root)
+            body = (root / ".git" / "hooks" / "post-commit").read_text(encoding="utf-8")
+
+            self.assertEqual({item["status"] for item in first}, {"installed"})
+            self.assertEqual({item["status"] for item in second}, {"installed"})
+            self.assertIn(" refresh ", body)
+            self.assertIn(" check ", body)
+            self.assertNotIn(" maintain ", body)
+
+    def test_existing_custom_hook_is_preserved(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            subprocess.run(["git", "init"], cwd=root, check=True, capture_output=True)
+            target = root / ".git" / "hooks" / "post-commit"
+            target.write_text("#!/bin/sh\necho custom\n", encoding="utf-8")
+
+            results = project_intel.activate_git_hooks(root)
+
+            post_commit = next(item for item in results if item["hook"] == "post-commit")
+            self.assertEqual(post_commit["status"], "conflict")
+            self.assertIn("echo custom", target.read_text(encoding="utf-8"))
+            self.assertTrue((root / ".project-intel" / "hooks" / "post-commit.pending.sh").exists())
+
+    def test_git_hook_path_uses_git_rev_parse_result(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            hooks = root / "worktree-common" / "hooks"
+            hooks.mkdir(parents=True)
+            with patch.object(project_intel, "run", return_value=(0, str(hooks), "")):
+                self.assertEqual(project_intel.git_hooks_path(root), hooks.resolve())
 
 
 class SkillCommandPathTests(unittest.TestCase):
@@ -704,6 +1027,70 @@ class SkillCommandPathTests(unittest.TestCase):
         body = project_intel.hook_script_body("post-commit")
         self.assertNotIn("/Users/xumeng/plugins", body)
         self.assertIn(str(MODULE_PATH.resolve()), body)
+
+
+class CliAndReleaseContractTests(unittest.TestCase):
+    def test_refresh_only_runs_graph_when_explicitly_requested(self):
+        result = {"manifest": {"fileCount": 0}, "agentFiles": [], "legacyCleanup": []}
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / ".project-intel").mkdir()
+            (root / ".project-intel" / "manifest.json").write_text("{}", encoding="utf-8")
+            with patch.object(project_intel, "init_project", return_value=result) as init_project:
+                self.assertEqual(project_intel.main(["--project", str(root), "refresh"]), 0)
+                init_project.assert_called_once_with(root.resolve(), refresh=True, with_graph=False)
+            with patch.object(project_intel, "init_project", return_value=result) as init_project:
+                self.assertEqual(project_intel.main(["--project", str(root), "refresh", "--with-graph"]), 0)
+                init_project.assert_called_once_with(root.resolve(), refresh=True, with_graph=True)
+
+    def test_cli_smoke_lifecycle(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source = root / "src" / "index.ts"
+            source.parent.mkdir()
+            source.write_text("export const answer = 42;\n", encoding="utf-8")
+            base = [project_intel.sys.executable, str(MODULE_PATH), "--project", str(root)]
+
+            for args in (
+                ["init", "--no-graph"],
+                ["check"],
+                ["refresh"],
+                ["maintain", "--task", "完成稳定性维护", "--files", "src/index.ts"],
+            ):
+                completed = subprocess.run(base + args, text=True, capture_output=True)
+                self.assertEqual(completed.returncode, 0, completed.stderr + completed.stdout)
+
+    def test_versions_prompts_and_publisher_are_consistent(self):
+        plugin_root = MODULE_PATH.parents[1]
+        claude = json.loads((plugin_root / ".claude-plugin" / "plugin.json").read_text(encoding="utf-8"))
+        codex = json.loads((plugin_root / ".codex-plugin" / "plugin.json").read_text(encoding="utf-8"))
+
+        self.assertEqual(project_intel.VERSION, "0.1.12")
+        self.assertEqual(claude["version"], project_intel.VERSION)
+        self.assertEqual(codex["version"].split("+")[0], project_intel.VERSION)
+        self.assertLessEqual(len(codex["interface"]["defaultPrompt"]), 3)
+        self.assertEqual(codex["author"]["name"], "crayonYYxm")
+        self.assertEqual(codex["interface"]["developerName"], "crayonYYxm")
+
+    def test_skills_only_persist_specs_and_plans_on_explicit_request(self):
+        skills = MODULE_PATH.parents[1] / "skills"
+        brainstorm = (skills / "project-brainstorm" / "SKILL.md").read_text(encoding="utf-8")
+        plan = (skills / "project-plan" / "SKILL.md").read_text(encoding="utf-8")
+        refresh = (skills / "project-refresh" / "SKILL.md").read_text(encoding="utf-8")
+
+        self.assertIn("only when the user explicitly asks", brainstorm)
+        self.assertIn("Do not create spec or plan files merely because the skill triggered", plan)
+        self.assertNotIn(".claude/skills/project-*", refresh)
+
+    def test_release_sources_do_not_contain_removed_integration_name(self):
+        repo_root = MODULE_PATH.parents[3]
+        plugin_root = MODULE_PATH.parents[1]
+        banned = "cgraph" + "x"
+        files = [repo_root / "README.md"] + list(plugin_root.rglob("*"))
+        for path in files:
+            if not path.is_file() or "__pycache__" in path.parts or path.name == "plugin-intro-teal.html":
+                continue
+            self.assertNotIn(banned, path.read_text(encoding="utf-8", errors="ignore").lower(), str(path))
 
 
 class InferStandardsTests(unittest.TestCase):

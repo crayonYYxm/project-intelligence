@@ -19,7 +19,7 @@ Use this sequence:
 6. Use Understand-Anything for architecture, module, and domain-flow context when available.
 7. Before the first code edit, run impact/reuse analysis with GitNexus impact/explore tools when available; otherwise use `.project-intel`, `project-intel query "<symbol-or-feature>"`, or `project-intel lifecycle --task "<requirement>"`. `lifecycle` prints by default; use `--write` only when the user explicitly wants a persistent task-impact report.
 8. If implementation reveals a bug, error, test failure, or regression, switch to `project-debug` before proposing fixes.
-9. Do not read or rely on `.cgraphx`; do not use `cgraphx explore` as a fallback for this plugin.
+9. Use `.project-intel`, GitNexus, Understand-Anything, and direct source reads as the task context sources.
 
 If `.project-intel` is missing or stale, run:
 

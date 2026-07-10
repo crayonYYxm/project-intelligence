@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Project Intelligence CLI.
 
-This v1 intentionally avoids cgraphx. It creates a repository-local
-.project-intel directory with lightweight project facts, standards, knowledge,
-reports, and optional references to GitNexus / Understand-Anything artifacts.
+This CLI creates a repository-local .project-intel directory with lightweight
+project facts, standards, knowledge, reports, and optional references to
+GitNexus / Understand-Anything artifacts.
 """
 
 from __future__ import annotations
@@ -22,7 +22,7 @@ from pathlib import Path
 from typing import Any, Optional
 
 
-VERSION = "0.1.11"
+VERSION = "0.1.12"
 UNDERSTAND_AGENT_COMMAND = "/understand . --language zh"
 UNDERSTAND_REPO = "Egonex-AI/Understand-Anything"
 UNDERSTAND_CODEX_INSTALL_COMMAND = "curl -fsSL https://raw.githubusercontent.com/Egonex-AI/Understand-Anything/main/install.sh | bash -s codex"
@@ -40,6 +40,9 @@ PROJECT_INTEL_BLOCK_START = "<!-- project-intelligence:start -->"
 PROJECT_INTEL_BLOCK_END = "<!-- project-intelligence:end -->"
 AGENT_PROJECT_INTEL_BLOCK_START = "<!-- agent-project-intelligence:start -->"
 AGENT_PROJECT_INTEL_BLOCK_END = "<!-- agent-project-intelligence:end -->"
+PROJECT_INTEL_HOOK_MARKER = "# Project Intelligence hook"
+LEGACY_SCAN_INCLUDE = ["src/**", "app/**", "packages/**", "apps/**", "server/**", "client/**"]
+HARD_CHECK_TYPES = {"forbid-regex", "require-regex", "require-file", "forbid-path"}
 # v0.1.7 及更早版本会把 skill 副本写入目标项目，以下常量仅用于清理这些残留。
 LEGACY_LOCAL_SKILLS_BLOCK_START = "<!-- local-project-skills:start -->"
 LEGACY_LOCAL_SKILLS_BLOCK_END = "<!-- local-project-skills:end -->"
@@ -62,7 +65,6 @@ EXCLUDED_DIRS = {
     ".idea",
     ".vscode",
     ".claude",
-    ".cgraphx",
     ".project-intel",
     ".project-intel/cache",
     ".project-intel/tmp",
@@ -186,13 +188,26 @@ def read_text(path: Path, max_bytes: int = 500_000) -> str:
 
 
 def write_json(path: Path, data: Any) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    write_text(path, json.dumps(data, ensure_ascii=False, indent=2))
 
 
 def write_text(path: Path, text: str) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(text.rstrip() + "\n", encoding="utf-8")
+    content = text.rstrip() + "\n"
+    mode = path.stat().st_mode & 0o777 if path.exists() else 0o644
+    temporary = path.with_name(f".{path.name}.{os.getpid()}.tmp")
+    try:
+        with temporary.open("w", encoding="utf-8") as handle:
+            handle.write(content)
+            handle.flush()
+            os.fsync(handle.fileno())
+        temporary.chmod(mode)
+        os.replace(temporary, path)
+    finally:
+        try:
+            temporary.unlink()
+        except FileNotFoundError:
+            pass
 
 
 def upsert_managed_block_with_markers(path: Path, block: str, start: str, end: str, prepend: bool = False) -> None:
@@ -226,7 +241,7 @@ def remove_managed_block_with_markers(path: Path, start: str, end: str) -> bool:
         re.DOTALL,
     )
     next_text = pattern.sub("", current).strip()
-    path.write_text(next_text + "\n" if next_text else "", encoding="utf-8")
+    write_text(path, next_text)
     return True
 
 
@@ -258,10 +273,27 @@ def load_json(path: Path, default: Any) -> Any:
         return default
 
 
+def fail_usage(message: str) -> None:
+    print(message, file=sys.stderr)
+    raise SystemExit(2)
+
+
+def load_json_strict(path: Path, label: str) -> dict[str, Any]:
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except OSError as exc:
+        fail_usage(f"无法读取{label}：{path}（{exc}）")
+    except json.JSONDecodeError as exc:
+        fail_usage(f"{label}格式错误，原文件未修改：{path}:{exc.lineno}:{exc.colno} {exc.msg}")
+    if not isinstance(payload, dict):
+        fail_usage(f"{label}必须是 JSON 对象，原文件未修改：{path}")
+    return payload
+
+
 def project_root(arg: str | None) -> Path:
     root = Path(arg or os.getcwd()).expanduser().resolve()
     if not root.exists() or not root.is_dir():
-        raise SystemExit(f"项目路径不是目录：{root}")
+        fail_usage(f"项目路径不是目录：{root}")
     return root
 
 
@@ -276,24 +308,98 @@ def rel(root: Path, path: Path) -> str:
         return path.as_posix()
 
 
-def is_excluded(root: Path, path: Path) -> bool:
-    parts = path.relative_to(root).parts if path.is_absolute() else path.parts
-    joined = "/".join(parts)
-    if any(part in EXCLUDED_DIRS for part in parts):
+def path_matches_pattern(rel_path: str, pattern: str) -> bool:
+    normalized = pattern.strip().replace("\\", "/").removeprefix("./").rstrip("/")
+    rel_path = rel_path.replace("\\", "/").removeprefix("./").rstrip("/")
+    if not normalized:
+        return False
+    brace = re.search(r"\{([^{}]+)}", normalized)
+    if brace:
+        return any(
+            path_matches_pattern(rel_path, normalized[: brace.start()] + option.strip() + normalized[brace.end() :])
+            for option in brace.group(1).split(",")
+            if option.strip()
+        )
+    if normalized in {"**", "**/*", "*"}:
         return True
-    return any(joined.startswith(ex + "/") or joined == ex for ex in EXCLUDED_DIRS)
+    if not any(char in normalized for char in "*?["):
+        return rel_path == normalized or rel_path.startswith(normalized + "/") or normalized in Path(rel_path).parts
+    regex = ""
+    idx = 0
+    while idx < len(normalized):
+        char = normalized[idx]
+        if char == "*" and idx + 1 < len(normalized) and normalized[idx + 1] == "*":
+            idx += 2
+            if idx < len(normalized) and normalized[idx] == "/":
+                regex += "(?:.*/)?"
+                idx += 1
+            else:
+                regex += ".*"
+            continue
+        if char == "*":
+            regex += "[^/]*"
+        elif char == "?":
+            regex += "[^/]"
+        else:
+            regex += re.escape(char)
+        idx += 1
+    return bool(re.fullmatch(regex, rel_path))
 
 
-def iter_files(root: Path) -> list[Path]:
+def path_matches_any(rel_path: str, patterns: list[str]) -> bool:
+    return any(path_matches_pattern(rel_path, pattern) for pattern in patterns)
+
+
+def scan_settings(config: Optional[dict[str, Any]] = None) -> tuple[list[str], list[str], bool]:
+    scan = (config or {}).get("scan", {}) if isinstance(config, dict) else {}
+    includes = scan.get("include") if isinstance(scan, dict) else None
+    excludes = scan.get("exclude") if isinstance(scan, dict) else None
+    exclude_hidden = scan.get("excludeHidden", True) if isinstance(scan, dict) else True
+    return list(includes or ["**/*"]), list(excludes or sorted(EXCLUDED_DIRS)), bool(exclude_hidden)
+
+
+def is_excluded(root: Path, path: Path, config: Optional[dict[str, Any]] = None) -> bool:
+    try:
+        parts = path.relative_to(root).parts if path.is_absolute() else path.parts
+    except ValueError:
+        return True
+    joined = "/".join(parts)
+    _, excludes, exclude_hidden = scan_settings(config)
+    if exclude_hidden and any(part.startswith(".") and part not in {".", ".."} for part in parts):
+        return True
+    return path_matches_any(joined, excludes)
+
+
+def iter_project_files(root: Path, config: Optional[dict[str, Any]] = None, text_only: bool = True) -> list[Path]:
+    includes, _, _ = scan_settings(config)
+    root_resolved = root.resolve()
     files: list[Path] = []
-    for path in root.rglob("*"):
-        if path.is_dir():
-            continue
-        if is_excluded(root, path):
-            continue
-        if path.suffix.lower() in TEXT_SUFFIXES:
+    for current, dirnames, filenames in os.walk(root):
+        current_path = Path(current)
+        dirnames[:] = [
+            name
+            for name in dirnames
+            if not is_excluded(root, current_path / name, config)
+        ]
+        for name in filenames:
+            path = current_path / name
+            try:
+                path.resolve().relative_to(root_resolved)
+            except (OSError, ValueError):
+                continue
+            if is_excluded(root, path, config):
+                continue
+            rel_path = rel(root, path)
+            if not path_matches_any(rel_path, includes):
+                continue
+            if text_only and path.suffix.lower() not in TEXT_SUFFIXES:
+                continue
             files.append(path)
-    return files
+    return sorted(files, key=lambda path: rel(root, path))
+
+
+def iter_files(root: Path, config: Optional[dict[str, Any]] = None) -> list[Path]:
+    return iter_project_files(root, config=config, text_only=True)
 
 
 def git_info(root: Path) -> dict[str, Any]:
@@ -838,26 +944,6 @@ def print_graph_tools_report(tooling: dict[str, Any], as_json: bool = False) -> 
         print(f"   命令：{command}")
 
 
-def setup_missing_tools(root: Path, tooling: dict[str, Any], with_graph: bool = False) -> list[dict[str, Any]]:
-    results: list[dict[str, Any]] = []
-    for action in tooling.get("recommendedActions", []):
-        tool = action.get("tool")
-        if not action.get("canRun"):
-            results.append({"tool": tool, "status": "skipped", "detail": f"未检测到可运行的 {tool} 命令。"})
-            continue
-        if action.get("installOptions"):
-            option = choose_install_option(action, auto_approve=True)
-            if option:
-                results.extend(run_install_option(root, action, option))
-            continue
-        command = action.get("command") or ("npx gitnexus analyze" if tool == "GitNexus" else None)
-        if not command:
-            results.append({"tool": tool, "status": "skipped", "detail": f"未检测到可运行的 {tool} 命令。"})
-            continue
-        results.append(run_graph_command(root, action, command))
-    return results
-
-
 def run_graph_command(root: Path, action: dict[str, Any], command: str) -> dict[str, Any]:
     code, out, err = run_shell(command, root, timeout=300)
     return {
@@ -1056,12 +1142,29 @@ def setup_graph_tools(root: Path, tooling: dict[str, Any], auto_approve: bool = 
     return results
 
 
+def tooling_with_graph_actions(tooling: dict[str, Any], actions: list[dict[str, Any]]) -> dict[str, Any]:
+    subset = dict(tooling)
+    subset["graphActions"] = actions
+    return subset
+
+
 def handle_tooling_setup(root: Path, tooling: dict[str, Any], interactive: bool, setup_missing: bool, with_graph: bool) -> list[dict[str, Any]]:
-    if tooling_has_missing_optional(tooling):
-        print_tooling_summary(tooling)
     if not with_graph:
         return []
-    return setup_graph_tools(root, tooling, auto_approve=setup_missing)
+    if tooling_has_missing_optional(tooling):
+        print_tooling_summary(tooling)
+    actions = tooling.get("graphActions", [])
+    installed = [action for action in actions if action.get("analyzeCommand")]
+    pending = [action for action in actions if not action.get("analyzeCommand")]
+    results = setup_graph_tools(root, tooling_with_graph_actions(tooling, installed), auto_approve=True) if installed else []
+    if setup_missing and pending:
+        results.extend(setup_graph_tools(root, tooling_with_graph_actions(tooling, pending), auto_approve=True))
+    elif interactive and pending:
+        if sys.stdin.isatty():
+            results.extend(setup_graph_tools(root, tooling_with_graph_actions(tooling, pending), auto_approve=False))
+        else:
+            print("当前不是交互终端，已跳过缺失图谱工具安装；可先运行 graph-tools --json 再确认安装。")
+    return results
 
 
 def extract_object_argument_blocks(text: str, function_name: str) -> list[str]:
@@ -1496,7 +1599,19 @@ def scan_frontend(root: Path, files: list[Path]) -> dict[str, Any]:
     }
 
 
-def scan_backend(root: Path, files: list[Path]) -> dict[str, Any]:
+def match_backend_entrypoint_rules(path: str, text: str, config: Optional[dict[str, Any]]) -> list[str]:
+    rules = (config or {}).get("backend", {}).get("entrypointRules", [])
+    matches: list[str] = []
+    for idx, rule in enumerate(rules):
+        rule_type = rule.get("type")
+        pattern = rule.get("pattern", "")
+        matched = path_matches_pattern(path, pattern) if rule_type == "path" else bool(re.search(pattern, text))
+        if matched:
+            matches.append(f"config:{rule_type}:{idx + 1}")
+    return matches
+
+
+def scan_backend(root: Path, files: list[Path], config: Optional[dict[str, Any]] = None) -> dict[str, Any]:
     apis: list[dict[str, Any]] = []
     services: list[dict[str, Any]] = []
     data_types: list[dict[str, Any]] = []
@@ -1523,13 +1638,14 @@ def scan_backend(root: Path, files: list[Path]) -> dict[str, Any]:
         )
         decorators = re.findall(r"@(Controller|Get|Post|Put|Delete|Patch|Injectable|MessagePattern|Cron)\b", text)
         route_signal_values = flatten_regex_hits(route_signals + decorators)
+        configured_entrypoints = match_backend_entrypoint_rules(rp, text, config)
         framework = detect_backend_framework(rp, text)
-        if route_signals or decorators:
+        if route_signals or decorators or configured_entrypoints:
             apis.append(
                 {
                     "path": rp,
                     "framework": framework,
-                    "signals": sorted(set(route_signal_values))[:20],
+                    "signals": sorted(set(route_signal_values + configured_entrypoints))[:20],
                     "endpoints": extract_backend_endpoints(text),
                     "methods": extract_backend_methods(text, suffix)[:20],
                 }
@@ -1592,7 +1708,7 @@ def scan_backend(root: Path, files: list[Path]) -> dict[str, Any]:
             error_codes.append({"path": rp, "signals": error_code_signals, "level": "candidate"})
         if re.search(r"(^|/)(utils?|common|helpers?|support)/", lower) and suffix in BACKEND_SUFFIXES:
             utilities.append({"name": path.stem, "path": rp, "exports": extract_exported_functions(text) or extract_backend_methods(text, suffix)[:30]})
-        if not (route_signals or decorators) and re.search(r"(handler|endpoint|facade|adapter|action)", lower):
+        if not (route_signals or decorators or configured_entrypoints) and re.search(r"(handler|endpoint|facade|adapter|action)", lower):
             entrypoint_candidates.append({"path": rp, "reason": "路径/名称暗示非标准入口点", "level": "candidate"})
     return {
         "apis": apis,
@@ -1725,21 +1841,21 @@ def build_manifest(root: Path, files: list[Path], package: dict[str, Any], graph
             "recommendedActions": len(tooling.get("recommendedActions", [])),
         },
         "notes": [
-            "project-intelligence 不读取或集成 .cgraphx 数据。",
             "可用时优先使用 GitNexus 和 Understand-Anything 作为图谱来源。",
         ],
     }
 
 
-def default_config(root: Path, package: dict[str, Any]) -> dict[str, Any]:
+def default_config(root: Path, package: dict[str, Any], tooling: Optional[dict[str, Any]] = None) -> dict[str, Any]:
     return {
         "schemaVersion": 1,
         "scan": {
-            "include": ["src/**", "app/**", "packages/**", "apps/**", "server/**", "client/**"],
+            "include": ["**/*"],
             "exclude": sorted(EXCLUDED_DIRS),
+            "excludeHidden": True,
         },
         "quality": {"commands": detect_quality_commands(root, package)},
-        "tooling": detect_tooling(root, package),
+        "tooling": tooling if tooling is not None else detect_tooling(root, package),
         "backend": {
             "entrypointRules": [
                 {"type": "annotation", "pattern": "@RestController|@Controller|@RequestMapping|@GetMapping|@PostMapping|@MessageListener|@Scheduled"},
@@ -1749,6 +1865,159 @@ def default_config(root: Path, package: dict[str, Any]) -> dict[str, Any]:
         },
         "rules": {"hard": [], "preferred": [], "inferred": [], "candidate": []},
     }
+
+
+def validate_string_list(value: Any, field: str, allow_empty: bool = False) -> list[str]:
+    if (
+        not isinstance(value, list)
+        or (not value and not allow_empty)
+        or not all(isinstance(item, str) and item.strip() for item in value)
+    ):
+        fail_usage(f"配置项 {field} 必须是非空字符串数组。")
+    return [item.strip() for item in value]
+
+
+def validate_relative_pattern(pattern: str, field: str) -> None:
+    candidate = Path(pattern)
+    if candidate.is_absolute() or ".." in candidate.parts:
+        fail_usage(f"配置项 {field} 只能使用项目内相对模式：{pattern}")
+
+
+def validate_project_config(config: dict[str, Any]) -> None:
+    scan = config.get("scan", {})
+    if not isinstance(scan, dict):
+        fail_usage("配置项 scan 必须是 JSON 对象。")
+    includes = validate_string_list(scan.get("include", ["**/*"]), "scan.include")
+    excludes = validate_string_list(scan.get("exclude", sorted(EXCLUDED_DIRS)), "scan.exclude", allow_empty=True)
+    if not isinstance(scan.get("excludeHidden", True), bool):
+        fail_usage("配置项 scan.excludeHidden 必须是布尔值。")
+    for idx, pattern in enumerate(includes):
+        validate_relative_pattern(pattern, f"scan.include[{idx}]")
+    for idx, pattern in enumerate(excludes):
+        validate_relative_pattern(pattern, f"scan.exclude[{idx}]")
+
+    backend = config.get("backend", {})
+    if not isinstance(backend, dict):
+        fail_usage("配置项 backend 必须是 JSON 对象。")
+    entrypoint_rules = backend.get("entrypointRules", [])
+    if not isinstance(entrypoint_rules, list):
+        fail_usage("配置项 backend.entrypointRules 必须是数组。")
+    for idx, rule in enumerate(entrypoint_rules):
+        if not isinstance(rule, dict):
+            fail_usage(f"backend.entrypointRules[{idx}] 必须是 JSON 对象。")
+        rule_type = rule.get("type")
+        pattern = rule.get("pattern")
+        if rule_type not in {"annotation", "call", "path", "regex"}:
+            fail_usage(f"backend.entrypointRules[{idx}].type 不受支持：{rule_type}")
+        if not isinstance(pattern, str) or not pattern.strip():
+            fail_usage(f"backend.entrypointRules[{idx}].pattern 必须是非空字符串。")
+        if rule_type == "path":
+            validate_relative_pattern(pattern, f"backend.entrypointRules[{idx}].pattern")
+        else:
+            try:
+                re.compile(pattern)
+            except re.error as exc:
+                fail_usage(f"backend.entrypointRules[{idx}] 正则无效：{exc}")
+
+    rules = config.get("rules", {})
+    if not isinstance(rules, dict):
+        fail_usage("配置项 rules 必须是 JSON 对象。")
+    for level in ("hard", "preferred", "inferred", "candidate"):
+        if not isinstance(rules.get(level, []), list):
+            fail_usage(f"配置项 rules.{level} 必须是数组。")
+    for idx, rule in enumerate(rules.get("hard", [])):
+        if isinstance(rule, str):
+            continue
+        if not isinstance(rule, dict):
+            fail_usage(f"rules.hard[{idx}] 必须是字符串或 JSON 对象。")
+        check = rule.get("check")
+        if check is None:
+            continue
+        if not isinstance(check, dict):
+            fail_usage(f"rules.hard[{idx}].check 必须是 JSON 对象。")
+        check_type = check.get("type")
+        if check_type not in HARD_CHECK_TYPES:
+            fail_usage(f"rules.hard[{idx}].check.type 不受支持：{check_type}")
+        field = "pattern" if check_type in {"forbid-regex", "require-regex"} else "path"
+        value = check.get(field)
+        if not isinstance(value, str) or not value.strip():
+            fail_usage(f"rules.hard[{idx}].check.{field} 必须是非空字符串。")
+        if field == "pattern":
+            try:
+                re.compile(value)
+            except re.error as exc:
+                fail_usage(f"rules.hard[{idx}].check.pattern 正则无效：{exc}")
+        else:
+            validate_relative_pattern(value, f"rules.hard[{idx}].check.path")
+        for list_field in ("include", "exclude"):
+            if list_field in check:
+                patterns = validate_string_list(
+                    check[list_field],
+                    f"rules.hard[{idx}].check.{list_field}",
+                    allow_empty=list_field == "exclude",
+                )
+                for pattern_idx, pattern in enumerate(patterns):
+                    validate_relative_pattern(pattern, f"rules.hard[{idx}].check.{list_field}[{pattern_idx}]")
+
+    quality = config.get("quality", {})
+    if not isinstance(quality, dict):
+        fail_usage("配置项 quality 必须是 JSON 对象。")
+    commands = quality.get("commands", [])
+    if not isinstance(commands, list):
+        fail_usage("配置项 quality.commands 必须是数组。")
+    for idx, command in enumerate(commands):
+        if not isinstance(command, dict) or not isinstance(command.get("command"), str) or not command.get("command", "").strip():
+            fail_usage(f"quality.commands[{idx}] 必须包含非空 command 字段。")
+    timeout = quality.get("timeoutSeconds", 120)
+    if not isinstance(timeout, int) or timeout <= 0:
+        fail_usage("配置项 quality.timeoutSeconds 必须是正整数。")
+
+
+def merge_quality_commands(existing: list[dict[str, Any]], detected: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    manual = [item for item in existing if item.get("source") not in {"package.json", "inferred"}]
+    merged: list[dict[str, Any]] = []
+    seen = set()
+    for item in manual + detected:
+        command = item.get("command")
+        if command and command not in seen:
+            merged.append(item)
+            seen.add(command)
+    return merged
+
+
+def prepare_project_config(root: Path, package: dict[str, Any], tooling: dict[str, Any]) -> dict[str, Any]:
+    path = project_dir(root) / "config.json"
+    defaults = default_config(root, package, tooling)
+    if not path.exists():
+        config = defaults
+    else:
+        config = load_json_strict(path, "项目智能配置")
+        validate_project_config(config)
+        config.setdefault("schemaVersion", 1)
+        scan = config.setdefault("scan", defaults["scan"])
+        if scan.get("include") == LEGACY_SCAN_INCLUDE:
+            scan["include"] = ["**/*"]
+        scan.setdefault("include", ["**/*"])
+        scan.setdefault("exclude", sorted(EXCLUDED_DIRS))
+        scan.setdefault("excludeHidden", True)
+        config.setdefault("backend", defaults["backend"])
+        config.setdefault("rules", defaults["rules"])
+        quality = config.setdefault("quality", {})
+        quality["commands"] = merge_quality_commands(quality.get("commands", []), detect_quality_commands(root, package))
+        config["tooling"] = tooling
+    validate_project_config(config)
+    return config
+
+
+def read_project_config(root: Path) -> dict[str, Any]:
+    path = project_dir(root) / "config.json"
+    if not path.exists():
+        fail_usage("未找到 .project-intel/config.json。请先运行 project-intel init。")
+    config = load_json_strict(path, "项目智能配置")
+    validate_project_config(config)
+    if config.get("scan", {}).get("include") == LEGACY_SCAN_INCLUDE:
+        config["scan"]["include"] = ["**/*"]
+    return config
 
 
 def dominant_parent(paths: list[str], min_ratio: float = 0.8) -> Optional[tuple[str, int, int]]:
@@ -2450,10 +2719,12 @@ def standards_docs(data: dict[str, Any]) -> dict[str, str]:
 
 规则等级：
 
-- `hard`：已确认的规则，会导致 `project-intel check` 失败
+- `hard`：已确认的必守规则；带结构化 `check` 的规则自动验证，失败时 `project-intel check` 返回非零
 - `preferred`：稳定的项目约定
 - `inferred`：扫描器推断，需要人工审查
 - `candidate`：非阻塞建议
+
+纯文本 `hard` 规则会在质量报告中标记为 `manual-review`，由 Agent/评审人员核对，不会被 CLI 误判为自动通过或失败。
 
 ## 检测到的命令
 
@@ -2584,20 +2855,15 @@ def table(headers: list[str], rows: list[list[Any]]) -> str:
 def init_project(root: Path, refresh: bool = False, interactive: bool = False, setup_missing: bool = False, with_graph: bool = True, strict: bool = False) -> dict[str, Any]:
     package = detect_package(root)
     tooling = detect_tooling(root, package)
+    config = prepare_project_config(root, package, tooling)
     setup_results = handle_tooling_setup(root, tooling, interactive=interactive, setup_missing=setup_missing, with_graph=with_graph)
     if setup_results:
         tooling = detect_tooling(root, package)
-    files = iter_files(root)
-    graph_sources = detect_graph_sources(root)
-    config_path = project_dir(root) / "config.json"
-    config = load_json(config_path, None)
-    if not config:
-        config = default_config(root, package)
-    else:
-        config.setdefault("quality", {})["commands"] = detect_quality_commands(root, package)
         config["tooling"] = tooling
+    files = iter_files(root, config)
+    graph_sources = detect_graph_sources(root)
     frontend = scan_frontend(root, files)
-    backend = scan_backend(root, files)
+    backend = scan_backend(root, files, config)
     rules = config.setdefault("rules", {"hard": [], "preferred": [], "inferred": [], "candidate": []})
     rules["inferred"] = infer_standards(frontend, backend)
     manifest = build_manifest(root, files, package, graph_sources, tooling)
@@ -2651,12 +2917,9 @@ def ensure_gitignore(root: Path) -> None:
     existing = read_text(path) if path.exists() else ""
     missing = [item for item in additions if item not in existing]
     if missing:
-        with path.open("a", encoding="utf-8") as handle:
-            if existing and not existing.endswith("\n"):
-                handle.write("\n")
-            handle.write("\n# Project Intelligence cache\n")
-            for item in missing:
-                handle.write(item + "\n")
+        next_text = existing.rstrip() + ("\n\n" if existing.strip() else "") + "# Project Intelligence cache\n"
+        next_text += "\n".join(missing)
+        write_text(path, next_text)
 
 
 def build_init_report(root: Path, manifest: dict[str, Any], frontend: dict[str, Any], backend: dict[str, Any], config: dict[str, Any], tooling: dict[str, Any]) -> str:
@@ -2771,7 +3034,7 @@ def build_tooling_report(tooling: dict[str, Any], setup_results: list[dict[str, 
 
 def ensure_initialized(root: Path) -> None:
     if not (project_dir(root) / "manifest.json").exists():
-        init_project(root, refresh=False)
+        fail_usage("未找到 .project-intel/manifest.json。请先运行 project-intel init。")
 
 
 def load_project_snapshot(root: Path) -> dict[str, Any]:
@@ -2779,7 +3042,7 @@ def load_project_snapshot(root: Path) -> dict[str, Any]:
     pdir = project_dir(root)
     return {
         "manifest": load_json(pdir / "manifest.json", {}),
-        "config": load_json(pdir / "config.json", {}),
+        "config": read_project_config(root),
         "frontend": load_json(pdir / "knowledge" / "frontend.json", {}),
         "backend": load_json(pdir / "knowledge" / "backend.json", {}),
         "graph": load_json(pdir / "graph" / "project-graph.json", {}),
@@ -2823,7 +3086,6 @@ def build_spec_doc(root: Path, title: str, requirement: str, snapshot: dict[str,
 
 - 添加新抽象前，复用已有的组件、Hook、请求工具、服务和领域模式。
 - 冗余发现默认为 `candidate`，除非升级为 `hard`。
-- 不要读取或依赖 `.cgraphx`。
 
 ## 质量门禁
 
@@ -2885,7 +3147,7 @@ def build_plan_doc(root: Path, title: str, spec_path: Path, spec_text: str, snap
 def write_plan(root: Path, title: str, from_spec: str) -> Path:
     spec_path = resolve_input_path(root, from_spec)
     if not spec_path.exists():
-        raise SystemExit(f"需求文档文件不存在：{spec_path}")
+        fail_usage(f"需求文档文件不存在：{spec_path}")
     snapshot = load_project_snapshot(root)
     spec_text = read_text(spec_path)
     path = project_dir(root) / "plans" / spec_filename(title, "plan")
@@ -3008,7 +3270,7 @@ def build_debug_doc(root: Path, bug: str, snapshot: dict[str, Any]) -> str:
 - `.project-intel/graph/project-graph.json`
 - `.project-intel/reports/tooling-report.md`
 
-可用时使用 GitNexus 获取调用链、影响和变更代码风险。可用时使用 Understand-Anything 获取架构/领域上下文。不要读取或依赖 `.cgraphx`。
+可用时使用 GitNexus 获取调用链、影响和变更代码风险。可用时使用 Understand-Anything 获取架构/领域上下文。
 """
 
 
@@ -3034,15 +3296,14 @@ def normalize_requirement_summary(task: str) -> str:
 
 
 def normalize_project_file(root: Path, value: str | Path) -> Optional[str]:
+    root_resolved = root.resolve()
     path = Path(value).expanduser()
-    if path.is_absolute():
-        try:
-            rel_path = path.resolve().relative_to(root.resolve())
-        except ValueError:
-            return None
-    else:
-        rel_path = Path(path.as_posix())
-    if str(rel_path).startswith(".."):
+    candidate = path.resolve() if path.is_absolute() else (root_resolved / path).resolve()
+    try:
+        rel_path = candidate.relative_to(root_resolved)
+    except ValueError:
+        return None
+    if not rel_path.parts or ".." in rel_path.parts:
         return None
     return rel_path.as_posix()
 
@@ -3073,7 +3334,12 @@ def changed_requirement_files(root: Path) -> list[str]:
 
 
 def requirement_doc_path(root: Path, rel_path: str) -> Path:
-    return project_dir(root) / "requirements" / "files" / Path(rel_path + ".md")
+    base_path = project_dir(root) / "requirements" / "files"
+    base = base_path.resolve()
+    path = (base_path / Path(rel_path + ".md")).resolve()
+    if path != base and base not in path.parents:
+        fail_usage(f"需求记录路径越出项目目录：{rel_path}")
+    return base_path / Path(rel_path + ".md")
 
 
 def build_file_requirement_doc(rel_path: str, task: str, current: str = "") -> str:
@@ -3095,16 +3361,25 @@ def build_file_requirement_doc(rel_path: str, task: str, current: str = "") -> s
 """
 
 
-def update_file_requirement_docs(root: Path, task: str, files: Optional[list[str]] = None) -> list[Path]:
+def resolve_requirement_files(root: Path, task: str, files: Optional[list[str]] = None) -> list[str]:
     selected = files if files is not None else changed_requirement_files(root)
     rel_paths = []
+    invalid = []
     for item in selected:
         rel_path = normalize_project_file(root, item)
         if rel_path and should_track_requirement_file(rel_path):
             rel_paths.append(rel_path)
+        elif files is not None:
+            invalid.append(str(item))
     rel_paths = sorted(dict.fromkeys(rel_paths))
+    if invalid:
+        fail_usage("以下源码路径无效、越出项目目录或不允许记录：" + ", ".join(invalid))
     if rel_paths and task and not contains_cjk(task):
-        raise SystemExit("文件需求沉淀要求使用中文需求描述；请用 --task 传入中文摘要。")
+        fail_usage("文件需求沉淀要求使用中文需求描述；请用 --task 传入中文摘要。")
+    return rel_paths
+
+
+def write_file_requirement_docs(root: Path, task: str, rel_paths: list[str]) -> list[Path]:
     written = []
     for rel_path in rel_paths:
         path = requirement_doc_path(root, rel_path)
@@ -3112,7 +3387,13 @@ def update_file_requirement_docs(root: Path, task: str, files: Optional[list[str
         written.append(path)
     if written:
         print(f"已更新文件级需求记录：{len(written)} 个文件")
-    elif files is not None:
+    return written
+
+
+def update_file_requirement_docs(root: Path, task: str, files: Optional[list[str]] = None) -> list[Path]:
+    rel_paths = resolve_requirement_files(root, task, files)
+    written = write_file_requirement_docs(root, task, rel_paths)
+    if not written and files is not None:
         print("未更新文件级需求记录：没有可记录的源码文件。")
     return written
 
@@ -3122,6 +3403,7 @@ def build_maintenance_report(root: Path, task: str, refresh_result: dict[str, An
     frontend = refresh_result.get("frontend", {})
     backend = refresh_result.get("backend", {})
     requirement_rows = [[rel(root, path).removeprefix(".project-intel/requirements/files/").removesuffix(".md"), rel(root, path)] for path in requirement_docs]
+    requirement_summary = table(["源码文件", "需求记录"], requirement_rows) if requirement_rows else "_本次没有提供或检测到可记录的源码文件，因此未更新文件级需求记录。_"
     return f"""# 维护报告
 
 生成时间：`{now_iso()}`
@@ -3147,16 +3429,20 @@ def build_maintenance_report(root: Path, task: str, refresh_result: dict[str, An
 
 ## 文件级需求沉淀
 
-{table(["源码文件", "需求记录"], requirement_rows)}
+{requirement_summary}
 
 详情请查看 `.project-intel/reports/frontend-quality.md`。
 """
 
 
 def maintain_project(root: Path, task: str, run_quality: bool, archive: bool = False, files: Optional[list[str]] = None) -> int:
-    requirement_docs = update_file_requirement_docs(root, task, files)
-    refresh_result = init_project(root, refresh=True)
+    ensure_initialized(root)
+    if not contains_cjk(task):
+        fail_usage("项目维护要求使用中文任务摘要；请用 --task 传入中文摘要。")
+    requirement_files = resolve_requirement_files(root, task, files)
+    refresh_result = init_project(root, refresh=True, with_graph=False)
     check_exit = run_check(root, run_quality=run_quality)
+    requirement_docs = write_file_requirement_docs(root, task, requirement_files)
     if archive:
         path = project_dir(root) / "maintenance" / spec_filename(task, "maintenance")
     else:
@@ -3168,7 +3454,7 @@ def maintain_project(root: Path, task: str, run_quality: bool, archive: bool = F
 
 def hook_script_body(hook_name: str) -> str:
     return f"""#!/bin/sh
-# 项目智能钩子：{hook_name}
+{PROJECT_INTEL_HOOK_MARKER}: {hook_name}
 
 if [ "${{PROJECT_INTEL_SKIP_HOOKS:-0}}" = "1" ]; then
   exit 0
@@ -3176,7 +3462,8 @@ fi
 
 SCRIPT="{script_path()}"
 if command -v python3 >/dev/null 2>&1 && [ -f "$SCRIPT" ]; then
-  PROJECT_INTEL_SKIP_HOOKS=1 python3 "$SCRIPT" maintain --task "git hook: {hook_name}" >/dev/null 2>&1 || true
+  PROJECT_INTEL_SKIP_HOOKS=1 python3 "$SCRIPT" refresh >/dev/null 2>&1 || true
+  PROJECT_INTEL_SKIP_HOOKS=1 python3 "$SCRIPT" check >/dev/null 2>&1 || true
 fi
 """
 
@@ -3205,10 +3492,19 @@ def write_hook_templates(root: Path) -> list[Path]:
     return written
 
 
+def git_hooks_path(root: Path) -> Optional[Path]:
+    code, out, _ = run(["git", "rev-parse", "--git-path", "hooks"], root, timeout=20)
+    if code == 0 and out:
+        path = Path(out).expanduser()
+        return path.resolve() if path.is_absolute() else (root / path).resolve()
+    fallback = root / ".git" / "hooks"
+    return fallback if fallback.exists() else None
+
+
 def activate_git_hooks(root: Path) -> list[dict[str, Any]]:
-    git_hooks = root / ".git" / "hooks"
+    git_hooks = git_hooks_path(root)
     results = []
-    if not git_hooks.exists() or not git_hooks.is_dir():
+    if git_hooks is None or not git_hooks.exists() or not git_hooks.is_dir():
         return [{"hook": "*", "status": "skipped", "detail": "未找到 .git/hooks 目录。"}]
     git_hooks.mkdir(parents=True, exist_ok=True)
     for hook_name in ("post-merge", "post-commit", "pre-push"):
@@ -3216,7 +3512,7 @@ def activate_git_hooks(root: Path) -> list[dict[str, Any]]:
         body = hook_script_body(hook_name)
         if target.exists():
             existing = read_text(target)
-            if "Project Intelligence hook" not in existing:
+            if PROJECT_INTEL_HOOK_MARKER not in existing:
                 pending = project_dir(root) / "hooks" / f"{hook_name}.pending.sh"
                 write_text(pending, body)
                 try:
@@ -3293,8 +3589,6 @@ Before implementing, debugging, reviewing, planning, writing specs, answering co
 11. For review, inspect diff plus `.project-intel` standards/knowledge/graph context and report findings by severity before summaries.
 12. Use `--run-quality` only when real lint/type/style/format checks should run.
 13. If GitNexus or Understand-Anything graph context is available, use it for impact analysis and architecture/domain relationships.
-14. Do not read or rely on `.cgraphx`; do not use `cgraphx explore` or cgraphx `detect_changes` as a Project Intelligence fallback.
-
 Stable generated files are preferred for routine runs: refresh/tooling/quality reports are overwritten in place, `debug` and `lifecycle` only print unless `--write` is passed, `maintain` writes `maintenance/latest.md` unless `--archive` is passed, and file-level requirements are maintained as one concise Chinese markdown per source file.
 
 Useful CLI fallbacks: `project-intel query`, `project-intel refresh`, `project-intel check`, `project-intel spec`, `project-intel plan`, `project-intel debug`, `project-intel requirements`, and `project-intel maintain`."""
@@ -3343,58 +3637,161 @@ def install_claude(root: Path, hooks: bool = False, activate_hooks: bool = False
     legacy_cleanup = cleanup_legacy_local_skills(root)
     agent_rules = claude_project_agent_rules()
     agent_files = write_agent_entrypoints(root)
-    write_text(
-        claude / "CLAUDE.md",
-        f"""# 项目智能
-
-{agent_rules}
-""",
-    )
+    nested = claude / "CLAUDE.md"
+    legacy_generated = f"# 项目智能\n\n{agent_rules}".strip()
+    if read_text(nested).strip() == legacy_generated:
+        write_text(nested, "")
+    upsert_managed_block(nested, agent_rules)
     hook_templates = write_hook_templates(root) if hooks or activate_hooks else []
     hook_results = activate_git_hooks(root) if activate_hooks else []
     return {
         "claude": str(claude),
-        "agentFiles": agent_files + [str(claude / "CLAUDE.md")],
+        "agentFiles": agent_files + [str(nested)],
         "hookTemplates": [str(path) for path in hook_templates],
         "hookResults": hook_results,
         "legacyCleanup": legacy_cleanup,
     }
 
 
+def hard_rule_text(rule: Any, index: int) -> tuple[str, str]:
+    if isinstance(rule, str):
+        return f"hard-{index + 1}", rule
+    return str(rule.get("id") or f"hard-{index + 1}"), str(rule.get("rule") or rule.get("description") or "未命名 hard 规则")
+
+
+def selected_hard_rule_files(root: Path, config: dict[str, Any], check: dict[str, Any]) -> list[Path]:
+    includes = check.get("include") or ["**/*"]
+    excludes = check.get("exclude") or []
+    return [
+        path
+        for path in iter_files(root, config)
+        if path_matches_any(rel(root, path), includes) and not path_matches_any(rel(root, path), excludes)
+    ]
+
+
+def run_hard_rule_checks(root: Path, config: dict[str, Any]) -> list[dict[str, Any]]:
+    results: list[dict[str, Any]] = []
+    for index, rule in enumerate(config.get("rules", {}).get("hard", [])):
+        rule_id, description = hard_rule_text(rule, index)
+        check = rule.get("check") if isinstance(rule, dict) else None
+        if not check:
+            results.append({"id": rule_id, "rule": description, "status": "manual-review", "evidence": "未配置机器检查条件"})
+            continue
+        check_type = check["type"]
+        if check_type in {"forbid-regex", "require-regex"}:
+            regex = re.compile(check["pattern"])
+            matches: list[str] = []
+            for path in selected_hard_rule_files(root, config, check):
+                body = read_text(path)
+                match = regex.search(body)
+                if match:
+                    line = body.count("\n", 0, match.start()) + 1
+                    matches.append(f"{rel(root, path)}:{line}")
+                    if len(matches) >= 20:
+                        break
+            failed = bool(matches) if check_type == "forbid-regex" else not matches
+            evidence = ", ".join(matches) if matches else "未找到匹配"
+        else:
+            matched_paths = []
+            for path in root.glob(check["path"]):
+                try:
+                    resolved = path.resolve()
+                    resolved.relative_to(root.resolve())
+                except (OSError, ValueError):
+                    continue
+                matched_paths.append(rel(root, resolved))
+                if len(matched_paths) >= 20:
+                    break
+            failed = not matched_paths if check_type == "require-file" else bool(matched_paths)
+            evidence = ", ".join(matched_paths) if matched_paths else "未找到匹配路径"
+        results.append(
+            {
+                "id": rule_id,
+                "rule": description,
+                "status": "failed" if failed else "passed",
+                "evidence": evidence,
+            }
+        )
+    return results
+
+
+def markdown_command_output(result: dict[str, Any]) -> str:
+    stdout = str(result.get("stdout") or "").replace("```", "`` `")
+    stderr = str(result.get("stderr") or "").replace("```", "`` `")
+    sections = [f"### {result.get('kind') or 'command'}", "", f"命令：`{result.get('command')}`", ""]
+    if stdout:
+        sections.extend(["stdout：", "", "```text", stdout, "```", ""])
+    if stderr:
+        sections.extend(["stderr：", "", "```text", stderr, "```", ""])
+    if not stdout and not stderr:
+        sections.append("_命令没有输出。_")
+    return "\n".join(sections).rstrip()
+
+
 def run_check(root: Path, run_quality: bool) -> int:
+    ensure_initialized(root)
     pdir = project_dir(root)
-    manifest = load_json(pdir / "manifest.json", {})
-    config = load_json(pdir / "config.json", {})
+    config = read_project_config(root)
     frontend = load_json(pdir / "knowledge" / "frontend.json", {})
     backend = load_json(pdir / "knowledge" / "backend.json", {})
-    if not manifest:
-        init_project(root, refresh=False)
-        manifest = load_json(pdir / "manifest.json", {})
-        config = load_json(pdir / "config.json", {})
-        frontend = load_json(pdir / "knowledge" / "frontend.json", {})
-        backend = load_json(pdir / "knowledge" / "backend.json", {})
+    hard_results = run_hard_rule_checks(root, config)
     quality_results: list[dict[str, Any]] = []
-    exit_code = 0
+    exit_code = 1 if any(item.get("status") == "failed" for item in hard_results) else 0
+    commands = config.get("quality", {}).get("commands", [])
+    timeout = config.get("quality", {}).get("timeoutSeconds", 120)
     if run_quality:
-        for item in config.get("quality", {}).get("commands", []):
+        for item in commands:
             cmd = item.get("command", "")
-            code, out, err = run_shell(cmd, root, timeout=120)
+            code, out, err = run_shell(cmd, root, timeout=timeout)
             quality_results.append({"kind": item.get("kind"), "command": cmd, "exitCode": code, "stdout": out[-4000:], "stderr": err[-4000:]})
             if code != 0:
                 exit_code = 1
-    write_text(pdir / "reports" / "frontend-quality.md", build_quality_report(quality_results, frontend, backend))
+    report = build_quality_report(
+        quality_results,
+        frontend,
+        backend,
+        hard_results=hard_results,
+        configured_commands=len(commands),
+        run_quality=run_quality,
+    )
+    write_text(pdir / "reports" / "frontend-quality.md", report)
     print(f"项目智能检查完成：{pdir / 'reports' / 'frontend-quality.md'}")
     return exit_code
 
 
-def build_quality_report(results: list[dict[str, Any]], frontend: dict[str, Any], backend: dict[str, Any]) -> str:
+def build_quality_report(
+    results: list[dict[str, Any]],
+    frontend: dict[str, Any],
+    backend: dict[str, Any],
+    hard_results: Optional[list[dict[str, Any]]] = None,
+    configured_commands: int = 0,
+    run_quality: bool = False,
+) -> str:
     rows = [[r.get("kind"), r.get("command"), r.get("exitCode")] for r in results]
+    hard_rows = [[r.get("id"), r.get("rule"), r.get("status"), r.get("evidence")] for r in (hard_results or [])]
     redundancy = frontend.get("redundancyCandidates", [])
+    if rows:
+        command_summary = table(["类型", "命令", "退出码"], rows)
+    elif configured_commands and not run_quality:
+        command_summary = f"_检测到 {configured_commands} 条质量命令，本次未使用 `--run-quality`，因此没有执行。_"
+    else:
+        command_summary = "_项目未配置可运行的质量命令。_"
+    outputs = "\n\n".join(markdown_command_output(result) for result in results) or "_本次没有命令输出。_"
     return f"""# 质量报告
+
+## Hard 规范
+
+{table(["ID", "规则", "状态", "证据"], hard_rows)}
+
+`failed` 会导致检查失败；`manual-review` 必须由 Agent/评审人员核对，但不会被 CLI 误判为失败。
 
 ## 命令
 
-{table(["类型", "命令", "退出码"], rows) if rows else "_已检测到质量命令但未运行，或未配置任何命令。_"}
+{command_summary}
+
+## 命令输出
+
+{outputs}
 
 ## 冗余
 
@@ -3408,8 +3805,7 @@ def build_quality_report(results: list[dict[str, Any]], frontend: dict[str, Any]
 def query_project(root: Path, text: str) -> int:
     pdir = project_dir(root)
     if not (pdir / "manifest.json").exists():
-        print("未找到 .project-intel。请先运行 project-intel init。")
-        return 1
+        fail_usage("未找到 .project-intel。请先运行 project-intel init。")
     needle = text.lower()
     matches: list[tuple[str, str]] = []
     docs = list((pdir / "standards").glob("*.md")) + list((pdir / "reports").glob("*.md")) + list((pdir / "requirements").rglob("*.md"))
@@ -3442,12 +3838,13 @@ def main(argv: list[str]) -> int:
     parser.add_argument("--project", help="项目根目录，默认为当前目录。")
     sub = parser.add_subparsers(dest="command", required=True)
     init = sub.add_parser("init", help="初始化 .project-intel")
-    init.add_argument("--interactive", action="store_true", help="兼容参数；init 默认会在缺失图谱工具时询问")
+    init.add_argument("--interactive", action="store_true", help="在交互终端询问是否准备缺失图谱工具")
     init.add_argument("--setup-missing", action="store_true", help="对缺失的可选图谱工具跳过询问并运行支持的安装/初始化命令")
-    init.add_argument("--with-graph", action="store_true", default=True, help="启用图谱工具检查、安装询问和已安装工具自动分析，默认启用")
+    init.add_argument("--with-graph", action="store_true", default=True, help="检查图谱工具并运行已安装的分析器，默认启用")
     init.add_argument("--no-graph", dest="with_graph", action="store_false", help="跳过图谱工具初始化")
     init.add_argument("--strict", action="store_true", help="--with-graph 未产生任何图谱来源时失败")
-    sub.add_parser("refresh", help="从当前工作区刷新 .project-intel")
+    refresh = sub.add_parser("refresh", help="从当前工作区刷新 .project-intel")
+    refresh.add_argument("--with-graph", action="store_true", help="刷新前运行已安装的图谱分析器；不会安装缺失工具")
     install = sub.add_parser("install", help="安装 Claude 兼容的项目入口")
     install.add_argument("--hooks", action="store_true", help="在 .project-intel/hooks 下生成可选的 Git 钩子模板")
     install.add_argument("--activate-git-hooks", action="store_true", help="将项目智能包装器安装到 .git/hooks（不覆盖自定义钩子）")
@@ -3492,7 +3889,8 @@ def main(argv: list[str]) -> int:
             print("已清理旧版本地 skill 残留：" + ", ".join(result["legacyCleanup"]))
         return 0
     if args.command == "refresh":
-        result = init_project(root, refresh=True)
+        ensure_initialized(root)
+        result = init_project(root, refresh=True, with_graph=args.with_graph)
         print(f"已刷新 .project-intel，索引了 {result['manifest']['fileCount']} 个文本文件。")
         if result.get("agentFiles"):
             print("已维护项目级 Agent 入口：" + ", ".join(result["agentFiles"]))
