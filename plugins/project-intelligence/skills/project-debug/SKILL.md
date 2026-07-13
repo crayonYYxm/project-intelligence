@@ -18,6 +18,7 @@ project-intel debug --bug "<bug or error>"
 4. Complete root-cause investigation before fixes: read the full error, reproduce, inspect recent changes, trace data/control flow, compare with working project examples, then state one testable hypothesis.
 5. Use GitNexus for call chains, impact, changed-code risk, and “what calls this” questions when available. Use Understand-Anything for architecture/domain context.
 6. Add a failing regression test or minimal reproduction before implementing the fix when the project supports tests.
-7. After the fix, run `project-intel check`; then run `project-intel maintain --task "<中文 bug 修复摘要>" --files <changed-source-files>`. `maintain` overwrites `.project-intel/maintenance/latest.md` by default and updates file-level Chinese requirement records; use `--archive` only when historical maintenance records are requested.
+7. Test exactly one hypothesis at a time. If three fix attempts fail or the symptom moves without a clear explanation, stop changing code and re-check the architecture, assumptions, inputs, environment, and reproduction path.
+8. After the fix, run `project-intel check`; then run the concrete verification that proves the original symptom no longer occurs. Only after fresh evidence, run `project-intel maintain --task "<中文 bug 修复摘要>" --files <changed-source-files>`. `maintain` overwrites `.project-intel/maintenance/latest.md` by default and updates file-level Chinese requirement records; use `--archive` only when historical maintenance records are requested.
 
 Do not guess fixes or stack multiple changes.

@@ -1249,13 +1249,18 @@ agent rule:
             </article>
             <article class="timeline-step reveal">
               <span class="step-num">05</span>
-              <h3>Review</h3>
-              <p>结合 diff、规范、图谱、质量结果和测试缺口输出 findings。</p>
+              <h3>Orchestrate</h3>
+              <p>可拆分任务才启用子代理：顺序实现、任务级 review、最终 review；并行只做只读调查。</p>
             </article>
             <article class="timeline-step reveal">
               <span class="step-num">06</span>
+              <h3>Review</h3>
+              <p>结合 diff、规范、图谱、质量结果和测试缺口输出 findings；反馈先验证再修改。</p>
+            </article>
+            <article class="timeline-step reveal">
+              <span class="step-num">07</span>
               <h3>Maintain</h3>
-              <p>任务后 refresh/check/maintain，让项目知识库跟着代码更新。</p>
+              <p>有本轮验证证据后再 refresh/check/maintain，让项目知识库跟着代码更新。</p>
             </article>
           </div>
         </div>
@@ -1354,7 +1359,11 @@ agent rule:
             </div>
             <div class="prompt-row reveal">
               <code>帮我做这个需求</code>
-              <span>进入 `project-task`：先整理轻量中文 spec，查影响面和复用候选，再实现，最后 check + maintain。</span>
+              <span>进入 `project-task`：先整理轻量中文 spec，查影响面和复用候选，再选择 inline 或 `project-orchestrate`，最后验证 + check + maintain。</span>
+            </div>
+            <div class="prompt-row reveal">
+              <code>这个计划拆给子代理执行</code>
+              <span>进入 `project-orchestrate`：只在任务边界清晰时使用，生成紧凑交接、任务级 review 和最终 whole-diff review。</span>
             </div>
             <div class="prompt-row reveal">
               <code>帮我查询这个 bug</code>

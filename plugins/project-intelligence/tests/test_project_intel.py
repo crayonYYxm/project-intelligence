@@ -564,11 +564,14 @@ class AgentEntrypointInstallTests(unittest.TestCase):
             self.assertIn("state which Project Intelligence workflow is being followed", agents)
             self.assertIn("project-task` or `project-intelligence:project-task", agents)
             self.assertIn("project-review` or `project-intelligence:project-review", agents)
+            self.assertIn("project-orchestrate` or `project-intelligence:project-orchestrate", agents)
+            self.assertIn("fresh evidence", agents)
             self.assertIn("project-maintain` or `project-intelligence:project-maintain", agents)
             self.assertIn("GitNexus impact/explore/detect_changes", agents)
             self.assertIn("project-intel lifecycle", agents)
             self.assertIn(project_intel.PROJECT_INTEL_BLOCK_START, claude)
             self.assertIn("/project-task", claude)
+            self.assertIn("/project-orchestrate", claude)
             self.assertIn("/project-task", nested)
             self.assertIn(str(root / "AGENTS.md"), result["agentFiles"])
             self.assertIn(str(root / "CLAUDE.md"), result["agentFiles"])
@@ -1063,7 +1066,7 @@ class CliAndReleaseContractTests(unittest.TestCase):
         codex = json.loads((plugin_root / ".codex-plugin" / "plugin.json").read_text(encoding="utf-8"))
         npm = json.loads((repo_root / "package.json").read_text(encoding="utf-8"))
 
-        self.assertEqual(project_intel.VERSION, "0.1.14")
+        self.assertEqual(project_intel.VERSION, "0.1.15")
         self.assertEqual(claude["version"], project_intel.VERSION)
         self.assertEqual(codex["version"].split("+")[0], project_intel.VERSION)
         self.assertEqual(npm["version"], project_intel.VERSION)
@@ -1071,6 +1074,15 @@ class CliAndReleaseContractTests(unittest.TestCase):
         self.assertLessEqual(len(codex["interface"]["defaultPrompt"]), 3)
         self.assertEqual(codex["author"]["name"], "crayonYYxm")
         self.assertEqual(codex["interface"]["developerName"], "crayonYYxm")
+
+    def test_project_orchestrate_skill_is_packaged(self):
+        plugin_root = MODULE_PATH.parents[1]
+        skill = plugin_root / "skills" / "project-orchestrate" / "SKILL.md"
+        text = skill.read_text(encoding="utf-8")
+
+        self.assertIn("name: project-orchestrate", text)
+        self.assertIn("sequential-subagents", text)
+        self.assertIn("fresh evidence", text)
 
     def test_skills_only_persist_specs_and_plans_on_explicit_request(self):
         skills = MODULE_PATH.parents[1] / "skills"

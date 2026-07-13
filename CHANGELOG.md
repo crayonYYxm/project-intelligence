@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.15 - 2026-07-13
+
+- Add `project-orchestrate` for planned subagent execution, task handoffs, task-level review, final review, and verification gates.
+- Strengthen `project-task`, `project-plan`, `project-review`, `project-debug`, and `project-maintain` with execution-mode selection, review feedback discipline, no stacked debug guesses, and evidence-before-completion rules.
+- Update generated `AGENTS.md` / `CLAUDE.md` Project Intelligence blocks so initialized projects know when to use orchestration and fresh verification evidence.
+
 ## 0.1.14 - 2026-07-13
 
 - Preserve existing `.gitignore` content when appending Project Intelligence local artifact rules.

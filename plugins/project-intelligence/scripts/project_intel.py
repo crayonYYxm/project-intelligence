@@ -41,7 +41,7 @@ from project_intel_lib.scanner import backend as backend_scanner
 from project_intel_lib.scanner import frontend as frontend_scanner
 
 
-VERSION = "0.1.14"
+VERSION = "0.1.15"
 UNDERSTAND_AGENT_COMMAND = "/understand . --language zh"
 UNDERSTAND_REPO = "Egonex-AI/Understand-Anything"
 UNDERSTAND_CODEX_INSTALL_COMMAND = "curl -fsSL https://raw.githubusercontent.com/Egonex-AI/Understand-Anything/main/install.sh | bash -s codex"
@@ -71,6 +71,7 @@ LEGACY_LOCAL_SKILL_NAMES = (
     "project-init",
     "project-knowledge",
     "project-maintain",
+    "project-orchestrate",
     "project-plan",
     "project-quality",
     "project-refresh",
@@ -3679,6 +3680,7 @@ Prefer available project skills such as:
 - `project-knowledge`
 - `project-standards`
 - `project-maintain`
+- `project-orchestrate`
 - `project-init`
 - `project-refresh`
 
@@ -3703,6 +3705,7 @@ Before implementing, debugging, reviewing, planning, writing specs, answering co
    - Implementation, modification, fix, refactor, or feature work: `project-task` or `project-intelligence:project-task`
    - Bug, error, regression, failed test, or unexpected behavior: `project-debug` or `project-intelligence:project-debug`
    - Code review, PR review, diff review, reuse/quality risk review: `project-review` or `project-intelligence:project-review`
+   - Independent planned subtasks, subagent handoffs, task-level review, or parallel read-only investigations: `project-orchestrate` or `project-intelligence:project-orchestrate`
    - Quality, lint, type, format, style, redundancy checks: `project-quality` or `project-intelligence:project-quality`
    - Project knowledge, component/API/service usage, architecture questions: `project-knowledge` or `project-intelligence:project-knowledge`
    - Standards lookup, rule promotion/demotion, hard/preferred/inferred/candidate explanation: `project-standards` or `project-intelligence:project-standards`
@@ -3716,11 +3719,13 @@ Before implementing, debugging, reviewing, planning, writing specs, answering co
 6. Prefer existing public components, Hooks, utilities, API wrappers, services, DTO/VO/entity patterns, permission checks, transaction boundaries, and error-code conventions before adding new ones.
 7. For implementation work, before the first Edit/Write, run the `project-task` workflow: check reuse, affected modules, relevant standards, and impact. First produce or internally confirm a lightweight Chinese task spec: requirement summary, acceptance points, affected files/modules, reuse candidates, and assumptions/open questions. Do not create a spec file unless the user explicitly asks for one.
 8. Use GitNexus impact/explore/detect_changes tools when available; otherwise use `.project-intel` plus `project-intel lifecycle --task "<requirement>"` or `project-intel query "<symbol-or-feature>"`. `lifecycle` prints by default; use `--write` only when a persistent task-impact report is explicitly needed.
-9. After meaningful code changes, run change review and maintenance: inspect the diff, run `project-intel check`, and run or recommend `project-intel maintain --task "<中文简短需求摘要>" --files <changed-source-files>`. The `--task` value used for requirement deposition must be Chinese. `maintain` overwrites `.project-intel/maintenance/latest.md` by default and updates one short requirement markdown per affected source file under `.project-intel/requirements/files/`; use `--archive` only when the user wants a historical maintenance record.
-10. For bug investigation, first gather symptoms, reproduce or locate evidence, trace likely paths through project knowledge/graph context, then propose fixes.
-11. For review, inspect diff plus `.project-intel` standards/knowledge/graph context and report findings by severity before summaries.
-12. Use `--run-quality` only when real lint/type/style/format checks should run.
-13. If GitNexus or Understand-Anything graph context is available, use it for impact analysis and architecture/domain relationships.
+9. Use `project-orchestrate` only when planned subtasks are independent enough to review separately. Implementation subagents should normally run sequentially; parallel agents are for read-only investigations or disjoint impact analysis.
+10. After meaningful code changes, run change review and maintenance: inspect the diff, run `project-intel check`, run the concrete verification that proves the actual behavior claim, and then run or recommend `project-intel maintain --task "<中文简短需求摘要>" --files <changed-source-files>`. The `--task` value used for requirement deposition must be Chinese. `maintain` overwrites `.project-intel/maintenance/latest.md` by default and updates one short requirement markdown per affected source file under `.project-intel/requirements/files/`; use `--archive` only when the user wants a historical maintenance record.
+11. Do not claim a change is complete, fixed, passing, or ready without fresh evidence from the current turn. `project-intel check` proves Project Intelligence rules; it does not prove business behavior unless the check directly exercises that behavior.
+12. For bug investigation, first gather symptoms, reproduce or locate evidence, trace likely paths through project knowledge/graph context, then propose one testable hypothesis and avoid stacked guesses.
+13. For review, inspect diff plus `.project-intel` standards/knowledge/graph context and report findings by severity before summaries. Verify review feedback against project reality before applying it.
+14. Use `--run-quality` only when real lint/type/style/format checks should run.
+15. If GitNexus or Understand-Anything graph context is available, use it for impact analysis and architecture/domain relationships.
 Stable generated files are preferred for routine runs: refresh/tooling/quality reports are overwritten in place, `debug` and `lifecycle` only print unless `--write` is passed, `maintain` writes `maintenance/latest.md` unless `--archive` is passed, and file-level requirements are maintained as one concise Chinese markdown per source file.
 
 Useful CLI fallbacks: `project-intel query`, `project-intel refresh`, `project-intel check`, `project-intel spec`, `project-intel plan`, `project-intel debug`, `project-intel requirements`, and `project-intel maintain`."""
@@ -3735,6 +3740,7 @@ def claude_project_agent_rules() -> str:
         "Implementation, modification, fix, refactor, or feature work: `project-task` or `project-intelligence:project-task`": "Implementation, modification, fix, refactor, or feature work: `/project-task`",
         "Bug, error, regression, failed test, or unexpected behavior: `project-debug` or `project-intelligence:project-debug`": "Bug, error, regression, failed test, or unexpected behavior: `/project-debug`",
         "Code review, PR review, diff review, reuse/quality risk review: `project-review` or `project-intelligence:project-review`": "Code review, PR review, diff review, reuse/quality risk review: `/project-review`",
+        "Independent planned subtasks, subagent handoffs, task-level review, or parallel read-only investigations: `project-orchestrate` or `project-intelligence:project-orchestrate`": "Independent planned subtasks, subagent handoffs, task-level review, or parallel read-only investigations: `/project-orchestrate`",
         "Quality, lint, type, format, style, redundancy checks: `project-quality` or `project-intelligence:project-quality`": "Quality, lint, type, format, style, redundancy checks: `/project-quality`",
         "Project knowledge, component/API/service usage, architecture questions: `project-knowledge` or `project-intelligence:project-knowledge`": "Project knowledge, component/API/service usage, architecture questions: `/project-knowledge`",
         "Standards lookup, rule promotion/demotion, hard/preferred/inferred/candidate explanation: `project-standards` or `project-intelligence:project-standards`": "Standards lookup, rule promotion/demotion, hard/preferred/inferred/candidate explanation: `/project-standards`",

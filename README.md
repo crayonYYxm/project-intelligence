@@ -1,6 +1,6 @@
 # 项目智能 (Project Intelligence)
 
-Project Intelligence 是一个本地的 Codex/Claude 兼容项目插件，用于生成和使用仓库级的需求文档、实施计划、规范、知识库、图谱上下文、系统化调试、质量检查、生命周期维护和审查指导。
+Project Intelligence 是一个本地的 Codex/Claude 兼容项目插件，用于生成和使用仓库级的需求文档、实施计划、规范、知识库、图谱上下文、系统化调试、任务编排、质量检查、生命周期维护和审查指导。
 
 可用时优先使用 GitNexus 和 Understand-Anything 作为推荐的图谱来源。
 
@@ -113,9 +113,21 @@ project-intel --project /path/to/repo query "表格"
 - `project-spec`：基于项目事实编写需求文档和影响说明。
 - `project-plan`：将需求文档转化为实施计划。
 - `project-debug`：基于项目上下文和根因纪律调查 bug。
+- `project-orchestrate`：在任务可拆分时编排子代理、任务级 review、最终 review 和验证证据。
 - `project-maintain`：任务或变更后刷新项目知识库。
 - `project-review`：基于规范、图谱上下文、质量检查和复用风险审查代码。
 - `project-knowledge`：回答组件、API、模块、服务和规范相关问题。
 - `project-refresh`：初始化或刷新 `.project-intel`。
 - `project-standards`：说明和管理规则等级。
 - `project-quality`：运行和解读 lint/type/style/format 和冗余检查。
+
+## 执行纪律
+
+Project Intelligence 借鉴了 Superpowers 的执行纪律，但不依赖或接入 Superpowers：
+
+- 默认用 `project-task` 处理普通需求；只有计划任务能清晰拆分、文件边界明确、可单独验证时才用 `project-orchestrate`。
+- 实现类子代理默认顺序执行，避免同一工作区并发改代码；并行代理主要用于只读影响分析、失败排查或互不相干的调查。
+- `project-plan` 必须写清文件、接口、约束、复用点、验证命令和预期证据，但默认只保留在上下文里，不主动生成 plan 文件。
+- `project-review` 对反馈先验证再修改，避免盲目接受不符合当前项目现实的建议。
+- 完成、修复、通过、可发布这类结论必须有本轮新鲜验证证据；`project-intel check` 只证明项目智能规则，不自动证明业务行为。
+- `project-maintain` 在实现、review 和验证之后执行一次，默认覆盖 `maintenance/latest.md`，并维护每个源码文件一份简短中文需求历史。

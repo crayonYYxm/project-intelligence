@@ -7,6 +7,8 @@ description: Use when a task is finished, after implementation, after review fix
 
 Close project tasks by refreshing facts and recording what changed.
 
+Run maintenance once after the task is implemented, reviewed when needed, and freshly verified. Do not use maintenance as proof that the business behavior works.
+
 Run. By default this overwrites `.project-intel/maintenance/latest.md` instead of creating a new history file. Use a Chinese task summary:
 
 ```bash
@@ -28,3 +30,5 @@ project-intel maintain --task "<中文简短需求摘要>" --files <changed-sour
 ```
 
 Maintenance validates the Chinese task summary and affected files, refreshes `.project-intel` without installing or rerunning graph tools, runs `project-intel check`, then updates file-level requirement records and the latest maintenance report. Redundancy findings stay at `candidate` unless a human promotes them.
+
+For subagent workflows, keep per-subagent handoffs and reports under ignored `.project-intel/tmp/execution/` when needed. The durable committed output should stay compact: one latest maintenance summary plus one concise Chinese requirement history per affected source file.

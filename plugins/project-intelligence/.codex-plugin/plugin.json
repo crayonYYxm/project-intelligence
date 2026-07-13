@@ -1,15 +1,15 @@
 {
   "name": "project-intelligence",
-  "version": "0.1.14+codex.20260713032400",
-  "description": "Project-level intelligence for specs, plans, standards, knowledge, graph context, systematic debugging, quality checks, lifecycle maintenance, and reuse guidance.",
+  "version": "0.1.15+codex.20260713145654",
+  "description": "Project-level intelligence for specs, plans, standards, knowledge, graph context, systematic debugging, orchestration, verification, lifecycle maintenance, and reuse guidance.",
   "author": {
     "name": "crayonYYxm"
   },
   "skills": "./skills/",
   "interface": {
     "displayName": "Project Intelligence",
-    "shortDescription": "Project specs, standards, knowledge, graph context, debugging, lifecycle maintenance, and review checks.",
-    "longDescription": "Project Intelligence maintains a repository-local .project-intel knowledge base for project specs, standards, reusable frontend/backend patterns, optional GitNexus and Understand-Anything graph context, systematic debugging, quality checks, code review workflows, and post-task maintenance. Init detects optional graph tools without blocking noninteractive agents, while refresh, check, and maintain remain predictable and side-effect controlled.",
+    "shortDescription": "Project specs, standards, knowledge, graph context, debugging, orchestration, maintenance, and review checks.",
+    "longDescription": "Project Intelligence maintains a repository-local .project-intel knowledge base for project specs, standards, reusable frontend/backend patterns, optional GitNexus and Understand-Anything graph context, systematic debugging, task orchestration, verification gates, quality checks, code review workflows, and post-task maintenance. Init detects optional graph tools without blocking noninteractive agents, while refresh, check, and maintain remain predictable and side-effect controlled.",
     "developerName": "crayonYYxm",
     "category": "Productivity",
     "capabilities": [

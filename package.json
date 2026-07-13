@@ -1,7 +1,7 @@
 {
   "name": "project-intelligence",
-  "version": "0.1.14",
-  "description": "Project-level standards, knowledge, graph context, quality checks, lifecycle maintenance, and Claude/Codex plugin installation.",
+  "version": "0.1.15",
+  "description": "Project-level standards, knowledge, graph context, quality checks, orchestration, lifecycle maintenance, and Claude/Codex plugin installation.",
   "license": "MIT",
   "type": "module",
   "bin": {
