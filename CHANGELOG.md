@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.14 - 2026-07-13
+
+- Preserve existing `.gitignore` content when appending Project Intelligence local artifact rules.
+- Avoid duplicate `.project-intel/*` ignore entries when a parent `.project-intel/` rule already covers them.
+
 ## 0.1.13 - 2026-07-11
 
 - Split reusable scanner, graph, quality, lifecycle, standards, core, and CLI helpers from the main CLI facade.

@@ -1063,7 +1063,7 @@ class CliAndReleaseContractTests(unittest.TestCase):
         codex = json.loads((plugin_root / ".codex-plugin" / "plugin.json").read_text(encoding="utf-8"))
         npm = json.loads((repo_root / "package.json").read_text(encoding="utf-8"))
 
-        self.assertEqual(project_intel.VERSION, "0.1.13")
+        self.assertEqual(project_intel.VERSION, "0.1.14")
         self.assertEqual(claude["version"], project_intel.VERSION)
         self.assertEqual(codex["version"].split("+")[0], project_intel.VERSION)
         self.assertEqual(npm["version"], project_intel.VERSION)
@@ -1524,6 +1524,31 @@ class StabilityAndPackagingTests(unittest.TestCase):
             self.assertIn('"projectRoot": "."', manifest_text)
             self.assertIn("pluginRoots", local_text)
             self.assertIn(".project-intel/local/", (root / ".gitignore").read_text(encoding="utf-8"))
+
+    def test_init_appends_gitignore_without_rewriting_existing_content(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            existing = b"# keep me\r\nnode_modules\r\n!important.log"
+            (root / ".gitignore").write_bytes(existing)
+
+            project_intel.ensure_gitignore(root)
+            updated = (root / ".gitignore").read_bytes()
+
+            self.assertTrue(updated.startswith(existing + b"\n\n"))
+            text = updated.decode("utf-8")
+            self.assertIn(".project-intel/cache/", text)
+            self.assertIn(".project-intel/local/", text)
+            self.assertIn(".project-intel/tmp/", text)
+
+    def test_init_does_not_append_gitignore_when_project_intel_parent_is_ignored(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            existing = ".project-intel/\n"
+            (root / ".gitignore").write_text(existing, encoding="utf-8")
+
+            project_intel.ensure_gitignore(root)
+
+            self.assertEqual(existing, (root / ".gitignore").read_text(encoding="utf-8"))
 
     def test_empty_or_invalid_graph_does_not_satisfy_strict_init(self):
         tooling = {"optional": {}, "recommendedActions": [], "graphActions": []}

@@ -41,7 +41,7 @@ from project_intel_lib.scanner import backend as backend_scanner
 from project_intel_lib.scanner import frontend as frontend_scanner
 
 
-VERSION = "0.1.13"
+VERSION = "0.1.14"
 UNDERSTAND_AGENT_COMMAND = "/understand . --language zh"
 UNDERSTAND_REPO = "Egonex-AI/Understand-Anything"
 UNDERSTAND_CODEX_INSTALL_COMMAND = "curl -fsSL https://raw.githubusercontent.com/Egonex-AI/Understand-Anything/main/install.sh | bash -s codex"
@@ -3024,12 +3024,37 @@ def init_project(root: Path, refresh: bool = False, interactive: bool = False, s
 def ensure_gitignore(root: Path) -> None:
     path = root / ".gitignore"
     additions = [".project-intel/cache/", ".project-intel/local/", ".project-intel/tmp/"]
-    existing = read_text(path) if path.exists() else ""
-    missing = [item for item in additions if item not in existing]
-    if missing:
-        next_text = existing.rstrip() + ("\n\n" if existing.strip() else "") + "# Project Intelligence cache\n"
-        next_text += "\n".join(missing)
-        write_text(path, next_text)
+    raw = path.read_bytes() if path.exists() else b""
+    existing = raw.decode("utf-8", errors="ignore")
+    existing_rules = {
+        line.strip()
+        for line in existing.splitlines()
+        if line.strip() and not line.lstrip().startswith("#")
+    }
+
+    def already_ignored(item: str) -> bool:
+        item = item.rstrip("/")
+        return any(
+            rule == item
+            or rule.rstrip("/") == item
+            or path_matches_pattern(item, rule)
+            for rule in existing_rules
+        )
+
+    missing = [item for item in additions if not already_ignored(item)]
+    if not missing:
+        return
+
+    block = "# Project Intelligence local artifacts\n" + "\n".join(missing) + "\n"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    mode = path.stat().st_mode & 0o777 if path.exists() else 0o644
+    with path.open("ab") as handle:
+        if raw and not raw.endswith((b"\n", b"\r")):
+            handle.write(b"\n")
+        if raw and existing.strip():
+            handle.write(b"\n")
+        handle.write(block.encode("utf-8"))
+    path.chmod(mode)
 
 
 def build_init_report(root: Path, manifest: dict[str, Any], frontend: dict[str, Any], backend: dict[str, Any], config: dict[str, Any], tooling: dict[str, Any]) -> str:
