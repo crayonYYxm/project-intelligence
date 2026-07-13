@@ -7,7 +7,7 @@ description: Use when a task is finished, after implementation, after review fix
 
 Close project tasks by refreshing facts and recording what changed.
 
-Run maintenance once after the task is implemented, reviewed when needed, and freshly verified. Do not use maintenance as proof that the business behavior works.
+Run maintenance once after the task is implemented, reviewed when needed, freshly verified, and closed by `project-finish`. Do not use maintenance as proof that the business behavior works.
 
 Run. By default this overwrites `.project-intel/maintenance/latest.md` instead of creating a new history file. Use a Chinese task summary:
 

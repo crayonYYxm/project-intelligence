@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.16 - 2026-07-13
+
+- Add `project-intake` for quick/standard/complex task routing, readiness checks, risk flags, missing information, affected areas, standards, and reuse candidates.
+- Add `project-finish` and `project-intel finish` for completion evidence, scope drift, git diff, quality status, and release-safety closure before maintenance.
+- Enrich `lifecycle`, `spec`, and `plan` with track-aware output, behavior contracts, readiness gates, and acceptance-to-evidence mapping while keeping default runs non-persistent.
+- Update generated Agent entrypoint rules and existing skills to route through intake, finish, and then maintenance.
+
 ## 0.1.15 - 2026-07-13
 
 - Add `project-orchestrate` for planned subagent execution, task handoffs, task-level review, final review, and verification gates.

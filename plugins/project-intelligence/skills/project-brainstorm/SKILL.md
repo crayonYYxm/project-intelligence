@@ -9,12 +9,13 @@ Start with project facts, then turn the idea into a concrete direction.
 
 1. Read `.project-intel/manifest.json` if it exists; if missing, run `project-intel init`.
 2. Inspect relevant standards, knowledge JSON, graph summary, and recent reports.
-3. Ask only questions that materially affect scope, success criteria, reuse, risk, or UX/API behavior.
-4. Present 2-3 feasible approaches with tradeoffs and a recommendation.
-5. When the direction is stable, keep a lightweight Chinese spec in context. Create a persistent spec file only when the user explicitly asks for one:
+3. Run `project-intel intake --task "<requirement>"` or follow the same classification manually to decide quick/standard/complex.
+4. Ask only questions that materially affect scope, success criteria, reuse, risk, or UX/API behavior.
+5. Present 2-3 feasible approaches with tradeoffs and a recommendation.
+6. When the direction is stable, keep a lightweight Chinese spec in context. Create a persistent spec file only when the user explicitly asks for one:
 
 ```bash
-project-intel spec --title "<title>" --from "<requirement>"
+project-intel spec --title "<title>" --from "<requirement>" --track standard
 ```
 
 Prefer existing components, Hooks, services, APIs, domain flows, and standards. Use GitNexus for precise impact when available and Understand-Anything for architecture/domain context.

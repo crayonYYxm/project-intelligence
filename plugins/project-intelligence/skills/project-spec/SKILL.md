@@ -10,18 +10,19 @@ Write specs from project facts, not guesses.
 For implementation requests handled by `project-task`, do not force creation of a spec file. The task workflow should first整理轻量中文 spec in context: requirement summary, acceptance points, impact scope, reuse candidates, and assumptions/open questions. Create `.project-intel/specs/*.md` only when the user explicitly asks for a requirements/spec document.
 
 1. Read `.project-intel/manifest.json`, relevant standards, knowledge JSON, graph summary, and reports.
-2. Capture the requirement, impacted modules, reusable capabilities, standards, quality gates, and acceptance criteria.
-3. Keep unknowns explicit; do not invent hard rules from `candidate` findings.
-4. Generate the spec only when the user explicitly asks for a persistent requirements/spec document:
+2. Run `project-intel intake --task "<requirement>"` or use the same track/readiness fields.
+3. Capture the requirement, impacted modules, reusable capabilities, standards, quality gates, acceptance criteria, behavior contracts, and evidence mapping.
+4. Keep unknowns explicit; do not invent hard rules from `candidate` findings.
+5. Generate the spec only when the user explicitly asks for a persistent requirements/spec document:
 
 ```bash
-project-intel spec --title "<title>" --from "<requirement>"
+project-intel spec --title "<title>" --from "<requirement>" --track auto
 ```
 
 For impact-only requests, run:
 
 ```bash
-project-intel lifecycle --task "<requirement>"
+project-intel lifecycle --task "<requirement>" --track auto
 ```
 
 This prints impact by default. Add `--write` only when the user explicitly wants `.project-intel/reports/task-impact.md`.

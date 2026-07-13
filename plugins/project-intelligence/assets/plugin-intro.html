@@ -1136,7 +1136,7 @@
             <span class="eyebrow reveal">Project-level Agent Intelligence</span>
             <h1 class="reveal">让 Claude Code 与 Codex 先懂项目，<span class="nowrap">再写代码。</span></h1>
             <p class="lead reveal">
-              Project Intelligence 会把仓库里的组件、接口、服务、规范、图谱、质量检查和变更维护沉淀到 `.project-intel/`，让后续需求、debug、review 和重构都能从同一份项目事实出发。
+              Project Intelligence 会把仓库里的组件、接口、服务、规范、图谱、质量检查和变更维护沉淀到 `.project-intel/`，让后续需求从入口分流、实现到收口维护都能从同一份项目事实出发。
             </p>
             <div class="hero-actions reveal">
               <a class="btn primary" href="#install">安装插件</a>
@@ -1153,7 +1153,7 @@
               </div>
               <div class="metric">
                 <strong>闭环</strong>
-                <span>需求前理解，执行后 refresh/check/maintain，知识库随项目演进。</span>
+                <span>需求入口分流，执行后 finish/check/maintain，知识库随项目演进。</span>
               </div>
             </div>
           </div>
@@ -1176,8 +1176,8 @@ write .project-intel/
   reports/              <span class="rose">quality, impact, review</span>
 
 agent rule:
-  before edit: impact + reuse + standards
-  after edit:  check + maintain + file requirement</pre>
+  before edit: intake + impact + reuse + standards
+  after edit:  review + finish + maintain + file requirement</pre>
           </aside>
         </div>
       </section>
@@ -1219,7 +1219,7 @@ agent rule:
           <div class="section-head">
             <div>
               <span class="eyebrow reveal">Lifecycle</span>
-              <h2 class="reveal">从脑暴到维护，覆盖完整项目工作流。</h2>
+              <h2 class="reveal">从需求入口到维护，覆盖完整项目工作流。</h2>
             </div>
             <p class="reveal">
               不要求用户记住 CLI。日常可以直接说“帮我做这个需求”“帮我 review”“更新规范和知识库”，Agent 会映射到底层技能和检查脚本。
@@ -1229,36 +1229,46 @@ agent rule:
           <div class="timeline">
             <article class="timeline-step reveal">
               <span class="step-num">01</span>
+              <h3>Intake</h3>
+              <p>先分流 quick / standard / complex，检查 readiness、风险、缺失信息和复用候选。</p>
+            </article>
+            <article class="timeline-step reveal">
+              <span class="step-num">02</span>
               <h3>Brainstorm</h3>
               <p>澄清需求边界，比较实现路线，沉淀复用候选和关键风险。</p>
             </article>
             <article class="timeline-step reveal">
-              <span class="step-num">02</span>
-              <h3>Spec</h3>
-              <p>按项目事实写需求说明、验收点、影响范围和约束。</p>
-            </article>
-            <article class="timeline-step reveal">
               <span class="step-num">03</span>
-              <h3>Plan</h3>
-              <p>把需求拆成可执行步骤，标记要读的规范、模块和测试。</p>
+              <h3>Spec</h3>
+              <p>按项目事实写需求说明、行为契约、验收证据、影响范围和约束。</p>
             </article>
             <article class="timeline-step reveal">
               <span class="step-num">04</span>
+              <h3>Plan</h3>
+              <p>把需求拆成可执行步骤，complex 需求先过 readiness gate。</p>
+            </article>
+            <article class="timeline-step reveal">
+              <span class="step-num">05</span>
               <h3>Task</h3>
               <p>编码前查影响面和复用能力，避免重复造组件、Hook、服务和工具。</p>
             </article>
             <article class="timeline-step reveal">
-              <span class="step-num">05</span>
+              <span class="step-num">06</span>
               <h3>Orchestrate</h3>
               <p>可拆分任务才启用子代理：顺序实现、任务级 review、最终 review；并行只做只读调查。</p>
             </article>
             <article class="timeline-step reveal">
-              <span class="step-num">06</span>
+              <span class="step-num">07</span>
               <h3>Review</h3>
               <p>结合 diff、规范、图谱、质量结果和测试缺口输出 findings；反馈先验证再修改。</p>
             </article>
             <article class="timeline-step reveal">
-              <span class="step-num">07</span>
+              <span class="step-num">08</span>
+              <h3>Finish</h3>
+              <p>收口检查验收证据、scope drift、发布风险、回滚和 git diff，不自动提交或部署。</p>
+            </article>
+            <article class="timeline-step reveal">
+              <span class="step-num">09</span>
               <h3>Maintain</h3>
               <p>有本轮验证证据后再 refresh/check/maintain，让项目知识库跟着代码更新。</p>
             </article>
@@ -1359,7 +1369,7 @@ agent rule:
             </div>
             <div class="prompt-row reveal">
               <code>帮我做这个需求</code>
-              <span>进入 `project-task`：先整理轻量中文 spec，查影响面和复用候选，再选择 inline 或 `project-orchestrate`，最后验证 + check + maintain。</span>
+              <span>先进入 `project-intake` 分流和 readiness 检查，再进入 `project-task`：整理轻量中文 spec，查影响面和复用候选，最后验证 + finish + maintain。</span>
             </div>
             <div class="prompt-row reveal">
               <code>这个计划拆给子代理执行</code>
@@ -1412,7 +1422,7 @@ agent rule:
             </article>
             <article class="artifact reveal">
               <code>.project-intel/reports/*.md</code>
-              <p>初始化、质量、冗余、任务影响、debug context 和 review 报告。</p>
+              <p>初始化、质量、冗余、需求入口、任务影响、debug context、finish 和 review 报告。</p>
             </article>
             <article class="artifact reveal">
               <code>.project-intel/requirements/files/**/*.md</code>
@@ -1522,7 +1532,7 @@ codex plugin add project-intelligence@project-intelligence</pre>
     const ctx = canvas.getContext("2d");
     const labels = [
       "components", "api", "service", "dto", "mapper", "router", "auth",
-      "transaction", "error-code", "graph", "quality", "review", "maintain"
+      "transaction", "error-code", "graph", "quality", "intake", "review", "finish", "maintain"
     ];
     let nodes = [];
     let frame = 0;

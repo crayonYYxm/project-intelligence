@@ -54,7 +54,8 @@ After all tasks:
 1. Run a final whole-diff review.
 2. Run `project-intel check`.
 3. Run the concrete project verification commands needed to prove the task, such as unit tests, type checks, builds, or manual device checks.
-4. Only after fresh evidence, run `project-intel maintain --task "<中文简短需求摘要>" --files <changed-source-files>`.
+4. Only after fresh evidence, run `project-intel finish --task "<中文简短需求摘要>" --files <changed-source-files>`.
+5. Then run `project-intel maintain --task "<中文简短需求摘要>" --files <changed-source-files>`.
 
 ## Review Feedback Discipline
 

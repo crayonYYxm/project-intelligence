@@ -11,20 +11,26 @@ If a conversation begins as discussion, explanation, spec, or plan and then turn
 
 Use this sequence:
 
-1. Before the first code edit,整理轻量中文 spec：需求摘要、验收点、影响范围、复用候选、假设/疑问。This is required for task work, but do not create a spec file unless the user explicitly asks.
-2. Identify related modules, components, Hooks, APIs, services, routes, and standards.
-3. Prefer existing project abstractions before creating new ones.
-4. Treat redundancy findings as `candidate` unless a rule has been promoted to `hard`.
-5. Use GitNexus for symbol-level calls, impact, and change risk when available.
-6. Use Understand-Anything for architecture, module, and domain-flow context when available.
-7. Before the first code edit, run impact/reuse analysis with GitNexus impact/explore tools when available; otherwise use `.project-intel`, `project-intel query "<symbol-or-feature>"`, or `project-intel lifecycle --task "<requirement>"`. `lifecycle` prints by default; use `--write` only when the user explicitly wants a persistent task-impact report.
-8. Decide execution mode:
+1. Before the first code edit, run or mentally follow `project-intake` to classify the work as `quick`, `standard`, or `complex`, and confirm readiness:
+
+```bash
+project-intel intake --task "<requirement>"
+```
+
+2. Before the first code edit,整理轻量中文 spec：需求摘要、验收点、影响范围、复用候选、假设/疑问。This is required for task work, but do not create a spec file unless the user explicitly asks.
+3. Identify related modules, components, Hooks, APIs, services, routes, and standards.
+4. Prefer existing project abstractions before creating new ones.
+5. Treat redundancy findings as `candidate` unless a rule has been promoted to `hard`.
+6. Use GitNexus for symbol-level calls, impact, and change risk when available.
+7. Use Understand-Anything for architecture, module, and domain-flow context when available.
+8. Before the first code edit, run impact/reuse analysis with GitNexus impact/explore tools when available; otherwise use `.project-intel`, `project-intel query "<symbol-or-feature>"`, or `project-intel lifecycle --task "<requirement>"`. `lifecycle` prints by default and includes track/readiness; use `--write` only when the user explicitly wants a persistent task-impact report.
+9. Decide execution mode:
    - small or tightly coupled change: implement inline in this session.
    - independent planned subtasks: switch to `project-orchestrate` for subagent handoffs, task review, and final review.
    - independent investigations or impact questions: use parallel read-only agents when the host supports them.
    - high-risk long-running work: use a worktree only when the user asks or the host workflow already uses one.
-9. If implementation reveals a bug, error, test failure, or regression, switch to `project-debug` before proposing fixes.
-10. Use `.project-intel`, GitNexus, Understand-Anything, and direct source reads as the task context sources.
+10. If implementation reveals a bug, error, test failure, or regression, switch to `project-debug` before proposing fixes.
+11. Use `.project-intel`, GitNexus, Understand-Anything, and direct source reads as the task context sources.
 
 If `.project-intel` is missing or stale, run:
 
@@ -42,6 +48,7 @@ After implementation, run check and maintain. Pass the actual changed source fil
 
 ```bash
 project-intel check
+project-intel finish --task "<中文简短需求摘要>" --files <changed-source-files>
 project-intel maintain --task "<中文简短需求摘要>" --files <changed-source-files>
 ```
 

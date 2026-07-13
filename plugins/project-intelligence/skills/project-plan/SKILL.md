@@ -8,15 +8,16 @@ description: Use when turning a project spec or approved requirement into an imp
 Create plans that preserve project standards and are ready to execute.
 
 1. Start from the spec or requirement plus `.project-intel` facts.
-2. Include reuse checks before implementation steps.
+2. Include intake track/readiness and reuse checks before implementation steps.
 3. Map exact files or modules to create/modify, with each file's responsibility.
 4. Define interfaces between tasks: consumed APIs, produced functions/components/types, compatibility constraints, and no-touch files.
-5. Break work into independently verifiable tasks. Mark each task as `inline`, `sequential-subagent`, or `parallelizable-readonly`.
-6. Include concrete verification commands, expected evidence, review checkpoints, and post-task maintenance.
+5. Add a readiness gate before code edits for complex work: missing info resolved, behavior/API/state/permission/exception boundaries confirmed, and verification evidence named.
+6. Break work into independently verifiable tasks. Mark each task as `inline`, `sequential-subagent`, or `parallelizable-readonly`.
+7. Include concrete verification commands, expected evidence, review checkpoints, `project-finish`, and post-task maintenance.
 7. Keep the implementation plan in context by default. Generate a plan file only when the user explicitly asks for a persistent plan and provides or requests a spec file:
 
 ```bash
-project-intel plan --title "<title>" --from-spec <spec-path>
+project-intel plan --title "<title>" --from-spec <spec-path> --track auto
 ```
 
 If there is no persistent spec file, plan directly from the approved requirement. Do not create spec or plan files merely because the skill triggered.

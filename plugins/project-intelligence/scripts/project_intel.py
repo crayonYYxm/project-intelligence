@@ -41,7 +41,8 @@ from project_intel_lib.scanner import backend as backend_scanner
 from project_intel_lib.scanner import frontend as frontend_scanner
 
 
-VERSION = "0.1.15"
+VERSION = "0.1.16"
+TRACK_CHOICES = ("auto", "quick", "standard", "complex")
 UNDERSTAND_AGENT_COMMAND = "/understand . --language zh"
 UNDERSTAND_REPO = "Egonex-AI/Understand-Anything"
 UNDERSTAND_CODEX_INSTALL_COMMAND = "curl -fsSL https://raw.githubusercontent.com/Egonex-AI/Understand-Anything/main/install.sh | bash -s codex"
@@ -68,7 +69,9 @@ LEGACY_LOCAL_SKILLS_BLOCK_END = "<!-- local-project-skills:end -->"
 LEGACY_LOCAL_SKILL_NAMES = (
     "project-brainstorm",
     "project-debug",
+    "project-finish",
     "project-init",
+    "project-intake",
     "project-knowledge",
     "project-maintain",
     "project-orchestrate",
@@ -3185,24 +3188,231 @@ def load_project_snapshot(root: Path) -> dict[str, Any]:
     }
 
 
-def spec_filename(title: str, suffix: str) -> str:
-    return f"{today_slug()}-{slugify(title)}-{suffix}.md"
+def text_has_any(value: str, words: list[str]) -> bool:
+    lowered = value.lower()
+    return any(word.lower() in lowered for word in words)
 
 
-def build_spec_doc(root: Path, title: str, requirement: str, snapshot: dict[str, Any]) -> str:
-    manifest = snapshot["manifest"]
-    config = snapshot["config"]
-    frontend = snapshot["frontend"]
-    backend = snapshot["backend"]
-    graph_rows = [[s.get("name"), s.get("status"), s.get("role")] for s in manifest.get("graphSources", [])]
-    quality_rows = [[c.get("kind"), c.get("command"), c.get("source")] for c in config.get("quality", {}).get("commands", [])]
-    return f"""# {title} 需求文档
+def collect_reuse_candidates(snapshot: dict[str, Any], limit: int = 12) -> list[dict[str, str]]:
+    frontend = snapshot.get("frontend", {})
+    backend = snapshot.get("backend", {})
+    candidates: list[dict[str, str]] = []
+    for item in frontend.get("components", [])[:limit]:
+        candidates.append({"type": "component", "name": str(item.get("name") or ""), "path": str(item.get("path") or "")})
+    for item in frontend.get("hooks", [])[:limit]:
+        candidates.append({"type": "hook", "name": str(item.get("name") or ""), "path": str(item.get("path") or "")})
+    for item in frontend.get("apiModules", [])[:limit]:
+        candidates.append({"type": "frontend-api", "name": str(item.get("path") or ""), "path": str(item.get("path") or "")})
+    for item in backend.get("services", [])[:limit]:
+        candidates.append({"type": "service", "name": str(item.get("name") or ""), "path": str(item.get("path") or "")})
+    for item in backend.get("utilities", [])[:limit]:
+        candidates.append({"type": "utility", "name": str(item.get("name") or ""), "path": str(item.get("path") or "")})
+    return candidates[:limit]
+
+
+def standard_paths(snapshot: dict[str, Any]) -> list[str]:
+    names = [
+        "standards/frontend.md",
+        "standards/components.md",
+        "standards/api.md",
+        "standards/router.md",
+        "standards/backend.md",
+        "standards/backend-api.md",
+        "standards/backend-services.md",
+        "standards/quality.md",
+    ]
+    config = snapshot.get("config", {})
+    if config.get("rules", {}).get("hard"):
+        names.append("config.json#rules.hard")
+    return [f".project-intel/{name}" for name in names]
+
+
+def infer_affected_areas(task: str, snapshot: dict[str, Any]) -> list[str]:
+    areas: list[str] = []
+    checks = [
+        ("frontend", ["页面", "组件", "前端", "vue", "react", "样式", "按钮", "弹框", "表格", "路由"]),
+        ("backend", ["后端", "接口", "service", "controller", "dto", "entity", "mapper", "repository"]),
+        ("api", ["api", "接口", "请求", "参数", "返回", "响应", "兼容"]),
+        ("data", ["数据库", "表", "字段", "缓存", "状态", "数据", "迁移"]),
+        ("auth", ["权限", "登录", "认证", "授权", "角色"]),
+        ("quality", ["lint", "类型", "测试", "质量", "冗余", "规范"]),
+        ("release", ["发布", "回滚", "灰度", "开关", "监控", "告警"]),
+    ]
+    for name, words in checks:
+        if text_has_any(task, words):
+            areas.append(name)
+    if not areas:
+        frontend = snapshot.get("frontend", {})
+        backend = snapshot.get("backend", {})
+        if frontend.get("components") or frontend.get("hooks"):
+            areas.append("frontend")
+        if backend.get("apis") or backend.get("services"):
+            areas.append("backend")
+    return areas or ["unknown"]
+
+
+def analyze_task_intake(root: Path, task: str, snapshot: Optional[dict[str, Any]] = None, track: str = "auto") -> dict[str, Any]:
+    if track not in TRACK_CHOICES:
+        fail_usage(f"--track 只能是：{', '.join(TRACK_CHOICES)}")
+    snapshot = snapshot or load_project_snapshot(root)
+    raw = " ".join(task.split())
+    lowered = raw.lower()
+    reasons: list[str] = []
+    risk_flags: list[str] = []
+    missing: list[str] = []
+
+    complex_keywords = ["迁移", "重构", "架构", "兼容", "权限", "支付", "数据库", "事务", "缓存", "安全", "灰度", "回滚", "跨端", "多模块", "性能", "并发", "消息", "定时", "发布"]
+    quick_keywords = ["文案", "样式", "颜色", "间距", "错别字", "小改", "简单", "日志", "注释", "配置说明"]
+    if len(raw) < 12:
+        missing.append("需求描述较短，需要在实施前确认目标行为和验收方式。")
+    if "?" in raw or "？" in raw:
+        missing.append("需求里包含疑问句，需要先澄清再进入实现。")
+    if text_has_any(raw, complex_keywords):
+        risk_flags.append("涉及复杂或高风险关键词，需要显式检查影响面、兼容性和验证证据。")
+    if text_has_any(raw, ["接口", "api", "参数", "返回", "兼容"]):
+        risk_flags.append("涉及接口契约，需确认入参、出参、兼容和错误行为。")
+    if text_has_any(raw, ["页面", "组件", "弹框", "表格", "样式"]):
+        reasons.append("包含页面/组件信号，实施前需要检查可复用组件和页面模式。")
+    if text_has_any(raw, ["后端", "service", "controller", "事务", "数据库"]):
+        reasons.append("包含后端信号，实施前需要检查分层、事务、错误码和配置。")
+
+    selected_track = track
+    if selected_track == "auto":
+        if risk_flags or len(raw) > 120 or text_has_any(lowered, complex_keywords):
+            selected_track = "complex"
+            reasons.append("自动分流为 complex：需求存在较高影响面或需要跨层设计。")
+        elif text_has_any(lowered, quick_keywords) and not risk_flags:
+            selected_track = "quick"
+            reasons.append("自动分流为 quick：需求看起来是局部低风险变更。")
+        else:
+            selected_track = "standard"
+            reasons.append("自动分流为 standard：需要常规 spec/plan 思考，但不强制落盘。")
+    else:
+        reasons.append(f"用户或调用方显式指定 {selected_track} track。")
+
+    stages_by_track = {
+        "quick": ["intake", "task", "review", "finish", "maintain"],
+        "standard": ["intake", "brainstorm-lite", "spec-in-context", "plan-in-context", "task", "review", "finish", "maintain"],
+        "complex": ["intake", "brainstorm", "spec", "plan", "readiness-gate", "task-or-orchestrate", "review", "finish", "maintain"],
+    }
+    readiness = "needs-clarification" if missing else "ready"
+    if selected_track == "complex" and not text_has_any(raw, ["验收", "测试", "兼容", "回滚", "方案", "边界"]):
+        readiness = "needs-clarification"
+        missing.append("复杂需求需要补充验收、边界、兼容或回滚信息。")
+
+    return {
+        "track": selected_track,
+        "reasons": reasons,
+        "riskFlags": risk_flags,
+        "missingInformation": missing,
+        "requiredStages": stages_by_track[selected_track],
+        "affectedAreas": infer_affected_areas(raw, snapshot),
+        "reuseCandidates": collect_reuse_candidates(snapshot),
+        "standards": standard_paths(snapshot),
+        "readiness": readiness,
+    }
+
+
+def bullet_list(values: list[Any], empty: str = "_无_") -> str:
+    items = [str(value).strip() for value in values if str(value).strip()]
+    if not items:
+        return empty
+    return "\n".join(f"- {item}" for item in items)
+
+
+def build_intake_doc(root: Path, task: str, snapshot: dict[str, Any], analysis: dict[str, Any]) -> str:
+    reuse_rows = [[item.get("type"), item.get("name"), item.get("path")] for item in analysis.get("reuseCandidates", [])]
+    return f"""# 需求入口分析
 
 生成时间：`{now_iso()}`
 
 ## 需求
 
+{truncate(task, 3000)}
+
+## 分流结论
+
+- Track：`{analysis.get("track")}`
+- Readiness：`{analysis.get("readiness")}`
+- 影响区域：{", ".join(analysis.get("affectedAreas", []))}
+
+## 原因
+
+{bullet_list(analysis.get("reasons", []))}
+
+## 风险与缺口
+
+### 风险标记
+
+{bullet_list(analysis.get("riskFlags", []))}
+
+### 缺失信息
+
+{bullet_list(analysis.get("missingInformation", []))}
+
+## 必经阶段
+
+{bullet_list(analysis.get("requiredStages", []))}
+
+## 复用候选
+
+{table(["类型", "名称", "路径"], reuse_rows)}
+
+## 相关规范
+
+{bullet_list(analysis.get("standards", []))}
+"""
+
+
+def write_intake(root: Path, task: str, track: str = "auto", write_report: bool = False) -> Optional[Path]:
+    snapshot = load_project_snapshot(root)
+    analysis = analyze_task_intake(root, task, snapshot, track=track)
+    body = build_intake_doc(root, task, snapshot, analysis)
+    print(body)
+    if not write_report:
+        return None
+    path = project_dir(root) / "reports" / "task-intake.md"
+    write_text(path, body)
+    print(f"\n已写入需求入口分析：{path}")
+    return path
+
+
+def spec_filename(title: str, suffix: str) -> str:
+    return f"{today_slug()}-{slugify(title)}-{suffix}.md"
+
+
+def build_spec_doc(root: Path, title: str, requirement: str, snapshot: dict[str, Any], track: str = "auto") -> str:
+    manifest = snapshot["manifest"]
+    config = snapshot["config"]
+    frontend = snapshot["frontend"]
+    backend = snapshot["backend"]
+    analysis = analyze_task_intake(root, requirement, snapshot, track=track)
+    graph_rows = [[s.get("name"), s.get("status"), s.get("role")] for s in manifest.get("graphSources", [])]
+    quality_rows = [[c.get("kind"), c.get("command"), c.get("source")] for c in config.get("quality", {}).get("commands", [])]
+    reuse_rows = [[item.get("type"), item.get("name"), item.get("path")] for item in analysis.get("reuseCandidates", [])]
+    return f"""# {title} 需求文档
+
+生成时间：`{now_iso()}`
+
+Track：`{analysis.get("track")}`
+Readiness：`{analysis.get("readiness")}`
+
+## 需求
+
 {truncate(requirement, 3000)}
+
+## 需求入口与范围
+
+- 影响区域：{", ".join(analysis.get("affectedAreas", []))}
+- 必经阶段：{", ".join(analysis.get("requiredStages", []))}
+
+### 已知风险
+
+{bullet_list(analysis.get("riskFlags", []))}
+
+### 待澄清信息
+
+{bullet_list(analysis.get("missingInformation", []))}
 
 ## 项目上下文
 
@@ -3218,28 +3428,43 @@ def build_spec_doc(root: Path, title: str, requirement: str, snapshot: dict[str,
 
 {table(["来源", "状态", "用途"], graph_rows)}
 
+## 复用候选
+
+{table(["类型", "名称", "路径"], reuse_rows)}
+
 ## 相关规范
 
 - 添加新抽象前，复用已有的组件、Hook、请求工具、服务和领域模式。
 - 冗余发现默认为 `candidate`，除非升级为 `hard`。
+- 涉及接口、状态、权限、异常、兼容、缓存或异步行为时，必须在实现前锁定契约。
+
+## 行为契约
+
+- 当前行为：实施前从源码、图谱或现有页面/API 中确认。
+- 目标行为：以本需求描述和后续澄清为准。
+- 不做事项：没有被明确纳入的重构、视觉改版、接口迁移、强制 hook 拦截和发布动作不在本 spec 默认范围内。
+- 输入/输出：涉及 API、组件 Props/Events、DTO/VO 或配置项时，需要列出字段、默认值、错误行为和兼容要求。
+- 状态/权限/异常：涉及状态流转、权限校验、支付/订阅/事务/远程调用时，需要补充失败、取消、重试、超时和幂等策略。
+- UI 验收：涉及页面时，需要覆盖加载、空态、错误态、禁用态、移动端/桌面端和可访问性可见行为。
+- 发布与回滚：涉及数据、权限、远程调用、缓存或开关时，需要说明灰度、回滚和观测方式。
 
 ## 质量门禁
 
 {table(["类型", "命令", "来源"], quality_rows)}
 
-## 验收标准
+## 验收到证据映射
 
-- 实现满足所述需求。
-- 已检查相关的项目规范和可复用能力。
-- 运行了项目质量检查，或明确说明了跳过原因。
-- 任务完成后刷新 `.project-intel`，以捕获新的事实和候选。
+- 功能行为：用对应页面操作、接口调用、单测或集成测试证明。
+- 规范复用：说明复用的组件、Hook、服务、API 封装或模式；没有复用时说明原因。
+- 质量检查：运行 `project-intel check`，必要时运行 lint/type/test/build。
+- 维护闭环：完成后运行 `project-intel finish` 做收口检查，再运行 `project-intel maintain --task "<中文简短需求摘要>" --files <changed-source-files>`。
 """
 
 
-def write_spec(root: Path, title: str, requirement: str) -> Path:
+def write_spec(root: Path, title: str, requirement: str, track: str = "auto") -> Path:
     snapshot = load_project_snapshot(root)
     path = project_dir(root) / "specs" / spec_filename(title, "spec")
-    write_text(path, build_spec_doc(root, title, requirement, snapshot))
+    write_text(path, build_spec_doc(root, title, requirement, snapshot, track=track))
     print(f"已写入需求文档：{path}")
     return path
 
@@ -3251,8 +3476,9 @@ def resolve_input_path(root: Path, value: str) -> Path:
     return path.resolve()
 
 
-def build_plan_doc(root: Path, title: str, spec_path: Path, spec_text: str, snapshot: dict[str, Any]) -> str:
+def build_plan_doc(root: Path, title: str, spec_path: Path, spec_text: str, snapshot: dict[str, Any], track: str = "auto") -> str:
     config = snapshot["config"]
+    analysis = analyze_task_intake(root, spec_text, snapshot, track=track)
     quality_rows = [[c.get("kind"), c.get("command"), c.get("source")] for c in config.get("quality", {}).get("commands", [])]
     return f"""# {title} 实施计划
 
@@ -3260,19 +3486,34 @@ def build_plan_doc(root: Path, title: str, spec_path: Path, spec_text: str, snap
 
 来源需求文档：`{spec_path}`
 
+Track：`{analysis.get("track")}`
+Readiness：`{analysis.get("readiness")}`
+
 ## 概述
 
 {truncate(spec_text, 2500)}
+
+## Readiness Gate
+
+进入代码修改前必须满足：
+
+- 缺失信息已处理：{", ".join(analysis.get("missingInformation", [])) or "无阻塞缺口"}
+- 已确认影响区域：{", ".join(analysis.get("affectedAreas", []))}
+- 已完成复用检查：组件、Hook、API、服务、工具函数、业务模式。
+- 已确认接口/状态/权限/异常/兼容边界；如不涉及，在执行记录中明确说明。
+- 已确定验证证据：测试、类型检查、lint、构建、页面截图、接口调用或人工复现路径。
 
 ## 任务清单
 
 - [ ] 如果工作区自本计划编写后有变更，使用 `project-intel refresh` 刷新项目上下文。
 - [ ] 从 `.project-intel` 识别受影响的模块、组件、Hook、API、服务、路由和规范。
 - [ ] 编写新代码前，检查可复用的组件、Hook、服务、请求工具和重复的候选模式。
+- [ ] 对 complex track，先完成 readiness gate；如果计划中途发现范围漂移，回到 spec/plan 更新。
 - [ ] 根据项目测试配置添加或更新针对性测试。
 - [ ] 实现需求行为，同时保持 hard 规范和现有边界。
-- [ ] 运行 `project-intel check` 及相关的项目 test/type/lint 命令。
-- [ ] 实现完成后运行 `project-intel maintain --task "<中文简短需求摘要>" --files <changed-source-files>` 以刷新知识库、覆盖最新维护报告并维护文件级需求记录；需要保留历史时加 `--archive`。
+- [ ] 运行 `project-intel check` 及相关的项目 test/type/lint/build 命令。
+- [ ] 实现完成后运行 `project-intel finish --task "<中文简短需求摘要>" --files <changed-source-files>` 做收口检查。
+- [ ] 收口后运行 `project-intel maintain --task "<中文简短需求摘要>" --files <changed-source-files>` 以刷新知识库、覆盖最新维护报告并维护文件级需求记录；需要保留历史时加 `--archive`。
 
 ## 质量命令
 
@@ -3280,30 +3521,25 @@ def build_plan_doc(root: Path, title: str, spec_path: Path, spec_text: str, snap
 """
 
 
-def write_plan(root: Path, title: str, from_spec: str) -> Path:
+def write_plan(root: Path, title: str, from_spec: str, track: str = "auto") -> Path:
     spec_path = resolve_input_path(root, from_spec)
     if not spec_path.exists():
         fail_usage(f"需求文档文件不存在：{spec_path}")
     snapshot = load_project_snapshot(root)
     spec_text = read_text(spec_path)
     path = project_dir(root) / "plans" / spec_filename(title, "plan")
-    write_text(path, build_plan_doc(root, title, spec_path, spec_text, snapshot))
+    write_text(path, build_plan_doc(root, title, spec_path, spec_text, snapshot, track=track))
     print(f"已写入实施计划：{path}")
     return path
 
 
-def build_task_impact_doc(root: Path, task: str, snapshot: dict[str, Any]) -> str:
+def build_task_impact_doc(root: Path, task: str, snapshot: dict[str, Any], analysis: Optional[dict[str, Any]] = None) -> str:
+    analysis = analysis or analyze_task_intake(root, task, snapshot)
     manifest = snapshot["manifest"]
     frontend = snapshot["frontend"]
     backend = snapshot["backend"]
     graph_rows = [[s.get("name"), s.get("status"), s.get("role")] for s in manifest.get("graphSources", [])]
-    reuse_rows = []
-    for component in frontend.get("components", [])[:20]:
-        reuse_rows.append(["component", component.get("name"), component.get("path")])
-    for hook in frontend.get("hooks", [])[:20]:
-        reuse_rows.append(["hook", hook.get("name"), hook.get("path")])
-    for service in backend.get("services", [])[:20]:
-        reuse_rows.append(["service", service.get("name"), service.get("path")])
+    reuse_rows = [[item.get("type"), item.get("name"), item.get("path")] for item in analysis.get("reuseCandidates", [])]
     return f"""# 任务影响
 
 生成时间：`{now_iso()}`
@@ -3311,6 +3547,28 @@ def build_task_impact_doc(root: Path, task: str, snapshot: dict[str, Any]) -> st
 ## 任务
 
 {truncate(task, 3000)}
+
+## Intake 分流
+
+- Track：`{analysis.get("track")}`
+- Readiness：`{analysis.get("readiness")}`
+- 影响区域：{", ".join(analysis.get("affectedAreas", []))}
+
+### 分流原因
+
+{bullet_list(analysis.get("reasons", []))}
+
+### 风险标记
+
+{bullet_list(analysis.get("riskFlags", []))}
+
+### 待澄清信息
+
+{bullet_list(analysis.get("missingInformation", []))}
+
+## 必经阶段
+
+{bullet_list(analysis.get("requiredStages", []))}
 
 ## 图谱上下文
 
@@ -3322,29 +3580,33 @@ def build_task_impact_doc(root: Path, task: str, snapshot: dict[str, Any]) -> st
 
 ## 需检查的规范
 
-- `.project-intel/standards/frontend.md`
-- `.project-intel/standards/backend.md`
-- `.project-intel/standards/reuse.md`
-- `.project-intel/standards/quality.md`
+{bullet_list(analysis.get("standards", []))}
 
 ## 完成钩子
 
 实现完成后运行：
 
 ```bash
+project-intel finish --task "<中文简短需求摘要>" --files <changed-source-files>
 project-intel maintain --task "<中文简短需求摘要>" --files <changed-source-files>
 ```
 """
 
 
-def write_lifecycle(root: Path, task: str, write_report: bool = False) -> Optional[Path]:
+def lifecycle_payload(root: Path, task: str, track: str = "auto") -> dict[str, Any]:
     snapshot = load_project_snapshot(root)
-    body = build_task_impact_doc(root, task, snapshot)
-    print(body)
+    analysis = analyze_task_intake(root, task, snapshot, track=track)
+    body = build_task_impact_doc(root, task, snapshot, analysis)
+    return {"analysis": analysis, "body": body}
+
+
+def write_lifecycle(root: Path, task: str, write_report: bool = False, track: str = "auto") -> Optional[Path]:
+    payload = lifecycle_payload(root, task, track=track)
+    print(payload["body"])
     if not write_report:
         return None
     path = project_dir(root) / "reports" / "task-impact.md"
-    write_text(path, body)
+    write_text(path, payload["body"])
     print(f"\n已写入任务影响报告：{path}")
     return path
 
@@ -3585,6 +3847,91 @@ def maintain_project(root: Path, task: str, run_quality: bool, archive: bool = F
     return check_exit
 
 
+def finish_changed_files(root: Path, files: Optional[list[str]] = None) -> list[str]:
+    selected = files if files is not None else changed_requirement_files(root)
+    rel_paths: list[str] = []
+    invalid: list[str] = []
+    for item in selected:
+        rel_path = normalize_project_file(root, item)
+        if rel_path and should_track_requirement_file(rel_path):
+            rel_paths.append(rel_path)
+        elif files is not None:
+            invalid.append(str(item))
+    if invalid:
+        fail_usage("以下源码路径无效、越出项目目录或不允许收口：" + ", ".join(invalid))
+    return sorted(dict.fromkeys(rel_paths))
+
+
+def git_diff_summary(root: Path) -> dict[str, Any]:
+    code_status, status, _ = run(["git", "status", "--short"], root, timeout=20)
+    code_names, names, _ = run(["git", "diff", "--name-only", "HEAD", "--"], root, timeout=20)
+    code_stat, stat, _ = run(["git", "diff", "--stat", "HEAD", "--"], root, timeout=20)
+    return {
+        "available": code_status == 0,
+        "status": status.splitlines() if code_status == 0 else [],
+        "changedFiles": names.splitlines() if code_names == 0 else [],
+        "stat": stat if code_stat == 0 else "",
+    }
+
+
+def build_finish_report(root: Path, task: str, files: list[str], check_exit: int, run_quality: bool, diff_summary: dict[str, Any]) -> str:
+    status_rows = [[line[:2].strip(), line[3:]] for line in diff_summary.get("status", []) if len(line) >= 3]
+    file_rows = [[path] for path in files]
+    next_files = " ".join(files) if files else "<changed-source-files>"
+    return f"""# 任务收口报告
+
+生成时间：`{now_iso()}`
+
+## 任务
+
+{truncate(task, 3000)}
+
+## 变更范围
+
+{table(["源码文件"], file_rows) if file_rows else "_未提供或未检测到可收口的源码文件。_"}
+
+## Git 状态
+
+{table(["状态", "路径"], status_rows) if status_rows else "_当前没有可展示的 git status 变更。_"}
+
+```text
+{diff_summary.get("stat") or "无 diff stat"}
+```
+
+## 收口检查
+
+- `project-intel check` 退出码：{check_exit}
+- 是否运行 lint/type/style/format：{"是" if run_quality else "否"}
+- 未自动执行提交、推送、发布、数据库迁移或线上变更。
+
+## 交付前人工确认
+
+- 功能验收证据已经来自本轮新鲜验证，而不是只依赖维护报告。
+- 需求范围没有漂移；如已漂移，先回到 spec/plan 更新。
+- 涉及接口、权限、数据、缓存、异步、支付、订阅、远程调用或回滚时，已记录兼容和失败行为。
+- Review findings 已验证，不盲目应用与当前项目事实冲突的建议。
+
+## 下一步维护
+
+```bash
+project-intel maintain --task "{normalize_requirement_summary(task)}" --files {next_files}
+```
+"""
+
+
+def finish_project(root: Path, task: str, run_quality: bool = False, files: Optional[list[str]] = None) -> int:
+    ensure_initialized(root)
+    if not contains_cjk(task):
+        fail_usage("任务收口要求使用中文任务摘要；请用 --task 传入中文摘要。")
+    selected_files = finish_changed_files(root, files)
+    check_exit = run_check(root, run_quality=run_quality)
+    summary = git_diff_summary(root)
+    path = project_dir(root) / "reports" / "finish-report.md"
+    write_text(path, build_finish_report(root, task, selected_files, check_exit, run_quality, summary))
+    print(f"已写入任务收口报告：{path}")
+    return check_exit
+
+
 def hook_script_body(hook_name: str) -> str:
     return f"""#!/bin/sh
 {PROJECT_INTEL_HOOK_MARKER}: {hook_name}
@@ -3673,12 +4020,14 @@ Prefer available project skills such as:
 - `project-brainstorm`
 - `project-spec`
 - `project-plan`
+- `project-intake`
 - `project-task`
 - `project-debug`
 - `project-review`
 - `project-quality`
 - `project-knowledge`
 - `project-standards`
+- `project-finish`
 - `project-maintain`
 - `project-orchestrate`
 - `project-init`
@@ -3699,6 +4048,7 @@ If a conversation starts as explanation or discussion and later turns into code 
 Before implementing, debugging, reviewing, planning, writing specs, answering component/API questions, or modifying behavior:
 
 1. Classify the request and explicitly invoke the matching Project Intelligence skill when available:
+   - Requirement intake, task routing, readiness, or scope classification: `project-intake` or `project-intelligence:project-intake`
    - Requirement shaping or brainstorming: `project-brainstorm` or `project-intelligence:project-brainstorm`
    - Requirement/spec/acceptance criteria/impact: `project-spec` or `project-intelligence:project-spec`
    - Implementation plan or checklist: `project-plan` or `project-intelligence:project-plan`
@@ -3709,6 +4059,7 @@ Before implementing, debugging, reviewing, planning, writing specs, answering co
    - Quality, lint, type, format, style, redundancy checks: `project-quality` or `project-intelligence:project-quality`
    - Project knowledge, component/API/service usage, architecture questions: `project-knowledge` or `project-intelligence:project-knowledge`
    - Standards lookup, rule promotion/demotion, hard/preferred/inferred/candidate explanation: `project-standards` or `project-intelligence:project-standards`
+   - Task finish, acceptance evidence, release readiness, or completion checks: `project-finish` or `project-intelligence:project-finish`
    - Post-task refresh and lifecycle maintenance: `project-maintain` or `project-intelligence:project-maintain`
    - Initialization of project facts and local adapters: `project-init` or `project-intelligence:project-init`
    - Refresh of project facts, tooling reports, and adapters: `project-refresh` or `project-intelligence:project-refresh`
@@ -3717,10 +4068,10 @@ Before implementing, debugging, reviewing, planning, writing specs, answering co
 4. Read only the relevant files under `.project-intel/standards/`, `.project-intel/knowledge/`, `.project-intel/graph/`, and `.project-intel/reports/`.
 5. Apply `hard` standards as requirements; treat `preferred` as default project style; treat `inferred` and `candidate` as suggestions that need confirmation before enforcement.
 6. Prefer existing public components, Hooks, utilities, API wrappers, services, DTO/VO/entity patterns, permission checks, transaction boundaries, and error-code conventions before adding new ones.
-7. For implementation work, before the first Edit/Write, run the `project-task` workflow: check reuse, affected modules, relevant standards, and impact. First produce or internally confirm a lightweight Chinese task spec: requirement summary, acceptance points, affected files/modules, reuse candidates, and assumptions/open questions. Do not create a spec file unless the user explicitly asks for one.
-8. Use GitNexus impact/explore/detect_changes tools when available; otherwise use `.project-intel` plus `project-intel lifecycle --task "<requirement>"` or `project-intel query "<symbol-or-feature>"`. `lifecycle` prints by default; use `--write` only when a persistent task-impact report is explicitly needed.
+7. For implementation work, before the first Edit/Write, run `project-intake` or `project-intel intake --task "<requirement>"` to classify `quick` / `standard` / `complex` and confirm readiness. Then run the `project-task` workflow: check reuse, affected modules, relevant standards, and impact. First produce or internally confirm a lightweight Chinese task spec: requirement summary, acceptance points, affected files/modules, reuse candidates, and assumptions/open questions. Do not create a spec file unless the user explicitly asks for one.
+8. Use GitNexus impact/explore/detect_changes tools when available; otherwise use `.project-intel` plus `project-intel lifecycle --task "<requirement>"` or `project-intel query "<symbol-or-feature>"`. `lifecycle` prints by default and includes track/readiness; use `--write` only when a persistent task-impact report is explicitly needed.
 9. Use `project-orchestrate` only when planned subtasks are independent enough to review separately. Implementation subagents should normally run sequentially; parallel agents are for read-only investigations or disjoint impact analysis.
-10. After meaningful code changes, run change review and maintenance: inspect the diff, run `project-intel check`, run the concrete verification that proves the actual behavior claim, and then run or recommend `project-intel maintain --task "<中文简短需求摘要>" --files <changed-source-files>`. The `--task` value used for requirement deposition must be Chinese. `maintain` overwrites `.project-intel/maintenance/latest.md` by default and updates one short requirement markdown per affected source file under `.project-intel/requirements/files/`; use `--archive` only when the user wants a historical maintenance record.
+10. After meaningful code changes, run change review, finish, and maintenance: inspect the diff, run `project-intel check`, run the concrete verification that proves the actual behavior claim, run `project-intel finish --task "<中文简短需求摘要>" --files <changed-source-files>`, and then run or recommend `project-intel maintain --task "<中文简短需求摘要>" --files <changed-source-files>`. The `--task` value used for finish/maintenance must be Chinese. `maintain` overwrites `.project-intel/maintenance/latest.md` by default and updates one short requirement markdown per affected source file under `.project-intel/requirements/files/`; use `--archive` only when the user wants a historical maintenance record.
 11. Do not claim a change is complete, fixed, passing, or ready without fresh evidence from the current turn. `project-intel check` proves Project Intelligence rules; it does not prove business behavior unless the check directly exercises that behavior.
 12. For bug investigation, first gather symptoms, reproduce or locate evidence, trace likely paths through project knowledge/graph context, then propose one testable hypothesis and avoid stacked guesses.
 13. For review, inspect diff plus `.project-intel` standards/knowledge/graph context and report findings by severity before summaries. Verify review feedback against project reality before applying it.
@@ -3728,12 +4079,13 @@ Before implementing, debugging, reviewing, planning, writing specs, answering co
 15. If GitNexus or Understand-Anything graph context is available, use it for impact analysis and architecture/domain relationships.
 Stable generated files are preferred for routine runs: refresh/tooling/quality reports are overwritten in place, `debug` and `lifecycle` only print unless `--write` is passed, `maintain` writes `maintenance/latest.md` unless `--archive` is passed, and file-level requirements are maintained as one concise Chinese markdown per source file.
 
-Useful CLI fallbacks: `project-intel query`, `project-intel refresh`, `project-intel check`, `project-intel spec`, `project-intel plan`, `project-intel debug`, `project-intel requirements`, and `project-intel maintain`."""
+Useful CLI fallbacks: `project-intel intake`, `project-intel lifecycle`, `project-intel query`, `project-intel refresh`, `project-intel check`, `project-intel spec`, `project-intel plan`, `project-intel debug`, `project-intel finish`, `project-intel requirements`, and `project-intel maintain`."""
 
 
 def claude_project_agent_rules() -> str:
     rules = project_agent_rules()
     replacements = {
+        "Requirement intake, task routing, readiness, or scope classification: `project-intake` or `project-intelligence:project-intake`": "Requirement intake, task routing, readiness, or scope classification: `/project-intake`",
         "Requirement shaping or brainstorming: `project-brainstorm` or `project-intelligence:project-brainstorm`": "Requirement shaping or brainstorming: `/project-brainstorm`",
         "Requirement/spec/acceptance criteria/impact: `project-spec` or `project-intelligence:project-spec`": "Requirement/spec/acceptance criteria/impact: `/project-spec`",
         "Implementation plan or checklist: `project-plan` or `project-intelligence:project-plan`": "Implementation plan or checklist: `/project-plan`",
@@ -3744,6 +4096,7 @@ def claude_project_agent_rules() -> str:
         "Quality, lint, type, format, style, redundancy checks: `project-quality` or `project-intelligence:project-quality`": "Quality, lint, type, format, style, redundancy checks: `/project-quality`",
         "Project knowledge, component/API/service usage, architecture questions: `project-knowledge` or `project-intelligence:project-knowledge`": "Project knowledge, component/API/service usage, architecture questions: `/project-knowledge`",
         "Standards lookup, rule promotion/demotion, hard/preferred/inferred/candidate explanation: `project-standards` or `project-intelligence:project-standards`": "Standards lookup, rule promotion/demotion, hard/preferred/inferred/candidate explanation: `/project-standards`",
+        "Task finish, acceptance evidence, release readiness, or completion checks: `project-finish` or `project-intelligence:project-finish`": "Task finish, acceptance evidence, release readiness, or completion checks: `/project-finish`",
         "Post-task refresh and lifecycle maintenance: `project-maintain` or `project-intelligence:project-maintain`": "Post-task refresh and lifecycle maintenance: `/project-maintain`",
         "Initialization of project facts and local adapters: `project-init` or `project-intelligence:project-init`": "Initialization of project facts and local adapters: `/project-init`",
         "Refresh of project facts, tooling reports, and adapters: `project-refresh` or `project-intelligence:project-refresh`": "Refresh of project facts, tooling reports, and adapters: `/project-refresh`",
@@ -4065,18 +4418,29 @@ def build_parser() -> argparse.ArgumentParser:
     install.add_argument("--activate-git-hooks", action="store_true", help="将项目智能包装器安装到 .git/hooks（不覆盖自定义钩子）")
     check = sub.add_parser("check", help="运行项目智能检查")
     check.add_argument("--run-quality", action="store_true", help="实际运行检测到的 lint/type/style/format 命令")
+    intake = sub.add_parser("intake", help="分析需求入口、任务分流和 readiness")
+    intake.add_argument("--task", required=True)
+    intake.add_argument("--track", choices=TRACK_CHOICES, default="auto", help="显式指定 quick/standard/complex；默认自动判断")
+    intake.add_argument("--write", action="store_true", help="写入固定报告 .project-intel/reports/task-intake.md；默认只输出")
     spec = sub.add_parser("spec", help="在 .project-intel/specs 下写入需求文档")
     spec.add_argument("--title", required=True)
     spec.add_argument("--from", dest="requirement", required=True)
+    spec.add_argument("--track", choices=TRACK_CHOICES, default="auto", help="显式指定 quick/standard/complex；默认自动判断")
     plan = sub.add_parser("plan", help="在 .project-intel/plans 下写入实施计划")
     plan.add_argument("--title", required=True)
     plan.add_argument("--from-spec", required=True)
+    plan.add_argument("--track", choices=TRACK_CHOICES, default="auto", help="显式指定 quick/standard/complex；默认自动判断")
     lifecycle = sub.add_parser("lifecycle", help="输出任务影响分析")
     lifecycle.add_argument("--task", required=True)
+    lifecycle.add_argument("--track", choices=TRACK_CHOICES, default="auto", help="显式指定 quick/standard/complex；默认自动判断")
     lifecycle.add_argument("--write", action="store_true", help="写入固定报告 .project-intel/reports/task-impact.md；默认只输出")
     debug = sub.add_parser("debug", help="输出系统化调试上下文")
     debug.add_argument("--bug", required=True)
     debug.add_argument("--write", action="store_true", help="写入固定报告 .project-intel/reports/debug-context.md；默认只输出")
+    finish = sub.add_parser("finish", help="任务完成后生成收口报告")
+    finish.add_argument("--task", required=True, help="中文任务摘要")
+    finish.add_argument("--run-quality", action="store_true", help="实际运行检测到的 lint/type/style/format 命令")
+    finish.add_argument("--files", nargs="*", help="本次需求实际影响的源码文件；用于收口范围展示")
     maintain = sub.add_parser("maintain", help="任务完成后刷新项目智能")
     maintain.add_argument("--task", required=True)
     maintain.add_argument("--run-quality", action="store_true", help="实际运行检测到的 lint/type/style/format 命令")
@@ -4142,18 +4506,31 @@ def dispatch_command(args: argparse.Namespace, root: Path, json_mode: bool) -> t
     if args.command == "check":
         code = run_check(root, args.run_quality)
         return code, {"report": ".project-intel/reports/frontend-quality.md"}
+    if args.command == "intake":
+        path = write_intake(root, args.task, track=args.track, write_report=args.write)
+        analysis = analyze_task_intake(root, args.task, load_project_snapshot(root), track=args.track)
+        return 0, {"path": str(path) if path else None, **analysis}
     if args.command == "spec":
-        path = write_spec(root, args.title, args.requirement)
+        path = write_spec(root, args.title, args.requirement, track=args.track)
         return 0, {"path": str(path)}
     if args.command == "plan":
-        path = write_plan(root, args.title, args.from_spec)
+        path = write_plan(root, args.title, args.from_spec, track=args.track)
         return 0, {"path": str(path)}
     if args.command == "lifecycle":
-        path = write_lifecycle(root, args.task, write_report=args.write)
-        return 0, {"path": str(path) if path else None}
+        payload = lifecycle_payload(root, args.task, track=args.track)
+        print(payload["body"])
+        path = None
+        if args.write:
+            path = project_dir(root) / "reports" / "task-impact.md"
+            write_text(path, payload["body"])
+            print(f"\n已写入任务影响报告：{path}")
+        return 0, {"path": str(path) if path else None, **payload["analysis"]}
     if args.command == "debug":
         path = write_debug_context(root, args.bug, write_report=args.write)
         return 0, {"path": str(path) if path else None}
+    if args.command == "finish":
+        code = finish_project(root, args.task, run_quality=args.run_quality, files=args.files)
+        return code, {"report": ".project-intel/reports/finish-report.md"}
     if args.command == "maintain":
         code = maintain_project(root, args.task, args.run_quality, archive=args.archive, files=args.files)
         return code, {"maintenance": ".project-intel/maintenance/latest.md"}

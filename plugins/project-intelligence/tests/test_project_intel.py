@@ -651,6 +651,32 @@ class AgentEntrypointInstallTests(unittest.TestCase):
 
 
 class LifecycleArtifactTests(unittest.TestCase):
+    def test_intake_prints_by_default_and_exposes_track_readiness(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "src").mkdir()
+            (root / "src" / "index.ts").write_text("export const answer = 42;\n", encoding="utf-8")
+            project_intel.init_project(root, with_graph=False)
+
+            buffer = io.StringIO()
+            with redirect_stdout(buffer):
+                path = project_intel.write_intake(root, "修改按钮文案", track="auto")
+
+            self.assertIsNone(path)
+            self.assertIn("# 需求入口分析", buffer.getvalue())
+            self.assertIn("Track：`quick`", buffer.getvalue())
+            self.assertFalse((root / ".project-intel" / "reports" / "task-intake.md").exists())
+
+            analysis = project_intel.analyze_task_intake(
+                root,
+                "新增支付接口并保持兼容、权限、回滚和监控",
+                project_intel.load_project_snapshot(root),
+            )
+            self.assertEqual(analysis["track"], "complex")
+            self.assertIn("readiness", analysis)
+            self.assertIn("requiredStages", analysis)
+            self.assertIn("affectedAreas", analysis)
+
     def test_lifecycle_and_debug_print_by_default_and_write_only_when_requested(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -660,23 +686,59 @@ class LifecycleArtifactTests(unittest.TestCase):
 
             buffer = io.StringIO()
             with redirect_stdout(buffer):
-                lifecycle_path = project_intel.write_lifecycle(root, "demo task")
+                lifecycle_path = project_intel.write_lifecycle(root, "demo task", track="standard")
                 debug_path = project_intel.write_debug_context(root, "demo bug")
 
             self.assertIsNone(lifecycle_path)
             self.assertIsNone(debug_path)
             self.assertIn("# 任务影响", buffer.getvalue())
+            self.assertIn("Track：`standard`", buffer.getvalue())
+            self.assertIn("Readiness", buffer.getvalue())
             self.assertIn("# 调试上下文", buffer.getvalue())
             self.assertFalse((root / ".project-intel" / "reports" / "task-impact.md").exists())
             self.assertFalse((root / ".project-intel" / "reports" / "debug-context.md").exists())
 
-            lifecycle_path = project_intel.write_lifecycle(root, "demo task", write_report=True)
+            lifecycle_path = project_intel.write_lifecycle(root, "demo task", write_report=True, track="quick")
             debug_path = project_intel.write_debug_context(root, "demo bug", write_report=True)
 
             self.assertEqual(lifecycle_path, root / ".project-intel" / "reports" / "task-impact.md")
             self.assertEqual(debug_path, root / ".project-intel" / "reports" / "debug-context.md")
             self.assertTrue(lifecycle_path.exists())
             self.assertTrue(debug_path.exists())
+
+    def test_spec_plan_and_finish_include_lifecycle_gates(self):
+        refresh_result = {
+            "manifest": {"fileCount": 1},
+            "frontend": {"components": [], "hooks": [], "redundancyCandidates": []},
+            "backend": {"apis": [], "services": [], "candidateEntrypoints": []},
+        }
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source = root / "src" / "page.vue"
+            source.parent.mkdir(parents=True)
+            source.write_text("<template />\n", encoding="utf-8")
+            project_intel.init_project(root, with_graph=False)
+
+            spec = project_intel.write_spec(root, "支付接口兼容", "新增支付接口并保持兼容、权限、回滚和监控", track="complex")
+            spec_body = spec.read_text(encoding="utf-8")
+            self.assertIn("Track：`complex`", spec_body)
+            self.assertIn("## 行为契约", spec_body)
+            self.assertIn("## 验收到证据映射", spec_body)
+
+            plan = project_intel.write_plan(root, "支付接口兼容", str(spec), track="complex")
+            plan_body = plan.read_text(encoding="utf-8")
+            self.assertIn("## Readiness Gate", plan_body)
+            self.assertIn("project-intel finish", plan_body)
+
+            with patch.object(project_intel, "run_check", return_value=0), patch.object(
+                project_intel, "git_diff_summary", return_value={"available": True, "status": [" M src/page.vue"], "changedFiles": ["src/page.vue"], "stat": "src/page.vue | 1 +"}
+            ), patch.object(project_intel, "init_project", return_value=refresh_result):
+                code = project_intel.finish_project(root, "新增支付接口兼容能力", files=["src/page.vue"])
+
+            self.assertEqual(code, 0)
+            finish = root / ".project-intel" / "reports" / "finish-report.md"
+            self.assertIn("任务收口报告", finish.read_text(encoding="utf-8"))
+            self.assertIn("project-intel maintain", finish.read_text(encoding="utf-8"))
 
     def test_maintain_defaults_to_latest_and_archives_only_when_requested(self):
         refresh_result = {
@@ -1052,7 +1114,10 @@ class CliAndReleaseContractTests(unittest.TestCase):
 
             for args in (
                 ["init", "--no-graph"],
+                ["intake", "--task", "修改按钮文案"],
                 ["check"],
+                ["lifecycle", "--task", "修改按钮文案", "--track", "quick"],
+                ["finish", "--task", "完成稳定性维护", "--files", "src/index.ts"],
                 ["refresh"],
                 ["maintain", "--task", "完成稳定性维护", "--files", "src/index.ts"],
             ):
@@ -1066,7 +1131,7 @@ class CliAndReleaseContractTests(unittest.TestCase):
         codex = json.loads((plugin_root / ".codex-plugin" / "plugin.json").read_text(encoding="utf-8"))
         npm = json.loads((repo_root / "package.json").read_text(encoding="utf-8"))
 
-        self.assertEqual(project_intel.VERSION, "0.1.15")
+        self.assertEqual(project_intel.VERSION, "0.1.16")
         self.assertEqual(claude["version"], project_intel.VERSION)
         self.assertEqual(codex["version"].split("+")[0], project_intel.VERSION)
         self.assertEqual(npm["version"], project_intel.VERSION)
@@ -1083,6 +1148,16 @@ class CliAndReleaseContractTests(unittest.TestCase):
         self.assertIn("name: project-orchestrate", text)
         self.assertIn("sequential-subagents", text)
         self.assertIn("fresh evidence", text)
+
+    def test_project_intake_and_finish_skills_are_packaged(self):
+        plugin_root = MODULE_PATH.parents[1]
+        intake = (plugin_root / "skills" / "project-intake" / "SKILL.md").read_text(encoding="utf-8")
+        finish = (plugin_root / "skills" / "project-finish" / "SKILL.md").read_text(encoding="utf-8")
+
+        self.assertIn("name: project-intake", intake)
+        self.assertIn("quick", intake)
+        self.assertIn("name: project-finish", finish)
+        self.assertIn("project-intel finish", finish)
 
     def test_skills_only_persist_specs_and_plans_on_explicit_request(self):
         skills = MODULE_PATH.parents[1] / "skills"

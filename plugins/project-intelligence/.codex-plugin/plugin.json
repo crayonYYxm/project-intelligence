@@ -1,15 +1,15 @@
 {
   "name": "project-intelligence",
-  "version": "0.1.15+codex.20260713145654",
-  "description": "Project-level intelligence for specs, plans, standards, knowledge, graph context, systematic debugging, orchestration, verification, lifecycle maintenance, and reuse guidance.",
+  "version": "0.1.16+codex.20260713145654",
+  "description": "Project-level intelligence for intake, specs, plans, standards, knowledge, graph context, systematic debugging, orchestration, finish gates, lifecycle maintenance, and reuse guidance.",
   "author": {
     "name": "crayonYYxm"
   },
   "skills": "./skills/",
   "interface": {
     "displayName": "Project Intelligence",
-    "shortDescription": "Project specs, standards, knowledge, graph context, debugging, orchestration, maintenance, and review checks.",
-    "longDescription": "Project Intelligence maintains a repository-local .project-intel knowledge base for project specs, standards, reusable frontend/backend patterns, optional GitNexus and Understand-Anything graph context, systematic debugging, task orchestration, verification gates, quality checks, code review workflows, and post-task maintenance. Init detects optional graph tools without blocking noninteractive agents, while refresh, check, and maintain remain predictable and side-effect controlled.",
+    "shortDescription": "Project intake, specs, standards, graph context, finish gates, maintenance, and review checks.",
+    "longDescription": "Project Intelligence maintains a repository-local .project-intel knowledge base for requirement intake, specs, plans, standards, reusable frontend/backend patterns, optional GitNexus and Understand-Anything graph context, systematic debugging, task orchestration, finish gates, quality checks, code review workflows, and post-task maintenance. Init detects optional graph tools without blocking noninteractive agents, while intake/lifecycle print by default and finish/maintain keep stable outputs.",
     "developerName": "crayonYYxm",
     "category": "Productivity",
     "capabilities": [
@@ -19,7 +19,7 @@
     ],
     "defaultPrompt": [
       "Initialize this repository's standards, knowledge, tooling, and graph context.",
-      "Implement this requirement using project standards, reuse, impact analysis, and maintenance.",
+      "Implement this requirement using intake, project standards, reuse, impact analysis, finish, and maintenance.",
       "Investigate or review this change with project context, hard rules, and quality checks."
     ],
     "brandColor": "#2563EB"
