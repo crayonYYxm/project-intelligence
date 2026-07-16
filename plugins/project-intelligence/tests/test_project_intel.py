@@ -1533,8 +1533,9 @@ class InferStandardsTests(unittest.TestCase):
             files = [path for path in root.rglob("*") if path.is_file()]
             backend = project_intel.scan_backend(root, files)
 
-        self.assertEqual(backend["apis"][0]["framework"], "Spring")
-        self.assertIn("/api/orders", backend["apis"][0]["endpoints"])
+        controller_api = next(api for api in backend["apis"] if api["path"].endswith("OrderController.java"))
+        self.assertEqual(controller_api["framework"], "Spring")
+        self.assertIn("/api/orders", controller_api["endpoints"])
         self.assertTrue(backend["permissionChecks"])
         self.assertTrue(backend["transactions"])
         self.assertTrue(backend["remoteCalls"])
