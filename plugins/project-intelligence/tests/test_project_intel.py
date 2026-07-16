@@ -643,7 +643,9 @@ class AgentEntrypointInstallTests(unittest.TestCase):
             self.assertIn("pause before the first Edit/Write", agents)
             self.assertIn("state which Project Intelligence workflow is being followed", agents)
             self.assertIn("project-task` or `project-intelligence:project-task", agents)
-            self.assertIn("explicitly invoke `project-test` before `project-task`", agents)
+            self.assertIn("Use `project-design` to generate/validate and register it", agents)
+            self.assertIn("`project-spec` to write numbered acceptance criteria to the manifest", agents)
+            self.assertIn("Explicitly invoke `project-test` before `project-task`", agents)
             self.assertIn("same-turn handoff", agents)
             self.assertIn("project-review` or `project-intelligence:project-review", agents)
             self.assertIn("project-orchestrate` or `project-intelligence:project-orchestrate", agents)
@@ -1251,7 +1253,7 @@ class CliAndReleaseContractTests(unittest.TestCase):
         codex = json.loads((plugin_root / ".codex-plugin" / "plugin.json").read_text(encoding="utf-8"))
         npm = json.loads((repo_root / "package.json").read_text(encoding="utf-8"))
 
-        self.assertEqual(project_intel.VERSION, "0.2.1")
+        self.assertEqual(project_intel.VERSION, "0.3.0")
         self.assertEqual(claude["version"], project_intel.VERSION)
         self.assertEqual(codex["version"].split("+")[0], project_intel.VERSION)
         self.assertEqual(npm["version"], project_intel.VERSION)
@@ -1268,6 +1270,21 @@ class CliAndReleaseContractTests(unittest.TestCase):
         self.assertIn("name: project-orchestrate", text)
         self.assertIn("sequential-subagents", text)
         self.assertIn("fresh evidence", text)
+
+    def test_project_design_skill_is_packaged_and_self_contained(self):
+        plugin_root = MODULE_PATH.parents[1]
+        skill_root = plugin_root / "skills" / "project-design"
+        skill = (skill_root / "SKILL.md").read_text(encoding="utf-8")
+        validator = (skill_root / "scripts" / "validate_design_doc.py").read_text(encoding="utf-8")
+
+        self.assertIn("name: project-design", skill)
+        self.assertIn("Standalone", skill)
+        self.assertIn("Lifecycle", skill)
+        self.assertIn("acceptance criteria belong in the manifest", skill)
+        self.assertIn("must not be added to the design document", skill)
+        self.assertNotIn("/Users/xumeng/.codex/skills", skill + validator)
+        self.assertTrue((skill_root / "references" / "bug-design-template.md").is_file())
+        self.assertTrue((skill_root / "references" / "requirement-design-template.md").is_file())
 
     def test_project_intake_and_finish_skills_are_packaged(self):
         plugin_root = MODULE_PATH.parents[1]
@@ -1289,7 +1306,9 @@ class CliAndReleaseContractTests(unittest.TestCase):
         self.assertIn("--phase red", skill)
         self.assertIn("--phase green", skill)
         self.assertIn("project-intel finish", skill)
-        self.assertIn("explicitly invoke `project-test`, then `project-task`", intake)
+        self.assertIn("invoke `project-design`", intake)
+        self.assertIn("invoke `project-spec` to persist acceptance criteria", intake)
+        self.assertIn("`project-test` and `project-task`", intake)
         self.assertIn("not a terminal route for an implementation-intent request", knowledge)
 
     def test_skills_only_persist_specs_and_plans_on_explicit_request(self):

@@ -14,10 +14,10 @@ Use this sequence:
 1. Before the first code edit, run or mentally follow `project-intake` to classify the work as `quick`, `standard`, or `complex`, and confirm readiness:
 
 ```bash
-project-intel intake --requirement-id "<id>" --requirement-name "<name>" --external-api yes|no --track auto
+project-intel intake --requirement-id "<id>" --requirement-name "<name>" --ticket-kind bug|requirement --external-api yes|no --track auto
 ```
 
-2. Before the first code edit,整理轻量中文 spec：需求摘要、验收点、影响范围、复用候选、假设/疑问。This is required for task work, but do not create a spec file unless the user explicitly asks.
+2. Before the first code edit, confirm `project-design` has registered a validated design artifact and `project-spec` has written acceptance criteria to the manifest. Do not add AC headings to the design document.
 3. Invoke `project-test` before production edits for features, fixes, refactors, and behavior changes. Name the target test file, command, expected RED failure, GREEN proof, regression scope, and any justified manual-evidence exception.
 4. Identify related modules, components, Hooks, APIs, services, routes, and standards.
 5. Prefer existing project abstractions before creating new ones.

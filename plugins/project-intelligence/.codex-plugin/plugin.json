@@ -1,15 +1,15 @@
 {
   "name": "project-intelligence",
-  "version": "0.2.1+codex.20260716122000",
-  "description": "Requirement-level intelligence for intake, documents, plans, standards, test reports, review gates, finish, maintenance, debugging, orchestration, and reuse guidance.",
+  "version": "0.3.0+codex.20260716184401",
+  "description": "Source-backed development design plus requirement-level intake, plans, standards, test reports, review gates, finish, maintenance, debugging, and orchestration.",
   "author": {
     "name": "crayonYYxm"
   },
   "skills": "./skills/",
   "interface": {
     "displayName": "Project Intelligence",
-    "shortDescription": "Requirement documents, test reports, review/finish gates, project context, and maintenance.",
-    "longDescription": "Project Intelligence maintains repository-local project facts plus revisioned requirement archives. It gates implementation through requirement/design documents, numbered acceptance criteria, test reports, diff-hash-aware reviews, closure summaries, finish, and maintenance, while retaining project standards, reusable frontend/backend patterns, optional GitNexus and Understand-Anything graph context, systematic debugging, quality checks, and Claude/Codex workflows.",
+    "shortDescription": "Source-backed designs, test reports, review/finish gates, and project context.",
+    "longDescription": "Project Intelligence generates and validates source-backed Bug and Requirement development designs, maintains repository-local project facts and revisioned requirement archives, and gates implementation through manifest acceptance criteria, test reports, diff-hash-aware reviews, closure summaries, finish, and maintenance.",
     "developerName": "crayonYYxm",
     "category": "Productivity",
     "capabilities": [
@@ -19,7 +19,7 @@
     ],
     "defaultPrompt": [
       "Initialize this repository's standards, knowledge, tooling, and graph context.",
-      "Implement this requirement using intake, project standards, reuse, impact analysis, RED/GREEN test evidence, finish, and maintenance.",
+      "Convert this local ticket into a source-backed development design, or implement it through intake, manifest acceptance criteria, RED/GREEN evidence, finish, and maintenance.",
       "Investigate or review this change with project context, hard rules, and quality checks."
     ],
     "brandColor": "#2563EB"

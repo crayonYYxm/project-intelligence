@@ -1,7 +1,7 @@
 {
   "name": "project-intelligence",
-  "version": "0.2.1",
-  "description": "Requirement-level intelligence for intake, documents, plans, standards, test reports, review gates, finish, maintenance, debugging, and reuse guidance.",
+  "version": "0.3.0",
+  "description": "Source-backed development design plus requirement-level intake, plans, standards, test reports, review gates, finish, maintenance, and debugging.",
   "author": {
     "name": "crayonYYxm"
   }

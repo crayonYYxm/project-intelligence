@@ -7,6 +7,8 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
+from design_fixtures import requirement_design
+
 
 MODULE_PATH = Path(__file__).resolve().parents[1] / "scripts" / "project_intel.py"
 SPEC = importlib.util.spec_from_file_location("project_intel_test_facade", MODULE_PATH)
@@ -39,11 +41,22 @@ class ProjectTestEvidenceTests(unittest.TestCase):
             "--requirement-id", "REQ-TEST-1",
             "--requirement-name", "需求级测试门禁",
             "--external-api", "no",
+            "--ticket-kind", "requirement",
             "--track", "complex",
         ]), 0)
+        design = root / ".project-intel" / "requirements" / "by-id" / "REQ-TEST-1" / "REQ-TEST-1_需求级测试门禁_设计文档.md"
+        design.parent.mkdir(parents=True, exist_ok=True)
+        design.write_text(requirement_design("REQ-TEST-1", "需求级测试门禁"), encoding="utf-8")
         self.assertEqual(project_intel.main([
-            "--project", str(root), "requirement", "generate",
+            "--project", str(root), "requirement", "add",
             "--requirement-id", "REQ-TEST-1", "--type", "requirement-design",
+            "--path", design.relative_to(root).as_posix(),
+        ]), 0)
+        self.assertEqual(project_intel.main([
+            "--project", str(root), "requirement", "acceptance", "set",
+            "--requirement-id", "REQ-TEST-1",
+            "--criterion", "AC-01:实现需求约定行为",
+            "--criterion", "AC-02:相关测试通过",
         ]), 0)
         self.assertEqual(project_intel.main([
             "--project", str(root), "requirement", "ready",

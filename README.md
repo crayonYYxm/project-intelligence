@@ -1,6 +1,6 @@
 # 项目智能 (Project Intelligence)
 
-Project Intelligence 是一个本地的 Codex/Claude 兼容项目插件，用于完成“需求号/名称 → 需求与设计文档 → readiness → 实施 → 测试报告 → 持久化 review → 收口总结 → finish → maintain”的需求级闭环，同时维护仓库级规范、知识和图谱上下文。
+Project Intelligence 是一个本地的 Codex/Claude 兼容项目插件，用于完成“需求号/名称 → 源码佐证的开发设计文档 → manifest 验收标准 → readiness → 实施 → 测试报告 → 持久化 review → 收口总结 → finish → maintain”的需求级闭环，同时维护仓库级规范、知识和图谱上下文。
 
 可用时优先使用 GitNexus 和 Understand-Anything 作为推荐的图谱来源。
 
@@ -60,8 +60,9 @@ project-intel --project /path/to/repo init --dry-run
 project-intel --project /path/to/repo graph-tools --json
 project-intel --project /path/to/repo doctor --json
 project-intel --project /path/to/repo intake --task "新需求"
-project-intel --project /path/to/repo intake --requirement-id REQ-1001 --requirement-name "新需求" --external-api no
-project-intel --project /path/to/repo requirement generate --requirement-id REQ-1001 --type requirement-design
+project-intel --project /path/to/repo intake --requirement-id REQ-1001 --requirement-name "新需求" --ticket-kind requirement --external-api no
+project-intel --project /path/to/repo requirement add --requirement-id REQ-1001 --type requirement-design --path docs/requirements/REQ-1001_新需求_设计文档.md
+project-intel --project /path/to/repo requirement acceptance set --requirement-id REQ-1001 --criterion "AC-01:实现目标行为" --criterion "AC-02:相关回归测试通过"
 project-intel --project /path/to/repo requirement ready --requirement-id REQ-1001 --resolution "需求和验收已确认"
 project-intel --project /path/to/repo requirement begin --requirement-id REQ-1001
 project-intel --project /path/to/repo lifecycle --task "新需求"
@@ -93,7 +94,8 @@ project-intel --project /path/to/repo query "表格"
 - `intake` 将需求分为 `quick`、`standard`、`complex`，并输出 readiness、风险、缺失信息、必经阶段和复用候选；默认只打印，不生成文件。
 - `lifecycle` 输出带 track/readiness 的任务影响分析；默认只打印，`--write` 才覆盖 `.project-intel/reports/task-impact.md`。
 - `spec` 和 `plan` 支持 `--track auto|quick|standard|complex`，复杂需求会写入行为契约、readiness gate、验收到证据映射。
-- `requirement` 将每个需求归档到 `.project-intel/requirements/by-id/<id>/`，保存 revisioned manifest、合并需求设计文档、持续更新的测试报告和复盘收口总结。没有正式编号时由 Agent 生成 `LOCAL-YYYYMMDD-HHMMSS`。
+- `project-design` 可以独立把本地 Bug/需求单转换为 `docs/requirements/` 下的源码佐证设计文档；独立调用不会初始化或修改 `.project-intel`。在生命周期模式中，它验证并登记同一份文档。
+- `requirement` 将每个需求归档到 `.project-intel/requirements/by-id/<id>/`，保存 revisioned manifest、设计文档登记、独立验收标准、持续更新的测试报告和复盘收口总结。纯数字编号按单据类型规范化为 `bug<数字>` 或 `req<数字>`。
 - `test` 要求显式 `--files` 或 `--project-wide`；RED 还必须用 `--expect-failure` 匹配预期失败，退出码 2/3/4/5、命令不存在和超时都不会被误判为有效 RED。需求级测试同时登记测试类型、报告动作、验收标准和当前 diff hash。
 - `review` 持久化结果、问题级别、完整 Git 范围和 diff hash；存在未解决的 critical/important 问题或评审后代码变化时不能 finish。修复后使用 `requirement resolve-finding` 按稳定 finding ID 写入解决人和解决说明，再执行新一轮 review。
 - `finish` 检查需求/设计、测试策略、验收标准映射、评审、实际 Git 变更范围、证据 hash 和收口总结。人工测试只能通过 `project-test` 的审批式 visual/device/hardware/configuration 例外登记，不能由 finish 一行文字绕过。它不会自动提交、推送、部署或发布。
@@ -133,7 +135,8 @@ project-intel --project /path/to/repo query "表格"
 - `project-task`：实现前使用项目规范和知识库。
 - `project-intake`：需求入口分流、readiness 和 quick/standard/complex 路由。
 - `project-brainstorm`：塑造需求并比较实现方案。
-- `project-spec`：基于项目事实编写需求文档和影响说明。
+- `project-design`：分析本地 Bug/需求单和源码，生成或验证开发设计文档；可独立使用，也可接入需求生命周期。
+- `project-spec`：在设计文档登记后澄清行为边界，并把编号验收标准独立写入 manifest。
 - `project-plan`：将需求文档转化为实施计划。
 - `project-debug`：基于项目上下文和根因纪律调查 bug。
 - `project-test`：询问测试类型和报告动作，记录 RED、GREEN、回归/验证或审批式人工证据，为需求级 finish 提供机器可检查的证据。
@@ -150,8 +153,8 @@ project-intel --project /path/to/repo query "表格"
 
 Project Intelligence 内置了完整的任务分流、测试、审查和收口纪律：
 
-- 实现意图的需求默认按 `project-intake → project-test → project-task` 同轮接力；即使用户要求暂不改文件，也完成前置 Skill 路由后再停在编辑前。只有计划任务能清晰拆分、文件边界明确、可单独验证时才用 `project-orchestrate`。
-- 功能、Bug 修复和行为变更先由 intake 询问需求号/名称、对外接口影响和需求设计文档动作；ready 后才能 begin。进入 `project-test` 时必须询问测试类型与测试报告动作，再记录目标测试 RED、GREEN 和受影响回归；视觉、设备、硬件或配置场景只能使用经批准并带截图/日志路径的人工例外。
+- 实现意图默认按 `project-intake → project-design → project-spec → project-plan（复杂任务）→ project-test → project-task` 接力；Bug 在生成设计前先经过 `project-debug` 根因调查。即使用户要求暂不改文件，也完成前置 Skill 路由后再停在编辑前。
+- intake 询问需求号/名称、单据类型、对外接口影响和设计文档动作；`project-design` 只负责文档，`project-spec` 只负责 manifest 验收标准，二者都满足后才能 ready/begin。进入 `project-test` 时必须询问测试类型与测试报告动作。
 - 实现类子代理默认顺序执行，避免同一工作区并发改代码；并行代理主要用于只读影响分析、失败排查或互不相干的调查。
 - `project-plan` 必须写清文件、接口、约束、复用点、验证命令和预期证据，但默认只保留在上下文里，不主动生成 plan 文件。
 - `project-review` 对反馈先验证再修改，避免盲目接受不符合当前项目现实的建议。

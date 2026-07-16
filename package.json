@@ -1,7 +1,7 @@
 {
   "name": "project-intelligence",
-  "version": "0.2.1",
-  "description": "Requirement-level lifecycle gates, project intake, specs, standards, knowledge, graph context, test evidence, review, finish, and maintenance for Claude and Codex.",
+  "version": "0.3.0",
+  "description": "Source-backed development design, requirement lifecycle gates, project context, test evidence, review, finish, and maintenance for Claude and Codex.",
   "license": "MIT",
   "type": "module",
   "bin": {

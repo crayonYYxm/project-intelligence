@@ -1,14 +1,14 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "project-intelligence",
-  "description": "Project-level intelligence for specs, plans, standards, knowledge, graph context, systematic debugging, RED/GREEN test evidence, orchestration, finish gates, lifecycle maintenance, and reuse guidance.",
+  "description": "Project-level intelligence for source-backed development designs, manifest acceptance criteria, plans, standards, knowledge, systematic debugging, test evidence, review, finish, and maintenance.",
   "owner": {
     "name": "crayonYYxm"
   },
   "plugins": [
     {
       "name": "project-intelligence",
-      "description": "Project specs, standards, knowledge, graph context, debugging, test evidence, finish gates, maintenance, and review checks.",
+      "description": "Source-backed Bug/Requirement designs, lifecycle gates, project context, debugging, test evidence, review, finish, and maintenance.",
       "category": "productivity",
       "source": "./plugins/project-intelligence",
       "homepage": "https://github.com/crayonYYxm/project-intelligence"

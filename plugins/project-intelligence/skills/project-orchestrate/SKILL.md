@@ -38,7 +38,7 @@ For every subagent task, provide a compact handoff instead of the full conversat
 6. Required verification command or manual verification evidence.
 7. Required `project-test` RED/GREEN/regression phases or a justified manual-evidence path.
 8. Report contract: changed files, test evidence, concerns, and remaining risk.
-9. The shared requirement ID, requirement name, and acceptance criteria owned by the task.
+9. The shared requirement ID, registered design path, and manifest acceptance criteria owned by the task.
 
 If a handoff file is needed, place it under ignored `.project-intel/tmp/execution/`. Do not create permanent per-subagent requirement, report, or maintenance files unless the user explicitly asks.
 

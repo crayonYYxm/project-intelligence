@@ -7,7 +7,7 @@ description: Use when turning a project spec or approved requirement into an imp
 
 Create plans that preserve project standards and are ready to execute.
 
-1. Start from the spec or requirement plus `.project-intel` facts.
+1. Start from the registered development-design artifact, `manifest.acceptanceCriteria`, and relevant `.project-intel` facts.
 2. Include intake track/readiness and reuse checks before implementation steps.
 3. Map exact files or modules to create/modify, with each file's responsibility.
 4. Define interfaces between tasks: consumed APIs, produced functions/components/types, compatibility constraints, and no-touch files.
@@ -22,7 +22,7 @@ project-intel plan --title "<title>" --from-spec <spec-path> --track auto
 
 If there is no persistent spec file, plan directly from the approved requirement. Do not create spec or plan files merely because the skill triggered.
 
-For a requirement-level task, carry the same requirement ID into every task and map every implementation/test task to one or more numbered acceptance criteria. Treat `requirement-design.md` as the source of truth. End the planning phase with the readiness gate:
+For a requirement-level task, carry the same requirement ID into every task and map every implementation/test task to one or more numbered acceptance criteria. Treat the registered design artifact as the implementation-design source and `manifest.acceptanceCriteria` as the acceptance source; do not require AC headings in the document. End the planning phase with the readiness gate:
 
 ```bash
 project-intel requirement ready --requirement-id "<id>" --resolution "需求范围、验收标准、边界和验证方式已确认"

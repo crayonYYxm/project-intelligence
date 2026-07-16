@@ -44,7 +44,7 @@ from project_intel_lib.scanner import backend as backend_scanner
 from project_intel_lib.scanner import frontend as frontend_scanner
 
 
-VERSION = "0.2.1"
+VERSION = "0.3.0"
 TRACK_CHOICES = ("auto", "quick", "standard", "complex")
 UNDERSTAND_AGENT_COMMAND = "/understand . --language zh"
 UNDERSTAND_REPO = "Egonex-AI/Understand-Anything"
@@ -72,6 +72,7 @@ LEGACY_LOCAL_SKILLS_BLOCK_END = "<!-- local-project-skills:end -->"
 LEGACY_LOCAL_SKILL_NAMES = (
     "project-brainstorm",
     "project-debug",
+    "project-design",
     "project-finish",
     "project-init",
     "project-intake",
@@ -3880,6 +3881,7 @@ Before any code change, debugging, review, requirement analysis, planning, spec 
 Prefer available project skills such as:
 
 - `project-brainstorm`
+- `project-design`
 - `project-spec`
 - `project-plan`
 - `project-intake`
@@ -3913,6 +3915,7 @@ Before implementing, debugging, reviewing, planning, writing specs, answering co
 1. Classify the request and explicitly invoke the matching Project Intelligence skill when available:
    - Requirement intake, task routing, readiness, or scope classification: `project-intake` or `project-intelligence:project-intake`
    - Requirement shaping or brainstorming: `project-brainstorm` or `project-intelligence:project-brainstorm`
+   - Source-backed Bug/Requirement development design generation or validation: `project-design` or `project-intelligence:project-design`
    - Requirement/spec/acceptance criteria/impact: `project-spec` or `project-intelligence:project-spec`
    - Implementation plan or checklist: `project-plan` or `project-intelligence:project-plan`
    - Implementation, modification, fix, refactor, or feature work: `project-task` or `project-intelligence:project-task`
@@ -3932,7 +3935,7 @@ Before implementing, debugging, reviewing, planning, writing specs, answering co
 4. Read only the relevant files under `.project-intel/standards/`, `.project-intel/knowledge/`, `.project-intel/graph/`, and `.project-intel/reports/`.
 5. Apply `hard` standards as requirements; treat `preferred` as default project style; treat `inferred` and `candidate` as suggestions that need confirmation before enforcement.
 6. Prefer existing public components, Hooks, utilities, API wrappers, services, DTO/VO/entity patterns, permission checks, transaction boundaries, and error-code conventions before adding new ones.
-7. For implementation work, before the first Edit/Write, ask for requirement ID and name, generate a `LOCAL-YYYYMMDD-HHMMSS` ID when no formal ID exists, and explicitly confirm external API impact. Run `project-intel intake --requirement-id "<id>" --requirement-name "<name>" --external-api yes|no`. Ask whether to generate, register, or defer the combined requirement/design artifact; require numbered acceptance criteria and a successful `requirement ready` gate. Then explicitly invoke `project-test` before `project-task`, ask for test type plus report action, and run `project-intel requirement begin --requirement-id "<id>"` immediately before editing. This same-turn handoff is required even when the user asks not to edit yet; complete workflow routing and stop before file changes. Do not ask for requirement identity during knowledge-only explanation or read-only review.
+7. For implementation work, before the first Edit/Write, ask for requirement ID and name, determine `bug|requirement`, generate a `LOCAL-YYYYMMDD-HHMMSS` ID when no formal ID exists, and explicitly confirm external API impact. Run `project-intel intake --requirement-id "<id>" --requirement-name "<name>" --ticket-kind bug|requirement --external-api yes|no`. Ask whether to generate, register, or defer the development-design artifact. Use `project-design` to generate/validate and register it; for Bugs, complete `project-debug` root-cause analysis first. Use `project-spec` to write numbered acceptance criteria to the manifest with `requirement acceptance set`, then require a successful `requirement ready` gate. Explicitly invoke `project-test` before `project-task`, ask for test type plus report action, and run `project-intel requirement begin --requirement-id "<id>"` immediately before editing. This same-turn handoff is required even when the user asks not to edit yet; complete workflow routing and stop before file changes. Do not ask for requirement identity during knowledge-only explanation or read-only review.
 8. Use GitNexus impact/explore/detect_changes tools when available; otherwise use `.project-intel` plus `project-intel lifecycle --task "<requirement>"` or `project-intel query "<symbol-or-feature>"`. `lifecycle` prints by default and includes track/readiness; use `--write` only when a persistent task-impact report is explicitly needed.
 9. Use `project-orchestrate` only when planned subtasks are independent enough to review separately. Implementation subagents should normally run sequentially; parallel agents are for read-only investigations or disjoint impact analysis.
 10. After meaningful code changes, run change review, test evidence, finish, and maintenance with the same requirement ID. `project-test` must record explicit files or `--project-wide`; RED requires `--expect-failure`. External API work requires service tests. Manual tests require approval, reason, steps, input, observation, and screenshot/log path. Persist review with `project-intel review`, ask whether to generate/register/defer `closure-summary.md`, then run `project-intel finish --requirement-id "<id>" --files <all-actual-changed-files>` and `project-intel maintain --requirement-id "<id>" --files <all-actual-changed-files>`. Any code change invalidates stale test/review hashes. `maintain` is allowed only from `finished`, closes only after fact-only refresh/check succeeds, and must not update root adapters unless `refresh --adapters` or `install` was explicitly requested.
@@ -3951,6 +3954,7 @@ def claude_project_agent_rules() -> str:
     replacements = {
         "Requirement intake, task routing, readiness, or scope classification: `project-intake` or `project-intelligence:project-intake`": "Requirement intake, task routing, readiness, or scope classification: `/project-intake`",
         "Requirement shaping or brainstorming: `project-brainstorm` or `project-intelligence:project-brainstorm`": "Requirement shaping or brainstorming: `/project-brainstorm`",
+        "Source-backed Bug/Requirement development design generation or validation: `project-design` or `project-intelligence:project-design`": "Source-backed Bug/Requirement development design generation or validation: `/project-design`",
         "Requirement/spec/acceptance criteria/impact: `project-spec` or `project-intelligence:project-spec`": "Requirement/spec/acceptance criteria/impact: `/project-spec`",
         "Implementation plan or checklist: `project-plan` or `project-intelligence:project-plan`": "Implementation plan or checklist: `/project-plan`",
         "Implementation, modification, fix, refactor, or feature work: `project-task` or `project-intelligence:project-task`": "Implementation, modification, fix, refactor, or feature work: `/project-task`",
@@ -4314,6 +4318,7 @@ def build_parser() -> argparse.ArgumentParser:
     intake.add_argument("--task", help="兼容的中文任务摘要；需求级流程可使用 --requirement-name")
     intake.add_argument("--requirement-id", help="正式需求号；省略时需求级流程生成 LOCAL 时间编号")
     intake.add_argument("--requirement-name", help="需求名称")
+    intake.add_argument("--ticket-kind", choices=("bug", "requirement"), default="requirement", help="单据类型；默认 requirement")
     intake.add_argument("--external-api", choices=("yes", "no"), help="明确确认是否影响对外接口")
     intake.add_argument("--track", choices=TRACK_CHOICES, default="auto", help="显式指定 quick/standard/complex；默认自动判断")
     intake.add_argument("--write", action="store_true", help="写入固定报告 .project-intel/reports/task-intake.md；默认只输出")
@@ -4381,6 +4386,11 @@ def build_parser() -> argparse.ArgumentParser:
     requirement_add.add_argument("--manual-input", default="")
     requirement_add.add_argument("--manual-observation", default="")
     requirement_add.add_argument("--manual-evidence-path", default="")
+    requirement_acceptance = requirement_sub.add_parser("acceptance", help="维护独立于设计文档的验收标准")
+    requirement_acceptance_sub = requirement_acceptance.add_subparsers(dest="acceptance_command", required=True)
+    requirement_acceptance_set = requirement_acceptance_sub.add_parser("set", help="原子替换需求验收标准")
+    requirement_acceptance_set.add_argument("--requirement-id", required=True)
+    requirement_acceptance_set.add_argument("--criterion", action="append", required=True, help="AC-01:说明；可重复")
     requirement_ready = requirement_sub.add_parser("ready", help="通过实施前 readiness 门禁")
     requirement_ready.add_argument("--requirement-id", required=True)
     requirement_ready.add_argument("--resolution", required=True)
@@ -4396,6 +4406,7 @@ def build_parser() -> argparse.ArgumentParser:
     requirement_amend.add_argument("--requirement-id", required=True)
     requirement_amend.add_argument("--requirement-name")
     requirement_amend.add_argument("--track", choices=TRACK_CHOICES)
+    requirement_amend.add_argument("--ticket-kind", choices=("bug", "requirement"))
     requirement_amend.add_argument("--external-api", choices=("yes", "no"))
     requirement_amend.add_argument("--reason", required=True)
     requirement_resolve = requirement_sub.add_parser("resolve-finding", help="按稳定 ID 解决评审问题")
@@ -4458,6 +4469,18 @@ def parse_review_findings(values: list[str]) -> list[dict[str, Any]]:
             fail_usage("--finding 必须使用 critical:说明、important:说明 或 minor:说明。")
         findings.append({"severity": severity.strip().lower(), "text": text.strip(), "resolved": False})
     return findings
+
+
+def parse_acceptance_values(values: list[str]) -> list[dict[str, str]]:
+    criteria: list[dict[str, str]] = []
+    for value in values:
+        identifier, separator, description = str(value).partition(":")
+        if not separator:
+            identifier, separator, description = str(value).partition("：")
+        if not separator:
+            fail_usage("--criterion 必须使用 AC-01:说明 格式。")
+        criteria.append({"id": identifier.strip(), "description": description.strip()})
+    return criteria
 
 
 def legacy_workflow_warning(command: str) -> None:
@@ -4549,6 +4572,7 @@ def dispatch_command(args: argparse.Namespace, root: Path, json_mode: bool) -> t
                     track=analysis.get("track") or args.track,
                     external_api=args.external_api == "yes",
                     external_api_source="user",
+                    ticket_kind=args.ticket_kind,
                 )
             except requirements_module.RequirementError as exc:
                 fail_usage(str(exc))
@@ -4603,6 +4627,14 @@ def dispatch_command(args: argparse.Namespace, root: Path, json_mode: bool) -> t
                     project_wide=args.project_wide,
                     manual=manual,
                 )
+            elif args.requirement_command == "acceptance":
+                if args.acceptance_command != "set":
+                    return 2, None
+                result = requirements_module.set_acceptance_criteria(
+                    root,
+                    args.requirement_id,
+                    parse_acceptance_values(args.criterion),
+                )
             elif args.requirement_command == "ready":
                 result = requirements_module.ready_requirement(root, args.requirement_id, args.resolution)
             elif args.requirement_command == "begin":
@@ -4618,6 +4650,7 @@ def dispatch_command(args: argparse.Namespace, root: Path, json_mode: bool) -> t
                     args.requirement_id,
                     requirement_name=args.requirement_name,
                     track=args.track,
+                    ticket_kind=args.ticket_kind,
                     external_api=external_api,
                     external_api_source="user",
                     reason=args.reason,

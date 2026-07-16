@@ -10,6 +10,8 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from unittest.mock import patch
 
+from design_fixtures import requirement_design
+
 
 SCRIPTS = Path(__file__).resolve().parents[1] / "scripts"
 if str(SCRIPTS) not in sys.path:
@@ -42,6 +44,12 @@ class RequirementWorkflowTests(unittest.TestCase):
         subprocess.run(["git", "commit", "-qm", "baseline"], cwd=root, check=True)
         return source
 
+    def write_requirement_design(self, root: Path, requirement_id: str = "REQ-1001", name: str = "增强需求级交付流程") -> str:
+        path = requirements.requirement_dir(root, requirement_id) / f"{requirement_id}_{name}_设计文档.md"
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(requirement_design(requirement_id, name), encoding="utf-8")
+        return path.relative_to(root).as_posix()
+
     def create_documented_requirement(self, root: Path, *, external_api: bool = False) -> dict:
         manifest = requirements.create_requirement(
             root,
@@ -50,9 +58,15 @@ class RequirementWorkflowTests(unittest.TestCase):
             track="complex",
             external_api=external_api,
             external_api_source="user",
+            ticket_kind="requirement",
         )
         self.assertEqual(manifest["state"], "draft")
-        requirements.generate_artifact(root, "REQ-1001", "requirement-design")
+        design_path = self.write_requirement_design(root)
+        requirements.register_artifact(root, "REQ-1001", "requirement-design", design_path)
+        requirements.set_acceptance_criteria(root, "REQ-1001", [
+            {"id": "AC-01", "description": "实现需求约定的目标行为。"},
+            {"id": "AC-02", "description": "相关测试通过且无重要回归。"},
+        ])
         manifest = requirements.load_requirement(root, "REQ-1001")
         self.assertEqual(manifest["state"], "documented")
         self.assertEqual([item["id"] for item in manifest["acceptanceCriteria"]], ["AC-01", "AC-02"])
@@ -142,7 +156,11 @@ class RequirementWorkflowTests(unittest.TestCase):
                 requirements.ready_requirement(root, "REQ-1001", "")
             with self.assertRaisesRegex(requirements.RequirementError, "documented"):
                 requirements.ready_requirement(root, "REQ-1001", "不能自动解决稍后处理")
-            requirements.generate_artifact(root, "REQ-1001", "requirement-design")
+            design_path = self.write_requirement_design(root, name="需求档案")
+            requirements.register_artifact(root, "REQ-1001", "requirement-design", design_path)
+            requirements.set_acceptance_criteria(root, "REQ-1001", [
+                {"id": "AC-01", "description": "需求档案可以进入实现。"},
+            ])
             manifest = requirements.ready_requirement(root, "REQ-1001", "已补齐并确认需求设计文档")
             self.assertEqual(manifest["state"], "ready")
             self.assertTrue(all(item.get("resolvedAt") for item in manifest["readiness"]["blockers"]))
@@ -284,8 +302,20 @@ class RequirementWorkflowTests(unittest.TestCase):
             first = requirements.create_requirement(root, "REQ-1001", "需求档案")
             second = requirements.generate_artifact(root, "REQ-1001", "requirement-design")
             self.assertGreater(second["revision"], first["revision"])
+            self.assertEqual(second["state"], "draft")
             path = root / ".project-intel" / "requirements" / "by-id" / "REQ-1001" / "manifest.json"
             self.assertEqual(json.loads(path.read_text(encoding="utf-8"))["revision"], second["revision"])
+
+    def test_generated_design_scaffold_cannot_be_reregistered_to_bypass_validation(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            self.initialized_project(root)
+            requirements.create_requirement(root, "REQ-1001", "需求档案", ticket_kind="requirement")
+            manifest = requirements.generate_artifact(root, "REQ-1001", "requirement-design")
+            artifact = manifest["artifacts"][-1]
+            self.assertEqual(artifact["status"], "draft")
+            with self.assertRaisesRegex(requirements.RequirementError, "真实的仓库相对路径"):
+                requirements.register_artifact(root, "REQ-1001", "requirement-design", artifact["path"])
 
     def test_local_id_format_and_parallel_updates_do_not_lose_records(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -612,13 +642,21 @@ class RequirementWorkflowTests(unittest.TestCase):
                     "--requirement-id", "REQ-CLI-1",
                     "--requirement-name", "需求级命令行闭环",
                     "--external-api", "no",
+                    "--ticket-kind", "requirement",
                     "--track", "complex",
                 ]),
                 0,
             )
+            design_path = self.write_requirement_design(root, "REQ-CLI-1", "需求级命令行闭环")
             self.assertEqual(project_intel.main([
-                "--project", str(root), "requirement", "generate",
-                "--requirement-id", "REQ-CLI-1", "--type", "requirement-design",
+                "--project", str(root), "requirement", "add",
+                "--requirement-id", "REQ-CLI-1", "--type", "requirement-design", "--path", design_path,
+            ]), 0)
+            self.assertEqual(project_intel.main([
+                "--project", str(root), "requirement", "acceptance", "set",
+                "--requirement-id", "REQ-CLI-1",
+                "--criterion", "AC-01:实现需求约定的目标行为",
+                "--criterion", "AC-02:相关测试通过且无重要回归",
             ]), 0)
             self.assertEqual(project_intel.main([
                 "--project", str(root), "requirement", "ready",
@@ -672,6 +710,108 @@ class RequirementWorkflowTests(unittest.TestCase):
             self.assertEqual(code, 0)
             payload = json.loads(output.getvalue())
             self.assertEqual(payload["result"]["state"], "closed")
+            self.assertEqual(payload["result"]["ticketKind"], "requirement")
+            self.assertTrue(payload["result"]["designValidation"]["ok"])
+
+    def test_design_and_acceptance_are_independent_ready_gates(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            self.initialized_project(root)
+            requirements.create_requirement(root, "REQ-1001", "增强需求级交付流程", ticket_kind="requirement")
+            design_path = self.write_requirement_design(root)
+            manifest = requirements.register_artifact(root, "REQ-1001", "requirement-design", design_path)
+            self.assertEqual(manifest["state"], "documented")
+            self.assertEqual(manifest["acceptanceCriteria"], [])
+            with self.assertRaisesRegex(requirements.RequirementError, "验收标准"):
+                requirements.ready_requirement(root, "REQ-1001", "设计已确认")
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            self.initialized_project(root)
+            requirements.create_requirement(root, "REQ-1001", "增强需求级交付流程", ticket_kind="requirement")
+            manifest = requirements.set_acceptance_criteria(root, "REQ-1001", [
+                {"id": "AC-01", "description": "实现目标行为。"},
+            ])
+            self.assertEqual(manifest["state"], "draft")
+            with self.assertRaisesRegex(requirements.RequirementError, "documented"):
+                requirements.ready_requirement(root, "REQ-1001", "验收标准已确认")
+
+    def test_numeric_ticket_id_is_canonicalized_by_kind(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            self.initialized_project(root)
+            bug = requirements.create_requirement(root, "1234", "返回值错误", ticket_kind="bug")
+            requirement = requirements.create_requirement(root, "73822", "新增核验能力", ticket_kind="requirement")
+            self.assertEqual(bug["requirementId"], "bug1234")
+            self.assertEqual(requirement["requirementId"], "req73822")
+
+    def test_material_amend_invalidates_registered_design(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            self.git_project(root)
+            self.create_documented_requirement(root)
+            manifest = requirements.amend_requirement(
+                root,
+                "REQ-1001",
+                external_api=True,
+                ticket_kind="bug",
+                reason="单据类型和接口影响重新确认",
+            )
+            self.assertEqual(manifest["state"], "draft")
+            self.assertEqual(manifest["ticketKind"], "bug")
+            self.assertEqual(manifest["artifacts"][-1]["status"], "stale")
+            with self.assertRaisesRegex(requirements.RequirementError, "documented"):
+                requirements.ready_requirement(root, "REQ-1001", "尝试使用旧设计")
+
+    def test_legacy_v1_design_remains_readable_until_reregistered(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            self.initialized_project(root)
+            self.create_documented_requirement(root)
+            path = requirements.manifest_path(root, "REQ-1001")
+            payload = json.loads(path.read_text(encoding="utf-8"))
+            payload.pop("ticketKind", None)
+            payload["artifacts"][-1].pop("validation", None)
+            payload["artifacts"][-1].pop("documentKind", None)
+            path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+
+            status = requirements.status_payload(root, "REQ-1001")
+            self.assertEqual(status["ticketKind"], "requirement")
+            self.assertTrue(status["designValidation"]["ok"])
+            self.assertTrue(status["designValidation"]["legacy"])
+
+            requirements.ready_requirement(root, "REQ-1001", "旧生命周期继续执行")
+            reopened = requirements.reopen_requirement(root, "REQ-1001", "重新确认设计")
+            self.assertEqual(reopened["state"], "draft")
+            self.assertEqual(reopened["artifacts"][-1]["status"], "stale")
+            self.assertFalse(requirements.status_payload(root, "REQ-1001")["designValidation"]["ok"])
+
+    def test_amend_requires_legacy_design_to_be_reregistered(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            self.initialized_project(root)
+            self.create_documented_requirement(root)
+            path = requirements.manifest_path(root, "REQ-1001")
+            payload = json.loads(path.read_text(encoding="utf-8"))
+            payload["artifacts"][-1].pop("validation", None)
+            path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+
+            amended = requirements.amend_requirement(root, "REQ-1001", track="standard", reason="调整任务轨道")
+            self.assertEqual(amended["state"], "draft")
+            self.assertEqual(amended["artifacts"][-1]["status"], "stale")
+
+    def test_acceptance_set_rejects_invalid_or_duplicate_ids(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            self.initialized_project(root)
+            requirements.create_requirement(root, "REQ-1001", "需求档案")
+            with self.assertRaisesRegex(requirements.RequirementError, "AC-01"):
+                requirements.set_acceptance_criteria(root, "REQ-1001", [{"id": "AC-1", "description": "错误编号"}])
+            with self.assertRaisesRegex(requirements.RequirementError, "重复"):
+                requirements.set_acceptance_criteria(root, "REQ-1001", [
+                    {"id": "AC-01", "description": "第一项"},
+                    {"id": "AC-01", "description": "重复项"},
+                ])
 
     def test_json_gate_failure_returns_machine_readable_error(self):
         with tempfile.TemporaryDirectory() as tmp:

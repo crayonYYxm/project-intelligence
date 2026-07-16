@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.3.0 - 2026-07-16
+
+- Add `project-design` as the single source-backed Bug/Requirement development-design Skill, usable standalone without `.project-intel` side effects or inside the requirement lifecycle.
+- Add strict compact Bug and CRM Requirement templates plus one shared validator for structure, identity, repository paths, placeholders, and sensitive information.
+- Separate numbered acceptance criteria from the design document with `requirement acceptance set`; readiness now requires both a validated current design artifact and manifest criteria.
+- Add `ticketKind`, numeric `bug`/`req` ID canonicalization, scaffold-only requirement generation, design validation status, and stale-design invalidation after material amendments.
+- Route intake, debugging, spec, plan, task, orchestration, generated Agent rules, documentation, and Skill behavior evals through the new design stage.
+
 ## 0.2.1 - 2026-07-16
 
 - Prevent registered reports from hiding business changes, revalidate the finish snapshot before close, and add stable finding resolution with `resolvedBy` history.

@@ -20,18 +20,19 @@ project-intel intake --task "<requirement>"
    - `complex`: cross-module, API/data/auth/payment/cache/async/release/compatibility/security/performance work.
 4. If readiness is `needs-clarification`, resolve only the missing information that can change implementation or acceptance.
 5. Do not create spec, plan, lifecycle, or intake files unless the user explicitly asks. Use `--write` only for a persistent intake report.
-6. Route next:
-   - quick: explicitly invoke `project-test`, then `project-task`.
-   - standard: keep a Chinese lightweight spec and plan in context, then explicitly invoke `project-test` and `project-task`.
-   - complex: use `project-brainstorm`, `project-spec`, `project-plan`, and a readiness gate; then explicitly invoke `project-test` before `project-task` or `project-orchestrate`.
-7. The same-turn handoff is mandatory for implementation-intent requests. If the user says not to edit yet, complete the applicable pre-edit Skill handoff and stop before file changes; do not stop at intake or substitute `project-knowledge` for the test/task workflow.
+6. Choose the development-design action immediately, then route next:
+   - `generate`: invoke `project-design`; for a Bug, invoke `project-debug` first so the design contains an evidence-backed root cause.
+   - `register existing`: invoke `project-design` to validate and register the supplied repository-relative document.
+   - `later`: defer the design artifact and stop before readiness.
+7. After a validated design is registered, invoke `project-spec` to persist acceptance criteria in the manifest. Then route quick/standard work to `project-test` and `project-task`, and complex work through `project-plan` before `project-test` and `project-task` or `project-orchestrate`.
+8. The same-turn handoff is mandatory for implementation-intent requests. If the user says not to edit yet, complete the applicable pre-edit Skill handoff and stop before file changes; do not stop at intake or substitute `project-knowledge` for the test/task workflow.
 
 Use GitNexus for precise impact when available and Understand-Anything for architecture/domain context when available.
 
 For implementation intent, ask for the requirement ID and requirement name before routing. Generate `LOCAL-YYYYMMDD-HHMMSS` when no formal ID exists, explicitly ask whether external APIs are affected, then register the requirement:
 
 ```bash
-project-intel intake --requirement-id "<id>" --requirement-name "<name>" --external-api yes|no --track auto
+project-intel intake --requirement-id "<id>" --requirement-name "<name>" --ticket-kind bug|requirement --external-api yes|no --track auto
 ```
 
-Ask how to handle the combined requirement/design document: `generate`, `register existing`, or `later`. Route to `project-spec`; choosing later must run `project-intel requirement defer --requirement-id "<id>" --type requirement-design` and remain blocked. Do not ask for requirement identity during knowledge-only explanation or read-only review.
+Infer Bug versus Requirement from the ticket and source, asking only when ambiguous. Pure numeric IDs are canonicalized to `bug<digits>` or `req<digits>` by intake; use the returned ID for every later command. Do not ask for requirement identity during knowledge-only explanation or read-only review.

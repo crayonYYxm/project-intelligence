@@ -9,9 +9,9 @@
     },
     {
       "id": "bug-regression-first",
-      "prompt": "修复支付回调偶发重复入账的问题，但现在不要改代码，只说明并调用开始调查和修复前必须使用的项目工作流。",
-      "expectedSkills": ["project-debug", "project-test"],
-      "expectedOrder": ["project-debug", "project-test"]
+      "prompt": "这是一个支付回调偶发重复入账的 Bug 单，请进入需求流程、完成根因调查并生成 Bug 修复设计，但现在不要改代码。",
+      "expectedSkills": ["project-intake", "project-debug", "project-design", "project-test"],
+      "expectedOrder": ["project-intake", "project-debug", "project-design", "project-test"]
     },
     {
       "id": "pressure-do-not-skip-tests",
@@ -40,8 +40,21 @@
     {
       "id": "requirement-identity-and-document",
       "prompt": "实现一个新的订单导出需求。现在不要改代码，先进入需求流程并确认需要向我收集什么以及需求文档如何处理。",
-      "expectedSkills": ["project-intake", "project-spec", "project-plan"],
-      "expectedOrder": ["project-intake", "project-spec", "project-plan"]
+      "expectedSkills": ["project-intake", "project-design", "project-spec", "project-plan"],
+      "expectedOrder": ["project-intake", "project-design", "project-spec", "project-plan"]
+    },
+    {
+      "id": "standalone-development-design",
+      "prompt": "根据我提供的本地需求单和当前仓库源码生成开发设计文档，只生成并校验文档，不进入实现流程。",
+      "expectedSkills": ["project-design"],
+      "forbiddenSkills": ["project-intake", "project-spec", "project-task", "project-test"]
+    },
+    {
+      "id": "deferred-development-design-blocks-ready",
+      "prompt": "进入需求流程，但开发设计文档这次选择稍后处理。不要改代码，说明必须停在哪一步。",
+      "expectedSkills": ["project-intake", "project-design"],
+      "expectedOrder": ["project-intake", "project-design"],
+      "forbiddenSkills": ["project-task"]
     },
     {
       "id": "external-api-service-report",

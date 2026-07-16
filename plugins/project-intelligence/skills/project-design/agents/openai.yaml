@@ -1,0 +1,4 @@
+interface:
+  display_name: "项目开发设计文档"
+  short_description: "分析本地 Bug/需求单与源码，生成并验证开发设计文档"
+  default_prompt: "Use $project-design to analyze a local ticket and repository, then generate a validated development design document."

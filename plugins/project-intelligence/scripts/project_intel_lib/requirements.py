@@ -12,6 +12,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Callable, Optional
 
+from . import design_documents
 from .testing import sanitize_text
 
 
@@ -77,6 +78,17 @@ def normalize_requirement_id(value: str) -> str:
     if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._-]{0,99}", candidate):
         raise RequirementError("需求号只能包含字母、数字、点、下划线和连字符，且最长 100 个字符。")
     return candidate
+
+
+def canonicalize_ticket_id(value: Optional[str], ticket_kind: str) -> str:
+    if ticket_kind not in {"bug", "requirement"}:
+        raise RequirementError("ticket kind 只能是 bug 或 requirement。")
+    raw = str(value or "").strip()
+    if not raw:
+        return generate_requirement_id()
+    if raw.isdigit():
+        raw = ("bug" if ticket_kind == "bug" else "req") + raw
+    return normalize_requirement_id(raw)
 
 
 def requirement_root(root: Path) -> Path:
@@ -159,6 +171,7 @@ def load_requirement(root: Path, requirement_id: str) -> dict[str, Any]:
         raise RequirementError(f"需求档案 JSON 损坏：{path}") from exc
     if not isinstance(payload, dict) or payload.get("schemaVersion") != SCHEMA_VERSION:
         raise RequirementError(f"不支持的需求档案格式：{path}")
+    payload.setdefault("ticketKind", "requirement")
     return payload
 
 
@@ -189,8 +202,9 @@ def create_requirement(
     track: str = "standard",
     external_api: Optional[bool] = False,
     external_api_source: str = "user",
+    ticket_kind: str = "requirement",
 ) -> dict[str, Any]:
-    identifier = normalize_requirement_id(requirement_id or generate_requirement_id())
+    identifier = canonicalize_ticket_id(requirement_id, ticket_kind)
     name = sanitize_text(" ".join(str(requirement_name or "").split()))
     if not name:
         raise RequirementError("需求名称不能为空。")
@@ -206,6 +220,7 @@ def create_requirement(
                 raise RequirementError(f"需求号 {identifier} 已绑定其他需求名称；如需修改请使用 requirement amend。")
             if (
                 current.get("track") != track
+                or current.get("ticketKind", "requirement") != ticket_kind
                 or bool(current_external.get("value")) != bool(external_api)
                 or bool(current_external.get("confirmed")) != bool(external_api is not None)
             ):
@@ -218,6 +233,7 @@ def create_requirement(
             "revision": 1,
             "requirementId": identifier,
             "requirementName": name,
+            "ticketKind": ticket_kind,
             "track": track,
             "externalApiImpact": {
                 "confirmed": bool(external_api is not None),
@@ -251,6 +267,7 @@ def amend_requirement(
     track: Optional[str] = None,
     external_api: Optional[bool] = None,
     external_api_source: str = "user",
+    ticket_kind: Optional[str] = None,
     reason: str = "",
 ) -> dict[str, Any]:
     clean_reason = sanitize_text(" ".join(str(reason or "").split()))
@@ -258,10 +275,13 @@ def amend_requirement(
         raise RequirementError("amend 必须记录修改原因。")
     if track is not None and track not in {"quick", "standard", "complex", "auto"}:
         raise RequirementError("track 只能是 auto、quick、standard 或 complex。")
+    if ticket_kind is not None and ticket_kind not in {"bug", "requirement"}:
+        raise RequirementError("ticket kind 只能是 bug 或 requirement。")
 
     def mutate(manifest: dict[str, Any]) -> None:
         before = {
             "requirementName": manifest.get("requirementName"),
+            "ticketKind": manifest.get("ticketKind", "requirement"),
             "track": manifest.get("track"),
             "externalApiImpact": dict(manifest.get("externalApiImpact", {})),
         }
@@ -272,6 +292,8 @@ def amend_requirement(
             manifest["requirementName"] = clean_name
         if track is not None:
             manifest["track"] = track
+        if ticket_kind is not None:
+            manifest["ticketKind"] = ticket_kind
         if external_api is not None:
             manifest["externalApiImpact"] = {
                 "confirmed": True,
@@ -280,6 +302,7 @@ def amend_requirement(
             }
         after = {
             "requirementName": manifest.get("requirementName"),
+            "ticketKind": manifest.get("ticketKind", "requirement"),
             "track": manifest.get("track"),
             "externalApiImpact": dict(manifest.get("externalApiImpact", {})),
         }
@@ -293,6 +316,26 @@ def amend_requirement(
             review["valid"] = False
             review["invalidatedAt"] = now_iso()
             review["invalidatedReason"] = "需求关键信息已修改。"
+        design_affecting = (
+            before.get("requirementName") != after.get("requirementName")
+            or before.get("ticketKind") != after.get("ticketKind")
+            or before.get("externalApiImpact") != after.get("externalApiImpact")
+        )
+        legacy_design = any(
+            artifact.get("type") == "requirement-design"
+            and artifact.get("status") not in {"draft", "stale", "failed"}
+            and not isinstance(artifact.get("validation"), dict)
+            for artifact in manifest.get("artifacts", [])
+        )
+        if design_affecting or legacy_design:
+            for artifact in manifest.get("artifacts", []):
+                if artifact.get("type") == "requirement-design" and (design_affecting or not isinstance(artifact.get("validation"), dict)):
+                    artifact["status"] = "stale"
+                    artifact["invalidatedAt"] = now_iso()
+                    artifact["invalidatedReason"] = (
+                        "需求名称、类型或接口影响已修改。"
+                        if design_affecting else "旧版设计在 amend 后必须按 0.3.0 模板重新验证。"
+                    )
         manifest.setdefault("history", []).append({
             "action": "amend",
             "reason": clean_reason,
@@ -300,8 +343,10 @@ def amend_requirement(
             "after": after,
             "recordedAt": now_iso(),
         })
-        if manifest.get("state") in {"verified", "reviewed", "finished", "closed"}:
-            _set_state(manifest, "documented" if manifest.get("acceptanceCriteria") else "draft")
+        if design_affecting or legacy_design:
+            _set_state(manifest, "draft")
+        elif manifest.get("state") in {"verified", "reviewed", "finished", "closed"}:
+            _set_state(manifest, "documented" if _has_valid_design(root, manifest) else "draft")
 
     return _mutate(root, requirement_id, mutate)
 
@@ -382,21 +427,35 @@ def file_sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
-def parse_acceptance_criteria(text: str) -> list[dict[str, Any]]:
-    criteria: list[dict[str, Any]] = []
+def set_acceptance_criteria(
+    root: Path,
+    requirement_id: str,
+    criteria: list[dict[str, Any]],
+) -> dict[str, Any]:
+    normalized: list[dict[str, Any]] = []
     seen: set[str] = set()
-    pattern = re.compile(r"^\s*(?:[-*]\s*)?(AC-\d+)\s*[:：-]\s*(.+?)\s*$", re.I)
-    for line in text.splitlines():
-        match = pattern.match(line)
-        if not match:
-            continue
-        identifier = match.group(1).upper()
-        description = sanitize_text(match.group(2).strip())
-        if identifier in seen or not description:
-            continue
+    for item in criteria:
+        identifier = str(item.get("id") or "").strip().upper()
+        description = sanitize_text(" ".join(str(item.get("description") or "").split()))
+        if not re.fullmatch(r"AC-\d{2,}", identifier):
+            raise RequirementError("验收标准 ID 必须使用 AC-01 形式。")
+        if identifier in seen:
+            raise RequirementError(f"验收标准 ID 重复：{identifier}")
+        if not description:
+            raise RequirementError(f"验收标准说明不能为空：{identifier}")
         seen.add(identifier)
-        criteria.append({"id": identifier, "description": description, "status": "pending"})
-    return criteria
+        normalized.append({"id": identifier, "description": description, "status": "pending"})
+    if not normalized:
+        raise RequirementError("至少需要一项验收标准。")
+
+    def mutate(manifest: dict[str, Any]) -> None:
+        if manifest.get("state") not in {"draft", "documented"}:
+            raise RequirementError("只有 draft/documented 状态可以设置验收标准；下游需求请先 reopen。")
+        manifest["acceptanceCriteria"] = normalized
+        if _has_valid_design(root, manifest):
+            _set_state(manifest, "documented")
+
+    return _mutate(root, requirement_id, mutate)
 
 
 def _upsert_artifact(
@@ -410,6 +469,8 @@ def _upsert_artifact(
     test_kind: Optional[str] = None,
     result: Optional[str] = None,
     acceptance_ids: Optional[list[str]] = None,
+    document_kind: Optional[str] = None,
+    validation: Optional[dict[str, Any]] = None,
 ) -> None:
     record = {
         "type": artifact_type,
@@ -425,47 +486,16 @@ def _upsert_artifact(
         record["result"] = result
     if acceptance_ids is not None:
         record["acceptanceIds"] = sorted(dict.fromkeys(acceptance_ids))
+    if document_kind:
+        record["documentKind"] = document_kind
+    if validation is not None:
+        record["validation"] = validation
     artifacts = manifest.setdefault("artifacts", [])
     for index in range(len(artifacts) - 1, -1, -1):
         if artifacts[index].get("type") == artifact_type and artifacts[index].get("path") == relative:
             artifacts[index] = record
             return
     artifacts.append(record)
-
-
-def _requirement_design_text(manifest: dict[str, Any]) -> str:
-    name = manifest["requirementName"]
-    identifier = manifest["requirementId"]
-    return f"""# {name} · 需求与设计
-
-- 需求号：`{identifier}`
-- 需求名称：{name}
-
-## 背景
-
-实现并交付“{name}”，确保需求、设计、验证和收口证据能够按需求号追踪。
-
-## 范围
-
-- 完成本需求明确约定的行为和交付物。
-
-## 非目标
-
-- 不包含需求范围之外的发布、部署或外部系统改造。
-
-## 设计
-
-- 按项目现有结构实现，保持已有公共接口兼容。
-
-## 风险
-
-- 变更后测试或评审证据可能过期，必须重新验证。
-
-## 验收标准
-
-- AC-01：实现需求“{name}”约定的目标行为。
-- AC-02：相关自动化测试或经审批的人工测试通过，且无重要回归。
-"""
 
 
 def _test_report_text(manifest: dict[str, Any]) -> str:
@@ -541,9 +571,19 @@ def generate_artifact(root: Path, requirement_id: str, artifact_type: str) -> di
             raise RequirementError("只有评审通过后才能生成复盘收口总结。")
         directory = requirement_dir(root, requirement_id)
         filename = ARTIFACT_FILES[normalized_type]
+        if normalized_type == "requirement-design":
+            filename = design_documents.design_filename(
+                manifest["requirementId"],
+                manifest["requirementName"],
+                manifest.get("ticketKind", "requirement"),
+            )
         path = directory / filename
         if normalized_type == "requirement-design":
-            body = _requirement_design_text(manifest)
+            body = design_documents.scaffold_text(
+                manifest["requirementId"],
+                manifest["requirementName"],
+                manifest.get("ticketKind", "requirement"),
+            )
         elif normalized_type == "test":
             body = _test_report_text(manifest)
         else:
@@ -551,11 +591,20 @@ def generate_artifact(root: Path, requirement_id: str, artifact_type: str) -> di
         if normalized_type != "test" or not path.is_file() or path.stat().st_size == 0:
             _atomic_write(path, body.encode("utf-8"))
         relative = path.relative_to(root).as_posix()
-        _upsert_artifact(manifest, normalized_type, relative, file_sha256(path), "generated", status="draft" if normalized_type == "test" else "registered")
+        artifact_status = "draft" if normalized_type in {"requirement-design", "test"} else "registered"
+        _upsert_artifact(
+            manifest,
+            normalized_type,
+            relative,
+            file_sha256(path),
+            "generated",
+            status=artifact_status,
+            document_kind=manifest.get("ticketKind", "requirement") if normalized_type == "requirement-design" else None,
+            validation={"ok": False, "scaffold": True, "errors": ["脚手架必须由 project-design 补全并重新登记。"]}
+            if normalized_type == "requirement-design" else None,
+        )
         if normalized_type == "requirement-design":
-            manifest["acceptanceCriteria"] = parse_acceptance_criteria(body)
-            _set_state(manifest, "documented")
-            _resolve_blockers(manifest, "requirement-design", "需求与设计文档已生成。")
+            _set_state(manifest, "draft")
         elif normalized_type == "closure":
             _resolve_blockers(manifest, "closure", "复盘收口总结已生成。")
 
@@ -586,6 +635,18 @@ def register_artifact(
     acceptance_ids = acceptance_ids or []
     files = files or []
     current = load_requirement(root, requirement_id)
+    design_validation = None
+    if artifact_type == "requirement-design":
+        design_validation = design_documents.validate(
+            path.read_text(encoding="utf-8", errors="ignore"),
+            root,
+            relative,
+            current.get("ticketKind", "requirement"),
+            expected_id=current.get("requirementId"),
+            expected_name=current.get("requirementName"),
+        )
+        if not design_validation.get("ok"):
+            raise RequirementError("设计文档验证失败：" + "；".join(design_validation.get("errors", [])))
     if test_kind:
         normalized_files = _normalize_scope_files(root, files)
         _validate_test_report_file(path, relative)
@@ -620,12 +681,10 @@ def register_artifact(
             test_kind=test_kind,
             result=result,
             acceptance_ids=acceptance_ids,
+            document_kind=current.get("ticketKind", "requirement") if artifact_type == "requirement-design" else None,
+            validation=design_validation if artifact_type == "requirement-design" else None,
         )
         if artifact_type == "requirement-design":
-            criteria = parse_acceptance_criteria(path.read_text(encoding="utf-8", errors="ignore"))
-            if not criteria:
-                raise RequirementError("需求/设计文档必须包含 AC-01 形式的编号验收标准。")
-            manifest["acceptanceCriteria"] = criteria
             _set_state(manifest, "documented")
             _resolve_blockers(manifest, "requirement-design", "已登记需求与设计文档。")
         elif artifact_type == "closure":
@@ -690,7 +749,9 @@ def ready_requirement(root: Path, requirement_id: str, resolution: str) -> dict[
         if manifest.get("state") != "documented":
             raise RequirementError("只有 documented 状态可以进入 ready。")
         if not manifest.get("acceptanceCriteria"):
-            raise RequirementError("需求/设计文档缺少编号验收标准。")
+            raise RequirementError("需求 manifest 缺少编号验收标准。")
+        if not _has_valid_design(root, manifest):
+            raise RequirementError("缺少当前有效且验证通过的需求与设计文档。")
         unresolved = [blocker for blocker in manifest.get("readiness", {}).get("blockers", []) if not blocker.get("resolvedAt")]
         if unresolved:
             raise RequirementError("仍有未解决的 readiness 阻塞项：" + ", ".join(str(item.get("id")) for item in unresolved))
@@ -1095,6 +1156,33 @@ def _artifact_is_current(root: Path, artifact: dict[str, Any]) -> bool:
     return file_sha256(path) == artifact.get("sha256")
 
 
+def design_validation_status(root: Path, manifest: dict[str, Any]) -> dict[str, Any]:
+    designs = [
+        item for item in manifest.get("artifacts", [])
+        if item.get("type") == "requirement-design" and item.get("status") not in {"draft", "stale", "failed"}
+    ]
+    if not designs:
+        return {"ok": False, "legacy": False, "errors": ["缺少已登记的需求与设计文档。"]}
+    artifact = designs[-1]
+    if not _artifact_is_current(root, artifact):
+        return {"ok": False, "legacy": False, "errors": ["需求与设计文档不存在或内容哈希已变化。"]}
+    validation = artifact.get("validation")
+    if not isinstance(validation, dict):
+        return {"ok": True, "legacy": True, "warnings": ["该文档由 0.3.0 以前版本登记，重新登记时必须通过新模板校验。"]}
+    return {
+        "ok": bool(validation.get("ok")),
+        "legacy": False,
+        "kind": validation.get("kind") or artifact.get("documentKind"),
+        "file": artifact.get("path"),
+        "errors": list(validation.get("errors") or []),
+        "warnings": list(validation.get("warnings") or []),
+    }
+
+
+def _has_valid_design(root: Path, manifest: dict[str, Any]) -> bool:
+    return bool(design_validation_status(root, manifest).get("ok"))
+
+
 def finish_requirement(root: Path, requirement_id: str, *, files: list[str]) -> dict[str, Any]:
     current_manifest = load_requirement(root, requirement_id)
     snapshot = capture_requirement_scope(root, current_manifest)
@@ -1106,8 +1194,7 @@ def finish_requirement(root: Path, requirement_id: str, *, files: list[str]) -> 
         unresolved_blockers = [item for item in manifest.get("readiness", {}).get("blockers", []) if not item.get("resolvedAt")]
         if unresolved_blockers:
             raise RequirementError("仍有未解决的 readiness 阻塞项。")
-        designs = [item for item in manifest.get("artifacts", []) if item.get("type") == "requirement-design"]
-        if not designs or not _artifact_is_current(root, designs[-1]):
+        if not _has_valid_design(root, manifest):
             raise RequirementError("缺少当前有效的需求与设计文档。")
         if not _test_gate_satisfied(manifest):
             raise RequirementError("测试类型或通过结果不满足需求门禁。")
@@ -1209,11 +1296,21 @@ def reopen_requirement(root: Path, requirement_id: str, reason: str) -> dict[str
             review["valid"] = False
             review["invalidatedAt"] = now_iso()
             review["invalidatedReason"] = clean_reason
+        legacy_design_invalidated = False
         for artifact in manifest.get("artifacts", []):
             if artifact.get("type") == "closure":
                 artifact["status"] = "stale"
                 artifact["invalidatedAt"] = now_iso()
                 artifact["invalidatedReason"] = clean_reason
+            elif (
+                artifact.get("type") == "requirement-design"
+                and artifact.get("status") not in {"draft", "stale", "failed"}
+                and not isinstance(artifact.get("validation"), dict)
+            ):
+                artifact["status"] = "stale"
+                artifact["invalidatedAt"] = now_iso()
+                artifact["invalidatedReason"] = "旧版设计在 reopen 后必须按 0.3.0 模板重新验证。"
+                legacy_design_invalidated = True
         manifest.setdefault("history", []).append({
             "action": "reopen",
             "fromState": previous,
@@ -1221,7 +1318,7 @@ def reopen_requirement(root: Path, requirement_id: str, reason: str) -> dict[str
             "recordedAt": now_iso(),
         })
         manifest["currentDiffHash"] = None
-        _set_state(manifest, "documented" if manifest.get("acceptanceCriteria") else "draft")
+        _set_state(manifest, "documented" if not legacy_design_invalidated and _has_valid_design(root, manifest) else "draft")
 
     return _mutate(root, requirement_id, mutate)
 
@@ -1232,10 +1329,16 @@ def status_payload(root: Path, requirement_id: str) -> dict[str, Any]:
     return {
         "requirementId": manifest.get("requirementId"),
         "requirementName": manifest.get("requirementName"),
+        "ticketKind": manifest.get("ticketKind", "requirement"),
         "state": manifest.get("state"),
         "revision": manifest.get("revision"),
         "externalApiImpact": manifest.get("externalApiImpact"),
         "acceptanceCriteria": manifest.get("acceptanceCriteria", []),
+        "designArtifact": next(
+            (item for item in reversed(manifest.get("artifacts", [])) if item.get("type") == "requirement-design"),
+            None,
+        ),
+        "designValidation": design_validation_status(root, manifest),
         "unresolvedBlockers": unresolved,
         "artifacts": manifest.get("artifacts", []),
         "testGateSatisfied": _test_gate_satisfied(manifest),

@@ -23,4 +23,4 @@ project-intel debug --bug "<bug or error>"
 
 Do not guess fixes or stack multiple changes.
 
-When the bug fix changes code, obtain the requirement ID/name through `project-intake`, complete the requirement/design artifact and readiness gate, then run `project-intel requirement begin --requirement-id "<id>"` before editing. Pass that ID through RED, GREEN, review, finish, and maintain.
+When the bug fix changes code, obtain the requirement ID/name through `project-intake` with `--ticket-kind bug`. Complete root-cause investigation, then invoke `project-design` to generate or validate the compact Bug design, invoke `project-spec` to persist acceptance criteria in the manifest, and pass the readiness gate. Run `project-intel requirement begin --requirement-id "<id>"` before editing and pass that ID through RED, GREEN, review, finish, and maintain.
