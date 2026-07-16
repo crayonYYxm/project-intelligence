@@ -7,8 +7,11 @@ const readJson = (path) => JSON.parse(readFileSync(resolve(root, path), "utf8"))
 const packageJson = readJson("package.json");
 const claude = readJson("plugins/project-intelligence/.claude-plugin/plugin.json");
 const codex = readJson("plugins/project-intelligence/.codex-plugin/plugin.json");
-const python = readFileSync(resolve(root, "plugins/project-intelligence/scripts/project_intel.py"), "utf8");
-const match = python.match(/^VERSION\s*=\s*"([^"]+)"/m);
+const pythonSources = [
+  "plugins/project-intelligence/scripts/project_intel.py",
+  "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+].map((path) => readFileSync(resolve(root, path), "utf8"));
+const match = pythonSources.map((source) => source.match(/^VERSION\s*=\s*"([^"]+)"/m)).find(Boolean);
 
 if (!match) throw new Error("Unable to find Python CLI VERSION");
 const version = match[1];

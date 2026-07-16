@@ -1,7 +1,7 @@
 {
   "name": "project-intelligence",
-  "version": "0.1.17",
-  "description": "Project-level intelligence for intake, specs, plans, standards, knowledge, graph context, systematic debugging, RED/GREEN test evidence, finish gates, lifecycle maintenance, and reuse guidance.",
+  "version": "0.2.1",
+  "description": "Requirement-level intelligence for intake, documents, plans, standards, test reports, review gates, finish, maintenance, debugging, and reuse guidance.",
   "author": {
     "name": "crayonYYxm"
   }

@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.2.1 - 2026-07-16
+
+- Prevent registered reports from hiding business changes, revalidate the finish snapshot before close, and add stable finding resolution with `resolvedBy` history.
+- Require explicit authorization for repository graph runners, environment-provided commands, and project-external command paths; redact review and quality-report content before persistence.
+- Ignore Java/Kotlin and JavaScript/TypeScript route-like text inside comments and string literals while preserving real route extraction.
+- Make backend API scanning language-aware: Python routes use AST facts, route-like strings no longer produce Spring APIs, and test fixtures are separated from production API counts.
+- Add macOS and Windows CLI smoke jobs plus scheduled/manual isolated Claude and Codex live Skill evaluations with ten behavior scenarios.
+- Make the live-eval per-scenario budget configurable and raise the default ceiling to avoid terminating after the intake Skill alone.
+- Move requirement lifecycle, atomic manifest persistence, scope hashing, and artifact handling into `project_intel_lib/requirements.py`, keeping the main CLI as a compatibility facade for the new subsystem.
+- Reduce `project_intel.py` to a thin backwards-compatible loader and move application services/command dispatch into `project_intel_lib/application.py`.
+
+## 0.2.0 - 2026-07-16
+
+- Add revisioned requirement archives under `.project-intel/requirements/by-id/<id>/` with requirement/design, living test report, closure summary, numbered acceptance criteria, and a `draft → documented → ready → implementing → verified → reviewed → finished → closed` state machine.
+- Add `requirement`, requirement-aware `intake/test/finish/maintain`, and persistent `review` CLI commands with JSON-compatible results, explicit external-API confirmation, document actions, manual-test approval, and legacy warnings.
+- Enforce explicit test scope, expected RED failure matching, pytest infrastructure error rejection, secret redaction, content/diff hashes, actual Git scope coverage, service-test policy for external APIs, stale evidence invalidation, and finish-before-maintain.
+- Make init and routine refresh fact-only; root `.gitignore`, `AGENTS.md`, and `CLAUDE.md` change only through explicit `install` or `refresh --adapters`.
+- Update lifecycle Skills to ask for requirement ID/name, document actions, test type/report action, review evidence, and closure-summary handling without adding external workflow dependencies.
+
 ## 0.1.17 - 2026-07-16
 
 - Add `project-test` and `project-intel test` for targeted RED, GREEN, regression, verification, and reproducible manual evidence stored in stable task-scoped reports.

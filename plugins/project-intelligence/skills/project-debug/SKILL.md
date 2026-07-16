@@ -7,7 +7,7 @@ description: Use when investigating bugs, errors, test failures, regressions, un
 
 Use project facts and systematic debugging before proposing fixes.
 
-1. Read `.project-intel/manifest.json`; if missing, run `project-intel init`.
+1. Read `.project-intel/manifest.json`; if missing, run `project-intel doctor` or `project-intel init --dry-run`, and initialize only with explicit user authorization.
 2. Generate debug context. This prints context by default and does not create a report file:
 
 ```bash
@@ -19,6 +19,8 @@ project-intel debug --bug "<bug or error>"
 5. Use GitNexus for call chains, impact, changed-code risk, and “what calls this” questions when available. Use Understand-Anything for architecture/domain context.
 6. Invoke `project-test`. Add a failing regression test or minimal reproduction before implementing the fix when the project supports tests, then record the expected RED output.
 7. Test exactly one hypothesis at a time. If three fix attempts fail or the symptom moves without a clear explanation, stop changing code and re-check the architecture, assumptions, inputs, environment, and reproduction path.
-8. After the fix, record GREEN/regression evidence that proves the original symptom no longer occurs, then run `project-intel check` and `project-intel finish`. Only after the finish gate passes, run `project-intel maintain --task "<中文 bug 修复摘要>" --files <changed-source-files>`. `maintain` overwrites `.project-intel/maintenance/latest.md` by default and updates file-level Chinese requirement records; use `--archive` only when historical maintenance records are requested.
+8. After the fix, record GREEN/regression evidence with the same requirement ID, then run `project-intel check`, persist `project-intel review --requirement-id "<id>" ...`, and run `project-intel finish --requirement-id "<id>" --files <all-actual-changed-files>`. Only after finish succeeds, run `project-intel maintain --requirement-id "<id>" --files <all-actual-changed-files>`.
 
 Do not guess fixes or stack multiple changes.
+
+When the bug fix changes code, obtain the requirement ID/name through `project-intake`, complete the requirement/design artifact and readiness gate, then run `project-intel requirement begin --requirement-id "<id>"` before editing. Pass that ID through RED, GREEN, review, finish, and maintain.

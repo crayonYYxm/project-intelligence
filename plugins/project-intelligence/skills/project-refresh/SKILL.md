@@ -17,13 +17,17 @@ project-intel init --interactive
 project-intel init --setup-missing
 project-intel refresh
 project-intel refresh --with-graph
+project-intel refresh --with-graph --allow-repo-runner
+project-intel refresh --with-graph --allow-env-command
+project-intel refresh --with-graph --allow-external-path
+project-intel refresh --adapters
 project-intel install
 project-intel install --hooks
 ```
 
 `refresh` scans current workspace contents relative to the last generated project facts. It includes code pulled from other authors because project intelligence is based on file facts, not author identity.
 
-`init`, `refresh`, and `install` maintain local agent adapters and root-level agent entrypoints:
+`init` and ordinary `refresh` are fact-only. Only explicit `refresh --adapters` or `install` maintains local agent adapters and root-level agent entrypoints:
 
 - `AGENTS.md` for Codex and other agents that read AGENTS conventions.
 - `CLAUDE.md` for Claude Code.
@@ -33,7 +37,7 @@ Use managed Project Intelligence blocks in root entrypoint files so existing tea
 
 Routine refresh/check commands should keep stable files rather than producing a new file for every conversation. `init`, `refresh`, tooling, and quality reports overwrite their fixed outputs. `project-intel intake`, `project-intel lifecycle`, and `project-intel debug` print by default and write fixed reports only with `--write`. `project-intel finish` overwrites `.project-intel/reports/finish-report.md`; `project-intel maintain` overwrites `.project-intel/maintenance/latest.md`; add `--archive` only when the user wants timestamped history. Requirement deposition is file-level: maintain one concise Chinese markdown per source file under `.project-intel/requirements/files/`, not one requirement document per conversation.
 
-`init` and `refresh` already write the local Claude adapter. Do not ask the user to run `project-intel install` after initialization just to see Project Intelligence skills. Use `install` only to repair/regenerate adapter files or to generate/activate optional hooks.
+`init` and ordinary `refresh` do not write the local Claude adapter. Do not ask the user to run `project-intel install` just to see Project Intelligence skills. Use `refresh --adapters` or `install` only after the user explicitly requests adapter maintenance; use `install` for optional hooks.
 
 The managed entrypoint rules must distinguish tools from skills: Grep/Read/Edit/Bash are execution tools only, while Project Intelligence skills define the workflow. Keep task-to-skill routing explicit so implementation work uses `project-task`, bug investigation uses `project-debug`, review uses `project-review`, and completed work uses `project-maintain` even when the agent ultimately edits files with basic tools.
 
@@ -41,7 +45,7 @@ The managed entrypoint rules must also handle conversation transitions: if a dis
 
 When the user says `/understand . --language zh` completed, graph generation finished, or `.understand-anything/knowledge-graph.json` was updated, immediately run `project-intel refresh` without asking another confirmation. In Claude Code, prefer `/project-refresh` as the user-facing continuation; if the agent cannot issue slash commands programmatically, run the CLI refresh command directly.
 
-`init` checks optional tools such as GitNexus, Understand-Anything, Node/package managers, and quality commands. By default it runs installed graph analysis commands and only reports missing tools. `init --interactive` asks in a TTY; `init --setup-missing` installs only after approval. Plain `refresh` never installs or runs graph tools; use `refresh --with-graph` to rerun already-installed analyzers. In noninteractive agent shells, run `graph-tools --json` first and ask the user in Chinese before calling `init --setup-missing`.
+`init` checks optional tools such as GitNexus, Understand-Anything, Node/package managers, and quality commands, but graph execution is off by default. `init --with-graph` or `refresh --with-graph` runs authorized installed analyzers. A repository runner, environment-provided command, or project-external absolute path additionally requires `--allow-repo-runner`, `--allow-env-command`, or `--allow-external-path`. `init --interactive` asks in a TTY; `init --setup-missing` installs only after approval. In noninteractive agent shells, run `graph-tools --json` first and ask the user in Chinese before calling any setup or authorization flag.
 
 Understand-Anything behavior:
 

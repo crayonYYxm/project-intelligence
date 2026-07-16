@@ -22,6 +22,14 @@ project-intel plan --title "<title>" --from-spec <spec-path> --track auto
 
 If there is no persistent spec file, plan directly from the approved requirement. Do not create spec or plan files merely because the skill triggered.
 
+For a requirement-level task, carry the same requirement ID into every task and map every implementation/test task to one or more numbered acceptance criteria. Treat `requirement-design.md` as the source of truth. End the planning phase with the readiness gate:
+
+```bash
+project-intel requirement ready --requirement-id "<id>" --resolution "需求范围、验收标准、边界和验证方式已确认"
+```
+
+Do not start code edits when this command fails.
+
 Plan quality rules:
 
 - Do not use placeholders such as `TODO`, `TBD`, “适当处理”, or “后续补充”.

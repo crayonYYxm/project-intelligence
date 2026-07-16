@@ -48,14 +48,140 @@ def annotation_values(text: str, names: str) -> list[str]:
     return unique_limited([value.strip() for value in values if value is not None])
 
 
+def mask_comments_and_strings(text: str) -> str:
+    """Preserve source positions while hiding comments and string contents."""
+    chars = list(text)
+    masked = list(text)
+    index = 0
+    state = "code"
+    quote = ""
+    while index < len(chars):
+        current = chars[index]
+        following = chars[index + 1] if index + 1 < len(chars) else ""
+        if state == "code":
+            if current == "/" and following == "/":
+                masked[index] = masked[index + 1] = " "
+                index += 2
+                state = "line-comment"
+                continue
+            if current == "/" and following == "*":
+                masked[index] = masked[index + 1] = " "
+                index += 2
+                state = "block-comment"
+                continue
+            if current in {"'", '"', "`"}:
+                quote = current
+                state = "string"
+                index += 1
+                continue
+            index += 1
+            continue
+        if state == "line-comment":
+            if current in {"\n", "\r"}:
+                state = "code"
+            else:
+                masked[index] = " "
+            index += 1
+            continue
+        if state == "block-comment":
+            if current == "*" and following == "/":
+                masked[index] = masked[index + 1] = " "
+                index += 2
+                state = "code"
+                continue
+            if current not in {"\n", "\r"}:
+                masked[index] = " "
+            index += 1
+            continue
+        if current == "\\":
+            masked[index] = " "
+            if index + 1 < len(chars) and chars[index + 1] not in {"\n", "\r"}:
+                masked[index + 1] = " "
+                index += 2
+            else:
+                index += 1
+            continue
+        if current == quote:
+            state = "code"
+            quote = ""
+            index += 1
+            continue
+        if current not in {"\n", "\r"}:
+            masked[index] = " "
+        index += 1
+    return "".join(masked)
+
+
+def annotation_values_in_code(text: str, masked: str, names: str) -> list[str]:
+    values: list[str] = []
+    pattern = re.compile(rf"@(?:{names})\s*(?:\([^)]*\))?", re.S)
+    for match in pattern.finditer(masked):
+        values.extend(annotation_values(text[match.start():match.end()], names))
+    return unique_limited(values)
+
+
+def quoted_literal_at(text: str, quote_index: int) -> str:
+    if quote_index < 0 or quote_index >= len(text) or text[quote_index] not in {"'", '"'}:
+        return ""
+    quote = text[quote_index]
+    value: list[str] = []
+    index = quote_index + 1
+    while index < len(text):
+        current = text[index]
+        if current == "\\" and index + 1 < len(text):
+            value.append(text[index + 1])
+            index += 2
+            continue
+        if current == quote:
+            return "".join(value)
+        if current in {"\n", "\r"}:
+            return ""
+        value.append(current)
+        index += 1
+    return ""
+
+
 def python_ast_facts(text: str) -> dict[str, Any]:
     try:
         tree = ast.parse(text)
     except SyntaxError:
-        return {"parser": "regex-fallback", "methods": [], "classes": [], "routes": []}
+        return {"parser": "python-syntax-error", "methods": [], "classes": [], "routes": [], "frameworks": []}
     methods: list[str] = []
     classes: list[str] = []
     routes: list[str] = []
+    frameworks: list[str] = []
+    imported_names: dict[str, str] = {}
+    module_aliases: dict[str, str] = {}
+    route_objects: dict[str, str] = {}
+
+    def dotted_name(node: ast.AST) -> str:
+        if isinstance(node, ast.Name):
+            return imported_names.get(node.id, module_aliases.get(node.id, node.id))
+        if isinstance(node, ast.Attribute):
+            prefix = dotted_name(node.value)
+            return f"{prefix}.{node.attr}" if prefix else node.attr
+        return ""
+
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Import):
+            for alias in node.names:
+                module_aliases[alias.asname or alias.name.split(".")[0]] = alias.name
+        elif isinstance(node, ast.ImportFrom) and node.module:
+            for alias in node.names:
+                imported_names[alias.asname or alias.name] = f"{node.module}.{alias.name}"
+    for node in ast.walk(tree):
+        if not isinstance(node, (ast.Assign, ast.AnnAssign)):
+            continue
+        value = node.value
+        if not isinstance(value, ast.Call):
+            continue
+        constructor = dotted_name(value.func)
+        if constructor not in {"fastapi.FastAPI", "fastapi.APIRouter", "flask.Flask", "flask.Blueprint"}:
+            continue
+        targets = node.targets if isinstance(node, ast.Assign) else [node.target]
+        for target in targets:
+            if isinstance(target, ast.Name):
+                route_objects[target.id] = constructor
     for node in ast.walk(tree):
         if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
             methods.append(node.name)
@@ -64,46 +190,72 @@ def python_ast_facts(text: str) -> dict[str, Any]:
                     continue
                 func = decorator.func
                 attr = func.attr if isinstance(func, ast.Attribute) else ""
-                if attr in {"get", "post", "put", "delete", "patch", "route"}:
+                owner = func.value.id if isinstance(func, ast.Attribute) and isinstance(func.value, ast.Name) else ""
+                if owner in route_objects and attr in {"get", "post", "put", "delete", "patch", "route"}:
                     value = decorator.args[0]
                     if isinstance(value, ast.Constant) and isinstance(value.value, str):
                         routes.append(value.value)
+                        frameworks.append("Django" if route_objects[owner].startswith("django.") else "FastAPI/Flask")
+        elif isinstance(node, ast.Call):
+            func_name = dotted_name(node.func)
+            if func_name in {"django.urls.path", "django.urls.re_path"} and node.args:
+                value = node.args[0]
+                if isinstance(value, ast.Constant) and isinstance(value.value, str):
+                    routes.append(value.value)
+                    frameworks.append("Django")
         elif isinstance(node, ast.ClassDef):
             classes.append(node.name)
+            bases = {dotted_name(base) for base in node.bases}
+            if any(
+                base.startswith("rest_framework.")
+                and base.rsplit(".", 1)[-1] in {"APIView", "ViewSet", "ModelViewSet", "GenericViewSet"}
+                for base in bases
+            ):
+                frameworks.append("Django")
     return {
         "parser": "python-ast",
         "methods": unique_limited(methods),
         "classes": unique_limited(classes),
         "routes": unique_limited(routes),
+        "frameworks": unique_limited(frameworks),
+        "apiClass": "Django" in frameworks and not routes,
     }
 
 
-def detect_backend_framework(path: str, text: str) -> str:
-    if re.search(r"@(RestController|RequestMapping|GetMapping|PostMapping|PutMapping|DeleteMapping|PatchMapping|Service|Repository|Mapper|Transactional|Scheduled|MessageListener|KafkaListener|RabbitListener)\b", text):
+def detect_backend_framework(path: str, text: str, ast_facts: dict[str, Any] | None = None) -> str:
+    suffix = Path(path).suffix.lower()
+    if suffix in {".java", ".kt"} and re.search(r"@(RestController|RequestMapping|GetMapping|PostMapping|PutMapping|DeleteMapping|PatchMapping|Service|Repository|Mapper|Transactional|Scheduled|MessageListener|KafkaListener|RabbitListener)\b", text):
         return "Spring"
-    if re.search(r"@(Controller|Get|Post|Put|Delete|Patch|Injectable|UseGuards|MessagePattern|Cron)\b", text):
+    if suffix in {".ts", ".js"} and re.search(r"@(Controller|Get|Post|Put|Delete|Patch|Injectable|UseGuards|MessagePattern|Cron)\b", text):
         return "NestJS"
-    if re.search(r"\b(router|app|server)\.(get|post|put|delete|patch|use|route)\s*\(", text):
+    if suffix in {".ts", ".js"} and re.search(r"\b(router|app|server)\.(get|post|put|delete|patch|use|route)\s*\(", text):
         return "Express/Koa/Fastify"
-    if re.search(r"@(app|router|bp)\.(get|post|put|delete|patch|route)\s*\(", text):
-        return "FastAPI/Flask"
-    if re.search(r"\b(?:urlpatterns\s*=|path\s*\(|re_path\s*\(|APIView|ViewSet|ModelViewSet)\b", text):
-        return "Django"
-    if re.search(r"\b(GET|POST|PUT|DELETE|PATCH)\s*\(\s*['\"]", text):
+    if suffix == ".py" and (ast_facts or {}).get("frameworks"):
+        return str((ast_facts or {})["frameworks"][0])
+    if suffix == ".go" and re.search(r"\b(GET|POST|PUT|DELETE|PATCH)\s*\(\s*['\"]", text):
         return "Go Gin"
     if path.endswith(".xml"):
         return "Mapper XML"
     return "Unknown"
 
 
-def extract_backend_endpoints(text: str, ast_facts: dict[str, Any] | None = None) -> list[str]:
+def extract_backend_endpoints(
+    text: str,
+    suffix: str,
+    ast_facts: dict[str, Any] | None = None,
+    masked_text: str | None = None,
+) -> list[str]:
     endpoints: list[str] = list((ast_facts or {}).get("routes", []))
-    endpoints.extend(annotation_values(text, r"RequestMapping|GetMapping|PostMapping|PutMapping|DeleteMapping|PatchMapping"))
-    endpoints.extend(annotation_values(text, r"Controller"))
-    endpoints.extend(re.findall(r"\b(?:router|app|server)\.(?:get|post|put|delete|patch|use|route)\s*\(\s*['\"]([^'\"]+)['\"]", text))
-    endpoints.extend(re.findall(r"@(?:app|router|bp)\.(?:get|post|put|delete|patch|route)\s*\(\s*['\"]([^'\"]+)['\"]", text))
-    endpoints.extend(re.findall(r"\b(?:GET|POST|PUT|DELETE|PATCH)\s*\(\s*['\"]([^'\"]+)['\"]", text))
-    endpoints.extend(re.findall(r"\b(?:HandleFunc|Handle|path|re_path)\s*\(\s*['\"]([^'\"]+)['\"]", text))
+    code = masked_text if masked_text is not None else text
+    if suffix in {".java", ".kt"}:
+        endpoints.extend(annotation_values_in_code(text, code, r"RequestMapping|GetMapping|PostMapping|PutMapping|DeleteMapping|PatchMapping"))
+    if suffix in {".ts", ".js"}:
+        endpoints.extend(annotation_values_in_code(text, code, r"Controller"))
+        route_call = re.compile(r"\b(?:router|app|server)\.(?:get|post|put|delete|patch|use|route)\s*\(\s*(['\"])")
+        endpoints.extend(quoted_literal_at(text, match.end() - 1) for match in route_call.finditer(code))
+    if suffix == ".go":
+        endpoints.extend(re.findall(r"\b(?:GET|POST|PUT|DELETE|PATCH)\s*\(\s*['\"]([^'\"]+)['\"]", text))
+        endpoints.extend(re.findall(r"\b(?:HandleFunc|Handle)\s*\(\s*['\"]([^'\"]+)['\"]", text))
     return unique_limited([item.strip() for item in endpoints if item.strip()])
 
 
@@ -226,26 +378,28 @@ def scan_backend_file(
     lower = rel_path.lower()
     facts = {key: [] for key in (
         "apis", "services", "dataTypes", "repositories", "configs", "permissionChecks",
-        "transactions", "remoteCalls", "messagesJobs", "errorCodes", "utilities", "candidateEntrypoints",
+        "transactions", "remoteCalls", "messagesJobs", "errorCodes", "utilities", "candidateEntrypoints", "testFixtures",
     )}
     ast_facts = python_ast_facts(text) if suffix == ".py" else {"parser": "regex-fallback", "methods": [], "routes": []}
+    code_text = mask_comments_and_strings(text) if suffix in {".java", ".kt", ".ts", ".js"} else text
     mapper_xml = suffix == ".xml" and ("<mapper" in text.lower() or "/mapper" in lower)
-    route_pattern = r"@(RestController|Controller|RequestMapping|GetMapping|PostMapping|PutMapping|DeleteMapping|PatchMapping|MessageListener|Scheduled)|\b(router|app|server)\.(get|post|put|delete|patch|use|route)\s*\(|@(app|router|bp)\.(get|post|put|delete|patch|route)\s*\("
-    route_signals = re.findall(route_pattern, text)
-    decorators = re.findall(r"@(Controller|Get|Post|Put|Delete|Patch|Injectable|MessagePattern|Cron)\b", text)
-    django_route = suffix == ".py" and bool(re.search(r"\b(?:urlpatterns\s*=|path\s*\(|re_path\s*\(|APIView|ViewSet|ModelViewSet)\b", text))
-    framework = detect_backend_framework(rel_path, text)
-    if route_signals or decorators or configured_entrypoints or django_route or ast_facts.get("routes"):
+    java_route_pattern = r"@(RestController|Controller|RequestMapping|GetMapping|PostMapping|PutMapping|DeleteMapping|PatchMapping|MessageListener|Scheduled)"
+    js_route_pattern = r"\b(router|app|server)\.(get|post|put|delete|patch|use|route)\s*\(|@(Controller|Get|Post|Put|Delete|Patch|MessagePattern|Cron)\b"
+    route_signals = re.findall(java_route_pattern, code_text) if suffix in {".java", ".kt"} else re.findall(js_route_pattern, code_text) if suffix in {".ts", ".js"} else []
+    decorators: list[Any] = []
+    framework = detect_backend_framework(rel_path, code_text, ast_facts)
+    if route_signals or configured_entrypoints or ast_facts.get("routes") or ast_facts.get("apiClass"):
         facts["apis"].append({
             "path": rel_path,
             "framework": framework,
             "parser": ast_facts.get("parser"),
             "signals": sorted(set(flatten_regex_hits(route_signals + decorators) + configured_entrypoints))[:20],
-            "endpoints": extract_backend_endpoints(text, ast_facts),
+            "endpoints": extract_backend_endpoints(text, suffix, ast_facts, code_text),
             "methods": extract_backend_methods(text, suffix, ast_facts)[:20],
         })
     service_name = bool(re.search(r"(?:Service|Manager|UseCase|Facade)\.(?:java|kt|ts|js|py)$|(?:^|/)[^/]+[._-](?:service|manager|usecase|facade)\.(?:ts|js|py)$", rel_path, re.I))
-    if service_name or "@Service" in text or "@Injectable" in text:
+    service_annotation = (suffix in {".java", ".kt"} and "@Service" in code_text) or (suffix in {".ts", ".js"} and "@Injectable" in code_text)
+    if service_name or service_annotation:
         facts["services"].append({
             "name": path.stem,
             "path": rel_path,
@@ -286,8 +440,11 @@ def scan_backend_file(
             facts[key].append({"path": rel_path, "signals": values, "level": "candidate"})
     if re.search(r"(^|/)(utils?|common|helpers?|support)/", lower) and suffix in BACKEND_SUFFIXES:
         facts["utilities"].append({"name": path.stem, "path": rel_path, "exports": extract_exported_functions(text) or extract_backend_methods(text, suffix, ast_facts)[:30]})
-    if not (route_signals or decorators or configured_entrypoints or django_route or ast_facts.get("routes")) and re.search(r"(?:handler|endpoint|facade|adapter|action)", lower):
+    if not (route_signals or decorators or configured_entrypoints or ast_facts.get("routes") or ast_facts.get("apiClass")) and re.search(r"(?:handler|endpoint|facade|adapter|action)", lower):
         facts["candidateEntrypoints"].append({"path": rel_path, "reason": "路径/名称暗示非标准入口点", "level": "candidate"})
+    if facts["apis"] and re.search(r"(^|/)(?:tests?|__tests__|fixtures?)(/|$)", lower):
+        facts["testFixtures"] = [dict(item, classification="test-fixture") for item in facts["apis"]]
+        facts["apis"] = []
     facts["scanMode"] = ast_facts.get("parser")
     return facts
 
@@ -305,7 +462,7 @@ def scan_backend(
     cache = cache or IncrementalScanCache()
     groups = {key: [] for key in (
         "apis", "services", "dataTypes", "repositories", "configs", "permissionChecks",
-        "transactions", "remoteCalls", "messagesJobs", "errorCodes", "utilities", "candidateEntrypoints",
+        "transactions", "remoteCalls", "messagesJobs", "errorCodes", "utilities", "candidateEntrypoints", "testFixtures",
     )}
     parser_modes: set[str] = set()
     rules = (config or {}).get("backend", {}).get("entrypointRules", [])

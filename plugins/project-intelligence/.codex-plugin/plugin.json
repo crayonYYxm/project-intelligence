@@ -1,15 +1,15 @@
 {
   "name": "project-intelligence",
-  "version": "0.1.17+codex.20260716094028",
-  "description": "Project-level intelligence for intake, specs, plans, standards, knowledge, graph context, systematic debugging, orchestration, RED/GREEN test evidence, finish gates, lifecycle maintenance, and reuse guidance.",
+  "version": "0.2.1+codex.20260716122000",
+  "description": "Requirement-level intelligence for intake, documents, plans, standards, test reports, review gates, finish, maintenance, debugging, orchestration, and reuse guidance.",
   "author": {
     "name": "crayonYYxm"
   },
   "skills": "./skills/",
   "interface": {
     "displayName": "Project Intelligence",
-    "shortDescription": "Project intake, standards, graph context, test evidence, finish gates, maintenance, and review checks.",
-    "longDescription": "Project Intelligence maintains a repository-local .project-intel knowledge base for requirement intake, specs, plans, standards, reusable frontend/backend patterns, optional GitNexus and Understand-Anything graph context, systematic debugging, task orchestration, RED/GREEN/regression test evidence, finish gates, quality checks, code review workflows, and post-task maintenance. Init detects optional graph tools without blocking noninteractive agents, while intake/lifecycle print by default and test/finish/maintain keep stable outputs.",
+    "shortDescription": "Requirement documents, test reports, review/finish gates, project context, and maintenance.",
+    "longDescription": "Project Intelligence maintains repository-local project facts plus revisioned requirement archives. It gates implementation through requirement/design documents, numbered acceptance criteria, test reports, diff-hash-aware reviews, closure summaries, finish, and maintenance, while retaining project standards, reusable frontend/backend patterns, optional GitNexus and Understand-Anything graph context, systematic debugging, quality checks, and Claude/Codex workflows.",
     "developerName": "crayonYYxm",
     "category": "Productivity",
     "capabilities": [

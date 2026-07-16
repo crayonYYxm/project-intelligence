@@ -18,11 +18,11 @@ project-intel init --setup-missing
 project-intel init --strict
 ```
 
-`init` generates `.project-intel/` with standards, knowledge, graph summaries, quality configuration, tooling checks, and reports. It also installs/refreshes the local Claude adapter under `.claude/CLAUDE.md` and maintains root-level `AGENTS.md` and `CLAUDE.md` managed blocks so project rules are visible even when a dedicated Project Intelligence skill does not trigger. Project Intelligence skills are provided by the plugin itself — `init` does not duplicate them into the project. It checks optional tools such as GitNexus, Understand-Anything, Node/package managers, and quality commands. Missing optional tools do not block initialization unless strict graph setup is requested.
+`init` generates `.project-intel/` with standards, knowledge, graph summaries, quality configuration, tooling checks, and reports. It is fact-only by default and does not modify root `.gitignore`, `AGENTS.md`, `CLAUDE.md`, or `.claude/CLAUDE.md`. Project Intelligence skills are provided by the plugin itself. Use explicit `project-intel install` only when the user also wants adapters or hooks. Missing optional tools do not block initialization unless strict graph setup is requested.
 
 Preserve user/team content in `AGENTS.md` and `CLAUDE.md`; only update the Project Intelligence managed block.
 
-Do not ask the user to run `project-intel install` after `init` just to get Project Intelligence skills; skills come from the plugin. Keep `install` for repairing adapter files, regenerating entrypoints, or generating/activating optional hooks.
+Do not ask the user to run `project-intel install` after `init` just to get Project Intelligence skills; skills come from the plugin. Keep `install` for an explicitly requested adapter repair, entrypoint generation, or optional hook activation.
 
 By default, `init` checks graph tools before writing project facts and runs analyzers that are already executable. Missing tools are reported without calling `input()`. Use `--interactive` only in an interactive terminal, and use `--setup-missing` only after the user explicitly approves installation. Understand-Anything is optional but supported on both Codex and Claude Code:
 

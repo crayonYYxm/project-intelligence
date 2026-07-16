@@ -7,7 +7,7 @@ description: Use when classifying a requirement, clarifying scope, deciding quic
 
 Use this before code changes when a request may become implementation work.
 
-1. Read `.project-intel/manifest.json` when it exists; if project facts are missing, ask for or run `project-intel init` only when initialization is part of the task.
+1. Read `.project-intel/manifest.json` when it exists. If facts are missing, run read-only `project-intel doctor` or `project-intel init --dry-run`; run `init` only after the user explicitly authorizes initialization.
 2. Run the intake analysis without writing a file by default:
 
 ```bash
@@ -27,3 +27,11 @@ project-intel intake --task "<requirement>"
 7. The same-turn handoff is mandatory for implementation-intent requests. If the user says not to edit yet, complete the applicable pre-edit Skill handoff and stop before file changes; do not stop at intake or substitute `project-knowledge` for the test/task workflow.
 
 Use GitNexus for precise impact when available and Understand-Anything for architecture/domain context when available.
+
+For implementation intent, ask for the requirement ID and requirement name before routing. Generate `LOCAL-YYYYMMDD-HHMMSS` when no formal ID exists, explicitly ask whether external APIs are affected, then register the requirement:
+
+```bash
+project-intel intake --requirement-id "<id>" --requirement-name "<name>" --external-api yes|no --track auto
+```
+
+Ask how to handle the combined requirement/design document: `generate`, `register existing`, or `later`. Route to `project-spec`; choosing later must run `project-intel requirement defer --requirement-id "<id>" --type requirement-design` and remain blocked. Do not ask for requirement identity during knowledge-only explanation or read-only review.

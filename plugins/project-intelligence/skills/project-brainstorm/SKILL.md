@@ -7,7 +7,7 @@ description: Use when shaping a project requirement, brainstorming approaches, c
 
 Start with project facts, then turn the idea into a concrete direction.
 
-1. Read `.project-intel/manifest.json` if it exists; if missing, run `project-intel init`.
+1. Read `.project-intel/manifest.json` if it exists; if missing, use `project-intel doctor` or `project-intel init --dry-run`, and initialize only after explicit user authorization.
 2. Inspect relevant standards, knowledge JSON, graph summary, and recent reports.
 3. Run `project-intel intake --task "<requirement>"` or follow the same classification manually to decide quick/standard/complex.
 4. Ask only questions that materially affect scope, success criteria, reuse, risk, or UX/API behavior.

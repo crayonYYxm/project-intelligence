@@ -38,6 +38,7 @@ For every subagent task, provide a compact handoff instead of the full conversat
 6. Required verification command or manual verification evidence.
 7. Required `project-test` RED/GREEN/regression phases or a justified manual-evidence path.
 8. Report contract: changed files, test evidence, concerns, and remaining risk.
+9. The shared requirement ID, requirement name, and acceptance criteria owned by the task.
 
 If a handoff file is needed, place it under ignored `.project-intel/tmp/execution/`. Do not create permanent per-subagent requirement, report, or maintenance files unless the user explicitly asks.
 
@@ -55,8 +56,9 @@ After all tasks:
 1. Run a final whole-diff review.
 2. Run `project-intel check`.
 3. Run and record the concrete project verification through `project-test`, such as targeted unit tests, affected regression tests, broader verification, or reproducible manual device checks.
-4. Only after fresh evidence, run `project-intel finish --task "<中文简短需求摘要>" --files <changed-source-files>`.
-5. Then run `project-intel maintain --task "<中文简短需求摘要>" --files <changed-source-files>`.
+4. Persist the final whole-diff review with `project-intel review --requirement-id "<id>" ... --files <all-actual-changed-files>`.
+5. Only after fresh evidence and a passing review, run `project-intel finish --requirement-id "<id>" --files <all-actual-changed-files>`.
+6. Then run `project-intel maintain --requirement-id "<id>" --files <all-actual-changed-files>`.
 
 ## Review Feedback Discipline
 
@@ -69,5 +71,7 @@ When receiving review feedback, verify it against the current codebase before ap
 ## Completion Gate
 
 Do not claim a task is complete, fixed, passing, or ready without fresh evidence from this turn.
+
+Use one requirement manifest for the entire orchestration. Pass the same requirement ID to every handoff. Let workers append only their test/review evidence; never replace the manifest. Requirement writes use revisioned atomic updates, but implementation tasks that touch the same files must still run sequentially.
 
 For each completion claim, identify the proof, run or inspect the proof, read the result, then report the actual status. `project-intel check` proves project-intelligence rules only; it does not prove business behavior unless the rule directly covers that behavior.

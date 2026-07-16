@@ -1,5 +1,6 @@
-import { readFileSync } from "node:fs";
-import { resolve } from "node:path";
+import { mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { join, resolve } from "node:path";
+import { tmpdir } from "node:os";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
@@ -13,14 +14,31 @@ const option = (name, fallback = "") => {
 };
 const agent = option("--agent", "claude");
 const only = option("--scenario");
+const maxBudgetUsd = option("--max-budget-usd", process.env.PROJECT_INTEL_EVAL_MAX_BUDGET_USD || "1.00");
 const dryRun = args.includes("--dry-run");
 const scenarios = only ? payload.scenarios.filter((item) => item.id === only) : payload.scenarios;
 
 if (!new Set(["claude", "codex"]).has(agent)) throw new Error(`Unsupported agent: ${agent}`);
 if (!scenarios.length) throw new Error(`No matching scenarios: ${only}`);
-if (agent === "codex" && !dryRun && process.env.PROJECT_INTEL_CODEX_EVAL_READY !== "1") {
-  throw new Error("Codex live eval uses the currently configured plugin. Set PROJECT_INTEL_CODEX_EVAL_READY=1 only after installing this working tree into an isolated Codex profile.");
+if (!/^\d+(?:\.\d{1,2})?$/.test(maxBudgetUsd) || Number(maxBudgetUsd) <= 0 || Number(maxBudgetUsd) > 5) {
+  throw new Error(`Invalid --max-budget-usd: ${maxBudgetUsd}; expected a value above 0 and at most 5.`);
 }
+let codexHome = "";
+const prepareCodexProfile = () => {
+  if (dryRun || agent !== "codex") return;
+  if (!process.env.OPENAI_API_KEY) throw new Error("Codex live eval requires OPENAI_API_KEY for the isolated profile.");
+  codexHome = mkdtempSync(join(tmpdir(), "project-intelligence-codex-eval-"));
+  const env = { ...process.env, CODEX_HOME: codexHome };
+  const marketplace = spawnSync("codex", ["plugin", "marketplace", "add", root, "--json"], { cwd: root, encoding: "utf8", env });
+  if (marketplace.status !== 0) throw new Error(`Unable to register isolated Codex marketplace: ${marketplace.stderr || marketplace.stdout}`);
+  const install = spawnSync("codex", ["plugin", "add", "project-intelligence@project-intelligence", "--json"], { cwd: root, encoding: "utf8", env });
+  if (install.status !== 0) throw new Error(`Unable to install current working tree in isolated Codex profile: ${install.stderr || install.stdout}`);
+};
+
+process.on("exit", () => {
+  if (codexHome) rmSync(codexHome, { recursive: true, force: true });
+});
+prepareCodexProfile();
 
 const evalPrompt = (scenario) => `${scenario.prompt}\n\nDo not edit files or execute project commands. Invoke every applicable project-intelligence skill before answering. End with one line in the form WORKFLOW: skill-a -> skill-b.`;
 
@@ -44,14 +62,16 @@ const invocation = (scenario) => {
         "--output-format", "stream-json",
         "--verbose",
         "--no-session-persistence",
-        "--max-budget-usd", "0.30",
+        "--max-budget-usd", maxBudgetUsd,
         prompt,
       ],
+      env: process.env,
     };
   }
   return {
     command: "codex",
     args: ["exec", "--ephemeral", "--sandbox", "read-only", "--json", "-C", root, prompt],
+    env: { ...process.env, CODEX_HOME: codexHome },
   };
 };
 
@@ -110,7 +130,7 @@ for (const scenario of scenarios) {
     console.log(`[dry-run] ${scenario.id}: ${call.command} ${call.args.slice(0, -1).join(" ")} <prompt>`);
     continue;
   }
-  const result = spawnSync(call.command, call.args, { cwd: root, encoding: "utf8", timeout: 180_000 });
+  const result = spawnSync(call.command, call.args, { cwd: root, encoding: "utf8", timeout: 180_000, env: call.env });
   const actual = agent === "claude"
     ? skillToolInvocations(result.stdout ?? "")
     : [...(result.stdout ?? "").matchAll(/project-(?:brainstorm|debug|finish|init|intake|knowledge|maintain|orchestrate|plan|quality|refresh|review|spec|standards|task|test)/g)].map((item) => item[0]);
@@ -128,5 +148,6 @@ for (const scenario of scenarios) {
   }
 }
 
+if (codexHome) rmSync(codexHome, { recursive: true, force: true });
 if (failures) process.exit(1);
 console.log(dryRun ? `Skill eval dry-run verified: ${scenarios.length} scenarios` : `Skill behavior evals passed: ${scenarios.length}`);

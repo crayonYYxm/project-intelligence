@@ -7,7 +7,7 @@ description: Use when writing, updating, or explaining a project spec, design no
 
 Write specs from project facts, not guesses.
 
-For implementation requests handled by `project-task`, do not force creation of a spec file. The task workflow should first整理轻量中文 spec in context: requirement summary, acceptance points, impact scope, reuse candidates, and assumptions/open questions. Create `.project-intel/specs/*.md` only when the user explicitly asks for a requirements/spec document.
+For requirement-level implementation, require a requirement/design artifact. It may be a combined document. Keep `.project-intel/specs/*.md` as a legacy compatibility output; use the requirement archive as the durable workflow source.
 
 1. Read `.project-intel/manifest.json`, relevant standards, knowledge JSON, graph summary, and reports.
 2. Run `project-intel intake --task "<requirement>"` or use the same track/readiness fields.
@@ -28,3 +28,11 @@ project-intel lifecycle --task "<requirement>" --track auto
 This prints impact by default. Add `--write` only when the user explicitly wants `.project-intel/reports/task-impact.md`.
 
 Base the spec on `.project-intel`, GitNexus context when available, Understand-Anything context when available, and direct source reads.
+
+Ask for one action and execute it:
+
+- Generate: `project-intel requirement generate --requirement-id "<id>" --type requirement-design`.
+- Register existing: `project-intel requirement add --requirement-id "<id>" --type requirement-design --path <repo-relative-file>`.
+- Later: `project-intel requirement defer --requirement-id "<id>" --type requirement-design` and stop before readiness.
+
+Require background, scope, non-goals, design, risks, and numbered acceptance criteria such as `AC-01`. After the document and implementation plan are approved, run `project-intel requirement ready --requirement-id "<id>" --resolution "<confirmation>"`.

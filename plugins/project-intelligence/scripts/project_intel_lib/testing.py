@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import json
+import hashlib
+import re
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Callable, Optional
@@ -8,7 +10,7 @@ from typing import Any, Callable, Optional
 
 TEST_PHASES = ("red", "green", "regression", "verify", "manual")
 PASSING_PHASES = {"green", "regression", "verify", "manual"}
-COMMAND_ERROR_CODES = {124, 126, 127}
+COMMAND_ERROR_CODES = {2, 3, 4, 5, 124, 126, 127}
 MIN_MANUAL_EVIDENCE_LENGTH = 12
 
 
@@ -44,14 +46,83 @@ def manual_evidence_valid(value: str) -> bool:
     return len(compact) >= MIN_MANUAL_EVIDENCE_LENGTH and compact not in generic
 
 
-def phase_passed(phase: str, results: list[dict[str, Any]], manual_evidence: str = "") -> bool:
+SECRET_KEY_PATTERN = r"authorization|cookie|token|access[_-]?token|refresh[_-]?token|password|secret|api[_-]?key|aws[_-]?secret[_-]?access[_-]?key|aws[_-]?access[_-]?key[_-]?id"
+SECRET_VALUE_PATTERN = r'''(?:"[^"]*"|'[^']*'|[^\s,;]+)'''
+DATABASE_URL_PATTERN = re.compile(
+    r"(?i)\b((?:postgres(?:ql)?|mysql|mariadb|mongodb(?:\+srv)?|redis)://)([^:@/\s]+):([^@/\s]+)@"
+)
+
+
+def sanitize_text(value: str) -> str:
+    text = str(value or "")
+    text = re.sub(
+        rf"(?i)(Authorization\s*:\s*)(?:Bearer\s+)?{SECRET_VALUE_PATTERN}",
+        lambda match: f"{match.group(1)}[REDACTED]",
+        text,
+    )
+    text = re.sub(
+        r"(?i)(Cookie\s*:\s*)[^\r\n]+",
+        lambda match: f"{match.group(1)}[REDACTED]",
+        text,
+    )
+    text = re.sub(
+        rf'''(?i)((?:["']?)(?:{SECRET_KEY_PATTERN})(?:["']?)\s*[:=]\s*){SECRET_VALUE_PATTERN}''',
+        lambda match: f"{match.group(1)}[REDACTED]",
+        text,
+    )
+    text = re.sub(
+        rf"(?i)(--(?:{SECRET_KEY_PATTERN})(?:=|\s+)){SECRET_VALUE_PATTERN}",
+        lambda match: f"{match.group(1)}[REDACTED]",
+        text,
+    )
+    text = re.sub(
+        rf"(?i)(\b[A-Za-z_][A-Za-z0-9_]*(?:TOKEN|PASSWORD|SECRET|API_KEY)\s*=\s*){SECRET_VALUE_PATTERN}",
+        lambda match: f"{match.group(1)}[REDACTED]",
+        text,
+    )
+    text = re.sub(
+        rf"(?i)(\bAWS_(?:SECRET_ACCESS_KEY|ACCESS_KEY_ID)\s*=\s*){SECRET_VALUE_PATTERN}",
+        lambda match: f"{match.group(1)}[REDACTED]",
+        text,
+    )
+    text = DATABASE_URL_PATTERN.sub(lambda match: f"{match.group(1)}[REDACTED]:[REDACTED]@", text)
+    return text
+
+
+def _hash_files(root: Path, files: list[str]) -> dict[str, str]:
+    hashes: dict[str, str] = {}
+    for item in files:
+        path = root / item
+        if not path.is_file():
+            hashes[item] = "<missing>"
+            continue
+        digest = hashlib.sha256()
+        with path.open("rb") as handle:
+            for chunk in iter(lambda: handle.read(65536), b""):
+                digest.update(chunk)
+        hashes[item] = digest.hexdigest()
+    return hashes
+
+
+def phase_passed(
+    phase: str,
+    results: list[dict[str, Any]],
+    manual_evidence: str = "",
+    expected_failure: str = "",
+) -> bool:
     if phase == "manual":
         return manual_evidence_valid(manual_evidence)
     if not results:
         return False
     codes = [int(item.get("exitCode", 1)) for item in results]
     if phase == "red":
-        return all(code != 0 and code not in COMMAND_ERROR_CODES for code in codes)
+        if not expected_failure.strip() or not all(code != 0 and code not in COMMAND_ERROR_CODES for code in codes):
+            return False
+        try:
+            pattern = re.compile(expected_failure, re.I | re.S)
+        except re.error:
+            return False
+        return all(pattern.search("\n".join((str(item.get("stdout") or ""), str(item.get("stderr") or "")))) for item in results)
     return all(code == 0 for code in codes)
 
 
@@ -71,7 +142,9 @@ def render_test_evidence(payload: dict[str, Any]) -> str:
         command_text = "<br>".join(f"`{item.get('command')}` → {item.get('exitCode')}" for item in commands)
         if not command_text:
             command_text = str(entry.get("manualEvidence") or "_")
-        files = "<br>".join(f"`{item}`" for item in entry.get("files", [])) or "项目级"
+        files = "<br>".join(f"`{item}`" for item in entry.get("files", []))
+        if not files:
+            files = "项目级" if entry.get("projectWide") else "未记录"
         lines.append(f"| {entry.get('phase')} | {entry.get('status')} | {command_text} | {files} |")
     lines.extend(
         [
@@ -107,21 +180,37 @@ def record_test_evidence(
     results: list[dict[str, Any]],
     *,
     manual_evidence: str = "",
+    expected_failure: str = "",
+    project_wide: bool = False,
     now: str,
     write_json: Callable[[Path, Any], None],
     write_text: Callable[[Path, str], None],
 ) -> tuple[dict[str, Any], dict[str, Any]]:
     current = load_test_evidence(root)
     entries = current.get("entries", []) if current.get("task") == task else []
+    safe_results = [
+        {
+            **item,
+            "command": sanitize_text(str(item.get("command") or "")),
+            "stdout": sanitize_text(str(item.get("stdout") or "")),
+            "stderr": sanitize_text(str(item.get("stderr") or "")),
+        }
+        for item in results
+    ]
+    safe_manual = sanitize_text(manual_evidence.strip())
     entry = {
         "phase": phase,
-        "status": "passed" if phase_passed(phase, results, manual_evidence) else "failed",
+        "status": "passed" if phase_passed(phase, safe_results, safe_manual, expected_failure) else "failed",
         "recordedAt": now,
         "files": sorted(dict.fromkeys(files)),
-        "commands": results,
+        "fileHashes": _hash_files(root, files),
+        "projectWide": bool(project_wide),
+        "commands": safe_results,
     }
-    if manual_evidence.strip():
-        entry["manualEvidence"] = manual_evidence.strip()
+    if safe_manual:
+        entry["manualEvidence"] = safe_manual
+    if expected_failure.strip():
+        entry["expectedFailure"] = sanitize_text(expected_failure.strip())
     payload = {
         "schemaVersion": 1,
         "task": task,
@@ -162,12 +251,15 @@ def evaluate_test_evidence(root: Path, task: str, files: list[str]) -> dict[str,
     )
     for entry in payload.get("entries", []):
         evidence_files = set(entry.get("files", []))
-        covers_selected_files = not evidence_files or selected.issubset(evidence_files)
+        covers_selected_files = bool(entry.get("projectWide")) or bool(evidence_files and selected.issubset(evidence_files))
         if entry.get("phase") == "red" and entry.get("status") == "passed" and covers_selected_files:
             status["redObserved"] = True
         if entry.get("phase") not in PASSING_PHASES or entry.get("status") != "passed":
             continue
         if not covers_selected_files:
+            continue
+        file_hashes = entry.get("fileHashes")
+        if isinstance(file_hashes, dict) and file_hashes != _hash_files(root, sorted(evidence_files)):
             continue
         recorded = _parse_time(entry.get("recordedAt", ""))
         if recorded is None or recorded.timestamp() + 0.001 < latest_source_mtime:

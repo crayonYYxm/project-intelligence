@@ -19,7 +19,7 @@ jobs:
         with:
           node-version: 20
       - name: Compile CLI
-        run: python -m py_compile plugins/project-intelligence/scripts/project_intel.py plugins/project-intelligence/scripts/project_intel_lib/*.py plugins/project-intelligence/scripts/project_intel_lib/scanner/*.py
+        run: python -m compileall -q plugins/project-intelligence/scripts
       - name: Run tests
         run: python -m unittest discover -s plugins/project-intelligence/tests -p "test_*.py"
       - name: Validate plugin manifests and skills
@@ -32,3 +32,24 @@ jobs:
           node scripts/check-package.mjs
           node bin/project-intel.mjs --version
           npm pack --dry-run
+
+  cli-smoke:
+    name: CLI smoke (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Compile CLI
+        run: python -m compileall -q plugins/project-intelligence/scripts
+      - name: Run requirement lifecycle and CLI tests
+        run: python -m unittest plugins/project-intelligence/tests/test_requirement_workflow.py plugins/project-intelligence/tests/test_project_test.py
+      - name: Validate skill contracts
+        run: node scripts/validate-skill-evals.mjs

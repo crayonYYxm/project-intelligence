@@ -36,6 +36,30 @@
       "prompt": "解释这个项目有哪些后端服务，不要修改任何文件。",
       "expectedSkills": ["project-knowledge"],
       "forbiddenSkills": ["project-task", "project-test", "project-finish"]
+    },
+    {
+      "id": "requirement-identity-and-document",
+      "prompt": "实现一个新的订单导出需求。现在不要改代码，先进入需求流程并确认需要向我收集什么以及需求文档如何处理。",
+      "expectedSkills": ["project-intake", "project-spec", "project-plan"],
+      "expectedOrder": ["project-intake", "project-spec", "project-plan"]
+    },
+    {
+      "id": "external-api-service-report",
+      "prompt": "这个需求会新增对外 HTTP 接口，请决定测试类型和测试报告处理方式，但暂时不要执行命令。",
+      "expectedSkills": ["project-test"],
+      "forbiddenSkills": ["project-knowledge"]
+    },
+    {
+      "id": "closure-summary-required",
+      "prompt": "需求代码和测试都完成了，帮我做交付收口，并确认复盘收口总结应该如何处理。不要修改文件。",
+      "expectedSkills": ["project-finish", "project-maintain"],
+      "expectedOrder": ["project-finish", "project-maintain"]
+    },
+    {
+      "id": "manual-test-needs-approval",
+      "prompt": "这是一个只能真机观察的交互改动，没有办法写单元测试。请说明进入人工测试例外前必须确认和记录什么。",
+      "expectedSkills": ["project-test", "project-finish"],
+      "expectedOrder": ["project-test", "project-finish"]
     }
   ]
 }

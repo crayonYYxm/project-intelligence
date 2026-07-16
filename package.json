@@ -1,7 +1,7 @@
 {
   "name": "project-intelligence",
-  "version": "0.1.17",
-  "description": "Project-level intake, specs, plans, standards, knowledge, graph context, test evidence, finish gates, lifecycle maintenance, and Claude/Codex plugin installation.",
+  "version": "0.2.1",
+  "description": "Requirement-level lifecycle gates, project intake, specs, standards, knowledge, graph context, test evidence, review, finish, and maintenance for Claude and Codex.",
   "license": "MIT",
   "type": "module",
   "bin": {
@@ -16,6 +16,7 @@
     "plugins/project-intelligence/.codex-plugin",
     "plugins/project-intelligence/scripts",
     "plugins/project-intelligence/skills",
+    "docs",
     "README.md",
     "CHANGELOG.md",
     "LICENSE"

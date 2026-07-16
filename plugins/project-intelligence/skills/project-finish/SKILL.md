@@ -12,18 +12,29 @@ Use this after implementation and review fixes, before project maintenance.
 3. Verify scope did not drift. If it did, update the spec/plan before claiming completion.
 4. Check high-risk categories when relevant: interface compatibility, data migration, permissions, cache, transactions, remote calls, async jobs, release flags, rollback, monitoring, and user-visible edge states.
 5. If evidence is missing, return to `project-test`. Do not use `project-intel check`, lint, type-check, build output, or an Agent summary as a substitute for changed-behavior proof.
-6. Generate a fixed finish report only when the task is actually at the finish stage:
+6. Ask whether to generate, register, or defer the closure summary, then run finish only when the task is actually at the finish stage:
 
 ```bash
-project-intel finish --task "<中文简短需求摘要>" --files <changed-source-files>
+project-intel requirement generate --requirement-id "<id>" --type closure
+project-intel finish --requirement-id "<id>" --files <all-actual-changed-files>
 ```
 
-7. `project-intel finish` must return non-zero when changed source lacks current task/file-scoped passing evidence. Use `--manual-evidence "<可复现步骤与观察结果>"` only when automation is unreasonable.
+7. `project-intel finish` must return non-zero when changed source lacks current task/file-scoped passing evidence. For requirement-level tasks, manual evidence must already be registered through the approval-style `project-test` flow; do not bypass it with `finish --manual-evidence`.
 8. Do not commit, push, deploy, publish, run migrations, or change production state unless the user explicitly authorizes that action.
 9. After finish, run maintenance once:
 
 ```bash
-project-intel maintain --task "<中文简短需求摘要>" --files <changed-source-files>
+project-intel maintain --requirement-id "<id>" --files <all-actual-changed-files>
 ```
 
 `project-finish` is evidence and release-readiness closure. `project-maintain` is knowledge refresh and file-level Chinese requirement history. Do not treat either as proof unless the actual behavior was freshly verified.
+
+For a requirement-level task, ask how to handle the closure summary: `generate`, `register existing`, or `later`. Execute one of:
+
+```bash
+project-intel requirement generate --requirement-id "<id>" --type closure
+project-intel requirement add --requirement-id "<id>" --type closure --path <repo-relative-file>
+project-intel requirement defer --requirement-id "<id>" --type closure
+```
+
+Then run `project-intel finish --requirement-id "<id>" --files <all-actual-changed-files>`. Finish must verify documents, test policy, acceptance mapping, review, current diff hash, complete scope, and closure summary.

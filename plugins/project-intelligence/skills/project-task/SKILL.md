@@ -14,7 +14,7 @@ Use this sequence:
 1. Before the first code edit, run or mentally follow `project-intake` to classify the work as `quick`, `standard`, or `complex`, and confirm readiness:
 
 ```bash
-project-intel intake --task "<requirement>"
+project-intel intake --requirement-id "<id>" --requirement-name "<name>" --external-api yes|no --track auto
 ```
 
 2. Before the first code edit,整理轻量中文 spec：需求摘要、验收点、影响范围、复用候选、假设/疑问。This is required for task work, but do not create a spec file unless the user explicitly asks.
@@ -33,11 +33,14 @@ project-intel intake --task "<requirement>"
 11. If implementation reveals a bug, error, test failure, or regression, switch to `project-debug` before proposing fixes.
 12. Use `.project-intel`, GitNexus, Understand-Anything, and direct source reads as the task context sources.
 
-If `.project-intel` is missing or stale, run:
+If `.project-intel` is missing or stale, inspect it without mutating root adapters:
 
 ```bash
-project-intel init
+project-intel doctor
+project-intel init --dry-run
 ```
+
+Run `project-intel init` only after explicit user authorization. Do not silently modify `.gitignore`, `AGENTS.md`, or `CLAUDE.md`.
 
 Before broad implementation, inspect task impact when useful. This does not create a report file by default:
 
@@ -49,12 +52,14 @@ After implementation, run check and maintain. Pass the actual changed source fil
 
 ```bash
 project-intel check
-project-intel test --task "<中文简短需求摘要>" --phase verify --files <changed-source-and-test-files>
-project-intel finish --task "<中文简短需求摘要>" --files <changed-source-files>
-project-intel maintain --task "<中文简短需求摘要>" --files <changed-source-files>
+project-intel test --requirement-id "<id>" --test-kind unit --report-action generate \
+  --phase verify --files <changed-source-and-test-files> --acceptance AC-01,AC-02
+project-intel review --requirement-id "<id>" --result passed --summary "<review-summary>" --files <all-actual-changed-files>
+project-intel finish --requirement-id "<id>" --files <all-actual-changed-files>
+project-intel maintain --requirement-id "<id>" --files <all-actual-changed-files>
 ```
 
-The `--task` value used for maintenance must be Chinese. `maintain` overwrites `.project-intel/maintenance/latest.md` by default and updates `.project-intel/requirements/files/<source-path>.md`; add `--archive` only when the user wants to keep a timestamped maintenance history.
+The requirement name must be Chinese when file-level maintenance history is written. `maintain` overwrites `.project-intel/maintenance/latest.md` by default and updates `.project-intel/requirements/files/<source-path>.md`; add `--archive` only when the user wants to keep a timestamped maintenance history.
 
 Before finalizing:
 
@@ -65,3 +70,11 @@ Before finalizing:
 5. Only claim complete, fixed, passing, or ready after reading that verification output.
 
 `project-intel check` proves project-intelligence rules and known quality commands. It does not by itself prove the business requirement unless the check directly exercises the changed behavior.
+
+For requirement-level implementation, require the ID/name created by `project-intake`, confirm `requirement status` is `ready`, and run this immediately before the first code edit:
+
+```bash
+project-intel requirement begin --requirement-id "<id>"
+```
+
+Pass the same ID to `project-test`, `project-review`, `project-finish`, `project-maintain`, and every orchestration handoff. The older `--task`-only commands are compatibility mode, not the preferred workflow.

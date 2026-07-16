@@ -11,8 +11,12 @@ for (const required of [
   ".agents/plugins/marketplace.json",
   ".claude-plugin/marketplace.json",
   "plugins/project-intelligence/scripts/project_intel.py",
+  "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+  "plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
   "plugins/project-intelligence/scripts/project_intel_lib/testing.py",
+  "plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py",
   "plugins/project-intelligence/skills/project-test/SKILL.md",
+  "docs/project-intelligence-guide.md",
 ]) {
   if (!files.includes(required)) {
     throw new Error(`npm tarball is missing ${required}`);

@@ -196,6 +196,79 @@ class HandleToolingSetupTests(unittest.TestCase):
         self.assertEqual(result[0]["status"], "ok")
         run_shell.assert_called_once_with("understand .", Path("."), timeout=300)
 
+    def test_repo_runner_and_environment_commands_require_explicit_authorization(self):
+        tooling = {
+            "graphActions": [
+                {
+                    "tool": "GitNexus",
+                    "state": "installed",
+                    "analyzeCommand": "node .gitnexus/run.cjs analyze",
+                    "analyzeCommandSource": "repo-runner",
+                },
+                {
+                    "tool": "Understand-Anything",
+                    "state": "installed",
+                    "analyzeCommand": "custom-understand .",
+                    "analyzeCommandSource": "environment",
+                },
+            ]
+        }
+        with patch.object(project_intel, "run_shell") as run_shell:
+            result = project_intel.handle_tooling_setup(
+                Path("."), tooling, interactive=False, setup_missing=False, with_graph=True
+            )
+        self.assertEqual([item["status"] for item in result], ["skipped", "skipped"])
+        run_shell.assert_not_called()
+
+        with patch.object(project_intel, "run_shell", return_value=(0, "ok", "")) as run_shell:
+            result = project_intel.handle_tooling_setup(
+                Path("."),
+                tooling,
+                interactive=False,
+                setup_missing=False,
+                with_graph=True,
+                allow_repo_runner=True,
+                allow_env_command=True,
+            )
+        self.assertEqual([item["status"] for item in result], ["ok", "ok"])
+        self.assertEqual(run_shell.call_count, 2)
+
+    def test_external_absolute_graph_command_requires_separate_authorization(self):
+        tooling = {
+            "graphActions": [{
+                "tool": "Understand-Anything",
+                "state": "installed",
+                "analyzeCommand": "/opt/project-tools/understand .",
+                "analyzeCommandSource": "environment",
+            }]
+        }
+        with patch.object(project_intel, "run_shell") as run_shell:
+            result = project_intel.handle_tooling_setup(
+                Path("."), tooling, interactive=False, setup_missing=False, with_graph=True,
+                allow_env_command=True,
+            )
+        self.assertEqual(result[0]["status"], "skipped")
+        self.assertIn("--allow-external-path", result[0]["detail"])
+        run_shell.assert_not_called()
+
+    def test_quality_report_redacts_commands_stdout_and_stderr(self):
+        report = project_intel.build_quality_report(
+            [{
+                "kind": "test",
+                "command": "curl --token cli-secret",
+                "exitCode": 1,
+                "stdout": "access_token=output-secret",
+                "stderr": "Cookie: session=stderr-secret",
+            }],
+            {},
+            {},
+            configured_commands=1,
+            run_quality=True,
+        )
+        for secret in ("cli-secret", "output-secret", "stderr-secret"):
+            self.assertNotIn(secret, report)
+        self.assertIn("[REDACTED]", report)
+
 
 class GraphToolsReportTests(unittest.TestCase):
     def test_report_graph_tools_json_prints_graph_actions(self):
@@ -544,13 +617,20 @@ class UnderstandSetupFlowTests(unittest.TestCase):
 
 
 class AgentEntrypointInstallTests(unittest.TestCase):
-    def test_init_writes_root_agent_entrypoints(self):
+    def test_init_is_fact_only_and_explicit_install_writes_root_agent_entrypoints(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             (root / "src").mkdir()
             (root / "src" / "index.ts").write_text("export const answer = 42;\n", encoding="utf-8")
 
             result = project_intel.init_project(root, with_graph=False)
+
+            self.assertFalse((root / "AGENTS.md").exists())
+            self.assertFalse((root / "CLAUDE.md").exists())
+            self.assertFalse((root / ".claude" / "CLAUDE.md").exists())
+            self.assertEqual(result["agentFiles"], [])
+
+            result = project_intel.install_claude(root)
 
             agents = (root / "AGENTS.md").read_text(encoding="utf-8")
             claude = (root / "CLAUDE.md").read_text(encoding="utf-8")
@@ -1106,10 +1186,31 @@ class CliAndReleaseContractTests(unittest.TestCase):
             (root / ".project-intel" / "manifest.json").write_text("{}", encoding="utf-8")
             with patch.object(project_intel, "init_project", return_value=result) as init_project:
                 self.assertEqual(project_intel.main(["--project", str(root), "refresh"]), 0)
-                init_project.assert_called_once_with(root.resolve(), refresh=True, with_graph=False)
+                init_project.assert_called_once_with(
+                    root.resolve(), refresh=True, with_graph=False, adapters=False,
+                    allow_repo_runner=False, allow_env_command=False, allow_external_path=False,
+                )
             with patch.object(project_intel, "init_project", return_value=result) as init_project:
                 self.assertEqual(project_intel.main(["--project", str(root), "refresh", "--with-graph"]), 0)
-                init_project.assert_called_once_with(root.resolve(), refresh=True, with_graph=True)
+                init_project.assert_called_once_with(
+                    root.resolve(), refresh=True, with_graph=True, adapters=False,
+                    allow_repo_runner=False, allow_env_command=False, allow_external_path=False,
+                )
+            with patch.object(project_intel, "init_project", return_value=result) as init_project:
+                self.assertEqual(project_intel.main(["--project", str(root), "refresh", "--adapters"]), 0)
+                init_project.assert_called_once_with(
+                    root.resolve(), refresh=True, with_graph=False, adapters=True,
+                    allow_repo_runner=False, allow_env_command=False, allow_external_path=False,
+                )
+            with patch.object(project_intel, "init_project", return_value=result) as init_project:
+                self.assertEqual(project_intel.main([
+                    "--project", str(root), "refresh", "--with-graph",
+                    "--allow-repo-runner", "--allow-env-command", "--allow-external-path",
+                ]), 0)
+                init_project.assert_called_once_with(
+                    root.resolve(), refresh=True, with_graph=True, adapters=False,
+                    allow_repo_runner=True, allow_env_command=True, allow_external_path=True,
+                )
 
     def test_cli_smoke_lifecycle(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -1120,12 +1221,13 @@ class CliAndReleaseContractTests(unittest.TestCase):
             base = [project_intel.sys.executable, str(MODULE_PATH), "--project", str(root)]
 
             for args in (
-                ["init", "--no-graph"],
-                ["intake", "--task", "修改按钮文案"],
+                ["init"],
+                ["intake", "--legacy", "--task", "修改按钮文案"],
                 ["check"],
                 ["lifecycle", "--task", "修改按钮文案", "--track", "quick"],
                 [
                     "test",
+                    "--legacy",
                     "--task",
                     "完成稳定性维护",
                     "--phase",
@@ -1135,9 +1237,9 @@ class CliAndReleaseContractTests(unittest.TestCase):
                     "--files",
                     "src/index.ts",
                 ],
-                ["finish", "--task", "完成稳定性维护", "--files", "src/index.ts"],
+                ["finish", "--legacy", "--task", "完成稳定性维护", "--files", "src/index.ts"],
                 ["refresh"],
-                ["maintain", "--task", "完成稳定性维护", "--files", "src/index.ts"],
+                ["maintain", "--legacy", "--task", "完成稳定性维护", "--files", "src/index.ts"],
             ):
                 completed = subprocess.run(base + args, text=True, capture_output=True)
                 self.assertEqual(completed.returncode, 0, completed.stderr + completed.stdout)
@@ -1149,7 +1251,7 @@ class CliAndReleaseContractTests(unittest.TestCase):
         codex = json.loads((plugin_root / ".codex-plugin" / "plugin.json").read_text(encoding="utf-8"))
         npm = json.loads((repo_root / "package.json").read_text(encoding="utf-8"))
 
-        self.assertEqual(project_intel.VERSION, "0.1.17")
+        self.assertEqual(project_intel.VERSION, "0.2.1")
         self.assertEqual(claude["version"], project_intel.VERSION)
         self.assertEqual(codex["version"].split("+")[0], project_intel.VERSION)
         self.assertEqual(npm["version"], project_intel.VERSION)
@@ -1546,6 +1648,100 @@ class InferStandardsTests(unittest.TestCase):
         self.assertIn("server", backend["configs"][0]["keys"])
         self.assertEqual(backend["utilities"][0]["name"], "OrderUtils")
 
+    def test_python_scanner_ignores_route_like_strings_and_separates_test_fixtures(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            false_positive = root / "scripts" / "scanner.py"
+            false_positive.parent.mkdir(parents=True)
+            false_positive.write_text(
+                'SPRING_EXAMPLE = "@RestController @GetMapping(\\\"/fake\\\")"\n'
+                'ROUTE_PATTERN = r"@app.get(\\\"/also-fake\\\")"\n',
+                encoding="utf-8",
+            )
+            api = root / "server" / "api.py"
+            api.parent.mkdir(parents=True)
+            api.write_text(
+                "from fastapi import FastAPI\napp = FastAPI()\n@app.get('/health')\ndef health():\n    return {}\n",
+                encoding="utf-8",
+            )
+            fixture = root / "tests" / "fixtures" / "api.py"
+            fixture.parent.mkdir(parents=True)
+            fixture.write_text(
+                "from fastapi import FastAPI\napp = FastAPI()\n@app.post('/fixture')\ndef fixture_api():\n    return {}\n",
+                encoding="utf-8",
+            )
+
+            backend = project_intel.scan_backend(root, [false_positive, api, fixture])
+
+        self.assertEqual([item["path"] for item in backend["apis"]], ["server/api.py"])
+        self.assertEqual(backend["apis"][0]["framework"], "FastAPI/Flask")
+        self.assertEqual(backend["apis"][0]["endpoints"], ["/health"])
+        self.assertEqual([item["path"] for item in backend["testFixtures"]], ["tests/fixtures/api.py"])
+
+    def test_repository_python_sources_do_not_self_report_as_spring_apis(self):
+        root = Path(__file__).resolve().parents[3]
+        files = [
+            root / "plugins/project-intelligence/scripts/project_intel.py",
+            root / "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+            root / "plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py",
+            root / "plugins/project-intelligence/tests/test_project_intel.py",
+        ]
+
+        backend = project_intel.scan_backend(root, files)
+
+        self.assertFalse(any(item.get("framework") == "Spring" for item in backend["apis"]))
+        self.assertFalse(any(endpoint in {"/api/orders", "/create"} for item in backend["apis"] for endpoint in item.get("endpoints", [])))
+
+    def test_python_scanner_requires_framework_imports_and_keeps_django_class_views(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            fake = root / "fake.py"
+            fake.write_text("@app.get('/fake')\ndef fake_route():\n    pass\n", encoding="utf-8")
+            django_view = root / "views.py"
+            django_view.write_text(
+                "from rest_framework.views import APIView\n"
+                "class HealthView(APIView):\n"
+                "    def get(self, request):\n"
+                "        return None\n",
+                encoding="utf-8",
+            )
+
+            backend = project_intel.scan_backend(root, [fake, django_view])
+
+        self.assertEqual([item["path"] for item in backend["apis"]], ["views.py"])
+        self.assertEqual(backend["apis"][0]["framework"], "Django")
+
+    def test_java_and_javascript_scanners_ignore_routes_inside_strings_and_comments(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            java = root / "Example.java"
+            java.write_text(
+                'class Example { String demo = "@RestController @GetMapping(\\"/fake\\")"; }\n'
+                '// @RestController @GetMapping("/comment")\n',
+                encoding="utf-8",
+            )
+            javascript = root / "example.js"
+            javascript.write_text(
+                'const demo = "app.get(\\\'/fake\\\')";\n'
+                '// app.post("/comment", handler);\n',
+                encoding="utf-8",
+            )
+            real_java = root / "RealController.java"
+            real_java.write_text(
+                '@RestController\nclass RealController { @GetMapping("/real") Object get() { return null; } }\n',
+                encoding="utf-8",
+            )
+            real_js = root / "server.js"
+            real_js.write_text("app.get('/health', handler);\n", encoding="utf-8")
+
+            backend = project_intel.scan_backend(root, [java, javascript, real_java, real_js])
+
+        self.assertEqual({item["path"] for item in backend["apis"]}, {"RealController.java", "server.js"})
+        endpoints = {endpoint for item in backend["apis"] for endpoint in item.get("endpoints", [])}
+        self.assertIn("/real", endpoints)
+        self.assertIn("/health", endpoints)
+        self.assertFalse({"/fake", "/comment"} & endpoints)
+
     def test_init_writes_inferred_rules_into_config_and_standards_md(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -1642,7 +1838,7 @@ class StabilityAndPackagingTests(unittest.TestCase):
             self.assertNotIn(str(root), manifest_text)
             self.assertIn('"projectRoot": "."', manifest_text)
             self.assertIn("pluginRoots", local_text)
-            self.assertIn(".project-intel/local/", (root / ".gitignore").read_text(encoding="utf-8"))
+            self.assertFalse((root / ".gitignore").exists())
 
     def test_init_appends_gitignore_without_rewriting_existing_content(self):
         with tempfile.TemporaryDirectory() as tmp:
