@@ -1,7 +1,7 @@
 {
   "name": "project-intelligence",
-  "version": "0.1.16",
-  "description": "Project-level intake, specs, plans, standards, knowledge, graph context, quality checks, finish gates, lifecycle maintenance, and Claude/Codex plugin installation.",
+  "version": "0.1.17",
+  "description": "Project-level intake, specs, plans, standards, knowledge, graph context, test evidence, finish gates, lifecycle maintenance, and Claude/Codex plugin installation.",
   "license": "MIT",
   "type": "module",
   "bin": {
@@ -39,7 +39,9 @@
     "developer-tools"
   ],
   "scripts": {
-    "test": "python3 -m unittest discover -s plugins/project-intelligence/tests -p 'test_*.py'",
+    "test": "python3 -m unittest discover -s plugins/project-intelligence/tests -p 'test_*.py' && node scripts/validate-skill-evals.mjs",
+    "test:skills": "node scripts/run-skill-evals.mjs --agent claude",
+    "test:skills:dry-run": "node scripts/run-skill-evals.mjs --agent claude --dry-run",
     "check-release": "node scripts/check-release.mjs && node scripts/check-package.mjs",
     "pack:dry-run": "npm pack --dry-run"
   },

@@ -14,7 +14,7 @@ Default command:
 project-intel check
 ```
 
-Run real lint/type/style/format commands only when requested:
+Run configured lint/type/style/format/test/verify commands only when requested. For task completion, prefer `project-test` so test results become task-scoped finish evidence:
 
 ```bash
 project-intel check --run-quality
@@ -25,5 +25,7 @@ Redundancy findings are `candidate` by default. They should inform refactoring a
 Structured `hard` checks can fail the command. Natural-language hard rules without a machine check appear as `manual-review`; review them explicitly without treating them as an automatic pass or failure.
 
 When a quality command fails, treat it as a debugging task: read the full failure output, generate debug context with `project-intel debug --bug "<failure>"`, and identify root cause before suggesting fixes.
+
+`project-intel check --run-quality` executes every configured command. Use a targeted `project-intel test --command "<command>"` first when a large or noisy repository needs a smaller proof scope.
 
 Use `.project-intel` quality facts and the project's own configured quality commands.

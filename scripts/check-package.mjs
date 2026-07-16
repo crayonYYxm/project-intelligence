@@ -6,7 +6,14 @@ const forbidden = files.filter((path) => path.includes("__pycache__") || path.en
 if (forbidden.length) {
   throw new Error(`npm tarball contains development artifacts: ${forbidden.join(", ")}`);
 }
-for (const required of ["bin/project-intel.mjs", ".agents/plugins/marketplace.json", ".claude-plugin/marketplace.json", "plugins/project-intelligence/scripts/project_intel.py"]) {
+for (const required of [
+  "bin/project-intel.mjs",
+  ".agents/plugins/marketplace.json",
+  ".claude-plugin/marketplace.json",
+  "plugins/project-intelligence/scripts/project_intel.py",
+  "plugins/project-intelligence/scripts/project_intel_lib/testing.py",
+  "plugins/project-intelligence/skills/project-test/SKILL.md",
+]) {
   if (!files.includes(required)) {
     throw new Error(`npm tarball is missing ${required}`);
   }

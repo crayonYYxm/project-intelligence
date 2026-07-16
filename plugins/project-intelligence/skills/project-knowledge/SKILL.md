@@ -25,3 +25,5 @@ project-intel query "<question>"
 ```
 
 Prefer `.project-intel` facts, GitNexus context, Understand-Anything context, and direct source reads.
+
+`project-knowledge` supplies context; it is not a terminal route for an implementation-intent request. If intake selected implementation work, return to the required same-turn handoff: invoke `project-test`, then `project-task`, even when the user asked to stop before edits.

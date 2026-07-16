@@ -563,6 +563,8 @@ class AgentEntrypointInstallTests(unittest.TestCase):
             self.assertIn("pause before the first Edit/Write", agents)
             self.assertIn("state which Project Intelligence workflow is being followed", agents)
             self.assertIn("project-task` or `project-intelligence:project-task", agents)
+            self.assertIn("explicitly invoke `project-test` before `project-task`", agents)
+            self.assertIn("same-turn handoff", agents)
             self.assertIn("project-review` or `project-intelligence:project-review", agents)
             self.assertIn("project-orchestrate` or `project-intelligence:project-orchestrate", agents)
             self.assertIn("fresh evidence", agents)
@@ -733,7 +735,12 @@ class LifecycleArtifactTests(unittest.TestCase):
             with patch.object(project_intel, "run_check", return_value=0), patch.object(
                 project_intel, "git_diff_summary", return_value={"available": True, "status": [" M src/page.vue"], "changedFiles": ["src/page.vue"], "stat": "src/page.vue | 1 +"}
             ), patch.object(project_intel, "init_project", return_value=refresh_result):
-                code = project_intel.finish_project(root, "新增支付接口兼容能力", files=["src/page.vue"])
+                code = project_intel.finish_project(
+                    root,
+                    "新增支付接口兼容能力",
+                    files=["src/page.vue"],
+                    manual_evidence="调用支付接口并检查兼容响应、权限失败和回滚日志。",
+                )
 
             self.assertEqual(code, 0)
             finish = root / ".project-intel" / "reports" / "finish-report.md"
@@ -1117,6 +1124,17 @@ class CliAndReleaseContractTests(unittest.TestCase):
                 ["intake", "--task", "修改按钮文案"],
                 ["check"],
                 ["lifecycle", "--task", "修改按钮文案", "--track", "quick"],
+                [
+                    "test",
+                    "--task",
+                    "完成稳定性维护",
+                    "--phase",
+                    "manual",
+                    "--manual-evidence",
+                    "读取生成文件并确认生命周期输出和收口范围正确。",
+                    "--files",
+                    "src/index.ts",
+                ],
                 ["finish", "--task", "完成稳定性维护", "--files", "src/index.ts"],
                 ["refresh"],
                 ["maintain", "--task", "完成稳定性维护", "--files", "src/index.ts"],
@@ -1131,7 +1149,7 @@ class CliAndReleaseContractTests(unittest.TestCase):
         codex = json.loads((plugin_root / ".codex-plugin" / "plugin.json").read_text(encoding="utf-8"))
         npm = json.loads((repo_root / "package.json").read_text(encoding="utf-8"))
 
-        self.assertEqual(project_intel.VERSION, "0.1.16")
+        self.assertEqual(project_intel.VERSION, "0.1.17")
         self.assertEqual(claude["version"], project_intel.VERSION)
         self.assertEqual(codex["version"].split("+")[0], project_intel.VERSION)
         self.assertEqual(npm["version"], project_intel.VERSION)
@@ -1158,6 +1176,19 @@ class CliAndReleaseContractTests(unittest.TestCase):
         self.assertIn("quick", intake)
         self.assertIn("name: project-finish", finish)
         self.assertIn("project-intel finish", finish)
+
+    def test_project_test_skill_is_packaged(self):
+        plugin_root = MODULE_PATH.parents[1]
+        skill = (plugin_root / "skills" / "project-test" / "SKILL.md").read_text(encoding="utf-8")
+        intake = (plugin_root / "skills" / "project-intake" / "SKILL.md").read_text(encoding="utf-8")
+        knowledge = (plugin_root / "skills" / "project-knowledge" / "SKILL.md").read_text(encoding="utf-8")
+
+        self.assertIn("name: project-test", skill)
+        self.assertIn("--phase red", skill)
+        self.assertIn("--phase green", skill)
+        self.assertIn("project-intel finish", skill)
+        self.assertIn("explicitly invoke `project-test`, then `project-task`", intake)
+        self.assertIn("not a terminal route for an implementation-intent request", knowledge)
 
     def test_skills_only_persist_specs_and_plans_on_explicit_request(self):
         skills = MODULE_PATH.parents[1] / "skills"

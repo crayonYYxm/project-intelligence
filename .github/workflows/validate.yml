@@ -23,7 +23,9 @@ jobs:
       - name: Run tests
         run: python -m unittest discover -s plugins/project-intelligence/tests -p "test_*.py"
       - name: Validate plugin manifests and skills
-        run: python scripts/validate_bundle.py
+        run: |
+          python scripts/validate_bundle.py
+          node scripts/validate-skill-evals.mjs
       - name: Validate npm package metadata
         run: |
           node scripts/check-release.mjs

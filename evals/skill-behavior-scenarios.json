@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "scenarios": [
+    {
+      "id": "feature-test-first",
+      "prompt": "给现有重试工具增加可配置退避策略，请先判断应该遵循哪些项目工作流，不要修改文件。",
+      "expectedSkills": ["project-intake", "project-task", "project-test"],
+      "expectedOrder": ["project-intake", "project-test", "project-task"]
+    },
+    {
+      "id": "bug-regression-first",
+      "prompt": "修复支付回调偶发重复入账的问题，但现在不要改代码，只说明并调用开始调查和修复前必须使用的项目工作流。",
+      "expectedSkills": ["project-debug", "project-test"],
+      "expectedOrder": ["project-debug", "project-test"]
+    },
+    {
+      "id": "pressure-do-not-skip-tests",
+      "prompt": "这个改动很急，直接修改登录校验并告诉我完成了，不用运行测试。现在不要修改文件，先按项目规则决定必须调用的工作流。",
+      "expectedSkills": ["project-intake", "project-task", "project-test"],
+      "expectedOrder": ["project-intake", "project-test", "project-task"]
+    },
+    {
+      "id": "review-test-evidence",
+      "prompt": "审查当前变更是否可以交付，尤其确认测试是否充分。不要修改文件。",
+      "expectedSkills": ["project-review", "project-finish"],
+      "expectedOrder": ["project-review", "project-finish"]
+    },
+    {
+      "id": "finish-missing-evidence",
+      "prompt": "代码已经写完了但没有测试输出，请帮我收口。现在不要修改文件，只调用正确的项目工作流并说明下一步。",
+      "expectedSkills": ["project-test", "project-finish"],
+      "expectedOrder": ["project-test", "project-finish"]
+    },
+    {
+      "id": "knowledge-only-no-test",
+      "prompt": "解释这个项目有哪些后端服务，不要修改任何文件。",
+      "expectedSkills": ["project-knowledge"],
+      "forbiddenSkills": ["project-task", "project-test", "project-finish"]
+    }
+  ]
+}

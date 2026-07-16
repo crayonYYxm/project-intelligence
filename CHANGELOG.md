@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.17 - 2026-07-16
+
+- Add `project-test` and `project-intel test` for targeted RED, GREEN, regression, verification, and reproducible manual evidence stored in stable task-scoped reports.
+- Make `project-intel finish` reject changed source without fresh evidence matching the current task, file scope, and source timestamps; `--run-quality` can contribute detected test/verify results and `--manual-evidence` is an explicit fallback.
+- Route feature, bug, plan, review, orchestration, and finish workflows through the test-evidence cycle without adopting automatic worktrees, commits, or destructive TDD rules.
+- Make implementation-intent intake hand off to `project-test` and `project-task` in the same turn, including read-only pre-edit requests, so project knowledge cannot silently replace the implementation workflow.
+- Add deterministic Skill scenario contracts plus an opt-in headless Claude behavior-eval runner, and split new test-evidence coverage into a dedicated test module.
+
 ## 0.1.16 - 2026-07-13
 
 - Add `project-intake` for quick/standard/complex task routing, readiness checks, risk flags, missing information, affected areas, standards, and reuse candidates.

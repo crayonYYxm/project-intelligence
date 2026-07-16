@@ -21,8 +21,9 @@ project-intel intake --task "<requirement>"
 4. If readiness is `needs-clarification`, resolve only the missing information that can change implementation or acceptance.
 5. Do not create spec, plan, lifecycle, or intake files unless the user explicitly asks. Use `--write` only for a persistent intake report.
 6. Route next:
-   - quick: go to `project-task`.
-   - standard: keep a Chinese lightweight spec and plan in context, then `project-task`.
-   - complex: use `project-brainstorm`, `project-spec`, `project-plan`, and a readiness gate before `project-task` or `project-orchestrate`.
+   - quick: explicitly invoke `project-test`, then `project-task`.
+   - standard: keep a Chinese lightweight spec and plan in context, then explicitly invoke `project-test` and `project-task`.
+   - complex: use `project-brainstorm`, `project-spec`, `project-plan`, and a readiness gate; then explicitly invoke `project-test` before `project-task` or `project-orchestrate`.
+7. The same-turn handoff is mandatory for implementation-intent requests. If the user says not to edit yet, complete the applicable pre-edit Skill handoff and stop before file changes; do not stop at intake or substitute `project-knowledge` for the test/task workflow.
 
 Use GitNexus for precise impact when available and Understand-Anything for architecture/domain context when available.

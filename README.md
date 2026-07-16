@@ -1,6 +1,6 @@
 # 项目智能 (Project Intelligence)
 
-Project Intelligence 是一个本地的 Codex/Claude 兼容项目插件，用于完成仓库级“需求入口分流 → spec/plan → 实施前项目理解 → review/quality → finish 收口 → maintain 知识沉淀”的完整链路。
+Project Intelligence 是一个本地的 Codex/Claude 兼容项目插件，用于完成仓库级“需求入口分流 → spec/plan → 实施前项目理解 → RED/GREEN/回归测试证据 → review/quality → finish 收口 → maintain 知识沉淀”的完整链路。
 
 可用时优先使用 GitNexus 和 Understand-Anything 作为推荐的图谱来源。
 
@@ -65,6 +65,9 @@ project-intel --project /path/to/repo plan --title "功能" --from-spec .project
 project-intel --project /path/to/repo refresh
 project-intel --project /path/to/repo refresh --with-graph
 project-intel --project /path/to/repo check
+project-intel --project /path/to/repo test --task "中文摘要" --phase red --command "npm test -- path/to/test" --files src/file.ts tests/file.test.ts
+project-intel --project /path/to/repo test --task "中文摘要" --phase green --command "npm test -- path/to/test" --files src/file.ts tests/file.test.ts
+project-intel --project /path/to/repo test --task "中文摘要" --phase verify --files src/file.ts tests/file.test.ts
 project-intel --project /path/to/repo finish --task "中文摘要" --files src/page.vue
 project-intel --project /path/to/repo maintain --task "摘要"
 project-intel --project /path/to/repo install --hooks
@@ -80,7 +83,8 @@ project-intel --project /path/to/repo query "表格"
 - `intake` 将需求分为 `quick`、`standard`、`complex`，并输出 readiness、风险、缺失信息、必经阶段和复用候选；默认只打印，不生成文件。
 - `lifecycle` 输出带 track/readiness 的任务影响分析；默认只打印，`--write` 才覆盖 `.project-intel/reports/task-impact.md`。
 - `spec` 和 `plan` 支持 `--track auto|quick|standard|complex`，复杂需求会写入行为契约、readiness gate、验收到证据映射。
-- `finish` 在维护前生成固定收口报告 `.project-intel/reports/finish-report.md`，用于检查 diff、验收证据、scope drift 和发布风险；它不会自动提交、推送、部署或发布。
+- `test` 将 RED、GREEN、回归、完整验证或人工验证记录到固定的 `.project-intel/reports/test-evidence.json` 和 `.md`；RED 只有在测试因预期行为缺失而失败时才算有效，命令不存在或超时不会被误判为有效 RED。
+- `finish` 在维护前生成固定收口报告 `.project-intel/reports/finish-report.md`，用于检查 diff、验收证据、scope drift 和发布风险。源码有变更但缺少与当前任务、文件范围和源码更新时间匹配的通过证据时返回非零；无法合理自动化时可用 `--manual-evidence` 记录可复现步骤。它不会自动提交、推送、部署或发布。
 - 图谱工具未准备好但有支持的 setup 命令时，`init` 会询问是否继续。GitNexus 通常是 `npx gitnexus analyze` 这种“下载并运行分析”；Understand-Anything 会按当前环境安装到 Codex 或 Claude Code。
 - `init --setup-missing` 会跳过询问并直接运行支持的安装/初始化命令。
 - Understand-Anything 的 Codex 安装使用官方 `install.sh codex`；Claude Code 安装使用 `claude plugin marketplace add Egonex-AI/Understand-Anything` 和 `claude plugin install understand-anything@understand-anything`。
@@ -120,6 +124,7 @@ project-intel --project /path/to/repo query "表格"
 - `project-spec`：基于项目事实编写需求文档和影响说明。
 - `project-plan`：将需求文档转化为实施计划。
 - `project-debug`：基于项目上下文和根因纪律调查 bug。
+- `project-test`：规划并记录目标测试 RED、GREEN、回归/验证或可复现人工证据，为 finish 提供机器可检查的任务证据。
 - `project-orchestrate`：在任务可拆分时编排子代理、任务级 review、最终 review 和验证证据。
 - `project-finish`：任务完成前做验收证据、scope drift、发布/回滚风险和收口检查。
 - `project-maintain`：任务或变更后刷新项目知识库。
@@ -131,11 +136,31 @@ project-intel --project /path/to/repo query "表格"
 
 ## 执行纪律
 
-Project Intelligence 借鉴了 Superpowers 的执行纪律，但不依赖或接入 Superpowers：
+Project Intelligence 内置了完整的任务分流、测试、审查和收口纪律：
 
-- 默认先用 `project-intake` 分流，再用 `project-task` 处理普通需求；只有计划任务能清晰拆分、文件边界明确、可单独验证时才用 `project-orchestrate`。
+- 实现意图的需求默认按 `project-intake → project-test → project-task` 同轮接力；即使用户要求暂不改文件，也完成前置 Skill 路由后再停在编辑前。只有计划任务能清晰拆分、文件边界明确、可单独验证时才用 `project-orchestrate`。
+- 功能、Bug 修复和行为变更在生产代码前进入 `project-test`：先记录目标测试 RED，再记录 GREEN 和受影响回归；遗留、视觉、设备或配置场景可记录明确的人工证据，不要求删除已经存在的有效代码。
 - 实现类子代理默认顺序执行，避免同一工作区并发改代码；并行代理主要用于只读影响分析、失败排查或互不相干的调查。
 - `project-plan` 必须写清文件、接口、约束、复用点、验证命令和预期证据，但默认只保留在上下文里，不主动生成 plan 文件。
 - `project-review` 对反馈先验证再修改，避免盲目接受不符合当前项目现实的建议。
-- 完成、修复、通过、可发布这类结论必须有本轮新鲜验证证据；`project-intel check` 只证明项目智能规则，不自动证明业务行为。
-- `project-finish` 在实现、review 和验证之后执行一次，默认覆盖 `reports/finish-report.md`；`project-maintain` 随后执行，默认覆盖 `maintenance/latest.md`，并维护每个源码文件一份简短中文需求历史。
+- 完成、修复、通过、可发布这类结论必须有本轮新鲜验证证据；`project-intel check`、lint、type-check、build 或 Agent 自述都不能自动替代改变行为的测试证据。
+- `project-finish` 在实现、review 和 `project-test` 证据之后执行一次，默认覆盖 `reports/finish-report.md`；证据门禁通过后再执行 `project-maintain`，默认覆盖 `maintenance/latest.md`，并维护每个源码文件一份简短中文需求历史。
+
+## Skill 行为评测
+
+普通 CI 会验证 Skill 场景契约，不调用外部模型：
+
+```bash
+npm test
+```
+
+需要验证 Claude 是否真的从朴素需求触发正确 Skill 链时，显式运行可计费的 headless eval：
+
+```bash
+npm run test:skills:dry-run
+npm run test:skills
+```
+
+行为评测以实际 `Skill` 工具调用和顺序为断言；只开放 Skill 与只读工具，禁止 Bash/Edit/Write。如目标调用链出现后才触达预算上限，runner 会保留预算终态提示，但不会把已观测到的 Skill 路由误判为缺失。
+
+Codex live eval 使用当前配置的插件，只有把当前工作树安装进隔离的 Codex profile 后才应设置 `PROJECT_INTEL_CODEX_EVAL_READY=1` 并运行 `node scripts/run-skill-evals.mjs --agent codex`，避免误测旧的云端缓存版本。

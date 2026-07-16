@@ -14,11 +14,11 @@ Workflow:
 3. Use GitNexus for symbol impact/call chains when available.
 4. Use Understand-Anything for architecture/domain context when available.
 5. Run `project-intel check`; use `--run-quality` only when the user asks to run lint/type/style/format commands.
-6. Flag hard-rule violations, behavioral risks, missing tests, repeated implementations, ignored reuse opportunities, and stale `.project-intel` facts.
+6. Flag hard-rule violations, behavioral risks, missing tests, repeated implementations, ignored reuse opportunities, and stale `.project-intel` facts. For changed behavior, inspect `.project-intel/reports/test-evidence.json` and verify that evidence matches the task, changed files, and current source state.
 7. If a finding is a bug or failed behavior, use `project-intel debug --bug "<finding>"` before recommending a fix. `debug` prints by default; use `--write` only when a persistent debug report is explicitly needed.
 8. For subagent or multi-task execution, review each task diff before moving to the next task, then perform one final whole-diff review.
 9. When receiving review feedback, verify each item against the current codebase before editing. Clarify unclear feedback first, apply valid feedback one item at a time, and push back with technical evidence when feedback conflicts with project reality, YAGNI, compatibility, or prior user decisions.
-10. After fixes are completed and freshly verified, use `project-intel finish --task "<中文简短需求摘要>" --files <changed-source-files>` before `project-intel maintain --task "<中文简短需求摘要>" --files <changed-source-files>` to close the task, refresh facts, update `.project-intel/maintenance/latest.md`, and maintain one concise Chinese requirement markdown per affected source file. Use `--archive` only when the user wants a historical maintenance record.
+10. After fixes are completed and freshly recorded through `project-test`, use `project-intel finish --task "<中文简短需求摘要>" --files <changed-source-files>` before `project-intel maintain --task "<中文简短需求摘要>" --files <changed-source-files>` to close the task, refresh facts, update `.project-intel/maintenance/latest.md`, and maintain one concise Chinese requirement markdown per affected source file. Use `--archive` only when the user wants a historical maintenance record.
 
 Command:
 

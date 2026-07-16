@@ -36,7 +36,8 @@ For every subagent task, provide a compact handoff instead of the full conversat
 4. Relevant `hard` and `preferred` standards.
 5. No-touch files or compatibility constraints.
 6. Required verification command or manual verification evidence.
-7. Report contract: changed files, test evidence, concerns, and remaining risk.
+7. Required `project-test` RED/GREEN/regression phases or a justified manual-evidence path.
+8. Report contract: changed files, test evidence, concerns, and remaining risk.
 
 If a handoff file is needed, place it under ignored `.project-intel/tmp/execution/`. Do not create permanent per-subagent requirement, report, or maintenance files unless the user explicitly asks.
 
@@ -53,7 +54,7 @@ After all tasks:
 
 1. Run a final whole-diff review.
 2. Run `project-intel check`.
-3. Run the concrete project verification commands needed to prove the task, such as unit tests, type checks, builds, or manual device checks.
+3. Run and record the concrete project verification through `project-test`, such as targeted unit tests, affected regression tests, broader verification, or reproducible manual device checks.
 4. Only after fresh evidence, run `project-intel finish --task "<中文简短需求摘要>" --files <changed-source-files>`.
 5. Then run `project-intel maintain --task "<中文简短需求摘要>" --files <changed-source-files>`.
 

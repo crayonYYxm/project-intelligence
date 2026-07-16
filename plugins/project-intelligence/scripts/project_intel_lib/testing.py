@@ -1,0 +1,184 @@
+from __future__ import annotations
+
+import json
+from datetime import datetime
+from pathlib import Path
+from typing import Any, Callable, Optional
+
+
+TEST_PHASES = ("red", "green", "regression", "verify", "manual")
+PASSING_PHASES = {"green", "regression", "verify", "manual"}
+COMMAND_ERROR_CODES = {124, 126, 127}
+MIN_MANUAL_EVIDENCE_LENGTH = 12
+
+
+def evidence_json_path(root: Path) -> Path:
+    return root / ".project-intel" / "reports" / "test-evidence.json"
+
+
+def evidence_markdown_path(root: Path) -> Path:
+    return root / ".project-intel" / "reports" / "test-evidence.md"
+
+
+def load_test_evidence(root: Path) -> dict[str, Any]:
+    path = evidence_json_path(root)
+    if not path.is_file():
+        return {}
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return {}
+    return payload if isinstance(payload, dict) else {}
+
+
+def manual_evidence_valid(value: str) -> bool:
+    compact = "".join(character.lower() for character in value if character.isalnum())
+    generic = {
+        "已手动验证",
+        "手动验证通过",
+        "验证通过",
+        "测试通过",
+        "manualverificationpassed",
+        "testedmanually",
+    }
+    return len(compact) >= MIN_MANUAL_EVIDENCE_LENGTH and compact not in generic
+
+
+def phase_passed(phase: str, results: list[dict[str, Any]], manual_evidence: str = "") -> bool:
+    if phase == "manual":
+        return manual_evidence_valid(manual_evidence)
+    if not results:
+        return False
+    codes = [int(item.get("exitCode", 1)) for item in results]
+    if phase == "red":
+        return all(code != 0 and code not in COMMAND_ERROR_CODES for code in codes)
+    return all(code == 0 for code in codes)
+
+
+def render_test_evidence(payload: dict[str, Any]) -> str:
+    lines = [
+        "# 测试证据",
+        "",
+        f"任务：{payload.get('task') or '_未记录_'}",
+        "",
+        f"更新时间：`{payload.get('updatedAt') or 'unknown'}`",
+        "",
+        "| 阶段 | 状态 | 命令/人工证据 | 文件范围 |",
+        "| --- | --- | --- | --- |",
+    ]
+    for entry in payload.get("entries", []):
+        commands = entry.get("commands", [])
+        command_text = "<br>".join(f"`{item.get('command')}` → {item.get('exitCode')}" for item in commands)
+        if not command_text:
+            command_text = str(entry.get("manualEvidence") or "_")
+        files = "<br>".join(f"`{item}`" for item in entry.get("files", [])) or "项目级"
+        lines.append(f"| {entry.get('phase')} | {entry.get('status')} | {command_text} | {files} |")
+    lines.extend(
+        [
+            "",
+            "## 最近输出",
+            "",
+        ]
+    )
+    for entry in payload.get("entries", [])[-4:]:
+        for result in entry.get("commands", []):
+            output = "\n".join(part for part in (result.get("stdout", ""), result.get("stderr", "")) if part).strip()
+            if not output:
+                continue
+            output = output.replace("```", "`` `")
+            lines.extend(
+                [
+                    f"### {entry.get('phase')} · `{result.get('command')}`",
+                    "",
+                    "```text",
+                    output,
+                    "```",
+                    "",
+                ]
+            )
+    return "\n".join(lines).rstrip() + "\n"
+
+
+def record_test_evidence(
+    root: Path,
+    task: str,
+    phase: str,
+    files: list[str],
+    results: list[dict[str, Any]],
+    *,
+    manual_evidence: str = "",
+    now: str,
+    write_json: Callable[[Path, Any], None],
+    write_text: Callable[[Path, str], None],
+) -> tuple[dict[str, Any], dict[str, Any]]:
+    current = load_test_evidence(root)
+    entries = current.get("entries", []) if current.get("task") == task else []
+    entry = {
+        "phase": phase,
+        "status": "passed" if phase_passed(phase, results, manual_evidence) else "failed",
+        "recordedAt": now,
+        "files": sorted(dict.fromkeys(files)),
+        "commands": results,
+    }
+    if manual_evidence.strip():
+        entry["manualEvidence"] = manual_evidence.strip()
+    payload = {
+        "schemaVersion": 1,
+        "task": task,
+        "createdAt": current.get("createdAt", now) if current.get("task") == task else now,
+        "updatedAt": now,
+        "entries": (entries + [entry])[-50:],
+    }
+    write_json(evidence_json_path(root), payload)
+    write_text(evidence_markdown_path(root), render_test_evidence(payload))
+    return payload, entry
+
+
+def _parse_time(value: str) -> Optional[datetime]:
+    try:
+        return datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except (TypeError, ValueError):
+        return None
+
+
+def evaluate_test_evidence(root: Path, task: str, files: list[str]) -> dict[str, Any]:
+    payload = load_test_evidence(root)
+    status = {
+        "required": bool(files),
+        "ready": not files,
+        "taskMatches": payload.get("task") == task,
+        "redObserved": False,
+        "passingPhase": None,
+        "path": str(evidence_markdown_path(root).relative_to(root)),
+        "reason": "没有源码变更，不要求测试证据。" if not files else "未找到与当前任务匹配的通过证据。",
+    }
+    if not files or payload.get("task") != task:
+        return status
+
+    selected = set(files)
+    latest_source_mtime = max(
+        ((root / item).stat().st_mtime for item in files if (root / item).exists()),
+        default=0.0,
+    )
+    for entry in payload.get("entries", []):
+        evidence_files = set(entry.get("files", []))
+        covers_selected_files = not evidence_files or selected.issubset(evidence_files)
+        if entry.get("phase") == "red" and entry.get("status") == "passed" and covers_selected_files:
+            status["redObserved"] = True
+        if entry.get("phase") not in PASSING_PHASES or entry.get("status") != "passed":
+            continue
+        if not covers_selected_files:
+            continue
+        recorded = _parse_time(entry.get("recordedAt", ""))
+        if recorded is None or recorded.timestamp() + 0.001 < latest_source_mtime:
+            continue
+        status.update(
+            {
+                "ready": True,
+                "passingPhase": entry.get("phase"),
+                "reason": "已找到与当前任务、文件范围和源码时间匹配的通过证据。",
+            }
+        )
+    if not status["ready"] and payload:
+        status["reason"] = "现有证据与当前任务、文件范围或源码更新时间不匹配。"
+    return status

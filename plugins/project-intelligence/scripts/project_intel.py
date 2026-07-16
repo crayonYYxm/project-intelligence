@@ -36,12 +36,13 @@ from project_intel_lib import graph as graph_module
 from project_intel_lib import lifecycle as lifecycle_module
 from project_intel_lib import quality as quality_module
 from project_intel_lib import standards as standards_module
+from project_intel_lib import testing as testing_module
 from project_intel_lib.cli import extract_global_json, json_envelope
 from project_intel_lib.scanner import backend as backend_scanner
 from project_intel_lib.scanner import frontend as frontend_scanner
 
 
-VERSION = "0.1.16"
+VERSION = "0.1.17"
 TRACK_CHOICES = ("auto", "quick", "standard", "complex")
 UNDERSTAND_AGENT_COMMAND = "/understand . --language zh"
 UNDERSTAND_REPO = "Egonex-AI/Understand-Anything"
@@ -82,6 +83,7 @@ LEGACY_LOCAL_SKILL_NAMES = (
     "project-spec",
     "project-standards",
     "project-task",
+    "project-test",
 )
 EXCLUDED_DIRS = {
     ".git",
@@ -3291,9 +3293,9 @@ def analyze_task_intake(root: Path, task: str, snapshot: Optional[dict[str, Any]
         reasons.append(f"用户或调用方显式指定 {selected_track} track。")
 
     stages_by_track = {
-        "quick": ["intake", "task", "review", "finish", "maintain"],
-        "standard": ["intake", "brainstorm-lite", "spec-in-context", "plan-in-context", "task", "review", "finish", "maintain"],
-        "complex": ["intake", "brainstorm", "spec", "plan", "readiness-gate", "task-or-orchestrate", "review", "finish", "maintain"],
+        "quick": ["intake", "test-plan", "task", "test-evidence", "review", "finish", "maintain"],
+        "standard": ["intake", "brainstorm-lite", "spec-in-context", "plan-in-context", "test-plan", "task", "test-evidence", "review", "finish", "maintain"],
+        "complex": ["intake", "brainstorm", "spec", "plan", "readiness-gate", "test-plan", "task-or-orchestrate", "test-evidence", "review", "finish", "maintain"],
     }
     readiness = "needs-clarification" if missing else "ready"
     if selected_track == "complex" and not text_has_any(raw, ["验收", "测试", "兼容", "回滚", "方案", "边界"]):
@@ -3456,8 +3458,9 @@ Readiness：`{analysis.get("readiness")}`
 
 - 功能行为：用对应页面操作、接口调用、单测或集成测试证明。
 - 规范复用：说明复用的组件、Hook、服务、API 封装或模式；没有复用时说明原因。
+- 测试证据：通过 `project-intel test` 记录目标测试 RED、GREEN、回归/验证，或可复现的人工证据。
 - 质量检查：运行 `project-intel check`，必要时运行 lint/type/test/build。
-- 维护闭环：完成后运行 `project-intel finish` 做收口检查，再运行 `project-intel maintain --task "<中文简短需求摘要>" --files <changed-source-files>`。
+- 维护闭环：测试证据通过后运行 `project-intel finish` 做收口检查，再运行 `project-intel maintain --task "<中文简短需求摘要>" --files <changed-source-files>`。
 """
 
 
@@ -3509,9 +3512,9 @@ Readiness：`{analysis.get("readiness")}`
 - [ ] 从 `.project-intel` 识别受影响的模块、组件、Hook、API、服务、路由和规范。
 - [ ] 编写新代码前，检查可复用的组件、Hook、服务、请求工具和重复的候选模式。
 - [ ] 对 complex track，先完成 readiness gate；如果计划中途发现范围漂移，回到 spec/plan 更新。
-- [ ] 根据项目测试配置添加或更新针对性测试。
+- [ ] 调用 `project-test`，写明测试文件、目标 RED 命令与预期失败、GREEN 命令、回归范围或人工证据理由。
 - [ ] 实现需求行为，同时保持 hard 规范和现有边界。
-- [ ] 运行 `project-intel check` 及相关的项目 test/type/lint/build 命令。
+- [ ] 使用 `project-intel test` 记录 GREEN 和回归/验证证据，再运行 `project-intel check` 及相关的 type/lint/build 命令。
 - [ ] 实现完成后运行 `project-intel finish --task "<中文简短需求摘要>" --files <changed-source-files>` 做收口检查。
 - [ ] 收口后运行 `project-intel maintain --task "<中文简短需求摘要>" --files <changed-source-files>` 以刷新知识库、覆盖最新维护报告并维护文件级需求记录；需要保留历史时加 `--archive`。
 
@@ -3587,6 +3590,7 @@ def build_task_impact_doc(root: Path, task: str, snapshot: dict[str, Any], analy
 实现完成后运行：
 
 ```bash
+project-intel test --task "<中文简短需求摘要>" --phase verify --files <changed-source-and-test-files>
 project-intel finish --task "<中文简短需求摘要>" --files <changed-source-files>
 project-intel maintain --task "<中文简短需求摘要>" --files <changed-source-files>
 ```
@@ -3862,6 +3866,95 @@ def finish_changed_files(root: Path, files: Optional[list[str]] = None) -> list[
     return sorted(dict.fromkeys(rel_paths))
 
 
+def normalize_test_files(root: Path, files: Optional[list[str]] = None) -> list[str]:
+    if not files:
+        return []
+    normalized: list[str] = []
+    invalid: list[str] = []
+    for item in files:
+        rel_path = normalize_project_file(root, item)
+        if rel_path and should_track_requirement_file(rel_path):
+            normalized.append(rel_path)
+        else:
+            invalid.append(str(item))
+    if invalid:
+        fail_usage("以下测试证据文件无效、越出项目目录或不允许记录：" + ", ".join(invalid))
+    return sorted(dict.fromkeys(normalized))
+
+
+def configured_test_commands(root: Path) -> list[str]:
+    config = read_project_config(root)
+    return [
+        item.get("command", "").strip()
+        for item in config.get("quality", {}).get("commands", [])
+        if item.get("kind") in {"test", "verify"} and item.get("command", "").strip()
+    ]
+
+
+def run_project_test(
+    root: Path,
+    task: str,
+    phase: str,
+    commands: Optional[list[str]] = None,
+    files: Optional[list[str]] = None,
+    manual_evidence: str = "",
+) -> tuple[int, dict[str, Any]]:
+    ensure_initialized(root)
+    if not contains_cjk(task):
+        fail_usage("测试证据要求使用中文任务摘要；请用 --task 传入中文摘要。")
+    if phase not in testing_module.TEST_PHASES:
+        fail_usage(f"不支持的测试阶段：{phase}")
+
+    selected_files = normalize_test_files(root, files)
+    selected_commands = [item.strip() for item in (commands or []) if item.strip()]
+    results: list[dict[str, Any]] = []
+    if phase == "manual":
+        if selected_commands:
+            fail_usage("manual 阶段不能同时传入 --command。")
+        if not testing_module.manual_evidence_valid(manual_evidence):
+            fail_usage("manual 阶段必须用 --manual-evidence 记录至少 12 个有效字符的操作步骤、输入和观察结果。")
+    else:
+        if manual_evidence.strip():
+            fail_usage("自动测试阶段不能使用 --manual-evidence；请改用 --phase manual。")
+        if not selected_commands:
+            selected_commands = configured_test_commands(root)
+        if not selected_commands:
+            fail_usage("未检测到测试命令；请用 --command 指定目标测试，或使用 --phase manual 记录人工证据。")
+        timeout = read_project_config(root).get("quality", {}).get("timeoutSeconds", 120)
+        for command in selected_commands:
+            code, out, err = run_shell(command, root, timeout=timeout)
+            result = {
+                "command": command,
+                "exitCode": code,
+                "stdout": out[-4000:],
+                "stderr": err[-4000:],
+            }
+            results.append(result)
+            print(f"{phase}：`{command}` → {code}")
+
+    normalized_task = normalize_requirement_summary(task)
+    payload, entry = testing_module.record_test_evidence(
+        root,
+        normalized_task,
+        phase,
+        selected_files,
+        results,
+        manual_evidence=manual_evidence,
+        now=now_iso(),
+        write_json=write_json,
+        write_text=write_text,
+    )
+    evidence_path = testing_module.evidence_markdown_path(root)
+    print(f"已更新测试证据：{evidence_path}")
+    if entry.get("status") != "passed":
+        if phase == "red":
+            print("RED 阶段未观察到预期失败，或命令本身超时/不可执行。")
+        else:
+            print("测试证据未通过，请检查命令输出。")
+        return 1, {"evidence": payload, "entry": entry}
+    return 0, {"evidence": payload, "entry": entry}
+
+
 def git_diff_summary(root: Path) -> dict[str, Any]:
     code_status, status, _ = run(["git", "status", "--short"], root, timeout=20)
     code_names, names, _ = run(["git", "diff", "--name-only", "HEAD", "--"], root, timeout=20)
@@ -3874,7 +3967,15 @@ def git_diff_summary(root: Path) -> dict[str, Any]:
     }
 
 
-def build_finish_report(root: Path, task: str, files: list[str], check_exit: int, run_quality: bool, diff_summary: dict[str, Any]) -> str:
+def build_finish_report(
+    root: Path,
+    task: str,
+    files: list[str],
+    check_exit: int,
+    run_quality: bool,
+    diff_summary: dict[str, Any],
+    evidence_status: dict[str, Any],
+) -> str:
     status_rows = [[line[:2].strip(), line[3:]] for line in diff_summary.get("status", []) if len(line) >= 3]
     file_rows = [[path] for path in files]
     next_files = " ".join(files) if files else "<changed-source-files>"
@@ -3901,7 +4002,13 @@ def build_finish_report(root: Path, task: str, files: list[str], check_exit: int
 ## 收口检查
 
 - `project-intel check` 退出码：{check_exit}
-- 是否运行 lint/type/style/format：{"是" if run_quality else "否"}
+- 是否运行配置的质量/测试命令：{"是" if run_quality else "否"}
+- 测试证据是否必需：{"是" if evidence_status.get("required") else "否"}
+- 测试证据门禁：{"通过" if evidence_status.get("ready") else "未通过"}
+- RED 失败证据：{"已记录" if evidence_status.get("redObserved") else "未记录或不适用"}
+- 完成证据阶段：{evidence_status.get("passingPhase") or "无"}
+- 证据说明：{evidence_status.get("reason")}
+- 证据报告：`{evidence_status.get("path")}`
 - 未自动执行提交、推送、发布、数据库迁移或线上变更。
 
 ## 交付前人工确认
@@ -3919,17 +4026,54 @@ project-intel maintain --task "{normalize_requirement_summary(task)}" --files {n
 """
 
 
-def finish_project(root: Path, task: str, run_quality: bool = False, files: Optional[list[str]] = None) -> int:
+def finish_project(
+    root: Path,
+    task: str,
+    run_quality: bool = False,
+    files: Optional[list[str]] = None,
+    manual_evidence: str = "",
+) -> int:
     ensure_initialized(root)
     if not contains_cjk(task):
         fail_usage("任务收口要求使用中文任务摘要；请用 --task 传入中文摘要。")
     selected_files = finish_changed_files(root, files)
-    check_exit = run_check(root, run_quality=run_quality)
+    if manual_evidence.strip() and not testing_module.manual_evidence_valid(manual_evidence):
+        fail_usage("--manual-evidence 必须记录至少 12 个有效字符的操作步骤、输入和观察结果。")
+    quality_results: list[dict[str, Any]] = []
+    check_exit = run_check(root, run_quality=run_quality, result_sink=quality_results)
+    normalized_task = normalize_requirement_summary(task)
+    test_results = [item for item in quality_results if item.get("kind") in {"test", "verify"}]
+    if manual_evidence.strip():
+        testing_module.record_test_evidence(
+            root,
+            normalized_task,
+            "manual",
+            selected_files,
+            [],
+            manual_evidence=manual_evidence,
+            now=now_iso(),
+            write_json=write_json,
+            write_text=write_text,
+        )
+    elif test_results:
+        testing_module.record_test_evidence(
+            root,
+            normalized_task,
+            "verify",
+            selected_files,
+            test_results,
+            now=now_iso(),
+            write_json=write_json,
+            write_text=write_text,
+        )
+    evidence_status = testing_module.evaluate_test_evidence(root, normalized_task, selected_files)
     summary = git_diff_summary(root)
     path = project_dir(root) / "reports" / "finish-report.md"
-    write_text(path, build_finish_report(root, task, selected_files, check_exit, run_quality, summary))
+    write_text(path, build_finish_report(root, task, selected_files, check_exit, run_quality, summary, evidence_status))
     print(f"已写入任务收口报告：{path}")
-    return check_exit
+    if not evidence_status.get("ready"):
+        print("任务收口失败：源码变更缺少与当前任务匹配的新鲜自动测试或人工验证证据。")
+    return 1 if check_exit != 0 or not evidence_status.get("ready") else 0
 
 
 def hook_script_body(hook_name: str) -> str:
@@ -4028,6 +4172,7 @@ Prefer available project skills such as:
 - `project-knowledge`
 - `project-standards`
 - `project-finish`
+- `project-test`
 - `project-maintain`
 - `project-orchestrate`
 - `project-init`
@@ -4053,6 +4198,7 @@ Before implementing, debugging, reviewing, planning, writing specs, answering co
    - Requirement/spec/acceptance criteria/impact: `project-spec` or `project-intelligence:project-spec`
    - Implementation plan or checklist: `project-plan` or `project-intelligence:project-plan`
    - Implementation, modification, fix, refactor, or feature work: `project-task` or `project-intelligence:project-task`
+   - Test planning, RED/GREEN evidence, regression scope, manual verification, or finish evidence: `project-test` or `project-intelligence:project-test`
    - Bug, error, regression, failed test, or unexpected behavior: `project-debug` or `project-intelligence:project-debug`
    - Code review, PR review, diff review, reuse/quality risk review: `project-review` or `project-intelligence:project-review`
    - Independent planned subtasks, subagent handoffs, task-level review, or parallel read-only investigations: `project-orchestrate` or `project-intelligence:project-orchestrate`
@@ -4068,10 +4214,10 @@ Before implementing, debugging, reviewing, planning, writing specs, answering co
 4. Read only the relevant files under `.project-intel/standards/`, `.project-intel/knowledge/`, `.project-intel/graph/`, and `.project-intel/reports/`.
 5. Apply `hard` standards as requirements; treat `preferred` as default project style; treat `inferred` and `candidate` as suggestions that need confirmation before enforcement.
 6. Prefer existing public components, Hooks, utilities, API wrappers, services, DTO/VO/entity patterns, permission checks, transaction boundaries, and error-code conventions before adding new ones.
-7. For implementation work, before the first Edit/Write, run `project-intake` or `project-intel intake --task "<requirement>"` to classify `quick` / `standard` / `complex` and confirm readiness. Then run the `project-task` workflow: check reuse, affected modules, relevant standards, and impact. First produce or internally confirm a lightweight Chinese task spec: requirement summary, acceptance points, affected files/modules, reuse candidates, and assumptions/open questions. Do not create a spec file unless the user explicitly asks for one.
+7. For implementation work, before the first Edit/Write, run `project-intake` or `project-intel intake --task "<requirement>"` to classify `quick` / `standard` / `complex` and confirm readiness. Then explicitly invoke `project-test` before `project-task`: name the target test, RED failure, GREEN proof, regression scope, or justified manual evidence, then check reuse, affected modules, relevant standards, and impact. This same-turn handoff is required even when the user asks not to edit yet; complete the workflow routing and stop before file changes. First produce or internally confirm a lightweight Chinese task spec: requirement summary, acceptance points, affected files/modules, reuse candidates, and assumptions/open questions. Do not create a spec file unless the user explicitly asks for one.
 8. Use GitNexus impact/explore/detect_changes tools when available; otherwise use `.project-intel` plus `project-intel lifecycle --task "<requirement>"` or `project-intel query "<symbol-or-feature>"`. `lifecycle` prints by default and includes track/readiness; use `--write` only when a persistent task-impact report is explicitly needed.
 9. Use `project-orchestrate` only when planned subtasks are independent enough to review separately. Implementation subagents should normally run sequentially; parallel agents are for read-only investigations or disjoint impact analysis.
-10. After meaningful code changes, run change review, finish, and maintenance: inspect the diff, run `project-intel check`, run the concrete verification that proves the actual behavior claim, run `project-intel finish --task "<中文简短需求摘要>" --files <changed-source-files>`, and then run or recommend `project-intel maintain --task "<中文简短需求摘要>" --files <changed-source-files>`. The `--task` value used for finish/maintenance must be Chinese. `maintain` overwrites `.project-intel/maintenance/latest.md` by default and updates one short requirement markdown per affected source file under `.project-intel/requirements/files/`; use `--archive` only when the user wants a historical maintenance record.
+10. After meaningful code changes, run change review, test evidence, finish, and maintenance: inspect the diff, run `project-intel check`, record the concrete verification with `project-intel test`, run `project-intel finish --task "<中文简短需求摘要>" --files <changed-source-files>`, and then run or recommend `project-intel maintain --task "<中文简短需求摘要>" --files <changed-source-files>`. `finish` must reject changed source without current task/file-scoped GREEN, regression, verify, or explicit manual evidence. The `--task` value used for test/finish/maintenance must be Chinese. `maintain` overwrites `.project-intel/maintenance/latest.md` by default and updates one short requirement markdown per affected source file under `.project-intel/requirements/files/`; use `--archive` only when the user wants a historical maintenance record.
 11. Do not claim a change is complete, fixed, passing, or ready without fresh evidence from the current turn. `project-intel check` proves Project Intelligence rules; it does not prove business behavior unless the check directly exercises that behavior.
 12. For bug investigation, first gather symptoms, reproduce or locate evidence, trace likely paths through project knowledge/graph context, then propose one testable hypothesis and avoid stacked guesses.
 13. For review, inspect diff plus `.project-intel` standards/knowledge/graph context and report findings by severity before summaries. Verify review feedback against project reality before applying it.
@@ -4079,7 +4225,7 @@ Before implementing, debugging, reviewing, planning, writing specs, answering co
 15. If GitNexus or Understand-Anything graph context is available, use it for impact analysis and architecture/domain relationships.
 Stable generated files are preferred for routine runs: refresh/tooling/quality reports are overwritten in place, `debug` and `lifecycle` only print unless `--write` is passed, `maintain` writes `maintenance/latest.md` unless `--archive` is passed, and file-level requirements are maintained as one concise Chinese markdown per source file.
 
-Useful CLI fallbacks: `project-intel intake`, `project-intel lifecycle`, `project-intel query`, `project-intel refresh`, `project-intel check`, `project-intel spec`, `project-intel plan`, `project-intel debug`, `project-intel finish`, `project-intel requirements`, and `project-intel maintain`."""
+Useful CLI fallbacks: `project-intel intake`, `project-intel lifecycle`, `project-intel query`, `project-intel refresh`, `project-intel check`, `project-intel spec`, `project-intel plan`, `project-intel debug`, `project-intel test`, `project-intel finish`, `project-intel requirements`, and `project-intel maintain`."""
 
 
 def claude_project_agent_rules() -> str:
@@ -4090,6 +4236,7 @@ def claude_project_agent_rules() -> str:
         "Requirement/spec/acceptance criteria/impact: `project-spec` or `project-intelligence:project-spec`": "Requirement/spec/acceptance criteria/impact: `/project-spec`",
         "Implementation plan or checklist: `project-plan` or `project-intelligence:project-plan`": "Implementation plan or checklist: `/project-plan`",
         "Implementation, modification, fix, refactor, or feature work: `project-task` or `project-intelligence:project-task`": "Implementation, modification, fix, refactor, or feature work: `/project-task`",
+        "Test planning, RED/GREEN evidence, regression scope, manual verification, or finish evidence: `project-test` or `project-intelligence:project-test`": "Test planning, RED/GREEN evidence, regression scope, manual verification, or finish evidence: `/project-test`",
         "Bug, error, regression, failed test, or unexpected behavior: `project-debug` or `project-intelligence:project-debug`": "Bug, error, regression, failed test, or unexpected behavior: `/project-debug`",
         "Code review, PR review, diff review, reuse/quality risk review: `project-review` or `project-intelligence:project-review`": "Code review, PR review, diff review, reuse/quality risk review: `/project-review`",
         "Independent planned subtasks, subagent handoffs, task-level review, or parallel read-only investigations: `project-orchestrate` or `project-intelligence:project-orchestrate`": "Independent planned subtasks, subagent handoffs, task-level review, or parallel read-only investigations: `/project-orchestrate`",
@@ -4219,7 +4366,7 @@ def markdown_command_output(result: dict[str, Any]) -> str:
     return "\n".join(sections).rstrip()
 
 
-def run_check(root: Path, run_quality: bool) -> int:
+def run_check(root: Path, run_quality: bool, result_sink: Optional[list[dict[str, Any]]] = None) -> int:
     ensure_initialized(root)
     pdir = project_dir(root)
     config = read_project_config(root)
@@ -4237,6 +4384,8 @@ def run_check(root: Path, run_quality: bool) -> int:
             quality_results.append({"kind": item.get("kind"), "command": cmd, "exitCode": code, "stdout": out[-4000:], "stderr": err[-4000:]})
             if code != 0:
                 exit_code = 1
+    if result_sink is not None:
+        result_sink.extend(quality_results)
     report = build_quality_report(
         quality_results,
         frontend,
@@ -4437,13 +4586,25 @@ def build_parser() -> argparse.ArgumentParser:
     debug = sub.add_parser("debug", help="输出系统化调试上下文")
     debug.add_argument("--bug", required=True)
     debug.add_argument("--write", action="store_true", help="写入固定报告 .project-intel/reports/debug-context.md；默认只输出")
+    test = sub.add_parser("test", help="运行并记录 RED/GREEN/回归/验证测试证据")
+    test.add_argument("--task", required=True, help="中文任务摘要；用于把证据绑定到当前任务")
+    test.add_argument("--phase", required=True, choices=testing_module.TEST_PHASES, help="测试阶段：red/green/regression/verify/manual")
+    test.add_argument(
+        "--command",
+        dest="test_commands",
+        action="append",
+        help="要执行的目标测试命令；可重复。未提供时使用检测到的 test/verify 命令",
+    )
+    test.add_argument("--files", nargs="*", help="该证据覆盖的源码和测试文件；留空表示项目级证据")
+    test.add_argument("--manual-evidence", default="", help="manual 阶段的可复现人工验证说明")
     finish = sub.add_parser("finish", help="任务完成后生成收口报告")
     finish.add_argument("--task", required=True, help="中文任务摘要")
-    finish.add_argument("--run-quality", action="store_true", help="实际运行检测到的 lint/type/style/format 命令")
+    finish.add_argument("--run-quality", action="store_true", help="实际运行检测到的 lint/type/style/format/test/verify 命令")
     finish.add_argument("--files", nargs="*", help="本次需求实际影响的源码文件；用于收口范围展示")
+    finish.add_argument("--manual-evidence", default="", help="没有自动测试时，记录可复现的人工验证证据")
     maintain = sub.add_parser("maintain", help="任务完成后刷新项目智能")
     maintain.add_argument("--task", required=True)
-    maintain.add_argument("--run-quality", action="store_true", help="实际运行检测到的 lint/type/style/format 命令")
+    maintain.add_argument("--run-quality", action="store_true", help="实际运行检测到的 lint/type/style/format/test/verify 命令")
     maintain.add_argument("--archive", action="store_true", help="保留带时间戳的维护历史；默认覆盖 .project-intel/maintenance/latest.md")
     maintain.add_argument("--files", nargs="*", help="本次需求实际影响的源码文件；用于维护每个文件唯一的简短中文需求记录")
     requirements = sub.add_parser("requirements", help="按源码文件维护简短中文需求记录")
@@ -4528,8 +4689,23 @@ def dispatch_command(args: argparse.Namespace, root: Path, json_mode: bool) -> t
     if args.command == "debug":
         path = write_debug_context(root, args.bug, write_report=args.write)
         return 0, {"path": str(path) if path else None}
+    if args.command == "test":
+        return run_project_test(
+            root,
+            args.task,
+            args.phase,
+            commands=args.test_commands,
+            files=args.files,
+            manual_evidence=args.manual_evidence,
+        )
     if args.command == "finish":
-        code = finish_project(root, args.task, run_quality=args.run_quality, files=args.files)
+        code = finish_project(
+            root,
+            args.task,
+            run_quality=args.run_quality,
+            files=args.files,
+            manual_evidence=args.manual_evidence,
+        )
         return code, {"report": ".project-intel/reports/finish-report.md"}
     if args.command == "maintain":
         code = maintain_project(root, args.task, args.run_quality, archive=args.archive, files=args.files)
