@@ -1,6 +1,6 @@
 ---
 name: project-test
-description: Use before and after implementing features, bug fixes, refactors, or behavior changes; when writing tests, choosing test scope, proving a regression, recording RED/GREEN evidence, or satisfying the project finish test gate. 测试, 单元测试, 回归测试, TDD, 测试优先, 验证证据.
+description: Use after requirement ready to choose the test type and report action, and after requirement begin to execute or record RED/GREEN/regression/manual evidence. 测试, 单元测试, 服务测试, 接口测试, 回归测试, 测试报告, 真机验证, TDD, 验证证据.
 ---
 
 # Project Test
@@ -81,6 +81,8 @@ Before executing tests, ask both questions explicitly:
 
 1. Test type: `unit`, `service`, `both`, or `manual`.
 2. Test document action: `generate`, `register existing`, or `later`.
+
+In a requirement lifecycle, these questions may be answered while the requirement is `ready`, but do not execute the CLI command, generate/register the report, or edit a test file until `project-task` has successfully run `requirement begin` and the state is `implementing`.
 
 Pass the requirement ID and the selected action:
 

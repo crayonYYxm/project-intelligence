@@ -1,30 +1,32 @@
 ---
 name: project-task
-description: Use when preparing to implement or actually implementing, building, adding, modifying, fixing, refactoring, or completing a project feature/需求 and needing project standards, reuse, components, Hooks, APIs, services, graph context, or post-task maintenance. 需求开发, 功能开发, 实现需求, 开发任务, 做需求, 写功能.
+description: Use after lifecycle readiness when the user wants to begin or continue implementation, fixing, refactoring, or other business-code changes. 开始实现, 开始修复, 继续开发, 需求开发, 功能开发, 实现需求, 做需求, 写功能. Do not use for design-only, planning-only, review-only, or read-only questions.
 ---
 
 # Project Task
 
-Before implementing, read `.project-intel/manifest.json`. Then load only the relevant files under `.project-intel/standards`, `.project-intel/knowledge`, `.project-intel/graph`, and `.project-intel/reports`.
+Before implementing, read `.project-intel/manifest.json`, `.project-intel/project-status.md`, and the active `.project-intel/requirements/<id>/manifest.json`. Then load only relevant standards, knowledge, graph facts, `requirement.md`, `design.md`, and optional `plan.md`.
 
 If a conversation begins as discussion, explanation, spec, or plan and then turns into code modification, pause before the first `Edit`/`Write` and switch into this task workflow. Basic tools such as Grep, Read, Edit, Bash, Glob, or Write do not replace this workflow.
 
 Use this sequence:
 
-1. Before the first code edit, run or mentally follow `project-intake` to classify the work as `quick`, `standard`, or `complex`, and confirm readiness:
+1. Read the existing lifecycle status and require `state: ready` before the first code edit:
 
 ```bash
-project-intel intake --requirement-id "<id>" --requirement-name "<name>" --ticket-kind bug|requirement --external-api yes|no --track auto
+project-intel requirement status --requirement-id "<id>" --json
 ```
 
-2. Before the first code edit, confirm `project-design` has registered a validated design artifact and `project-spec` has written acceptance criteria to the manifest. Do not add AC headings to the design document.
-3. Invoke `project-test` before production edits for features, fixes, refactors, and behavior changes. Name the target test file, command, expected RED failure, GREEN proof, regression scope, and any justified manual-evidence exception.
+Do not run intake again for an existing lifecycle requirement: it may have an explicitly confirmed track or other intake values that must not be re-inferred. If no requirement ID or manifest exists, return to `project-intake` and complete spec/design/readiness before resuming this Skill.
+
+2. Before the first code edit, confirm `project-spec` registered `requirement.md`, persisted matching acceptance criteria, and `project-design` registered `design.md`. Do not add AC headings to the design document.
+3. Confirm `project-test` has selected the test type, report action, target test file, command, expected RED failure, GREEN proof, regression scope, and any justified manual-evidence exception. While the requirement is still `ready`, this is planning only. Then run `project-intel requirement begin --requirement-id "<id>"` and confirm `state: implementing` before generating the test report, editing the test file, or executing/recording RED.
 4. Identify related modules, components, Hooks, APIs, services, routes, and standards.
 5. Prefer existing project abstractions before creating new ones.
 6. Treat redundancy findings as `candidate` unless a rule has been promoted to `hard`.
 7. Use GitNexus for symbol-level calls, impact, and change risk when available.
 8. Use Understand-Anything for architecture, module, and domain-flow context when available.
-9. Before the first code edit, run impact/reuse analysis with GitNexus impact/explore tools when available; otherwise use `.project-intel`, `project-intel query "<symbol-or-feature>"`, or `project-intel lifecycle --task "<requirement>"`. `lifecycle` prints by default and includes track/readiness; use `--write` only when the user explicitly wants a persistent task-impact report.
+9. Before the first code edit, run impact/reuse analysis with GitNexus impact/explore tools when available; otherwise use `.project-intel`, `project-intel query "<symbol-or-feature>"`, or `project-intel lifecycle --task "<requirement>"`. `lifecycle` prints only; do not create a shared task-impact report.
 10. Decide execution mode:
    - small or tightly coupled change: implement inline in this session.
    - independent planned subtasks: switch to `project-orchestrate` for subagent handoffs, task review, and final review.
@@ -48,18 +50,22 @@ Before broad implementation, inspect task impact when useful. This does not crea
 project-intel lifecycle --task "<requirement>"
 ```
 
-After implementation, run check and maintain. Pass the actual changed source files so each file keeps exactly one concise Chinese requirement markdown:
+After implementation, run check, record the selected verification evidence, review, finish, and maintain. Reuse the test type, report action, and AC IDs confirmed for this requirement; never replace them with a generic unit/generate/AC-01 example:
 
 ```bash
 project-intel check
-project-intel test --requirement-id "<id>" --test-kind unit --report-action generate \
-  --phase verify --files <changed-source-and-test-files> --acceptance AC-01,AC-02
+project-intel test --requirement-id "<id>" --test-kind "<selected-kind>" \
+  --report-action "<selected-action>" --phase verify \
+  --files <changed-source-and-test-files> --acceptance <confirmed-ac-ids> \
+  [--command "<targeted-command>"] [--report-path <existing-report-for-register>]
 project-intel review --requirement-id "<id>" --result passed --summary "<review-summary>" --files <all-actual-changed-files>
 project-intel finish --requirement-id "<id>" --files <all-actual-changed-files>
 project-intel maintain --requirement-id "<id>" --files <all-actual-changed-files>
 ```
 
-The requirement name must be Chinese when file-level maintenance history is written. `maintain` overwrites `.project-intel/maintenance/latest.md` by default and updates `.project-intel/requirements/files/<source-path>.md`; add `--archive` only when the user wants to keep a timestamped maintenance history.
+`finish` and `maintain` record their results in the same requirement manifest. They must not create shared reports, maintenance histories, or per-source markdown files.
+
+The bracketed options above are conditional documentation, not literal CLI text. `register` requires its existing report path; `generate` does not. External API impact requires `service` or `both`, and manual evidence uses the approval-style arguments defined by `project-test`.
 
 Before finalizing:
 
@@ -71,7 +77,7 @@ Before finalizing:
 
 `project-intel check` proves project-intelligence rules and known quality commands. It does not by itself prove the business requirement unless the check directly exercises the changed behavior.
 
-For requirement-level implementation, require the ID/name created by `project-intake`, confirm `requirement status` is `ready`, and run this immediately before the first code edit:
+For requirement-level implementation, require the ID/name created by `project-intake`, confirm `requirement status` is `ready`, and run this before the first test-report generation, test-file edit, production edit, or test execution:
 
 ```bash
 project-intel requirement begin --requirement-id "<id>"

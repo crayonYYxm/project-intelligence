@@ -5,8 +5,7 @@ description: Use when running or interpreting frontend/backend quality checks, E
 
 # Project Quality
 
-Read `.project-intel/config.json` for detected quality commands and `.project-intel/reports/frontend-quality.md` for the latest result.
-Also read `.project-intel/reports/tooling-report.md` to see missing optional tools and setup suggestions.
+Read `.project-intel/config.json` for detected quality commands and `.project-intel/project-status.md` for the latest scan, tooling, and quality result.
 
 Default command:
 
@@ -26,6 +25,6 @@ Structured `hard` checks can fail the command. Natural-language hard rules witho
 
 When a quality command fails, treat it as a debugging task: read the full failure output, generate debug context with `project-intel debug --bug "<failure>"`, and identify root cause before suggesting fixes.
 
-`project-intel check --run-quality` executes every configured command. Use a targeted `project-intel test --command "<command>"` first when a large or noisy repository needs a smaller proof scope.
+`project-intel check --run-quality` executes every configured command. For a large or noisy repository, run the targeted project command directly for diagnosis. If the result must become requirement evidence, route through `project-test` and pass the active requirement ID, selected test kind/report action, phase, changed files, confirmed AC IDs, and command. A test command without lifecycle identity and evidence scope is invalid.
 
 Use `.project-intel` quality facts and the project's own configured quality commands.

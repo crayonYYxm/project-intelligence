@@ -1,5 +1,40 @@
 # Changelog
 
+## 0.5.0 - 2026-07-17
+
+- Add explicit `project-intel adapters status|preview|apply|remove` commands and make `install` / `refresh --adapters` use the same safe adapter writer.
+- Replace large root adapter copies with short Codex and Claude entry blocks; keep `.claude/CLAUDE.md` as a pointer instead of a second full workflow copy.
+- Harden adapter writes against symlink paths, malformed or duplicate managed markers, oversized files, and unmarked user-created same-name local skills.
+- Add requirement `testContract` state and `requirement test-contract set` so test type, report action, and acceptance mapping are persisted before implementation.
+- Tighten JSON error redaction and add read-only dry-run paths for check, review, finish, and maintain.
+
+## 0.4.0 - 2026-07-17
+
+- Consolidate each lifecycle under `.project-intel/requirements/<id>/` with mandatory `requirement.md`, `design.md`, `test-report.md`, and `closure-summary.md`, plus optional `plan.md`.
+- Replace shared init, refresh, tooling, quality, finish, and maintenance reports with one replaceable `.project-intel/project-status.md` and requirement-manifest results.
+- Add schema v2 `draft -> specified -> designed` document gates, canonical document registration, direct requirement directories, and v1/by-id read compatibility.
+- Store changed-file history in requirement manifests and add `requirement query --file|--state` instead of creating ambiguous `requirements/files` mirrors.
+- Add dry-run-first `requirement migrate` support and report legacy shared outputs that cannot be assigned safely to a requirement.
+- Update Skills, generated Agent rules, CLI examples, and project documentation so new workflows do not create shared `reports`, `specs`, `plans`, or `maintenance` directories.
+- Require a persisted source-backed Bug diagnosis before readiness, invalidate designs created before the confirmed root cause, and recheck all readiness inputs again at begin.
+- Validate requirement, design, optional plan, test, and closure documents against the current manifest; retain readable per-requirement test history with test scope and immutable registered-report evidence.
+- Make layout migration preflight-and-rollback safe, register delivery documents under one manifest lock, and reject test/review/finish evidence when the Git scope changes during registration.
+- Harden persisted output redaction and Markdown rendering, including authorization schemes, URL credentials, customer identifiers, review text, manual evidence, and command output.
+- Make Skill routing and live-eval evidence fail closed, remove hard-coded test choices from generated workflows, and add installed-tarball launcher smoke validation.
+- Merge committed changes from the intake baseline with the live worktree when calculating requirement scope, so clean post-commit worktrees cannot hide delivered source changes.
+- Evaluate the latest result independently for each test channel, verify every contributing report and hash again at finish/maintain, and serialize concurrent readable-report updates.
+- Refresh the packaged introduction page around per-requirement files and expand natural-language routing coverage so every packaged Skill has a positive scenario.
+- Persist intake requirement/design actions and registered source paths in `workflowSelections`, expose them through status, and require explicit amend instead of cross-session guessing.
+
+## 0.3.1 - 2026-07-17
+
+- Parse registered Markdown/TXT, JSON, and XML test reports and reject a declared `passed` result when the report records failure; revalidate current reports again at finish so older manifests cannot retain a false pass.
+- Validate closure summaries for required result, scope, acceptance, test, review, manual-exception, remaining-issue, and retrospective sections; generated summaries now contain current Git scope and manifest evidence instead of generic placeholders.
+- Separate validated delivery artifacts from business evidence scope so `docs/requirements/` designs remain in the delivery diff and review while source-focused tests can cover the actual behavior files.
+- Restore `project-design` detection in live Claude/Codex Skill evals by discovering packaged Skill names dynamically, and extend workflow scenarios for design/spec routing plus init/refresh/maintain trigger boundaries.
+- Align intake `requiredStages`, Skill instructions, generated Agent rules, and documentation around `intake → design → spec → ready → begin → test/task → review → finish → maintain`.
+- Narrow first-time init, fact refresh, post-finish maintenance, and read-only knowledge triggers to reduce accidental cross-routing.
+
 ## 0.3.0 - 2026-07-16
 
 - Add `project-design` as the single source-backed Bug/Requirement development-design Skill, usable standalone without `.project-intel` side effects or inside the requirement lifecycle.

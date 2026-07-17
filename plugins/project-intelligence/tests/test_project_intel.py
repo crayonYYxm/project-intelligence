@@ -637,26 +637,13 @@ class AgentEntrypointInstallTests(unittest.TestCase):
             nested = (root / ".claude" / "CLAUDE.md").read_text(encoding="utf-8")
             self.assertTrue(agents.startswith(project_intel.AGENT_PROJECT_INTEL_BLOCK_START))
             self.assertTrue(claude.startswith(project_intel.PROJECT_INTEL_BLOCK_START))
-            self.assertIn(project_intel.PROJECT_INTEL_BLOCK_START, agents)
-            self.assertIn("Project Intelligence is the workflow layer", agents)
-            self.assertIn("Tools such as Grep, Read, Edit, Bash", agents)
-            self.assertIn("pause before the first Edit/Write", agents)
-            self.assertIn("state which Project Intelligence workflow is being followed", agents)
-            self.assertIn("project-task` or `project-intelligence:project-task", agents)
-            self.assertIn("Use `project-design` to generate/validate and register it", agents)
-            self.assertIn("`project-spec` to write numbered acceptance criteria to the manifest", agents)
-            self.assertIn("Explicitly invoke `project-test` before `project-task`", agents)
-            self.assertIn("same-turn handoff", agents)
-            self.assertIn("project-review` or `project-intelligence:project-review", agents)
-            self.assertIn("project-orchestrate` or `project-intelligence:project-orchestrate", agents)
-            self.assertIn("fresh evidence", agents)
-            self.assertIn("project-maintain` or `project-intelligence:project-maintain", agents)
-            self.assertIn("GitNexus impact/explore/detect_changes", agents)
-            self.assertIn("project-intel lifecycle", agents)
+            self.assertNotIn(project_intel.PROJECT_INTEL_BLOCK_START, agents)
+            self.assertLessEqual(len(agents.encode("utf-8")), 4096)
+            self.assertIn("$project-intelligence:project-task", agents)
             self.assertIn(project_intel.PROJECT_INTEL_BLOCK_START, claude)
             self.assertIn("/project-task", claude)
-            self.assertIn("/project-orchestrate", claude)
-            self.assertIn("/project-task", nested)
+            self.assertIn("/project-finish", claude)
+            self.assertIn("root `CLAUDE.md`", nested)
             self.assertIn(str(root / "AGENTS.md"), result["agentFiles"])
             self.assertIn(str(root / "CLAUDE.md"), result["agentFiles"])
             self.assertIn(str(root / ".claude" / "CLAUDE.md"), result["agentFiles"])
@@ -678,13 +665,11 @@ class AgentEntrypointInstallTests(unittest.TestCase):
             self.assertTrue(agents.startswith(project_intel.AGENT_PROJECT_INTEL_BLOCK_START))
             self.assertTrue(claude.startswith(project_intel.PROJECT_INTEL_BLOCK_START))
             self.assertIn("# Team Notes", agents)
-            self.assertIn(project_intel.PROJECT_INTEL_BLOCK_START, agents)
-            self.assertIn("This repository uses `.project-intel/`", agents)
-            self.assertIn("If slash skills are not available", agents)
-            self.assertIn("project-intelligence:*", agents)
+            self.assertNotIn(project_intel.PROJECT_INTEL_BLOCK_START, agents)
+            self.assertIn("$project-intelligence:project-task", agents)
             self.assertIn(project_intel.PROJECT_INTEL_BLOCK_START, claude)
             self.assertIn("/project-task", claude)
-            self.assertIn("GitNexus or Understand-Anything graph context", nested)
+            self.assertIn("root `CLAUDE.md`", nested)
             self.assertIn("Keep nested content.", nested)
             self.assertEqual(nested.count(project_intel.PROJECT_INTEL_BLOCK_START), 1)
             self.assertIn(str(root / "AGENTS.md"), result["agentFiles"])
@@ -728,10 +713,49 @@ class AgentEntrypointInstallTests(unittest.TestCase):
             claude = (root / "CLAUDE.md").read_text(encoding="utf-8")
             self.assertEqual(agents.count(project_intel.AGENT_PROJECT_INTEL_BLOCK_START), 1)
             self.assertEqual(agents.count(project_intel.AGENT_PROJECT_INTEL_BLOCK_END), 1)
-            self.assertEqual(agents.count(project_intel.PROJECT_INTEL_BLOCK_START), 1)
-            self.assertEqual(agents.count(project_intel.PROJECT_INTEL_BLOCK_END), 1)
+            self.assertEqual(agents.count(project_intel.PROJECT_INTEL_BLOCK_START), 0)
+            self.assertEqual(agents.count(project_intel.PROJECT_INTEL_BLOCK_END), 0)
             self.assertEqual(claude.count(project_intel.PROJECT_INTEL_BLOCK_START), 1)
             self.assertEqual(claude.count(project_intel.PROJECT_INTEL_BLOCK_END), 1)
+
+    def test_adapters_preview_is_non_mutating_and_apply_writes_short_blocks(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            preview = project_intel.adapters_preview(root, target="both")
+            self.assertTrue(preview["dryRun"])
+            self.assertFalse((root / "AGENTS.md").exists())
+            result = project_intel.adapters_apply(root, target="both")
+            self.assertTrue(result["ok"])
+            agents = (root / "AGENTS.md").read_text(encoding="utf-8")
+            nested = (root / ".claude" / "CLAUDE.md").read_text(encoding="utf-8")
+            self.assertLessEqual(len(agents.encode("utf-8")), 4096)
+            self.assertIn("$project-intelligence:project-task", agents)
+            self.assertIn("root `CLAUDE.md`", nested)
+
+    def test_adapters_reject_symlink_oversized_and_duplicate_marker_files(self):
+        with tempfile.TemporaryDirectory() as tmp, tempfile.TemporaryDirectory() as outside:
+            root = Path(tmp)
+            (root / "AGENTS.md").symlink_to(Path(outside) / "AGENTS.md")
+            with self.assertRaisesRegex(RuntimeError, "符号链接"):
+                project_intel.adapters_apply(root, target="codex")
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "AGENTS.md").write_bytes(b"x" * (project_intel.ADAPTER_MAX_BYTES + 1))
+            with self.assertRaisesRegex(RuntimeError, "2MiB"):
+                project_intel.adapters_apply(root, target="codex")
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            block = (
+                f"{project_intel.AGENT_PROJECT_INTEL_BLOCK_START}\none\n"
+                f"{project_intel.AGENT_PROJECT_INTEL_BLOCK_END}\n"
+                f"{project_intel.AGENT_PROJECT_INTEL_BLOCK_START}\ntwo\n"
+                f"{project_intel.AGENT_PROJECT_INTEL_BLOCK_END}\n"
+            )
+            (root / "AGENTS.md").write_text(block, encoding="utf-8")
+            with self.assertRaisesRegex(RuntimeError, "重复"):
+                project_intel.adapters_apply(root, target="codex")
 
 
 class LifecycleArtifactTests(unittest.TestCase):
@@ -759,6 +783,9 @@ class LifecycleArtifactTests(unittest.TestCase):
             self.assertEqual(analysis["track"], "complex")
             self.assertIn("readiness", analysis)
             self.assertIn("requiredStages", analysis)
+            self.assertIn("design", analysis["requiredStages"])
+            self.assertIn("spec", analysis["requiredStages"])
+            self.assertIn("readiness-gate", analysis["requiredStages"])
             self.assertIn("affectedAreas", analysis)
 
     def test_lifecycle_and_debug_print_by_default_and_write_only_when_requested(self):
@@ -1062,7 +1089,7 @@ class HardRuleAndQualityTests(unittest.TestCase):
             self.write_initialized_project(root, rules)
 
             exit_code = project_intel.run_check(root, run_quality=False)
-            report = (root / ".project-intel" / "reports" / "frontend-quality.md").read_text(encoding="utf-8")
+            report = (root / ".project-intel" / "project-status.md").read_text(encoding="utf-8")
 
             self.assertEqual(exit_code, 1)
             self.assertIn("manual-review", report)
@@ -1100,7 +1127,7 @@ class HardRuleAndQualityTests(unittest.TestCase):
             with patch.object(project_intel, "run_shell", return_value=(1, "lint stdout detail", "lint stderr detail")):
                 exit_code = project_intel.run_check(root, run_quality=True)
 
-            report = (root / ".project-intel" / "reports" / "frontend-quality.md").read_text(encoding="utf-8")
+            report = (root / ".project-intel" / "project-status.md").read_text(encoding="utf-8")
             self.assertEqual(exit_code, 1)
             self.assertIn("lint stdout detail", report)
             self.assertIn("lint stderr detail", report)
@@ -1173,6 +1200,53 @@ class SkillCommandPathTests(unittest.TestCase):
         self.assertNotIn("/Users/xumeng/plugins", doc)
         self.assertIn("project-intel maintain", doc)
 
+    def test_generated_task_impact_doc_does_not_invent_test_contract(self):
+        snapshot = {
+            "manifest": {"graphSources": []},
+            "frontend": {"components": [], "hooks": []},
+            "backend": {"services": []},
+        }
+        doc = project_intel.build_task_impact_doc(Path("/tmp/example"), "示例任务", snapshot)
+
+        self.assertNotIn("--test-kind unit", doc)
+        self.assertNotIn("--report-action generate", doc)
+        self.assertNotIn("--acceptance AC-01,AC-02", doc)
+        self.assertIn("对外接口需求必须选择 `service` 或 `both`", doc)
+        self.assertIn("`--report-action register` 必须提供 `--report-path", doc)
+        self.assertIn("已确认的验收标准", doc)
+
+    def test_generated_task_impact_doc_reuses_selected_test_contract(self):
+        snapshot = {
+            "manifest": {"graphSources": []},
+            "frontend": {"components": [], "hooks": []},
+            "backend": {"services": []},
+        }
+        doc = project_intel.build_task_impact_doc(
+            Path("/tmp/example"),
+            "示例任务",
+            snapshot,
+            requirement_id="REQ-77",
+            test_kind="service",
+            report_action="register",
+            report_path="evidence/REQ-77-service.md",
+            acceptance_ids=["AC-03", "AC-07"],
+        )
+
+        self.assertIn('--requirement-id "REQ-77" --test-kind service --report-action register', doc)
+        self.assertIn("--report-path evidence/REQ-77-service.md", doc)
+        self.assertIn("--acceptance AC-03,AC-07", doc)
+
+    def test_generated_agent_rules_require_bug_diagnosis_before_ready(self):
+        rules = project_intel.project_agent_rules()
+        self.assertIn("project-intel requirement diagnose", rules)
+        self.assertIn("Bug", rules)
+        self.assertIn("ready", rules)
+        workflow_rule = next(line for line in rules.splitlines() if line.startswith("7. For implementation work"))
+        self.assertLess(workflow_rule.index("First use `project-spec`"), workflow_rule.index("next complete `project-debug`"))
+        self.assertLess(workflow_rule.index("next complete `project-debug`"), workflow_rule.index("Only after that use the persisted action"))
+        self.assertLess(workflow_rule.index("Only after that use the persisted action"), workflow_rule.index("`requirement ready`"))
+        self.assertIn("manifest.workflowSelections", workflow_rule)
+
     def test_generated_hook_script_uses_runtime_script_path(self):
         body = project_intel.hook_script_body("post-commit")
         self.assertNotIn("/Users/xumeng/plugins", body)
@@ -1180,6 +1254,66 @@ class SkillCommandPathTests(unittest.TestCase):
 
 
 class CliAndReleaseContractTests(unittest.TestCase):
+    def test_json_parser_and_runtime_failures_are_machine_readable(self):
+        output = io.StringIO()
+        with redirect_stdout(output):
+            code = project_intel.main(["--json", "intake", "--unknown-option"])
+        self.assertEqual(code, 2)
+        parser_payload = json.loads(output.getvalue())
+        self.assertFalse(parser_payload["ok"])
+        self.assertEqual(parser_payload["error"]["code"], "USAGE_ERROR")
+        self.assertTrue(parser_payload["error"]["message"])
+
+        output = io.StringIO()
+        with patch.object(project_intel, "dispatch_command", side_effect=RuntimeError("unexpected runtime failure")), redirect_stdout(output):
+            code = project_intel.main(["--json", "doctor"])
+        self.assertEqual(code, 1)
+        runtime_payload = json.loads(output.getvalue())
+        self.assertFalse(runtime_payload["ok"])
+        self.assertEqual(runtime_payload["error"]["code"], "COMMAND_FAILED")
+        self.assertIn("unexpected runtime failure", runtime_payload["error"]["message"])
+
+    def test_lifecycle_uses_requirement_contract_and_rejects_external_api_unit(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / ".project-intel").mkdir()
+            (root / ".project-intel" / "manifest.json").write_text("{}\n", encoding="utf-8")
+            (root / ".project-intel" / "config.json").write_text("{}\n", encoding="utf-8")
+            project_intel.requirements_module.create_requirement(
+                root,
+                "REQ-LIFECYCLE-1",
+                "对外接口生命周期合同",
+                external_api=True,
+                ticket_kind="requirement",
+            )
+            project_intel.requirements_module.set_acceptance_criteria(root, "REQ-LIFECYCLE-1", [
+                {"id": "AC-01", "description": "服务接口契约保持兼容。"},
+            ])
+
+            output = io.StringIO()
+            with redirect_stdout(output):
+                code = project_intel.main([
+                    "--json", "--project", str(root), "lifecycle", "--requirement-id", "REQ-LIFECYCLE-1",
+                    "--test-kind", "unit", "--report-action", "generate",
+                ])
+            self.assertEqual(code, 2)
+            rejected = json.loads(output.getvalue())
+            self.assertEqual(rejected["error"]["code"], "USAGE_ERROR")
+            self.assertIn("service", rejected["error"]["message"])
+
+            output = io.StringIO()
+            with redirect_stdout(output):
+                code = project_intel.main([
+                    "--json", "--project", str(root), "lifecycle", "--requirement-id", "REQ-LIFECYCLE-1",
+                    "--test-kind", "service", "--report-action", "register",
+                    "--report-path", "evidence/service-report.md",
+                ])
+            self.assertEqual(code, 0, output.getvalue())
+            accepted = json.loads(output.getvalue())
+            self.assertTrue(accepted["ok"])
+            self.assertIn("--test-kind service --report-action register", accepted["output"])
+            self.assertIn("--acceptance AC-01", accepted["output"])
+
     def test_refresh_only_runs_graph_when_explicitly_requested(self):
         result = {"manifest": {"fileCount": 0}, "agentFiles": [], "legacyCleanup": []}
         with tempfile.TemporaryDirectory() as tmp:
@@ -1198,12 +1332,9 @@ class CliAndReleaseContractTests(unittest.TestCase):
                     root.resolve(), refresh=True, with_graph=True, adapters=False,
                     allow_repo_runner=False, allow_env_command=False, allow_external_path=False,
                 )
-            with patch.object(project_intel, "init_project", return_value=result) as init_project:
+            with patch.object(project_intel, "adapters_apply", return_value={"ok": True, "entries": []}) as adapters_apply:
                 self.assertEqual(project_intel.main(["--project", str(root), "refresh", "--adapters"]), 0)
-                init_project.assert_called_once_with(
-                    root.resolve(), refresh=True, with_graph=False, adapters=True,
-                    allow_repo_runner=False, allow_env_command=False, allow_external_path=False,
-                )
+                adapters_apply.assert_called_once_with(root.resolve(), target="both")
             with patch.object(project_intel, "init_project", return_value=result) as init_project:
                 self.assertEqual(project_intel.main([
                     "--project", str(root), "refresh", "--with-graph",
@@ -1253,7 +1384,7 @@ class CliAndReleaseContractTests(unittest.TestCase):
         codex = json.loads((plugin_root / ".codex-plugin" / "plugin.json").read_text(encoding="utf-8"))
         npm = json.loads((repo_root / "package.json").read_text(encoding="utf-8"))
 
-        self.assertEqual(project_intel.VERSION, "0.3.0")
+        self.assertEqual(project_intel.VERSION, "0.5.0")
         self.assertEqual(claude["version"], project_intel.VERSION)
         self.assertEqual(codex["version"].split("+")[0], project_intel.VERSION)
         self.assertEqual(npm["version"], project_intel.VERSION)
@@ -1280,8 +1411,9 @@ class CliAndReleaseContractTests(unittest.TestCase):
         self.assertIn("name: project-design", skill)
         self.assertIn("Standalone", skill)
         self.assertIn("Lifecycle", skill)
-        self.assertIn("acceptance criteria belong in the manifest", skill)
-        self.assertIn("must not be added to the design document", skill)
+        self.assertIn("manifest AC", skill)
+        self.assertIn("Acceptance criteria do not belong in the design document", skill)
+        self.assertIn(".project-intel/requirements/<id>/design.md", skill)
         self.assertNotIn("/Users/xumeng/.codex/skills", skill + validator)
         self.assertTrue((skill_root / "references" / "bug-design-template.md").is_file())
         self.assertTrue((skill_root / "references" / "requirement-design-template.md").is_file())
@@ -1307,8 +1439,10 @@ class CliAndReleaseContractTests(unittest.TestCase):
         self.assertIn("--phase green", skill)
         self.assertIn("project-intel finish", skill)
         self.assertIn("invoke `project-design`", intake)
-        self.assertIn("invoke `project-spec` to persist acceptance criteria", intake)
-        self.assertIn("`project-test` and `project-task`", intake)
+        self.assertIn("Route first to `project-spec`", intake)
+        self.assertIn("persist the same numbered acceptance criteria", intake)
+        self.assertIn("`project-test` for evidence-mode/report-action selection", intake)
+        self.assertIn("`project-task` must run `requirement begin`", intake)
         self.assertIn("not a terminal route for an implementation-intent request", knowledge)
 
     def test_skills_only_persist_specs_and_plans_on_explicit_request(self):
@@ -1318,7 +1452,8 @@ class CliAndReleaseContractTests(unittest.TestCase):
         refresh = (skills / "project-refresh" / "SKILL.md").read_text(encoding="utf-8")
 
         self.assertIn("only when the user explicitly asks", brainstorm)
-        self.assertIn("Do not create spec or plan files merely because the skill triggered", plan)
+        self.assertIn("optional canonical file", plan)
+        self.assertIn("Never create `.project-intel/plans/` or `.project-intel/specs/`", plan)
         self.assertNotIn(".claude/skills/project-*", refresh)
 
     def test_release_sources_do_not_contain_removed_integration_name(self):
@@ -1823,6 +1958,17 @@ class InferStandardsTests(unittest.TestCase):
 
 
 class StabilityAndPackagingTests(unittest.TestCase):
+    def test_plugin_intro_describes_current_requirement_archive(self):
+        intro = (MODULE_PATH.parents[1] / "assets" / "plugin-intro.html").read_text(encoding="utf-8")
+        self.assertIn(".project-intel/requirements/&lt;id&gt;/", intro)
+        self.assertIn("requirement.md", intro)
+        self.assertIn("design.md", intro)
+        self.assertIn("test-report.md", intro)
+        self.assertIn("closure-summary.md", intro)
+        self.assertIn("project-intake → project-spec → project-design", intro)
+        self.assertNotIn(".project-intel/reports/*.md", intro)
+        self.assertNotIn(".project-intel/requirements/files/**/*.md", intro)
+
     def test_init_keeps_team_facts_portable_and_tooling_local(self):
         tooling = {
             "required": [{"name": "python3", "status": "present"}],
@@ -2003,12 +2149,15 @@ class StabilityAndPackagingTests(unittest.TestCase):
 
 
 class LegacyLocalSkillCleanupTests(unittest.TestCase):
-    def test_cleanup_removes_legacy_skill_copies_and_claude_md_block(self):
+    def test_cleanup_preserves_unmarked_same_name_skill_and_removes_marked_legacy_copy(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             legacy = root / ".claude" / "skills" / "project-task"
             legacy.mkdir(parents=True)
-            (legacy / "SKILL.md").write_text("---\nname: project-task\n---\n", encoding="utf-8")
+            (legacy / "SKILL.md").write_text("---\nname: project-task\n---\n# User custom skill\n", encoding="utf-8")
+            marked = root / ".claude" / "skills" / "project-debug"
+            marked.mkdir(parents=True)
+            (marked / "SKILL.md").write_text("---\nname: project-debug\n---\nUse `.project-intel` facts.\n", encoding="utf-8")
             custom = root / ".claude" / "skills" / "my-own"
             custom.mkdir(parents=True)
             (custom / "SKILL.md").write_text("---\nname: my-own\n---\n", encoding="utf-8")
@@ -2020,7 +2169,8 @@ class LegacyLocalSkillCleanupTests(unittest.TestCase):
 
             removed = project_intel.cleanup_legacy_local_skills(root)
 
-            self.assertFalse(legacy.exists())
+            self.assertTrue(legacy.exists())
+            self.assertFalse(marked.exists())
             self.assertTrue(custom.exists())
             text = claude_md.read_text(encoding="utf-8")
             self.assertNotIn("local-project-skills", text)
@@ -2039,7 +2189,7 @@ class LegacyLocalSkillCleanupTests(unittest.TestCase):
             root = Path(tmp)
             legacy = root / ".claude" / "skills" / "project-debug"
             legacy.mkdir(parents=True)
-            (legacy / "SKILL.md").write_text("---\nname: project-debug\n---\n", encoding="utf-8")
+            (legacy / "SKILL.md").write_text("---\nname: project-debug\n---\nUse project-intel check.\n", encoding="utf-8")
 
             result = project_intel.install_claude(root)
 

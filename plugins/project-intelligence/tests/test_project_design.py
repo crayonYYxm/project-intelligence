@@ -15,9 +15,16 @@ from project_intel_lib import design_documents
 
 
 class ProjectDesignValidationTests(unittest.TestCase):
+    @staticmethod
+    def write_source(root: Path) -> None:
+        source = root / "src" / "service.py"
+        source.parent.mkdir(parents=True, exist_ok=True)
+        source.write_text("def answer():\n    return 1\n", encoding="utf-8")
+
     def test_requirement_template_passes_without_acceptance_section(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
+            self.write_source(root)
             relative = "docs/requirements/REQ-1001_设计文档接入_设计文档.md"
             payload = design_documents.validate(
                 requirement_design("REQ-1001", "设计文档接入"),
@@ -46,6 +53,7 @@ class ProjectDesignValidationTests(unittest.TestCase):
     def test_bug_template_and_identity_are_validated(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
+            self.write_source(root)
             payload = design_documents.validate(
                 bug_design("bug1234", "返回值错误"),
                 root,
@@ -115,6 +123,7 @@ class ProjectDesignValidationTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             subprocess.run(["git", "init", "-q", str(root)], check=True)
+            self.write_source(root)
             relative = "docs/requirements/REQ-1001_设计文档接入_设计文档.md"
             path = root / relative
             path.parent.mkdir(parents=True)

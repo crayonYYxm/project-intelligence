@@ -1,6 +1,6 @@
 ---
 name: project-plan
-description: Use when turning a project spec or approved requirement into an implementation plan, task checklist, execution plan, write plan, 技术方案, or development steps.
+description: Use after project-design when a complex requirement or an explicit user request needs an executable implementation plan, task breakdown, file-level steps, dependencies, and verification commands. 写个方案, 写实施计划, 任务拆分, 开发步骤, task checklist, execution plan. Use project-design instead when 技术方案 means a source-backed design document rather than an execution checklist.
 ---
 
 # Project Plan
@@ -14,13 +14,15 @@ Create plans that preserve project standards and are ready to execute.
 5. Add a readiness gate before code edits for complex work: missing info resolved, behavior/API/state/permission/exception boundaries confirmed, and verification evidence named.
 6. Break work into independently verifiable tasks. Mark each task as `inline`, `sequential-subagent`, or `parallelizable-readonly`.
 7. Include a `project-test` cycle for every code task: exact test file, targeted RED command and expected failure, GREEN command, affected regression scope, justified manual alternative when automation is unreasonable, review checkpoints, `project-finish`, and post-task maintenance.
-8. Keep the implementation plan in context by default. Generate a plan file only when the user explicitly asks for a persistent plan and provides or requests a spec file:
+8. Keep the implementation plan in context for quick/standard work. For complex work, or when the user explicitly asks for a persistent plan, generate the optional canonical file:
 
 ```bash
-project-intel plan --title "<title>" --from-spec <spec-path> --track auto
+project-intel plan --requirement-id "<id>"
 ```
 
-If there is no persistent spec file, plan directly from the approved requirement. Do not create spec or plan files merely because the skill triggered.
+This writes `.project-intel/requirements/<id>/plan.md`. Never create `.project-intel/plans/` or `.project-intel/specs/` in the new workflow.
+
+If `plan.md` already exists, update it deliberately instead of regenerating it. Pass `--replace` only after the user explicitly approves replacing the existing plan.
 
 For a requirement-level task, carry the same requirement ID into every task and map every implementation/test task to one or more numbered acceptance criteria. Treat the registered design artifact as the implementation-design source and `manifest.acceptanceCriteria` as the acceptance source; do not require AC headings in the document. End the planning phase with the readiness gate:
 

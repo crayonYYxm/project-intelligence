@@ -1,12 +1,17 @@
-import { mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { mkdtempSync, readFileSync, readdirSync, rmSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { tmpdir } from "node:os";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
+import { buildSkillNamePattern, evaluateSkillRoute, skillToolInvocations } from "./skill-eval-events.mjs";
 
 const root = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const plugin = resolve(root, "plugins/project-intelligence");
 const payload = JSON.parse(readFileSync(resolve(root, "evals/skill-behavior-scenarios.json"), "utf8"));
+const skillNames = readdirSync(resolve(plugin, "skills"), { withFileTypes: true })
+  .filter((item) => item.isDirectory())
+  .map((item) => item.name);
+const skillNamePattern = buildSkillNamePattern(skillNames);
 const args = process.argv.slice(2);
 const option = (name, fallback = "") => {
   const index = args.indexOf(name);
@@ -40,7 +45,7 @@ process.on("exit", () => {
 });
 prepareCodexProfile();
 
-const evalPrompt = (scenario) => `${scenario.prompt}\n\nDo not edit files or execute project commands. Invoke every applicable project-intelligence skill before answering. End with one line in the form WORKFLOW: skill-a -> skill-b.`;
+const evalPrompt = (scenario) => `${scenario.prompt}\n\n这是只读路由评测。不要编辑文件、执行项目命令、初始化仓库或请求额外授权；请像正常对话一样处理请求。`;
 
 const invocation = (scenario) => {
   const prompt = evalPrompt(scenario);
@@ -75,33 +80,8 @@ const invocation = (scenario) => {
   };
 };
 
-const skillToolInvocations = (stdout) => {
-  const found = [];
-  for (const line of stdout.split(/\r?\n/)) {
-    if (!line.trim().startsWith("{")) continue;
-    let value;
-    try {
-      value = JSON.parse(line);
-    } catch {
-      continue;
-    }
-    const visit = (item) => {
-      if (!item || typeof item !== "object") return;
-      if (item.type === "tool_use" && /skill/i.test(String(item.name ?? ""))) {
-        const body = JSON.stringify(item.input ?? {});
-        for (const match of body.matchAll(/project-(?:brainstorm|debug|finish|init|intake|knowledge|maintain|orchestrate|plan|quality|refresh|review|spec|standards|task|test)/g)) {
-          found.push(match[0]);
-        }
-      }
-      for (const child of Array.isArray(item) ? item : Object.values(item)) visit(child);
-    };
-    visit(value);
-  }
-  return found;
-};
-
 const failureDetail = (result) => {
-  const invocations = skillToolInvocations(result.stdout ?? "");
+  const invocations = skillToolInvocations(result.stdout ?? "", skillNamePattern);
   let terminal = "";
   for (const line of (result.stdout ?? "").split(/\r?\n/)) {
     if (!line.trim().startsWith("{")) continue;
@@ -131,20 +111,15 @@ for (const scenario of scenarios) {
     continue;
   }
   const result = spawnSync(call.command, call.args, { cwd: root, encoding: "utf8", timeout: 180_000, env: call.env });
-  const actual = agent === "claude"
-    ? skillToolInvocations(result.stdout ?? "")
-    : [...(result.stdout ?? "").matchAll(/project-(?:brainstorm|debug|finish|init|intake|knowledge|maintain|orchestrate|plan|quality|refresh|review|spec|standards|task|test)/g)].map((item) => item[0]);
-  const missing = scenario.expectedSkills.filter((skill) => !actual.includes(skill));
-  const forbidden = (scenario.forbiddenSkills ?? []).filter((skill) => actual.includes(skill));
-  const positions = (scenario.expectedOrder ?? []).map((skill) => actual.indexOf(skill));
-  const ordered = positions.every((value, index) => value >= 0 && (index === 0 || value > positions[index - 1]));
-  if (missing.length || forbidden.length || !ordered) {
+  const actual = skillToolInvocations(result.stdout ?? "", skillNamePattern);
+  const { missing, forbidden, unexpected, ordered } = evaluateSkillRoute(scenario, actual);
+  const processFailed = Boolean(result.error) || result.status !== 0;
+  if (missing.length || forbidden.length || unexpected.length || !ordered || processFailed) {
     failures += 1;
-    const execution = result.error || result.status !== 0 ? `; process=${failureDetail(result)}` : "";
-    console.error(`[failed] ${scenario.id}: actual=${actual.join(" -> ") || "none"}; missing=${missing.join(",") || "none"}; forbidden=${forbidden.join(",") || "none"}; ordered=${ordered}${execution}`);
+    const execution = processFailed ? `; process=${failureDetail(result)}` : "";
+    console.error(`[failed] ${scenario.id}: actual=${actual.join(" -> ") || "none"}; missing=${missing.join(",") || "none"}; forbidden=${forbidden.join(",") || "none"}; unexpected=${unexpected.join(",") || "none"}; ordered=${ordered}${execution}`);
   } else {
-    const terminal = result.error || result.status !== 0 ? `; process=${failureDetail(result)}` : "";
-    console.log(`[passed] ${scenario.id}: ${actual.join(" -> ")}${terminal}`);
+    console.log(`[passed] ${scenario.id}: ${actual.join(" -> ") || "none"}`);
   }
 }
 

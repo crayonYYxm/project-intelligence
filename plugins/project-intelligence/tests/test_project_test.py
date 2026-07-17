@@ -7,7 +7,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from design_fixtures import requirement_design
+from design_fixtures import requirement_design, requirement_document
 
 
 MODULE_PATH = Path(__file__).resolve().parents[1] / "scripts" / "project_intel.py"
@@ -44,19 +44,27 @@ class ProjectTestEvidenceTests(unittest.TestCase):
             "--ticket-kind", "requirement",
             "--track", "complex",
         ]), 0)
-        design = root / ".project-intel" / "requirements" / "by-id" / "REQ-TEST-1" / "REQ-TEST-1_需求级测试门禁_设计文档.md"
-        design.parent.mkdir(parents=True, exist_ok=True)
-        design.write_text(requirement_design("REQ-TEST-1", "需求级测试门禁"), encoding="utf-8")
-        self.assertEqual(project_intel.main([
-            "--project", str(root), "requirement", "add",
-            "--requirement-id", "REQ-TEST-1", "--type", "requirement-design",
-            "--path", design.relative_to(root).as_posix(),
-        ]), 0)
         self.assertEqual(project_intel.main([
             "--project", str(root), "requirement", "acceptance", "set",
             "--requirement-id", "REQ-TEST-1",
-            "--criterion", "AC-01:实现需求约定行为",
-            "--criterion", "AC-02:相关测试通过",
+            "--criterion", "AC-01:实现需求约定的目标行为。",
+            "--criterion", "AC-02:相关测试通过且无重要回归。",
+        ]), 0)
+        requirement_dir = root / ".project-intel" / "requirements" / "REQ-TEST-1"
+        requirement_dir.mkdir(parents=True, exist_ok=True)
+        requirement = requirement_dir / "requirement.md"
+        requirement.write_text(requirement_document("REQ-TEST-1", "需求级测试门禁"), encoding="utf-8")
+        self.assertEqual(project_intel.main([
+            "--project", str(root), "requirement", "add",
+            "--requirement-id", "REQ-TEST-1", "--type", "requirement",
+            "--path", requirement.relative_to(root).as_posix(),
+        ]), 0)
+        design = requirement_dir / "design.md"
+        design.write_text(requirement_design("REQ-TEST-1", "需求级测试门禁"), encoding="utf-8")
+        self.assertEqual(project_intel.main([
+            "--project", str(root), "requirement", "add",
+            "--requirement-id", "REQ-TEST-1", "--type", "design",
+            "--path", design.relative_to(root).as_posix(),
         ]), 0)
         self.assertEqual(project_intel.main([
             "--project", str(root), "requirement", "ready",
@@ -110,6 +118,33 @@ class ProjectTestEvidenceTests(unittest.TestCase):
             manifest = result["requirement"]
             self.assertEqual(manifest["state"], "implementing")
             self.assertEqual(manifest["testEvidence"][-1]["result"], "failed")
+
+    def test_registered_requirement_report_is_not_misclassified_as_business_drift(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source = self.initialized_requirement_project(root)
+            source.write_text("def answer():\n    return 43\n", encoding="utf-8")
+            report = root / "reports" / "unit-result.md"
+            report.parent.mkdir(parents=True)
+            report.write_text("# Unit test report\n\nResult: passed\n1 test passed\n", encoding="utf-8")
+
+            with patch.object(project_intel, "run_shell", return_value=(0, "1 test passed", "")):
+                code, result = project_intel.run_project_test(
+                    root,
+                    None,
+                    "verify",
+                    commands=["python3 -m unittest tests.test_service"],
+                    files=["src/service.py"],
+                    requirement_id="REQ-TEST-1",
+                    test_kind="unit",
+                    report_action="register",
+                    report_path="reports/unit-result.md",
+                    acceptance_ids=["AC-01", "AC-02"],
+                )
+
+            self.assertEqual(code, 0)
+            self.assertEqual(result["requirement"]["state"], "verified")
+            self.assertEqual(result["requirement"]["testEvidence"][-1]["files"], ["src/service.py"])
 
     def test_requirement_manual_phase_cannot_be_registered_as_service_test(self):
         with tempfile.TemporaryDirectory() as tmp:

@@ -1,6 +1,6 @@
 {
   "name": "project-intelligence",
-  "version": "0.3.0",
+  "version": "0.5.0",
   "description": "Source-backed development design, requirement lifecycle gates, project context, test evidence, review, finish, and maintenance for Claude and Codex.",
   "license": "MIT",
   "type": "module",
@@ -16,6 +16,7 @@
     "plugins/project-intelligence/.codex-plugin",
     "plugins/project-intelligence/scripts",
     "plugins/project-intelligence/skills",
+    "scripts/npm-pack-dry-run.mjs",
     "docs",
     "README.md",
     "CHANGELOG.md",
@@ -44,7 +45,7 @@
     "test:skills": "node scripts/run-skill-evals.mjs --agent claude",
     "test:skills:dry-run": "node scripts/run-skill-evals.mjs --agent claude --dry-run",
     "check-release": "node scripts/check-release.mjs && node scripts/check-package.mjs",
-    "pack:dry-run": "npm pack --dry-run"
+    "pack:dry-run": "node scripts/npm-pack-dry-run.mjs"
   },
   "publishConfig": {
     "access": "public"

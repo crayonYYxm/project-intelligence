@@ -1,6 +1,6 @@
 ---
 name: project-review
-description: Use when reviewing code changes, PRs, diffs, review fixes, implementation quality, reuse, standards, GitNexus impact, Understand-Anything context, redundancy, and test gaps. 代码审查, 代码评审, PR审查, 代码检查, 审查代码, review, review代码.
+description: Use when reviewing code changes, PRs, diffs, implementation quality, security or workflow gaps, reuse, standards, impact, and missing tests. 代码审查, 代码评审, 检查改动, 有没有漏洞, 评估风险, PR 审查, review 代码. Read-only review requests do not start intake or implementation.
 ---
 
 # Project Review
@@ -9,13 +9,13 @@ Review findings first, ordered by severity. Use `.project-intel` as the local pr
 
 Workflow:
 
-1. Read `.project-intel/manifest.json`, relevant standards, knowledge JSON, graph summary, and reports. If facts are missing, run read-only `project-intel doctor` or `project-intel init --dry-run`; initialize only after explicit user authorization.
+1. Read `.project-intel/manifest.json`, `.project-intel/project-status.md`, the active requirement manifest, relevant standards, knowledge JSON, and graph summary. If facts are missing, run read-only `project-intel doctor` or `project-intel init --dry-run`; initialize only after explicit user authorization.
 2. Inspect the git diff and impacted files.
 3. Use GitNexus for symbol impact/call chains when available.
 4. Use Understand-Anything for architecture/domain context when available.
 5. Run `project-intel check`; use `--run-quality` only when the user asks to run lint/type/style/format commands.
-6. Flag hard-rule violations, behavioral risks, missing tests, repeated implementations, ignored reuse opportunities, and stale `.project-intel` facts. For changed behavior, inspect `.project-intel/reports/test-evidence.json` and verify that evidence matches the task, changed files, and current source state.
-7. If a finding is a bug or failed behavior, use `project-intel debug --bug "<finding>"` before recommending a fix. `debug` prints by default; use `--write` only when a persistent debug report is explicitly needed.
+6. Flag hard-rule violations, behavioral risks, missing tests, repeated implementations, ignored reuse opportunities, and stale `.project-intel` facts. For changed behavior, inspect `<requirement>/test-report.md` and `manifest.testEvidence`; verify that evidence matches the task, changed files, and current source state.
+7. If a finding is a bug or failed behavior, use `project-intel debug --bug "<finding>"` before recommending a fix. `debug` prints context and does not persist a shared report.
 8. For subagent or multi-task execution, review each task diff before moving to the next task, then perform one final whole-diff review.
 9. When receiving review feedback, verify each item against the current codebase before editing. Clarify unclear feedback first, apply valid feedback one item at a time, and push back with technical evidence when feedback conflicts with project reality, YAGNI, compatibility, or prior user decisions.
 10. After fixes are freshly recorded through `project-test`, persist a new review round with the same requirement ID. Then use `project-intel finish --requirement-id "<id>" --files <all-actual-changed-files>` before `project-intel maintain --requirement-id "<id>" --files <all-actual-changed-files>`.

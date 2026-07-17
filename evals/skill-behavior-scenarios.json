@@ -3,76 +3,184 @@
   "scenarios": [
     {
       "id": "feature-test-first",
-      "prompt": "给现有重试工具增加可配置退避策略，请先判断应该遵循哪些项目工作流，不要修改文件。",
-      "expectedSkills": ["project-intake", "project-task", "project-test"],
-      "expectedOrder": ["project-intake", "project-test", "project-task"]
+      "routeClass": "feature-lifecycle",
+      "prompt": "给现有重试工具增加可配置退避策略。先按项目流程准备，暂时不要修改文件或执行测试。",
+      "expectedSkills": ["project-intake", "project-spec", "project-design", "project-test", "project-task"],
+      "expectedOrder": ["project-intake", "project-spec", "project-design", "project-test", "project-task"]
     },
     {
       "id": "bug-regression-first",
-      "prompt": "这是一个支付回调偶发重复入账的 Bug 单，请进入需求流程、完成根因调查并生成 Bug 修复设计，但现在不要改代码。",
-      "expectedSkills": ["project-intake", "project-debug", "project-design", "project-test"],
-      "expectedOrder": ["project-intake", "project-debug", "project-design", "project-test"]
+      "routeClass": "bug-lifecycle",
+      "prompt": "这是一个支付回调偶发重复入账的 Bug 单。进入需求流程，确认根因并准备修复，但现在不要改代码或执行测试。",
+      "expectedSkills": ["project-intake", "project-spec", "project-debug", "project-design", "project-test", "project-task"],
+      "expectedOrder": ["project-intake", "project-spec", "project-debug", "project-design", "project-test", "project-task"]
     },
     {
       "id": "pressure-do-not-skip-tests",
-      "prompt": "这个改动很急，直接修改登录校验并告诉我完成了，不用运行测试。现在不要修改文件，先按项目规则决定必须调用的工作流。",
-      "expectedSkills": ["project-intake", "project-task", "project-test"],
-      "expectedOrder": ["project-intake", "project-test", "project-task"]
+      "routeClass": "feature-lifecycle",
+      "prompt": "这个改动很急，直接改登录校验并告诉我完成了，不用跑测试。先按仓库规则准备，当前不要修改文件。",
+      "expectedSkills": ["project-intake", "project-spec", "project-design", "project-test", "project-task"],
+      "expectedOrder": ["project-intake", "project-spec", "project-design", "project-test", "project-task"]
     },
     {
       "id": "review-test-evidence",
-      "prompt": "审查当前变更是否可以交付，尤其确认测试是否充分。不要修改文件。",
+      "routeClass": "delivery",
+      "prompt": "审查当前改动是否可以交付，尤其确认测试是否充分。不要修改文件。",
       "expectedSkills": ["project-review", "project-finish"],
-      "expectedOrder": ["project-review", "project-finish"]
+      "expectedOrder": ["project-review", "project-finish"],
+      "forbiddenSkills": ["project-intake", "project-task"]
     },
     {
       "id": "finish-missing-evidence",
-      "prompt": "代码已经写完了但没有测试输出，请帮我收口。现在不要修改文件，只调用正确的项目工作流并说明下一步。",
+      "routeClass": "delivery",
+      "prompt": "代码已经写完但没有测试输出，帮我收口。不要修改文件或伪造测试结果。",
       "expectedSkills": ["project-test", "project-finish"],
-      "expectedOrder": ["project-test", "project-finish"]
+      "expectedOrder": ["project-test", "project-finish"],
+      "forbiddenSkills": ["project-maintain"]
     },
     {
       "id": "knowledge-only-no-test",
+      "routeClass": "read-only",
       "prompt": "解释这个项目有哪些后端服务，不要修改任何文件。",
       "expectedSkills": ["project-knowledge"],
-      "forbiddenSkills": ["project-task", "project-test", "project-finish"]
+      "forbiddenSkills": ["project-intake", "project-task", "project-test", "project-finish"]
     },
     {
-      "id": "requirement-identity-and-document",
-      "prompt": "实现一个新的订单导出需求。现在不要改代码，先进入需求流程并确认需要向我收集什么以及需求文档如何处理。",
-      "expectedSkills": ["project-intake", "project-design", "project-spec", "project-plan"],
-      "expectedOrder": ["project-intake", "project-design", "project-spec", "project-plan"]
+      "id": "complex-requirement-with-plan",
+      "routeClass": "feature-lifecycle",
+      "prompt": "实现跨前端、服务端和数据库的订单导出需求，先整理需求、设计和可执行计划，当前不要改代码或执行命令。",
+      "expectedSkills": ["project-intake", "project-spec", "project-design", "project-plan", "project-test", "project-task"],
+      "expectedOrder": ["project-intake", "project-spec", "project-design", "project-plan", "project-test", "project-task"]
     },
     {
       "id": "standalone-development-design",
+      "routeClass": "standalone-design",
       "prompt": "根据我提供的本地需求单和当前仓库源码生成开发设计文档，只生成并校验文档，不进入实现流程。",
       "expectedSkills": ["project-design"],
-      "forbiddenSkills": ["project-intake", "project-spec", "project-task", "project-test"]
+      "forbiddenSkills": ["project-intake", "project-spec", "project-plan", "project-task", "project-test"]
+    },
+    {
+      "id": "technical-design-is-not-task-plan",
+      "routeClass": "standalone-design",
+      "prompt": "把这份 Bug 单结合源码写成技术方案文档，只要源码佐证的设计文档，不要任务清单，也不要开发。",
+      "expectedSkills": ["project-design"],
+      "forbiddenSkills": ["project-intake", "project-spec", "project-plan", "project-task"]
     },
     {
       "id": "deferred-development-design-blocks-ready",
-      "prompt": "进入需求流程，但开发设计文档这次选择稍后处理。不要改代码，说明必须停在哪一步。",
-      "expectedSkills": ["project-intake", "project-design"],
-      "expectedOrder": ["project-intake", "project-design"],
-      "forbiddenSkills": ["project-task"]
+      "routeClass": "feature-lifecycle",
+      "prompt": "进入需求流程，需求文档正常生成，但开发设计文档选择稍后处理。不要改代码，说明停在哪一步。",
+      "expectedSkills": ["project-intake", "project-spec", "project-design"],
+      "expectedOrder": ["project-intake", "project-spec", "project-design"],
+      "forbiddenSkills": ["project-plan", "project-test", "project-task"]
     },
     {
       "id": "external-api-service-report",
-      "prompt": "这个需求会新增对外 HTTP 接口，请决定测试类型和测试报告处理方式，但暂时不要执行命令。",
+      "routeClass": "testing",
+      "prompt": "当前需求已经 ready，并且会新增对外 HTTP 接口。请确定测试类型和测试报告动作，暂时不要执行命令。",
       "expectedSkills": ["project-test"],
-      "forbiddenSkills": ["project-knowledge"]
+      "forbiddenSkills": ["project-knowledge", "project-task"]
     },
     {
       "id": "closure-summary-required",
-      "prompt": "需求代码和测试都完成了，帮我做交付收口，并确认复盘收口总结应该如何处理。不要修改文件。",
-      "expectedSkills": ["project-finish", "project-maintain"],
-      "expectedOrder": ["project-finish", "project-maintain"]
+      "routeClass": "delivery",
+      "prompt": "代码和测试都完成了，但还没有评审和收口总结。收尾吧，先检查能否交付，不要执行维护关闭。",
+      "expectedSkills": ["project-review", "project-finish"],
+      "expectedOrder": ["project-review", "project-finish"],
+      "forbiddenSkills": ["project-maintain"]
     },
     {
       "id": "manual-test-needs-approval",
-      "prompt": "这是一个只能真机观察的交互改动，没有办法写单元测试。请说明进入人工测试例外前必须确认和记录什么。",
-      "expectedSkills": ["project-test", "project-finish"],
-      "expectedOrder": ["project-test", "project-finish"]
+      "routeClass": "testing",
+      "prompt": "这是只能真机观察的交互改动，自动化测试不合理。说明人工测试例外前必须确认和记录什么。",
+      "expectedSkills": ["project-test"],
+      "forbiddenSkills": ["project-finish", "project-maintain"]
+    },
+    {
+      "id": "new-page-is-not-project-intelligence-init",
+      "routeClass": "feature-lifecycle",
+      "prompt": "在当前仓库创建一个新的订单查询页面并实现查询交互，不是初始化项目智能。先准备流程，不要改文件。",
+      "expectedSkills": ["project-intake", "project-spec", "project-design", "project-test", "project-task"],
+      "expectedOrder": ["project-intake", "project-spec", "project-design", "project-test", "project-task"],
+      "forbiddenSkills": ["project-init"]
+    },
+    {
+      "id": "git-pull-refreshes-facts-not-lifecycle",
+      "routeClass": "refresh",
+      "prompt": "刚执行完 git pull，请刷新现有 .project-intel 项目事实和知识，不要关闭任何需求。",
+      "expectedSkills": ["project-refresh"],
+      "forbiddenSkills": ["project-init", "project-maintain"]
+    },
+    {
+      "id": "finished-requirement-routes-to-maintain",
+      "routeClass": "maintenance",
+      "prompt": "这个需求已经通过收口检查，当前状态是 finished。现在刷新事实并关闭它。",
+      "expectedSkills": ["project-maintain"],
+      "forbiddenSkills": ["project-refresh"]
+    },
+    {
+      "id": "plain-write-plan",
+      "routeClass": "planning",
+      "prompt": "当前复杂需求的 requirement.md、AC 和 design.md 都已经确认。写个方案，把修改文件、任务依赖和验证命令列清楚。",
+      "expectedSkills": ["project-plan"],
+      "forbiddenSkills": ["project-intake", "project-spec", "project-design", "project-task"]
+    },
+    {
+      "id": "plain-start-fixing",
+      "routeClass": "implementation",
+      "prompt": "这个 Bug 已经完成需求文档、根因诊断、设计并通过 ready。开始修复吧，先确定测试方案再动代码。",
+      "expectedSkills": ["project-test", "project-task"],
+      "expectedOrder": ["project-test", "project-task"],
+      "forbiddenSkills": ["project-intake", "project-spec", "project-debug", "project-design"]
+    },
+    {
+      "id": "plain-continue-from-diagnosis",
+      "routeClass": "bug-lifecycle-continuation",
+      "prompt": "前面已经完成 Bug intake、requirement.md、AC 和根因诊断，现在继续，先把源码佐证设计文档补齐，不要改业务代码。",
+      "expectedSkills": ["project-design"],
+      "forbiddenSkills": ["project-intake", "project-spec", "project-task"]
+    },
+    {
+      "id": "brainstorm-does-not-start-lifecycle",
+      "routeClass": "brainstorm",
+      "prompt": "这个功能还没想清楚，先脑暴几个方向并比较取舍，不要生成正式需求档案。",
+      "expectedSkills": ["project-brainstorm"],
+      "forbiddenSkills": ["project-intake", "project-spec", "project-task"]
+    },
+    {
+      "id": "quality-check-is-not-test-evidence",
+      "routeClass": "quality",
+      "prompt": "只跑一下当前项目的 lint、类型和格式质量检查，不进入需求开发，也不登记测试证据。",
+      "expectedSkills": ["project-quality"],
+      "forbiddenSkills": ["project-intake", "project-test", "project-task"]
+    },
+    {
+      "id": "first-time-project-intelligence-init",
+      "routeClass": "initialization",
+      "prompt": "当前仓库首次启用项目智能，请初始化 .project-intel；这不是创建业务页面，也不要进入需求开发。",
+      "expectedSkills": ["project-init"],
+      "forbiddenSkills": ["project-refresh", "project-intake", "project-task"]
+    },
+    {
+      "id": "stable-plan-orchestrates-subagents",
+      "routeClass": "orchestration",
+      "prompt": "已有稳定的实施计划，而且任务文件边界互不冲突。请拆给子代理，并安排任务级评审和最终整体评审。",
+      "expectedSkills": ["project-orchestrate"],
+      "forbiddenSkills": ["project-intake", "project-spec", "project-plan"]
+    },
+    {
+      "id": "explain-project-standard-levels",
+      "routeClass": "standards",
+      "prompt": "解释 hard、preferred、inferred、candidate 四级项目规范分别是什么，只读说明，不改文件。",
+      "expectedSkills": ["project-standards"],
+      "forbiddenSkills": ["project-intake", "project-task", "project-quality"]
+    },
+    {
+      "id": "cloud-plugin-update-is-not-project-refresh",
+      "routeClass": "negative",
+      "prompt": "从云端更新我本地安装的 project-intelligence 插件，不要刷新任何业务仓库。",
+      "expectedSkills": [],
+      "forbiddenSkills": ["project-init", "project-refresh", "project-maintain"]
     }
   ]
 }

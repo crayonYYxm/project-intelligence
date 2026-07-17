@@ -1173,11 +1173,12 @@ write .project-intel/
   standards/            <span class="amber">hard / preferred / inferred / candidate</span>
   knowledge/            <span class="cyan">components, api, services, dto, mapper</span>
   graph/                <span class="violet">project-graph summary</span>
-  reports/              <span class="rose">quality, impact, review</span>
+  project-status.md      <span class="rose">latest refresh + quality status</span>
+  requirements/&lt;id&gt;/   <span class="green">requirement lifecycle archive</span>
 
 agent rule:
-  before edit: intake + impact + reuse + standards
-  after edit:  review + finish + maintain + file requirement</pre>
+  before edit: intake + spec + design + ready + begin
+  after edit:  test + review + closure + finish + maintain</pre>
           </aside>
         </div>
       </section>
@@ -1203,12 +1204,12 @@ agent rule:
             <article class="card reveal">
               <span class="tag green">With PI</span>
               <h3>先查项目事实源</h3>
-              <p>读取 `.project-intel/standards`、`knowledge`、`graph` 和 reports，再决定影响范围、复用候选和实现方式。</p>
+              <p>读取 `.project-intel/standards`、`knowledge`、`graph`、`project-status.md` 和当前需求档案，再决定影响范围、复用候选和实现方式。</p>
             </article>
             <article class="card reveal">
               <span class="tag amber">After</span>
               <h3>做完继续维护项目</h3>
-              <p>执行后刷新规范与知识库，并按源码文件维护一份简短中文需求记录，减少后续追溯成本。</p>
+              <p>执行后刷新规范与知识库，并按需求号保存需求、设计、测试、评审和收口证据，减少后续追溯成本。</p>
             </article>
           </div>
         </div>
@@ -1222,7 +1223,7 @@ agent rule:
               <h2 class="reveal">从需求入口到维护，覆盖完整项目工作流。</h2>
             </div>
             <p class="reveal">
-              不要求用户记住 CLI。日常可以直接说“帮我做这个需求”“帮我 review”“更新规范和知识库”，Agent 会映射到底层技能和检查脚本。
+              不要求用户记住 CLI。正常需求按 Intake → Spec → Design → Test → Task → Review → Finish → Maintain；Bug 在 Design 前增加 Debug 与根因登记，Plan 仅在复杂任务或明确要求时生成。
             </p>
           </div>
 
@@ -1235,42 +1236,57 @@ agent rule:
             <article class="timeline-step reveal">
               <span class="step-num">02</span>
               <h3>Brainstorm</h3>
-              <p>澄清需求边界，比较实现路线，沉淀复用候选和关键风险。</p>
+              <p>可选：在需求尚未定型时澄清边界、比较实现路线；不代替正式需求档案。</p>
             </article>
             <article class="timeline-step reveal">
               <span class="step-num">03</span>
               <h3>Spec</h3>
-              <p>按项目事实写需求说明、行为契约、验收证据、影响范围和约束。</p>
+              <p>生成或登记 `requirement.md`，确认范围、边界、外部接口影响和编号验收标准。</p>
             </article>
             <article class="timeline-step reveal">
               <span class="step-num">04</span>
-              <h3>Plan</h3>
-              <p>把需求拆成可执行步骤，complex 需求先过 readiness gate。</p>
+              <h3>Debug（Bug）</h3>
+              <p>Bug 必选：复现并定位根因，将“源码路径 + 符号”证据登记后才能继续设计。</p>
             </article>
             <article class="timeline-step reveal">
               <span class="step-num">05</span>
-              <h3>Task</h3>
-              <p>编码前查影响面和复用能力，避免重复造组件、Hook、服务和工具。</p>
+              <h3>Design</h3>
+              <p>生成或验证有源码证据的 `design.md`；也可单独调用，只写 `docs/requirements/`，不初始化事实层。</p>
             </article>
             <article class="timeline-step reveal">
               <span class="step-num">06</span>
+              <h3>Plan</h3>
+              <p>可选：复杂需求或用户明确要求时生成 `plan.md`，一旦生成就纳入哈希与完成度门禁。</p>
+            </article>
+            <article class="timeline-step reveal">
+              <span class="step-num">07</span>
+              <h3>Test</h3>
+              <p>先确认 unit / service / both / manual 和报告动作；实现后记录当前代码快照、范围、命令、结果与 AC 映射。</p>
+            </article>
+            <article class="timeline-step reveal">
+              <span class="step-num">08</span>
+              <h3>Task</h3>
+              <p>只有 ready 后才能 begin；编码前查影响面和复用能力，避免重复造组件、Hook、服务和工具。</p>
+            </article>
+            <article class="timeline-step reveal">
+              <span class="step-num">09</span>
               <h3>Orchestrate</h3>
               <p>可拆分任务才启用子代理：顺序实现、任务级 review、最终 review；并行只做只读调查。</p>
             </article>
             <article class="timeline-step reveal">
-              <span class="step-num">07</span>
+              <span class="step-num">10</span>
               <h3>Review</h3>
-              <p>结合 diff、规范、图谱、质量结果和测试缺口输出 findings；反馈先验证再修改。</p>
+              <p>结合当前 diff、规范、图谱、质量结果和测试缺口输出持久化 findings；严重问题会阻断收口。</p>
             </article>
             <article class="timeline-step reveal">
-              <span class="step-num">08</span>
+              <span class="step-num">11</span>
               <h3>Finish</h3>
-              <p>收口检查验收证据、scope drift、发布风险、回滚和 git diff，不自动提交或部署。</p>
+              <p>生成或登记 `closure-summary.md`，检查文档、AC、测试、评审、证据新鲜度和实际变更范围。</p>
             </article>
             <article class="timeline-step reveal">
-              <span class="step-num">09</span>
+              <span class="step-num">12</span>
               <h3>Maintain</h3>
-              <p>有本轮验证证据后再 refresh/check/maintain，让项目知识库跟着代码更新。</p>
+              <p>只从 finished 开始；刷新和最终检查全部成功才进入 closed，默认不改根目录适配器。</p>
             </article>
           </div>
         </div>
@@ -1358,18 +1374,26 @@ agent rule:
               <h2 class="reveal">用户说人话，Agent 走项目流程。</h2>
             </div>
             <p class="reveal">
-              CLI 是底层工具。更推荐通过对话触发：Agent 会读 `.project-intel`、图谱和规范；spec/plan 默认只在上下文整理，明确要求才写文件。
+              CLI 是底层工具。更推荐通过自然语言触发：Agent 会读取 `.project-intel`、图谱和规范；实现类任务会按需求号持续维护一套可读文档和机器门禁。
             </p>
           </div>
 
           <div class="prompt-table">
             <div class="prompt-row reveal">
               <code>初始化这个项目规范</code>
-              <span>执行 `init`，生成 `.project-intel`、前后端标准、知识库、图谱摘要、质量报告和本地 agent 入口。</span>
+              <span>执行无适配器副作用的 `init`，生成 `.project-intel`、前后端标准、知识库和 `project-status.md`；图谱需显式 `--with-graph`，本地 Agent 入口需显式 `install`。</span>
             </div>
             <div class="prompt-row reveal">
               <code>帮我做这个需求</code>
-              <span>先进入 `project-intake` 分流和 readiness 检查，再进入 `project-task`：整理轻量中文 spec，查影响面和复用候选，最后验证 + finish + maintain。</span>
+              <span>进入 `project-intake → project-spec → project-design → project-test → project-task → project-review → project-finish → project-maintain`；复杂任务按需增加 `project-plan`。</span>
+            </div>
+            <div class="prompt-row reveal">
+              <code>修复这个 Bug</code>
+              <span>在需求流程中增加 `project-debug` 与 `requirement diagnose`，先保存源码根因证据，再生成设计并进入测试和实现。</span>
+            </div>
+            <div class="prompt-row reveal">
+              <code>根据这个需求单写开发设计文档</code>
+              <span>单独触发 `project-design`：分析本地单据与源码，在 `docs/requirements/` 生成并验证设计文档，不创建或修改 `.project-intel`。</span>
             </div>
             <div class="prompt-row reveal">
               <code>这个计划拆给子代理执行</code>
@@ -1421,12 +1445,12 @@ agent rule:
               <p>统一引用 GitNexus 和 Understand-Anything 的轻量图谱摘要。</p>
             </article>
             <article class="artifact reveal">
-              <code>.project-intel/reports/*.md</code>
-              <p>初始化、质量、冗余、需求入口、任务影响、debug context、finish 和 review 报告。</p>
+              <code>.project-intel/project-status.md</code>
+              <p>保存最新一次刷新、质量和事实层健康状态；下一次刷新会覆盖它，不承担需求历史。</p>
             </article>
             <article class="artifact reveal">
-              <code>.project-intel/requirements/files/**/*.md</code>
-              <p>按源码文件维护一份简短中文需求记录，避免每轮对话生成大量散文件。</p>
+              <code>.project-intel/requirements/&lt;id&gt;/</code>
+              <p>每个需求独立保存 `requirement.md`、`design.md`、可选 `plan.md`、`test-report.md`、`closure-summary.md` 和机器状态 `manifest.json`；新需求不会覆盖旧需求。</p>
             </article>
           </div>
         </div>

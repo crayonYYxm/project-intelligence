@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import hashlib
+import html
 import re
 from datetime import datetime
 from pathlib import Path
@@ -46,47 +47,128 @@ def manual_evidence_valid(value: str) -> bool:
     return len(compact) >= MIN_MANUAL_EVIDENCE_LENGTH and compact not in generic
 
 
-SECRET_KEY_PATTERN = r"authorization|cookie|token|access[_-]?token|refresh[_-]?token|password|secret|api[_-]?key|aws[_-]?secret[_-]?access[_-]?key|aws[_-]?access[_-]?key[_-]?id"
-SECRET_VALUE_PATTERN = r'''(?:"[^"]*"|'[^']*'|[^\s,;]+)'''
+SECRET_KEY_PATTERN = (
+    r"authorization|cookie|token|access[_-]?token|refresh[_-]?token|password|secret|"
+    r"api[_-]?key|aws[_-]?secret[_-]?access[_-]?key|aws[_-]?access[_-]?key[_-]?id|"
+    r"party[_-]?id|phone|mobile|phone[_-]?(?:no|number)|mobile[_-]?(?:no|number)|"
+    r"id[_-]?card|identity[_-]?(?:card|number)|cert(?:ificate)?[_-]?(?:no|number)"
+)
+SECRET_VALUE_PATTERN = r'''(?:"[^"]*"|'[^']*'|[^\s,;&]+)'''
 DATABASE_URL_PATTERN = re.compile(
     r"(?i)\b((?:postgres(?:ql)?|mysql|mariadb|mongodb(?:\+srv)?|redis)://)([^:@/\s]+):([^@/\s]+)@"
 )
+URL_USERINFO_PATTERN = re.compile(r"(?i)\b([a-z][a-z0-9+.-]*://)([^/@\s]+)@")
+MAINLAND_MOBILE_PATTERN = re.compile(
+    r"(?<!\d)(?:\+?86[-\s]?)?1[3-9]\d[-\s]?\d{4}[-\s]?\d{4}(?!\d)"
+)
+PRC_IDENTITY_PATTERN = re.compile(
+    r"(?<![0-9A-Za-z])(?:"
+    r"[1-9]\d{5}(?:18|19|20)\d{2}(?:0[1-9]|1[0-2])(?:0[1-9]|[12]\d|3[01])\d{3}[0-9Xx]"
+    r"|[1-9]\d{7}(?:0[1-9]|1[0-2])(?:0[1-9]|[12]\d|3[01])\d{3}"
+    r")(?![0-9A-Za-z])"
+)
+
+
+def _find_unescaped(value: str, character: str, start: int) -> int:
+    index = start
+    while True:
+        index = value.find(character, index)
+        if index < 0:
+            return -1
+        backslashes = 0
+        cursor = index - 1
+        while cursor >= 0 and value[cursor] == "\\":
+            backslashes += 1
+            cursor -= 1
+        if backslashes % 2 == 0:
+            return index
+        index += 1
+
+
+def _redact_header_values(value: str, header: str) -> str:
+    """Redact a complete header value while preserving a quoted shell command suffix."""
+    pattern = re.compile(rf"(?i)\b{re.escape(header)}\s*:\s*")
+    parts: list[str] = []
+    cursor = 0
+    while True:
+        match = pattern.search(value, cursor)
+        if match is None:
+            parts.append(value[cursor:])
+            break
+        parts.append(value[cursor:match.end()])
+        delimiter = value[match.start() - 1] if match.start() > 0 else ""
+        if delimiter in {"'", '"'}:
+            end = _find_unescaped(value, delimiter, match.end())
+        else:
+            newline_positions = [
+                position
+                for position in (value.find("\n", match.end()), value.find("\r", match.end()))
+                if position >= 0
+            ]
+            end = min(newline_positions) if newline_positions else len(value)
+        if end < 0:
+            end = len(value)
+        parts.append("[REDACTED]")
+        cursor = end
+    return "".join(parts)
+
+
+def _redact_url_userinfo(match: re.Match[str]) -> str:
+    userinfo = match.group(2)
+    if "[REDACTED]" in userinfo:
+        return match.group(0)
+    replacement = "[REDACTED]:[REDACTED]" if ":" in userinfo else "[REDACTED]"
+    return f"{match.group(1)}{replacement}@"
 
 
 def sanitize_text(value: str) -> str:
     text = str(value or "")
+    text = _redact_header_values(text, "Authorization")
+    text = _redact_header_values(text, "Cookie")
     text = re.sub(
-        rf"(?i)(Authorization\s*:\s*)(?:Bearer\s+)?{SECRET_VALUE_PATTERN}",
+        rf'''(?i)((?:["']?)(?:{SECRET_KEY_PATTERN})(?:["']?)\s*[:=]\s*)(?!\[REDACTED\]){SECRET_VALUE_PATTERN}''',
         lambda match: f"{match.group(1)}[REDACTED]",
         text,
     )
     text = re.sub(
-        r"(?i)(Cookie\s*:\s*)[^\r\n]+",
+        rf"(?i)(--(?:{SECRET_KEY_PATTERN})(?:=|\s+))(?!\[REDACTED\]){SECRET_VALUE_PATTERN}",
         lambda match: f"{match.group(1)}[REDACTED]",
         text,
     )
     text = re.sub(
-        rf'''(?i)((?:["']?)(?:{SECRET_KEY_PATTERN})(?:["']?)\s*[:=]\s*){SECRET_VALUE_PATTERN}''',
+        rf"(?i)(\b[A-Za-z_][A-Za-z0-9_]*(?:TOKEN|PASSWORD|SECRET|API_KEY)\s*=\s*)(?!\[REDACTED\]){SECRET_VALUE_PATTERN}",
         lambda match: f"{match.group(1)}[REDACTED]",
         text,
     )
     text = re.sub(
-        rf"(?i)(--(?:{SECRET_KEY_PATTERN})(?:=|\s+)){SECRET_VALUE_PATTERN}",
-        lambda match: f"{match.group(1)}[REDACTED]",
-        text,
-    )
-    text = re.sub(
-        rf"(?i)(\b[A-Za-z_][A-Za-z0-9_]*(?:TOKEN|PASSWORD|SECRET|API_KEY)\s*=\s*){SECRET_VALUE_PATTERN}",
-        lambda match: f"{match.group(1)}[REDACTED]",
-        text,
-    )
-    text = re.sub(
-        rf"(?i)(\bAWS_(?:SECRET_ACCESS_KEY|ACCESS_KEY_ID)\s*=\s*){SECRET_VALUE_PATTERN}",
+        rf"(?i)(\bAWS_(?:SECRET_ACCESS_KEY|ACCESS_KEY_ID)\s*=\s*)(?!\[REDACTED\]){SECRET_VALUE_PATTERN}",
         lambda match: f"{match.group(1)}[REDACTED]",
         text,
     )
     text = DATABASE_URL_PATTERN.sub(lambda match: f"{match.group(1)}[REDACTED]:[REDACTED]@", text)
+    text = URL_USERINFO_PATTERN.sub(_redact_url_userinfo, text)
+    text = PRC_IDENTITY_PATTERN.sub("[REDACTED]", text)
+    text = MAINLAND_MOBILE_PATTERN.sub("[REDACTED]", text)
     return text
+
+
+def _markdown_literal(value: Any, *, line_break: str = "<br>") -> str:
+    safe = sanitize_text(str(value or "")).replace("\r\n", "\n").replace("\r", "\n")
+    escaped = html.escape(safe, quote=True)
+    escaped = escaped.replace("|", "&#124;").replace("`", "&#96;")
+    escaped = escaped.replace("[", "&#91;").replace("]", "&#93;")
+    return escaped.replace("\n", line_break)
+
+
+def _markdown_code(value: Any) -> str:
+    return f"<code>{_markdown_literal(value)}</code>"
+
+
+def _markdown_fence(value: Any) -> tuple[str, str]:
+    safe = sanitize_text(str(value or ""))
+    longest = max((len(match.group(0)) for match in re.finditer(r"`+", safe)), default=0)
+    fence = "`" * max(3, longest + 1)
+    return fence, safe
 
 
 def _hash_files(root: Path, files: list[str]) -> dict[str, str]:
@@ -130,22 +212,28 @@ def render_test_evidence(payload: dict[str, Any]) -> str:
     lines = [
         "# 测试证据",
         "",
-        f"任务：{payload.get('task') or '_未记录_'}",
+        f"任务：{_markdown_code(payload.get('task') or '_未记录_')}",
         "",
-        f"更新时间：`{payload.get('updatedAt') or 'unknown'}`",
+        f"更新时间：{_markdown_code(payload.get('updatedAt') or 'unknown')}",
         "",
         "| 阶段 | 状态 | 命令/人工证据 | 文件范围 |",
         "| --- | --- | --- | --- |",
     ]
     for entry in payload.get("entries", []):
         commands = entry.get("commands", [])
-        command_text = "<br>".join(f"`{item.get('command')}` → {item.get('exitCode')}" for item in commands)
+        command_text = "<br>".join(
+            f"{_markdown_code(item.get('command'))} → {_markdown_literal(item.get('exitCode'))}"
+            for item in commands
+        )
         if not command_text:
-            command_text = str(entry.get("manualEvidence") or "_")
-        files = "<br>".join(f"`{item}`" for item in entry.get("files", []))
+            command_text = _markdown_literal(entry.get("manualEvidence") or "_")
+        files = "<br>".join(_markdown_code(item) for item in entry.get("files", []))
         if not files:
             files = "项目级" if entry.get("projectWide") else "未记录"
-        lines.append(f"| {entry.get('phase')} | {entry.get('status')} | {command_text} | {files} |")
+        lines.append(
+            f"| {_markdown_literal(entry.get('phase'))} | {_markdown_literal(entry.get('status'))} | "
+            f"{command_text} | {files} |"
+        )
     lines.extend(
         [
             "",
@@ -158,14 +246,16 @@ def render_test_evidence(payload: dict[str, Any]) -> str:
             output = "\n".join(part for part in (result.get("stdout", ""), result.get("stderr", "")) if part).strip()
             if not output:
                 continue
-            output = output.replace("```", "`` `")
+            fence, output = _markdown_fence(output)
             lines.extend(
                 [
-                    f"### {entry.get('phase')} · `{result.get('command')}`",
+                    f"### {_markdown_literal(entry.get('phase'), line_break=' ')} · 执行输出",
                     "",
-                    "```text",
+                    f"命令：{_markdown_code(result.get('command'))}",
+                    "",
+                    f"{fence}text",
                     output,
-                    "```",
+                    fence,
                     "",
                 ]
             )

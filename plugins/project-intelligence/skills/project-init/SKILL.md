@@ -1,6 +1,6 @@
 ---
 name: project-init
-description: Use when the user wants to initialize, set up, or bootstrap project intelligence for the first time. 初始化项目, 项目初始化, 搭建项目, 创建项目, 项目搭建, 初始化.
+description: Use only when the user wants to initialize or bootstrap Project Intelligence and create `.project-intel` for the first time. 初始化项目智能, 初始化 .project-intel, 首次启用项目智能, project-intel init. Do not use for creating an application, page, module, or ordinary development task.
 ---
 
 # Project Init
@@ -18,7 +18,7 @@ project-intel init --setup-missing
 project-intel init --strict
 ```
 
-`init` generates `.project-intel/` with standards, knowledge, graph summaries, quality configuration, tooling checks, and reports. It is fact-only by default and does not modify root `.gitignore`, `AGENTS.md`, `CLAUDE.md`, or `.claude/CLAUDE.md`. Project Intelligence skills are provided by the plugin itself. Use explicit `project-intel install` only when the user also wants adapters or hooks. Missing optional tools do not block initialization unless strict graph setup is requested.
+`init` generates `.project-intel/` with standards, knowledge, graph summaries, quality configuration, tooling checks, and a single `project-status.md`. It creates no requirement history or shared report/spec/plan/maintenance directory. It is fact-only by default and does not modify root `.gitignore`, `AGENTS.md`, `CLAUDE.md`, or `.claude/CLAUDE.md`; local/cache/tmp exclusions live in `.project-intel/.gitignore`. Project Intelligence skills are provided by the plugin itself. Use explicit `project-intel install` only when the user also wants adapters or hooks. Missing optional tools do not block initialization unless strict graph setup is requested.
 
 Preserve user/team content in `AGENTS.md` and `CLAUDE.md`; only update the Project Intelligence managed block.
 

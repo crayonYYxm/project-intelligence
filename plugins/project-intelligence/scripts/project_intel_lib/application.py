@@ -20,6 +20,7 @@ import shlex
 import shutil
 import subprocess
 import sys
+import tempfile
 from collections import Counter, defaultdict
 from pathlib import Path
 from typing import Any, Optional
@@ -44,7 +45,7 @@ from project_intel_lib.scanner import backend as backend_scanner
 from project_intel_lib.scanner import frontend as frontend_scanner
 
 
-VERSION = "0.3.0"
+VERSION = "0.5.0"
 TRACK_CHOICES = ("auto", "quick", "standard", "complex")
 UNDERSTAND_AGENT_COMMAND = "/understand . --language zh"
 UNDERSTAND_REPO = "Egonex-AI/Understand-Anything"
@@ -64,6 +65,7 @@ PROJECT_INTEL_BLOCK_END = "<!-- project-intelligence:end -->"
 AGENT_PROJECT_INTEL_BLOCK_START = "<!-- agent-project-intelligence:start -->"
 AGENT_PROJECT_INTEL_BLOCK_END = "<!-- agent-project-intelligence:end -->"
 PROJECT_INTEL_HOOK_MARKER = "# Project Intelligence hook"
+ADAPTER_MAX_BYTES = 2 * 1024 * 1024
 LEGACY_SCAN_INCLUDE = ["src/**", "app/**", "packages/**", "apps/**", "server/**", "client/**"]
 HARD_CHECK_TYPES = {"forbid-regex", "require-regex", "require-file", "forbid-path"}
 # v0.1.7 及更早版本会把 skill 副本写入目标项目，以下常量仅用于清理这些残留。
@@ -237,9 +239,10 @@ def write_text(path: Path, text: str) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     content = text.rstrip() + "\n"
     mode = path.stat().st_mode & 0o777 if path.exists() else 0o644
-    temporary = path.with_name(f".{path.name}.{os.getpid()}.tmp")
+    fd, temporary_name = tempfile.mkstemp(prefix=f".{path.name}.", suffix=".tmp", dir=str(path.parent))
+    temporary = Path(temporary_name)
     try:
-        with temporary.open("w", encoding="utf-8") as handle:
+        with os.fdopen(fd, "w", encoding="utf-8") as handle:
             handle.write(content)
             handle.flush()
             os.fsync(handle.fileno())
@@ -250,6 +253,115 @@ def write_text(path: Path, text: str) -> None:
             temporary.unlink()
         except FileNotFoundError:
             pass
+
+
+def _adapter_relative_path(root: Path, path: Path) -> str:
+    try:
+        return Path(os.path.abspath(path)).relative_to(Path(os.path.abspath(root))).as_posix()
+    except ValueError as exc:
+        raise RuntimeError(f"适配器路径越出项目目录：{path}") from exc
+
+
+def _assert_safe_adapter_path(root: Path, path: Path) -> None:
+    relative = _adapter_relative_path(root, path)
+    if relative not in {"AGENTS.md", "CLAUDE.md", ".claude/CLAUDE.md"}:
+        raise RuntimeError(f"不支持的适配器路径：{relative}")
+    cursor = root.resolve(strict=False)
+    for part in Path(relative).parts:
+        cursor = cursor / part
+        if cursor.is_symlink():
+            raise RuntimeError(f"适配器路径不能包含符号链接：{relative}")
+        if not cursor.exists():
+            break
+    if path.exists() and path.stat().st_size > ADAPTER_MAX_BYTES:
+        raise RuntimeError(f"适配器文件超过 2MiB，停止自动写入：{relative}")
+
+
+def _read_adapter_text(root: Path, path: Path) -> str:
+    _assert_safe_adapter_path(root, path)
+    if not path.exists():
+        return ""
+    try:
+        return path.read_text(encoding="utf-8")
+    except UnicodeDecodeError as exc:
+        raise RuntimeError(f"适配器文件不是有效 UTF-8：{_adapter_relative_path(root, path)}") from exc
+
+
+def _write_adapter_text(root: Path, path: Path, text: str) -> None:
+    _assert_safe_adapter_path(root, path)
+    write_text(path, text)
+
+
+def _replace_single_managed_block(
+    current: str,
+    managed: str,
+    start: str,
+    end: str,
+    *,
+    prepend: bool = False,
+) -> tuple[str, str]:
+    start_count = current.count(start)
+    end_count = current.count(end)
+    if start_count != end_count:
+        raise RuntimeError("适配器管理标记不完整，请人工处理后重试。")
+    if start_count > 1:
+        raise RuntimeError("适配器存在重复 Project Intelligence 管理块，请人工处理后重试。")
+    pattern = re.compile(rf"{re.escape(start)}.*?{re.escape(end)}", re.DOTALL)
+    if start_count == 1:
+        return pattern.sub(managed, current).rstrip(), "updated"
+    if current.strip() and prepend:
+        return managed + "\n\n" + current.rstrip(), "created"
+    if current.strip():
+        return current.rstrip() + "\n\n" + managed, "created"
+    return managed, "created"
+
+
+def upsert_adapter_managed_block(
+    root: Path,
+    path: Path,
+    block: str,
+    start: str,
+    end: str,
+    *,
+    prepend: bool = False,
+    dry_run: bool = False,
+) -> dict[str, Any]:
+    current = _read_adapter_text(root, path)
+    managed = f"{start}\n{block.strip()}\n{end}"
+    next_text, action = _replace_single_managed_block(current, managed, start, end, prepend=prepend)
+    changed = next_text.rstrip() != current.rstrip()
+    if changed and not dry_run:
+        _write_adapter_text(root, path, next_text)
+    return {
+        "path": _adapter_relative_path(root, path),
+        "action": action if changed else "unchanged",
+        "changed": changed,
+        "sha256": hashlib.sha256(managed.encode("utf-8")).hexdigest(),
+    }
+
+
+def remove_adapter_managed_block(
+    root: Path,
+    path: Path,
+    start: str,
+    end: str,
+    *,
+    dry_run: bool = False,
+) -> dict[str, Any]:
+    current = _read_adapter_text(root, path)
+    start_count = current.count(start)
+    end_count = current.count(end)
+    if start_count != end_count:
+        raise RuntimeError("适配器管理标记不完整，请人工处理后重试。")
+    if start_count > 1:
+        raise RuntimeError("适配器存在重复 Project Intelligence 管理块，请人工处理后重试。")
+    if start_count == 0:
+        return {"path": _adapter_relative_path(root, path), "action": "absent", "changed": False}
+    pattern = re.compile(rf"{re.escape(start)}.*?{re.escape(end)}\n*", re.DOTALL)
+    next_text = pattern.sub("", current).strip()
+    if not dry_run:
+        _write_adapter_text(root, path, next_text)
+    return {"path": _adapter_relative_path(root, path), "action": "removed", "changed": True}
 
 
 def upsert_managed_block_with_markers(path: Path, block: str, start: str, end: str, prepend: bool = False) -> None:
@@ -297,7 +409,21 @@ def cleanup_legacy_local_skills(root: Path) -> list[str]:
     skills_dir = root / ".claude" / "skills"
     for name in LEGACY_LOCAL_SKILL_NAMES:
         skill_dir = skills_dir / name
-        if (skill_dir / "SKILL.md").exists():
+        skill_md = skill_dir / "SKILL.md"
+        if not skill_md.exists():
+            continue
+        body = read_text(skill_md, max_bytes=100_000)
+        is_managed_legacy = any(
+            marker in body
+            for marker in (
+                "Project Intelligence",
+                "project-intel ",
+                "project-intelligence:",
+                "/project-",
+                ".project-intel",
+            )
+        )
+        if is_managed_legacy:
             shutil.rmtree(skill_dir, ignore_errors=True)
             removed.append(str(skill_dir))
     if skills_dir.is_dir() and not any(skills_dir.iterdir()):
@@ -2477,7 +2603,8 @@ def preview_init(root: Path, with_graph: bool = False, strict: bool = False) -> 
             ".project-intel/knowledge/*.json",
             ".project-intel/graph/project-graph.json",
             ".project-intel/standards/*.md",
-            ".project-intel/reports/*.md",
+            ".project-intel/project-status.md",
+            ".project-intel/requirements/<requirement-id>/*.md",
         ],
         "adapterWritesRequireExplicitFlag": True,
         "wouldRunGraph": with_graph and [action.get("analyzeCommand") for action in tooling.get("graphActions", []) if action.get("analyzeCommand")],
@@ -2523,8 +2650,9 @@ def init_project(
     if strict and with_graph and not any(source.get("status") == "present" for source in graph_sources):
         fail_usage("请求了严格的图谱初始化，但没有有效的 GitNexus 或 Understand-Anything 图谱。")
     pdir = project_dir(root)
-    for sub in ("standards", "knowledge", "graph", "reports", "specs", "plans", "maintenance", "requirements", "requirements/files", "hooks", "cache", "local", "tmp"):
+    for sub in ("standards", "knowledge", "graph", "requirements", "hooks", "cache", "local", "tmp"):
         (pdir / sub).mkdir(parents=True, exist_ok=True)
+    ensure_project_intel_gitignore(pdir)
     write_json(pdir / "manifest.json", manifest)
     write_json(pdir / "config.json", config)
     write_json(pdir / "knowledge" / "frontend.json", frontend)
@@ -2535,9 +2663,10 @@ def init_project(
     write_json(pdir / "local" / "scan-cache.json", state["scanCache"])
     for name, text in standards_docs({"frontend": frontend, "backend": backend, "config": config, "graph": graph}).items():
         write_text(pdir / "standards" / name, text)
-    write_text(pdir / "reports" / ("refresh-report.md" if refresh else "init-report.md"), build_init_report(root, manifest, frontend, backend, config, tooling))
-    write_text(pdir / "reports" / "redundancy-report.md", build_redundancy_report(frontend))
-    write_text(pdir / "reports" / "tooling-report.md", build_tooling_report(tooling, setup_results))
+    write_text(
+        pdir / "project-status.md",
+        build_project_status(root, manifest, frontend, backend, config, tooling, setup_results=setup_results),
+    )
     adapter = {"agentFiles": [], "claude": None, "legacyCleanup": []}
     if adapters:
         ensure_gitignore(root)
@@ -2553,6 +2682,22 @@ def init_project(
         "claude": adapter.get("claude"),
         "legacyCleanup": adapter.get("legacyCleanup", []),
     }
+
+
+def ensure_project_intel_gitignore(pdir: Path) -> None:
+    path = pdir / ".gitignore"
+    existing = read_text(path)
+    existing_rules = {
+        line.strip() for line in existing.splitlines()
+        if line.strip() and not line.lstrip().startswith("#")
+    }
+    required = ("cache/", "local/", "tmp/", "**/.manifest.lock", "**/.*.tmp")
+    missing = [item for item in required if item not in existing_rules]
+    if not missing:
+        return
+    block = "# Project Intelligence local-only files\n" + "\n".join(missing) + "\n"
+    body = existing.rstrip() + ("\n\n" if existing.strip() else "") + block
+    write_text(path, body)
 
 
 def ensure_gitignore(root: Path) -> None:
@@ -2635,6 +2780,72 @@ def build_init_report(root: Path, manifest: dict[str, Any], frontend: dict[str, 
 ## 后续 Agent 步骤
 
 {table(["工具", "图谱命令", "刷新命令", "说明"], follow_up_rows)}
+"""
+
+
+def build_project_status(
+    root: Path,
+    manifest: dict[str, Any],
+    frontend: dict[str, Any],
+    backend: dict[str, Any],
+    config: dict[str, Any],
+    tooling: dict[str, Any],
+    *,
+    setup_results: Optional[list[dict[str, Any]]] = None,
+    quality_report: str = "",
+) -> str:
+    """Build the single replaceable project-level status view.
+
+    Requirement history never belongs here; it lives in requirements/<id>/manifest.json.
+    """
+    graph_rows = [
+        [item.get("name"), item.get("status"), item.get("path")]
+        for item in manifest.get("graphSources", [])
+    ]
+    quality_commands = [
+        [item.get("kind"), item.get("command"), item.get("source")]
+        for item in config.get("quality", {}).get("commands", [])
+    ]
+    setup_rows = [
+        [item.get("tool"), item.get("status"), item.get("detail")]
+        for item in (setup_results or [])
+    ]
+    quality_section = quality_report.strip() or "_尚未单独运行项目质量检查。_"
+    return f"""# 项目状态
+
+更新时间：`{now_iso()}`
+
+## 项目事实
+
+- 项目：{manifest.get("name") or root.name}
+- 索引文件数：{manifest.get("fileCount", 0)}
+- 框架：{", ".join(manifest.get("frameworks", []) or ["未识别"])}
+- 前端组件：{len(frontend.get("components", []))}
+- Hooks：{len(frontend.get("hooks", []))}
+- 后端 API：{len(backend.get("apis", []))}
+- 服务：{len(backend.get("services", []))}
+- 前端冗余候选：{len(frontend.get("redundancyCandidates", []))}
+- 后端候选入口：{len(backend.get("candidateEntrypoints", []))}
+
+## 图谱来源
+
+{table(["来源", "状态", "路径"], graph_rows)}
+
+## 质量命令
+
+{table(["类型", "命令", "来源"], quality_commands)}
+
+## 工具准备
+
+{table(["工具", "状态", "说明"], setup_rows) if setup_rows else "_本次没有执行工具安装或初始化。_"}
+
+## 最近质量检查
+
+{quality_section}
+
+## 需求档案
+
+每个需求的需求文档、设计文档、可选计划、测试报告、收口总结和历史状态均位于 `.project-intel/requirements/<需求号>/`；本文件只表示可覆盖的项目级当前状态。
 """
 
 
@@ -2781,7 +2992,13 @@ def infer_affected_areas(task: str, snapshot: dict[str, Any]) -> list[str]:
     return areas or ["unknown"]
 
 
-def analyze_task_intake(root: Path, task: str, snapshot: Optional[dict[str, Any]] = None, track: str = "auto") -> dict[str, Any]:
+def analyze_task_intake(
+    root: Path,
+    task: str,
+    snapshot: Optional[dict[str, Any]] = None,
+    track: str = "auto",
+    ticket_kind: str = "requirement",
+) -> dict[str, Any]:
     if track not in TRACK_CHOICES:
         fail_usage(f"--track 只能是：{', '.join(TRACK_CHOICES)}")
     snapshot = snapshot or load_project_snapshot(root)
@@ -2821,10 +3038,14 @@ def analyze_task_intake(root: Path, task: str, snapshot: Optional[dict[str, Any]
         reasons.append(f"用户或调用方显式指定 {selected_track} track。")
 
     stages_by_track = {
-        "quick": ["intake", "test-plan", "task", "test-evidence", "review", "finish", "maintain"],
-        "standard": ["intake", "brainstorm-lite", "spec-in-context", "plan-in-context", "test-plan", "task", "test-evidence", "review", "finish", "maintain"],
-        "complex": ["intake", "brainstorm", "spec", "plan", "readiness-gate", "test-plan", "task-or-orchestrate", "test-evidence", "review", "finish", "maintain"],
+        "quick": ["intake", "spec", "design", "readiness-gate", "test-plan", "task", "test-evidence", "review", "finish", "maintain"],
+        "standard": ["intake", "brainstorm-lite", "spec", "design", "plan-in-context", "readiness-gate", "test-plan", "task", "test-evidence", "review", "finish", "maintain"],
+        "complex": ["intake", "brainstorm", "spec", "design", "plan", "readiness-gate", "test-plan", "task-or-orchestrate", "test-evidence", "review", "finish", "maintain"],
     }
+    if ticket_kind == "bug":
+        for stages in stages_by_track.values():
+            design_index = stages.index("design")
+            stages.insert(design_index, "debug")
     readiness = "needs-clarification" if missing else "ready"
     if selected_track == "complex" and not text_has_any(raw, ["验收", "测试", "兼容", "回滚", "方案", "边界"]):
         readiness = "needs-clarification"
@@ -3066,13 +3287,42 @@ def write_plan(root: Path, title: str, from_spec: str, track: str = "auto") -> P
     return path
 
 
-def build_task_impact_doc(root: Path, task: str, snapshot: dict[str, Any], analysis: Optional[dict[str, Any]] = None) -> str:
+def build_task_impact_doc(
+    root: Path,
+    task: str,
+    snapshot: dict[str, Any],
+    analysis: Optional[dict[str, Any]] = None,
+    *,
+    requirement_id: Optional[str] = None,
+    test_kind: Optional[str] = None,
+    report_action: Optional[str] = None,
+    report_path: Optional[str] = None,
+    acceptance_ids: Optional[list[str]] = None,
+) -> str:
     analysis = analysis or analyze_task_intake(root, task, snapshot)
     manifest = snapshot["manifest"]
     frontend = snapshot["frontend"]
     backend = snapshot["backend"]
     graph_rows = [[s.get("name"), s.get("status"), s.get("role")] for s in manifest.get("graphSources", [])]
     reuse_rows = [[item.get("type"), item.get("name"), item.get("path")] for item in analysis.get("reuseCandidates", [])]
+    command_requirement_id = requirement_id or "<id>"
+    selected_test_command = ""
+    test_contract_guidance = ""
+    if requirement_id and test_kind and report_action:
+        path_option = f" --report-path {report_path}" if report_action == "register" and report_path else ""
+        acceptance_option = f" --acceptance {','.join(acceptance_ids or [])}" if acceptance_ids else ""
+        selected_test_command = f"""project-intel test --requirement-id \"{requirement_id}\" --test-kind {test_kind} --report-action {report_action} \\
+  --phase verify --files <changed-source-and-test-files>{acceptance_option}{path_option}
+"""
+        test_contract_guidance = f"已复用确认的测试合同：`{test_kind}` / `{report_action}` / `{', '.join(acceptance_ids or []) or '未登记 AC'}`。"
+    else:
+        selected_test_command = "# 先完成上方测试合同，再运行以下收口命令。"
+        test_contract_guidance = """先用 `project-test` 确认测试类型、报告动作和验收标准映射，再将**用户已选择**的值带入测试命令。
+
+- 对外接口需求必须选择 `service` 或 `both`，不能用 unit 代替。
+- `--report-action register` 必须提供 `--report-path <repo-relative-report>`。
+- `--acceptance` 必须填写需求档案中已确认的验收标准，不能使用示例编号。
+"""
     return f"""# 任务影响
 
 生成时间：`{now_iso()}`
@@ -3115,25 +3365,49 @@ def build_task_impact_doc(root: Path, task: str, snapshot: dict[str, Any], analy
 
 {bullet_list(analysis.get("standards", []))}
 
+## 测试证据合同
+
+{test_contract_guidance.rstrip()}
+
 ## 完成钩子
 
 实现完成后运行：
 
 ```bash
-project-intel test --requirement-id "<id>" --test-kind unit --report-action generate \\
-  --phase verify --files <changed-source-and-test-files> --acceptance AC-01,AC-02
-project-intel review --requirement-id "<id>" --result passed --summary "<review-summary>" \\
+{selected_test_command.rstrip()}
+project-intel review --requirement-id "{command_requirement_id}" --result passed --summary "<review-summary>" \\
   --files <all-actual-changed-files>
-project-intel finish --requirement-id "<id>" --files <all-actual-changed-files>
-project-intel maintain --requirement-id "<id>" --files <all-actual-changed-files>
+project-intel finish --requirement-id "{command_requirement_id}" --files <all-actual-changed-files>
+project-intel maintain --requirement-id "{command_requirement_id}" --files <all-actual-changed-files>
 ```
 """
 
 
-def lifecycle_payload(root: Path, task: str, track: str = "auto") -> dict[str, Any]:
+def lifecycle_payload(
+    root: Path,
+    task: str,
+    track: str = "auto",
+    *,
+    requirement_id: Optional[str] = None,
+    test_kind: Optional[str] = None,
+    report_action: Optional[str] = None,
+    report_path: Optional[str] = None,
+    acceptance_ids: Optional[list[str]] = None,
+    ticket_kind: str = "requirement",
+) -> dict[str, Any]:
     snapshot = load_project_snapshot(root)
-    analysis = analyze_task_intake(root, task, snapshot, track=track)
-    body = build_task_impact_doc(root, task, snapshot, analysis)
+    analysis = analyze_task_intake(root, task, snapshot, track=track, ticket_kind=ticket_kind)
+    body = build_task_impact_doc(
+        root,
+        task,
+        snapshot,
+        analysis,
+        requirement_id=requirement_id,
+        test_kind=test_kind,
+        report_action=report_action,
+        report_path=report_path,
+        acceptance_ids=acceptance_ids,
+    )
     return {"analysis": analysis, "body": body}
 
 
@@ -3203,7 +3477,7 @@ def build_debug_doc(root: Path, bug: str, snapshot: dict[str, Any]) -> str:
 - `.project-intel/knowledge/frontend.json`
 - `.project-intel/knowledge/backend.json`
 - `.project-intel/graph/project-graph.json`
-- `.project-intel/reports/tooling-report.md`
+- `.project-intel/project-status.md`
 
 可用时使用 GitNexus 获取调用链、影响和变更代码风险。可用时使用 Understand-Anything 获取架构/领域上下文。
 """
@@ -3402,6 +3676,19 @@ def maintain_project(
         fail_usage("项目维护必须提供 --task 或 --requirement-id。")
     if not contains_cjk(task):
         fail_usage("项目维护要求使用中文任务摘要；请用 --task 传入中文摘要。")
+    if requirement_id:
+        init_project(root, refresh=True, with_graph=False)
+        check_exit = run_check(root, run_quality=run_quality)
+        if check_exit != 0:
+            print("需求维护失败：项目状态刷新或检查未通过，需求保持 finished。")
+            return check_exit
+        try:
+            requirements_module.close_requirement(root, requirement_id, check_succeeded=True)
+        except requirements_module.RequirementError as exc:
+            print(f"需求关闭失败：{exc}")
+            return 1
+        print(f"需求 {requirement_id} 已关闭；维护结果已写入需求 manifest。")
+        return 0
     requirement_files = resolve_requirement_files(root, task, files)
     refresh_result = init_project(root, refresh=True, with_graph=False)
     check_exit = run_check(root, run_quality=run_quality)
@@ -3412,12 +3699,6 @@ def maintain_project(
         path = project_dir(root) / "maintenance" / "latest.md"
     write_text(path, build_maintenance_report(root, task, refresh_result, check_exit, run_quality, requirement_docs))
     print(f"已写入维护报告：{path}")
-    if requirement_id and check_exit == 0:
-        try:
-            requirements_module.close_requirement(root, requirement_id, check_succeeded=True)
-        except requirements_module.RequirementError as exc:
-            print(f"需求关闭失败：{exc}")
-            return 1
     return check_exit
 
 
@@ -3505,7 +3786,7 @@ def run_project_test(
                 raise requirements_module.RequirementError("--test-kind manual 必须配合 --phase manual。")
             if report_action == "generate":
                 requirements_module.generate_artifact(root, requirement_id, "test")
-                report_path = str(requirements_module.requirement_dir(root, requirement_id).joinpath("test-report.md").relative_to(root))
+                report_path = str(requirements_module.active_requirement_dir(root, requirement_id).joinpath("test-report.md").relative_to(root))
                 generated_report = True
             elif report_action == "register" and not report_path:
                 raise requirements_module.RequirementError("--report-action register 必须提供 --report-path。")
@@ -3554,20 +3835,46 @@ def run_project_test(
             print(f"{phase}：`{testing_module.sanitize_text(command)}` → {code}")
 
     normalized_task = normalize_requirement_summary(task)
-    payload, entry = testing_module.record_test_evidence(
-        root,
-        normalized_task,
-        phase,
-        selected_files,
-        results,
-        manual_evidence=manual_evidence,
-        expected_failure=expect_failure,
-        project_wide=project_wide,
-        now=now_iso(),
-        write_json=write_json,
-        write_text=write_text,
-    )
-    evidence_path = testing_module.evidence_markdown_path(root)
+    if requirement_id:
+        safe_results = [
+            {
+                **item,
+                "command": testing_module.sanitize_text(str(item.get("command") or "")),
+                "stdout": testing_module.sanitize_text(str(item.get("stdout") or "")),
+                "stderr": testing_module.sanitize_text(str(item.get("stderr") or "")),
+            }
+            for item in results
+        ]
+        safe_manual = testing_module.sanitize_text(manual_evidence.strip())
+        entry = {
+            "phase": phase,
+            "status": "passed" if testing_module.phase_passed(phase, safe_results, safe_manual, expect_failure) else "failed",
+            "recordedAt": now_iso(),
+            "files": selected_files,
+            "projectWide": bool(project_wide),
+            "commands": safe_results,
+        }
+        if safe_manual:
+            entry["manualEvidence"] = safe_manual
+        if expect_failure.strip():
+            entry["expectedFailure"] = testing_module.sanitize_text(expect_failure.strip())
+        payload = {"schemaVersion": 2, "task": normalized_task, "entries": [entry]}
+        evidence_path = requirements_module.active_requirement_dir(root, requirement_id) / "test-report.md"
+    else:
+        payload, entry = testing_module.record_test_evidence(
+            root,
+            normalized_task,
+            phase,
+            selected_files,
+            results,
+            manual_evidence=manual_evidence,
+            expected_failure=expect_failure,
+            project_wide=project_wide,
+            now=now_iso(),
+            write_json=write_json,
+            write_text=write_text,
+        )
+        evidence_path = testing_module.evidence_markdown_path(root)
     print(f"已更新测试证据：{evidence_path}")
     requirement_result: Optional[dict[str, Any]] = None
     if requirement_id and requirement_manifest is not None and test_kind:
@@ -3582,20 +3889,34 @@ def run_project_test(
         ) or str(entry.get("manualEvidence") or "")
         try:
             safe_manual_approval = None
+            tested_snapshot = None
             if manual_approval is not None:
                 safe_manual_approval = {
                     key: value if key == "approved" else testing_module.sanitize_text(str(value or ""))
                     for key, value in manual_approval.items()
                 }
             if generated_report:
+                tested_snapshot = requirements_module.capture_requirement_scope(
+                    root, requirements_module.load_requirement(root, requirement_id)
+                )
+                report_display_result = (
+                    "expected-failure-observed"
+                    if phase == "red" and entry.get("status") == "passed"
+                    else outcome
+                )
                 report_path = requirements_module.append_test_report_execution(
                     root,
                     requirement_id,
                     test_kind=test_kind,
-                    result=outcome,
+                    result=report_display_result,
                     acceptance_ids=mapped_acceptance,
                     command=testing_module.sanitize_text(command_text),
                     details=testing_module.sanitize_text(detail_text),
+                    phase=phase,
+                    executed_count=max(1, len(entry.get("commands", []))),
+                    files=selected_files,
+                    project_wide=project_wide,
+                    snapshot=tested_snapshot,
                 )
             requirement_result = requirements_module.record_test_result(
                 root,
@@ -3604,8 +3925,15 @@ def run_project_test(
                 result=outcome,
                 acceptance_ids=mapped_acceptance,
                 files=selected_files,
-                snapshot=requirements_module.capture_requirement_scope(
-                    root, requirements_module.load_requirement(root, requirement_id)
+                # A user-supplied report becomes an artifact during registration.  Capturing
+                # before the state-machine lock would classify that new report as business
+                # source drift, so register lets record_test_result capture it atomically.
+                snapshot=(
+                    None
+                    if report_action == "register"
+                    else tested_snapshot or requirements_module.capture_requirement_scope(
+                        root, requirements_module.load_requirement(root, requirement_id)
+                    )
                 ),
                 command=testing_module.sanitize_text(command_text),
                 report_path=report_path,
@@ -3775,7 +4103,7 @@ def finish_project(
             "ready": False,
             "redObserved": False,
             "passingPhase": "requirement-manifest",
-            "path": str(requirements_module.manifest_path(root, requirement_id).relative_to(root)),
+            "path": str(requirements_module.active_manifest_path(root, requirement_id).relative_to(root)),
             "reason": "需求级 finish 门禁尚未执行。",
         }
         if check_exit == 0:
@@ -3786,6 +4114,12 @@ def finish_project(
                 evidence_status["reason"] = str(exc)
     else:
         evidence_status = testing_module.evaluate_test_evidence(root, normalized_task, selected_files)
+    if requirement_id:
+        if not evidence_status.get("ready"):
+            print("任务收口失败：" + str(evidence_status.get("reason") or "交付证据门禁未通过。"))
+        else:
+            print(f"需求 {requirement_id} 已完成 finish；结果已写入需求 manifest。")
+        return 1 if check_exit != 0 or not evidence_status.get("ready") else 0
     summary = git_diff_summary(root)
     path = project_dir(root) / "reports" / "finish-report.md"
     write_text(path, build_finish_report(root, task, selected_files, check_exit, run_quality, summary, evidence_status, requirement_id))
@@ -3932,11 +4266,11 @@ Before implementing, debugging, reviewing, planning, writing specs, answering co
    - Fact refresh, or explicitly requested adapter maintenance: `project-refresh` or `project-intelligence:project-refresh`
 2. If slash skills are not available or do not trigger automatically, follow the same workflow manually before using execution tools and state which Project Intelligence workflow is being followed.
 3. Check `.project-intel/manifest.json` for project metadata and refresh status.
-4. Read only the relevant files under `.project-intel/standards/`, `.project-intel/knowledge/`, `.project-intel/graph/`, and `.project-intel/reports/`.
+4. Read `.project-intel/project-status.md`, the active `.project-intel/requirements/<id>/manifest.json`, and only the relevant files under `.project-intel/standards/`, `.project-intel/knowledge/`, and `.project-intel/graph/`.
 5. Apply `hard` standards as requirements; treat `preferred` as default project style; treat `inferred` and `candidate` as suggestions that need confirmation before enforcement.
 6. Prefer existing public components, Hooks, utilities, API wrappers, services, DTO/VO/entity patterns, permission checks, transaction boundaries, and error-code conventions before adding new ones.
-7. For implementation work, before the first Edit/Write, ask for requirement ID and name, determine `bug|requirement`, generate a `LOCAL-YYYYMMDD-HHMMSS` ID when no formal ID exists, and explicitly confirm external API impact. Run `project-intel intake --requirement-id "<id>" --requirement-name "<name>" --ticket-kind bug|requirement --external-api yes|no`. Ask whether to generate, register, or defer the development-design artifact. Use `project-design` to generate/validate and register it; for Bugs, complete `project-debug` root-cause analysis first. Use `project-spec` to write numbered acceptance criteria to the manifest with `requirement acceptance set`, then require a successful `requirement ready` gate. Explicitly invoke `project-test` before `project-task`, ask for test type plus report action, and run `project-intel requirement begin --requirement-id "<id>"` immediately before editing. This same-turn handoff is required even when the user asks not to edit yet; complete workflow routing and stop before file changes. Do not ask for requirement identity during knowledge-only explanation or read-only review.
-8. Use GitNexus impact/explore/detect_changes tools when available; otherwise use `.project-intel` plus `project-intel lifecycle --task "<requirement>"` or `project-intel query "<symbol-or-feature>"`. `lifecycle` prints by default and includes track/readiness; use `--write` only when a persistent task-impact report is explicitly needed.
+7. For implementation work, before the first Edit/Write, ask for requirement ID and name, determine `bug|requirement`, generate a `LOCAL-YYYYMMDD-HHMMSS` ID when no formal ID exists, explicitly confirm external API impact, and collect the requirement/design document actions. Run `project-intel intake --requirement-id "<id>" --requirement-name "<name>" --ticket-kind bug|requirement --external-api yes|no --requirement-action generate|register|later --design-action generate|register|later`; a `register` action must also pass its repository-relative `--requirement-path` or `--design-path`. These choices are persisted in `manifest.workflowSelections`; later sessions must read `requirement status --json` instead of asking again or guessing. First use `project-spec` to create/register `.project-intel/requirements/<id>/requirement.md` and persist matching numbered acceptance criteria. For Bugs, next complete `project-debug` and persist its source-backed root cause with `project-intel requirement diagnose --requirement-id "<id>" --root-cause "<cause>" --evidence <path#symbol>`; a debug narrative alone does not satisfy the gate. Only after that use the persisted action to generate, register, or defer `.project-intel/requirements/<id>/design.md` with `project-design`. The required order is therefore `project-spec` → (`project-debug` plus `requirement diagnose` for Bugs) → `project-design` → `requirement ready`. Generate optional `plan.md` only for complex work or an explicit persistent-plan request, then require a successful `requirement ready` gate. Invoke `project-test` before `project-task` only to select the test type, report action, RED/GREEN command, and evidence scope. Reuse those selected values and only confirmed AC IDs in the CLI; external API work must use `service` or `both`, and `report-action register` requires `--report-path`. In `project-task`, run `project-intel requirement begin --requirement-id "<id>"`; only after the state is `implementing` may the agent generate/register the test report, edit a test file, or execute/record RED. This same-turn handoff is required even when the user asks not to edit yet; complete workflow routing and stop before file changes. Do not ask for requirement identity during knowledge-only explanation or read-only review.
+8. Use GitNexus impact/explore/detect_changes tools when available; otherwise use `.project-intel` plus `project-intel lifecycle --task "<requirement>"` or `project-intel query "<symbol-or-feature>"`. `lifecycle` prints context and does not create a shared report.
 9. Use `project-orchestrate` only when planned subtasks are independent enough to review separately. Implementation subagents should normally run sequentially; parallel agents are for read-only investigations or disjoint impact analysis.
 10. After meaningful code changes, run change review, test evidence, finish, and maintenance with the same requirement ID. `project-test` must record explicit files or `--project-wide`; RED requires `--expect-failure`. External API work requires service tests. Manual tests require approval, reason, steps, input, observation, and screenshot/log path. Persist review with `project-intel review`, ask whether to generate/register/defer `closure-summary.md`, then run `project-intel finish --requirement-id "<id>" --files <all-actual-changed-files>` and `project-intel maintain --requirement-id "<id>" --files <all-actual-changed-files>`. Any code change invalidates stale test/review hashes. `maintain` is allowed only from `finished`, closes only after fact-only refresh/check succeeds, and must not update root adapters unless `refresh --adapters` or `install` was explicitly requested.
 11. Do not claim a change is complete, fixed, passing, or ready without fresh evidence from the current turn. `project-intel check` proves Project Intelligence rules; it does not prove business behavior unless the check directly exercises that behavior.
@@ -3944,7 +4278,7 @@ Before implementing, debugging, reviewing, planning, writing specs, answering co
 13. For review, inspect diff plus `.project-intel` standards/knowledge/graph context and report findings by severity before summaries. Verify review feedback against project reality before applying it.
 14. Use `--run-quality` only when real lint/type/style/format checks should run.
 15. If GitNexus or Understand-Anything graph context is available, use it for impact analysis and architecture/domain relationships.
-Stable generated files are preferred for routine runs: refresh/tooling/quality reports are overwritten in place, `debug` and `lifecycle` only print unless `--write` is passed, `maintain` writes `maintenance/latest.md` unless `--archive` is passed, and file-level requirements are maintained as one concise Chinese markdown per source file.
+Routine refresh and quality state overwrite `.project-intel/project-status.md`. Requirement history stays in `.project-intel/requirements/<id>/`: `requirement.md`, `design.md`, optional `plan.md`, `test-report.md`, `closure-summary.md`, and `manifest.json`. New workflows do not write shared reports, specs, plans, maintenance files, by-id mirrors, or per-source requirement markdown.
 
 Useful CLI fallbacks: `project-intel intake`, `project-intel requirement`, `project-intel lifecycle`, `project-intel query`, `project-intel refresh`, `project-intel check`, `project-intel spec`, `project-intel plan`, `project-intel debug`, `project-intel test`, `project-intel review`, `project-intel finish`, `project-intel requirements`, and `project-intel maintain`."""
 
@@ -3976,38 +4310,163 @@ def claude_project_agent_rules() -> str:
     return rules
 
 
+def codex_adapter_rules() -> str:
+    return """## Project Intelligence
+
+This repository uses `.project-intel/` for project facts, standards, requirement history, test evidence, review, finish, and maintenance.
+
+Use the plugin skill namespace when available:
+
+- Implementation or bug work: `$project-intelligence:project-intake` → `$project-intelligence:project-spec` → `$project-intelligence:project-design` → `$project-intelligence:project-test` → `$project-intelligence:project-task`.
+- Debugging: `$project-intelligence:project-debug` before fixing.
+- Review only: `$project-intelligence:project-review`; do not finish or maintain from review.
+- Completion: `$project-intelligence:project-finish`; run `$project-intelligence:project-maintain` only after finish succeeds.
+- Knowledge, standards, quality, refresh, and init use their matching `$project-intelligence:*` skills.
+
+For requirement-level work, carry one requirement ID through every CLI call. Keep readable files under `.project-intel/requirements/<id>/`: `requirement.md`, `design.md`, optional `plan.md`, `test-report.md`, `closure-summary.md`, and `manifest.json`.
+
+`project-intel init` and `project-intel refresh` are fact-only by default. Root adapters are changed only by explicit `project-intel adapters apply`, `project-intel install`, or `project-intel refresh --adapters`."""
+
+
+def claude_adapter_rules() -> str:
+    return """## Project Intelligence
+
+This repository uses `.project-intel/` for project facts and requirement workflow evidence.
+
+Use slash skills when available:
+
+- Implementation or bug work: `/project-intake` → `/project-spec` → `/project-design` → `/project-test` → `/project-task`.
+- Debugging: `/project-debug` before fixing.
+- Review only: `/project-review`; do not finish or maintain from review.
+- Completion: `/project-finish`; run `/project-maintain` only after finish succeeds.
+- Knowledge, standards, quality, refresh, and init use their matching `/project-*` skills.
+
+For requirement-level work, keep all readable artifacts in `.project-intel/requirements/<id>/`. `init` and `refresh` are fact-only by default; adapters change only when explicitly requested."""
+
+
+def nested_claude_adapter_rules() -> str:
+    return """# Project Intelligence
+
+Use the root `CLAUDE.md` Project Intelligence block and the `/project-*` plugin skills. Do not keep a second full workflow copy in `.claude/CLAUDE.md`."""
+
+
+def _adapter_targets(root: Path, target: str) -> list[tuple[str, Path, str, str, str, bool]]:
+    requested = {"both": {"codex", "claude"}, "all": {"codex", "claude"}}.get(target, {target})
+    targets: list[tuple[str, Path, str, str, bool]] = []
+    if "codex" in requested:
+        targets.append((
+            "codex",
+            root / "AGENTS.md",
+            codex_adapter_rules(),
+            AGENT_PROJECT_INTEL_BLOCK_START,
+            AGENT_PROJECT_INTEL_BLOCK_END,
+            True,
+        ))
+    if "claude" in requested:
+        targets.append((
+            "claude",
+            root / "CLAUDE.md",
+            claude_adapter_rules(),
+            PROJECT_INTEL_BLOCK_START,
+            PROJECT_INTEL_BLOCK_END,
+            True,
+        ))
+        targets.append((
+            "claude-nested",
+            root / ".claude" / "CLAUDE.md",
+            nested_claude_adapter_rules(),
+            PROJECT_INTEL_BLOCK_START,
+            PROJECT_INTEL_BLOCK_END,
+            False,
+        ))
+    return targets
+
+
+def adapters_preview(root: Path, target: str = "both") -> dict[str, Any]:
+    return adapters_apply(root, target=target, dry_run=True)
+
+
+def adapters_status(root: Path, target: str = "both") -> dict[str, Any]:
+    entries: list[dict[str, Any]] = []
+    ok = True
+    for name, path, block, start, end, _prepend in _adapter_targets(root, target):
+        try:
+            current = _read_adapter_text(root, path)
+            managed = f"{start}\n{block.strip()}\n{end}"
+            status = "current" if managed in current else "missing" if start not in current else "drifted"
+            if current.count(start) != current.count(end):
+                status = "malformed"
+            elif current.count(start) > 1:
+                status = "duplicate"
+            entries.append({
+                "target": name,
+                "path": _adapter_relative_path(root, path),
+                "status": status,
+                "managedSha256": hashlib.sha256(managed.encode("utf-8")).hexdigest(),
+            })
+            ok = ok and status == "current"
+        except Exception as exc:
+            entries.append({"target": name, "path": str(path), "status": "error", "error": str(exc)})
+            ok = False
+    return {"ok": ok, "target": target, "entries": entries}
+
+
+def adapters_apply(root: Path, target: str = "both", *, dry_run: bool = False) -> dict[str, Any]:
+    results: list[dict[str, Any]] = []
+    for name, path, block, start, end, prepend in _adapter_targets(root, target):
+        path.parent.mkdir(parents=True, exist_ok=True)
+        if name == "codex":
+            # Remove the older full generic block from AGENTS.md so AGENTS has one concise Codex block.
+            try:
+                remove_adapter_managed_block(root, path, PROJECT_INTEL_BLOCK_START, PROJECT_INTEL_BLOCK_END, dry_run=dry_run)
+            except RuntimeError:
+                raise
+        result = upsert_adapter_managed_block(root, path, block, start, end, prepend=prepend, dry_run=dry_run)
+        result["target"] = name
+        results.append(result)
+    return {"ok": True, "dryRun": dry_run, "target": target, "entries": results}
+
+
+def adapters_remove(root: Path, target: str = "both", *, dry_run: bool = False) -> dict[str, Any]:
+    results: list[dict[str, Any]] = []
+    for name, path, _block, start, end, _prepend in _adapter_targets(root, target):
+        if not path.exists():
+            results.append({"target": name, "path": _adapter_relative_path(root, path), "action": "absent", "changed": False})
+            continue
+        result = remove_adapter_managed_block(root, path, start, end, dry_run=dry_run)
+        result["target"] = name
+        results.append(result)
+        if name == "codex":
+            cleanup = remove_adapter_managed_block(root, path, PROJECT_INTEL_BLOCK_START, PROJECT_INTEL_BLOCK_END, dry_run=dry_run)
+            if cleanup.get("changed"):
+                cleanup["target"] = "codex-legacy"
+                results.append(cleanup)
+    return {"ok": True, "dryRun": dry_run, "target": target, "entries": results}
+
+
 def write_agent_entrypoints(root: Path) -> list[str]:
     agents = root / "AGENTS.md"
     claude = root / "CLAUDE.md"
-    upsert_managed_block_with_markers(
-        agents,
-        agent_project_intelligence_priority_rules(),
-        AGENT_PROJECT_INTEL_BLOCK_START,
-        AGENT_PROJECT_INTEL_BLOCK_END,
-        prepend=True,
-    )
-    upsert_managed_block(agents, project_agent_rules())
-    upsert_managed_block(claude, claude_project_agent_rules())
+    adapters_apply(root, target="both")
     return [str(agents), str(claude)]
 
 
 def install_claude(root: Path, hooks: bool = False, activate_hooks: bool = False) -> dict[str, Any]:
-    ensure_gitignore(root)
     claude = root / ".claude"
     claude.mkdir(parents=True, exist_ok=True)
     legacy_cleanup = cleanup_legacy_local_skills(root)
-    agent_rules = claude_project_agent_rules()
-    agent_files = write_agent_entrypoints(root)
     nested = claude / "CLAUDE.md"
-    legacy_generated = f"# 项目智能\n\n{agent_rules}".strip()
-    if read_text(nested).strip() == legacy_generated:
+    legacy_generated = f"# 项目智能\n\n{claude_project_agent_rules()}".strip()
+    if _read_adapter_text(root, nested).strip() == legacy_generated:
         write_text(nested, "")
-    upsert_managed_block(nested, agent_rules)
+    adapter_result = adapters_apply(root, target="both")
+    agent_files = [str(root / item["path"]) for item in adapter_result.get("entries", [])]
     hook_templates = write_hook_templates(root) if hooks or activate_hooks else []
     hook_results = activate_git_hooks(root) if activate_hooks else []
     return {
         "claude": str(claude),
-        "agentFiles": agent_files + [str(nested)],
+        "agentFiles": agent_files,
+        "adapters": adapter_result,
         "hookTemplates": [str(path) for path in hook_templates],
         "hookResults": hook_results,
         "legacyCleanup": legacy_cleanup,
@@ -4118,8 +4577,13 @@ def run_check(root: Path, run_quality: bool, result_sink: Optional[list[dict[str
         configured_commands=len(commands),
         run_quality=run_quality,
     )
-    write_text(pdir / "reports" / "frontend-quality.md", report)
-    print(f"项目智能检查完成：{pdir / 'reports' / 'frontend-quality.md'}")
+    manifest = load_json(pdir / "manifest.json", {})
+    tooling = load_json(pdir / "local" / "tooling.json", {})
+    write_text(
+        pdir / "project-status.md",
+        build_project_status(root, manifest, frontend, backend, config, tooling, quality_report=report),
+    )
+    print(f"项目智能检查完成：{pdir / 'project-status.md'}")
     return exit_code
 
 
@@ -4312,36 +4776,65 @@ def build_parser() -> argparse.ArgumentParser:
     install = sub.add_parser("install", help="安装 Claude 兼容的项目入口")
     install.add_argument("--hooks", action="store_true", help="在 .project-intel/hooks 下生成可选的 Git 钩子模板")
     install.add_argument("--activate-git-hooks", action="store_true", help="将项目智能包装器安装到 .git/hooks（不覆盖自定义钩子）")
+    adapters = sub.add_parser("adapters", help="预览、应用或移除 Codex/Claude 根入口适配器")
+    adapters_sub = adapters.add_subparsers(dest="adapters_command", required=True)
+    adapters_status_parser = adapters_sub.add_parser("status", help="检查适配器当前状态")
+    adapters_status_parser.add_argument("--target", choices=("codex", "claude", "both"), default="both")
+    adapters_status_parser.add_argument("--check", action="store_true", help="状态非 current 时返回非零")
+    adapters_preview_parser = adapters_sub.add_parser("preview", help="预览将写入的适配器块")
+    adapters_preview_parser.add_argument("--target", choices=("codex", "claude", "both"), default="both")
+    adapters_apply_parser = adapters_sub.add_parser("apply", help="应用适配器块")
+    adapters_apply_parser.add_argument("--target", choices=("codex", "claude", "both"), default="both")
+    adapters_remove_parser = adapters_sub.add_parser("remove", help="移除 Project Intelligence 管理块")
+    adapters_remove_parser.add_argument("--target", choices=("codex", "claude", "both"), default="both")
     check = sub.add_parser("check", help="运行项目智能检查")
     check.add_argument("--run-quality", action="store_true", help="实际运行检测到的 lint/type/style/format 命令")
+    check.add_argument("--dry-run", action="store_true", help="只预览检查配置，不写入 project-status.md")
     intake = sub.add_parser("intake", help="分析需求入口、任务分流和 readiness")
     intake.add_argument("--task", help="兼容的中文任务摘要；需求级流程可使用 --requirement-name")
     intake.add_argument("--requirement-id", help="正式需求号；省略时需求级流程生成 LOCAL 时间编号")
     intake.add_argument("--requirement-name", help="需求名称")
     intake.add_argument("--ticket-kind", choices=("bug", "requirement"), default="requirement", help="单据类型；默认 requirement")
     intake.add_argument("--external-api", choices=("yes", "no"), help="明确确认是否影响对外接口")
+    intake.add_argument("--requirement-action", choices=("generate", "register", "later"), help="需求文档动作")
+    intake.add_argument("--requirement-path", help="requirement-action=register 时的仓库相对路径")
+    intake.add_argument("--design-action", choices=("generate", "register", "later"), help="设计文档动作")
+    intake.add_argument("--design-path", help="design-action=register 时的仓库相对路径")
     intake.add_argument("--track", choices=TRACK_CHOICES, default="auto", help="显式指定 quick/standard/complex；默认自动判断")
-    intake.add_argument("--write", action="store_true", help="写入固定报告 .project-intel/reports/task-intake.md；默认只输出")
+    intake.add_argument("--write", action="store_true", help="仅旧 --legacy 模式写入共享 intake 报告")
     intake.add_argument("--legacy", action="store_true", help="显式使用旧的非需求级兼容流程")
-    spec = sub.add_parser("spec", help="在 .project-intel/specs 下写入需求文档")
-    spec.add_argument("--title", required=True)
-    spec.add_argument("--from", dest="requirement", required=True)
+    spec = sub.add_parser("spec", help="为需求档案设置编号验收标准")
+    spec.add_argument("--requirement-id", help="需求号；新流程不会创建独立 specs 目录")
+    spec.add_argument("--criterion", action="append", help="AC-01:说明；可重复")
+    spec.add_argument("--title")
+    spec.add_argument("--from", dest="requirement")
     spec.add_argument("--track", choices=TRACK_CHOICES, default="auto", help="显式指定 quick/standard/complex；默认自动判断")
-    plan = sub.add_parser("plan", help="在 .project-intel/plans 下写入实施计划")
-    plan.add_argument("--title", required=True)
-    plan.add_argument("--from-spec", required=True)
+    spec.add_argument("--legacy", action="store_true", help="显式使用旧 specs 目录兼容流程")
+    plan = sub.add_parser("plan", help="按需在需求目录生成 plan.md")
+    plan.add_argument("--requirement-id", help="需求号；新流程写入 requirements/<id>/plan.md")
+    plan.add_argument("--title")
+    plan.add_argument("--from-spec")
     plan.add_argument("--track", choices=TRACK_CHOICES, default="auto", help="显式指定 quick/standard/complex；默认自动判断")
+    plan.add_argument("--replace", action="store_true", help="显式覆盖已有 plan.md")
+    plan.add_argument("--legacy", action="store_true", help="显式使用旧 plans 目录兼容流程")
     lifecycle = sub.add_parser("lifecycle", help="输出任务影响分析")
-    lifecycle.add_argument("--task", required=True)
+    lifecycle.add_argument("--task", help="任务摘要；传入 --requirement-id 时默认读取已登记的需求名称")
+    lifecycle.add_argument("--requirement-id", help="复用该需求已确认的验收标准；与测试参数一起生成准确的收口命令")
     lifecycle.add_argument("--track", choices=TRACK_CHOICES, default="auto", help="显式指定 quick/standard/complex；默认自动判断")
-    lifecycle.add_argument("--write", action="store_true", help="写入固定报告 .project-intel/reports/task-impact.md；默认只输出")
+    lifecycle.add_argument("--test-kind", choices=("unit", "service", "both", "manual"), help="已确认的测试类型；不会擅自默认 unit")
+    lifecycle.add_argument("--report-action", choices=("generate", "register", "later"), help="已确认的报告动作；不会擅自默认 generate")
+    lifecycle.add_argument("--report-path", help="report-action=register 时的仓库相对报告路径")
+    lifecycle.add_argument("--acceptance", action="append", help="已确认的验收标准；默认使用需求档案全部 AC")
+    lifecycle.add_argument("--write", action="store_true", help="仅旧 --legacy 模式写入共享影响报告")
+    lifecycle.add_argument("--legacy", action="store_true", help="显式使用旧 reports 目录兼容写入")
     debug = sub.add_parser("debug", help="输出系统化调试上下文")
     debug.add_argument("--bug", required=True)
-    debug.add_argument("--write", action="store_true", help="写入固定报告 .project-intel/reports/debug-context.md；默认只输出")
+    debug.add_argument("--write", action="store_true", help="仅旧 --legacy 模式写入共享调试报告")
+    debug.add_argument("--legacy", action="store_true", help="显式使用旧 reports 目录兼容写入")
     test = sub.add_parser("test", help="运行并记录 RED/GREEN/回归/验证测试证据")
     test.add_argument("--task", help="兼容的中文任务摘要；需求级流程可从 manifest 读取")
     test.add_argument("--requirement-id", help="将测试证据写入指定需求档案")
-    test.add_argument("--test-kind", choices=("unit", "service", "both", "manual"), help="需求级测试类型")
+    test.add_argument("--test-kind", choices=("unit", "service", "manual"), help="需求级测试证据类型；both 只能用于测试契约")
     test.add_argument("--report-action", choices=("generate", "register", "later"), help="测试报告动作")
     test.add_argument("--report-path", help="report-action=register 时的仓库相对路径")
     test.add_argument("--acceptance", action="append", help="覆盖的验收标准，可重复或使用逗号分隔")
@@ -4368,12 +4861,28 @@ def build_parser() -> argparse.ArgumentParser:
     requirement_sub = requirement.add_subparsers(dest="requirement_command", required=True)
     requirement_status = requirement_sub.add_parser("status", help="查看需求状态和门禁")
     requirement_status.add_argument("--requirement-id", required=True)
+    requirement_query = requirement_sub.add_parser("query", help="按业务文件或状态查询需求历史")
+    requirement_query.add_argument("--file", dest="file_path", help="仓库内业务文件路径")
+    requirement_query.add_argument("--state", choices=requirements_module.STATES, help="需求状态")
+    requirement_migrate = requirement_sub.add_parser("migrate", help="将旧 by-id 档案迁移到直接需求目录")
+    requirement_migrate.add_argument("--apply", action="store_true", help="实际执行迁移；默认只预览")
     requirement_generate = requirement_sub.add_parser("generate", help="生成需求级产物")
     requirement_generate.add_argument("--requirement-id", required=True)
-    requirement_generate.add_argument("--type", required=True, choices=("requirement-design", "test", "closure"))
+    requirement_generate.add_argument(
+        "--type", required=True,
+        choices=("requirement", "design", "plan", "test", "closure", "requirement-design"),
+    )
+    requirement_generate.add_argument(
+        "--replace",
+        action="store_true",
+        help="显式覆盖已有规范文档；默认拒绝覆盖用户内容",
+    )
     requirement_add = requirement_sub.add_parser("add", help="登记已有需求级产物")
     requirement_add.add_argument("--requirement-id", required=True)
-    requirement_add.add_argument("--type", required=True, choices=("requirement-design", "unit-test", "service-test", "manual-test", "closure"))
+    requirement_add.add_argument(
+        "--type", required=True,
+        choices=("requirement", "design", "plan", "unit-test", "service-test", "manual-test", "closure", "requirement-design"),
+    )
     requirement_add.add_argument("--path", required=True)
     requirement_add.add_argument("--result", choices=("passed", "failed"))
     requirement_add.add_argument("--acceptance", action="append")
@@ -4391,14 +4900,34 @@ def build_parser() -> argparse.ArgumentParser:
     requirement_acceptance_set = requirement_acceptance_sub.add_parser("set", help="原子替换需求验收标准")
     requirement_acceptance_set.add_argument("--requirement-id", required=True)
     requirement_acceptance_set.add_argument("--criterion", action="append", required=True, help="AC-01:说明；可重复")
+    requirement_test_contract = requirement_sub.add_parser("test-contract", help="维护实现前测试契约")
+    requirement_test_contract_sub = requirement_test_contract.add_subparsers(dest="test_contract_command", required=True)
+    requirement_test_contract_set = requirement_test_contract_sub.add_parser("set", help="设置测试类型、报告动作和 AC 映射")
+    requirement_test_contract_set.add_argument("--requirement-id", required=True)
+    requirement_test_contract_set.add_argument("--kind", required=True, choices=("unit", "service", "manual", "both"))
+    requirement_test_contract_set.add_argument("--report-action", required=True, choices=("generate", "register", "later"))
+    requirement_test_contract_set.add_argument("--acceptance", action="append")
+    requirement_test_contract_set.add_argument("--report-path")
     requirement_ready = requirement_sub.add_parser("ready", help="通过实施前 readiness 门禁")
     requirement_ready.add_argument("--requirement-id", required=True)
     requirement_ready.add_argument("--resolution", required=True)
     requirement_begin = requirement_sub.add_parser("begin", help="进入 implementing 状态")
     requirement_begin.add_argument("--requirement-id", required=True)
+    requirement_diagnose = requirement_sub.add_parser("diagnose", help="登记 Bug 根因和源码证据")
+    requirement_diagnose.add_argument("--requirement-id", required=True)
+    requirement_diagnose.add_argument("--root-cause", required=True)
+    requirement_diagnose.add_argument(
+        "--evidence",
+        action="append",
+        required=True,
+        help="仓库相对源码路径，可用 path#symbol；可重复",
+    )
     requirement_defer = requirement_sub.add_parser("defer", help="将需求级产物记录为稍后处理并保留阻塞")
     requirement_defer.add_argument("--requirement-id", required=True)
-    requirement_defer.add_argument("--type", required=True, choices=("requirement-design", "test", "closure"))
+    requirement_defer.add_argument(
+        "--type", required=True,
+        choices=("requirement", "design", "test", "closure", "requirement-design"),
+    )
     requirement_reopen = requirement_sub.add_parser("reopen", help="重新打开需求并废弃下游证据")
     requirement_reopen.add_argument("--requirement-id", required=True)
     requirement_reopen.add_argument("--reason", required=True)
@@ -4408,6 +4937,10 @@ def build_parser() -> argparse.ArgumentParser:
     requirement_amend.add_argument("--track", choices=TRACK_CHOICES)
     requirement_amend.add_argument("--ticket-kind", choices=("bug", "requirement"))
     requirement_amend.add_argument("--external-api", choices=("yes", "no"))
+    requirement_amend.add_argument("--requirement-action", choices=("generate", "register", "later"))
+    requirement_amend.add_argument("--requirement-path")
+    requirement_amend.add_argument("--design-action", choices=("generate", "register", "later"))
+    requirement_amend.add_argument("--design-path")
     requirement_amend.add_argument("--reason", required=True)
     requirement_resolve = requirement_sub.add_parser("resolve-finding", help="按稳定 ID 解决评审问题")
     requirement_resolve.add_argument("--requirement-id", required=True)
@@ -4420,23 +4953,27 @@ def build_parser() -> argparse.ArgumentParser:
     review.add_argument("--summary", required=True)
     review.add_argument("--finding", action="append", default=[], help="critical:说明、important:说明 或 minor:说明")
     review.add_argument("--files", nargs="*", default=[])
+    review.add_argument("--dry-run", action="store_true", help="只检查评审参数和当前需求，不写入 manifest")
     finish = sub.add_parser("finish", help="任务完成后生成收口报告")
     finish.add_argument("--task", help="兼容的中文任务摘要；需求级流程从 manifest 读取")
     finish.add_argument("--requirement-id", help="执行需求级 finish 强门禁")
     finish.add_argument("--run-quality", action="store_true", help="实际运行检测到的 lint/type/style/format/test/verify 命令")
     finish.add_argument("--files", nargs="*", help="本次需求实际影响的源码文件；用于收口范围展示")
     finish.add_argument("--manual-evidence", default="", help="没有自动测试时，记录可复现的人工验证证据")
+    finish.add_argument("--dry-run", action="store_true", help="只检查 finish 门禁，不写入状态")
     finish.add_argument("--legacy", action="store_true", help="显式使用旧的非需求级兼容流程")
     maintain = sub.add_parser("maintain", help="任务完成后刷新项目智能")
     maintain.add_argument("--task", help="兼容的中文任务摘要；需求级流程从 manifest 读取")
     maintain.add_argument("--requirement-id", help="只有 finished 状态才允许维护并关闭")
     maintain.add_argument("--run-quality", action="store_true", help="实际运行检测到的 lint/type/style/format/test/verify 命令")
-    maintain.add_argument("--archive", action="store_true", help="保留带时间戳的维护历史；默认覆盖 .project-intel/maintenance/latest.md")
+    maintain.add_argument("--archive", action="store_true", help="仅旧 --legacy 模式保留维护历史")
     maintain.add_argument("--files", nargs="*", help="本次需求实际影响的源码文件；用于维护每个文件唯一的简短中文需求记录")
+    maintain.add_argument("--dry-run", action="store_true", help="只检查 maintain 前置状态，不关闭需求")
     maintain.add_argument("--legacy", action="store_true", help="显式使用旧的非需求级兼容流程")
     requirements = sub.add_parser("requirements", help="按源码文件维护简短中文需求记录")
     requirements.add_argument("--task", required=True, help="中文需求摘要")
     requirements.add_argument("--files", nargs="+", required=True, help="要沉淀需求的源码文件")
+    requirements.add_argument("--legacy", action="store_true", help="显式使用旧 requirements/files 兼容流程")
     query = sub.add_parser("query", help="搜索项目智能产物")
     query.add_argument("text")
     graph_tools = sub.add_parser("graph-tools", help="查询可选图谱工具的状态与命令")
@@ -4522,11 +5059,15 @@ def dispatch_command(args: argparse.Namespace, root: Path, json_mode: bool) -> t
         return 0, result
     if args.command == "refresh":
         ensure_initialized(root)
+        if args.adapters:
+            result = adapters_apply(root, target="both")
+            print("已维护项目级 Agent 入口：" + ", ".join(item["path"] for item in result.get("entries", [])))
+            return 0, result
         result = init_project(
             root,
             refresh=True,
             with_graph=args.with_graph,
-            adapters=args.adapters,
+            adapters=False,
             allow_repo_runner=args.allow_repo_runner,
             allow_env_command=args.allow_env_command,
             allow_external_path=args.allow_external_path,
@@ -4549,15 +5090,53 @@ def dispatch_command(args: argparse.Namespace, root: Path, json_mode: bool) -> t
         for item in result.get("hookResults", []):
             print(f"{item.get('hook')}：{item.get('status')} - {item.get('detail')}")
         return 0, result
+    if args.command == "adapters":
+        try:
+            if args.adapters_command == "status":
+                result = adapters_status(root, target=args.target)
+                if not json_mode:
+                    for item in result.get("entries", []):
+                        print(f"{item.get('target')}\t{item.get('status')}\t{item.get('path')}")
+                return (1 if args.check and not result.get("ok") else 0), result
+            if args.adapters_command == "preview":
+                result = adapters_preview(root, target=args.target)
+                if not json_mode:
+                    for item in result.get("entries", []):
+                        print(f"{item.get('target')}\t{item.get('action')}\t{item.get('path')}")
+                return 0, result
+            if args.adapters_command == "apply":
+                result = adapters_apply(root, target=args.target)
+                if not json_mode:
+                    print("已维护项目级 Agent 入口：" + ", ".join(item["path"] for item in result.get("entries", [])))
+                return 0, result
+            if args.adapters_command == "remove":
+                result = adapters_remove(root, target=args.target)
+                if not json_mode:
+                    for item in result.get("entries", []):
+                        print(f"{item.get('target')}\t{item.get('action')}\t{item.get('path')}")
+                return 0, result
+        except RuntimeError as exc:
+            fail_usage(str(exc))
     if args.command == "check":
+        if args.dry_run:
+            result = doctor_report(root)
+            return 0, {"dryRun": True, "check": result}
         code = run_check(root, args.run_quality)
-        return code, {"report": ".project-intel/reports/frontend-quality.md"}
+        return code, {"report": ".project-intel/project-status.md"}
     if args.command == "intake":
+        if args.write and not args.legacy:
+            fail_usage("需求级 intake 不再写入共享 reports；如需旧兼容报告请显式使用 --legacy。")
         effective_task = args.task or args.requirement_name
         if not effective_task:
             fail_usage("intake 必须提供 --task 或 --requirement-name。")
         path = write_intake(root, effective_task, track=args.track, write_report=args.write)
-        analysis = analyze_task_intake(root, effective_task, load_project_snapshot(root), track=args.track)
+        analysis = analyze_task_intake(
+            root,
+            effective_task,
+            load_project_snapshot(root),
+            track=args.track,
+            ticket_kind=args.ticket_kind,
+        )
         requirement_manifest = None
         if args.requirement_id or args.requirement_name:
             if not args.requirement_name:
@@ -4573,21 +5152,91 @@ def dispatch_command(args: argparse.Namespace, root: Path, json_mode: bool) -> t
                     external_api=args.external_api == "yes",
                     external_api_source="user",
                     ticket_kind=args.ticket_kind,
+                    requirement_action=args.requirement_action,
+                    requirement_path=args.requirement_path,
+                    design_action=args.design_action,
+                    design_path=args.design_path,
                 )
             except requirements_module.RequirementError as exc:
                 fail_usage(str(exc))
         else:
-            require_legacy(args, "intake")
-            legacy_workflow_warning("intake")
+            # Read-only task classification is not a lifecycle mutation and stays available without --legacy.
+            if args.legacy:
+                legacy_workflow_warning("intake")
         return 0, {"path": str(path) if path else None, "requirement": requirement_manifest, **analysis}
     if args.command == "spec":
+        if args.requirement_id:
+            if not args.criterion:
+                fail_usage("需求级 spec 必须至少提供一个 --criterion AC-01:说明。")
+            try:
+                result = requirements_module.set_acceptance_criteria(
+                    root, args.requirement_id, parse_acceptance_values(args.criterion)
+                )
+            except requirements_module.RequirementError as exc:
+                fail_usage(str(exc))
+            return 0, result
+        require_legacy(args, "spec")
+        legacy_workflow_warning("spec")
+        if not args.title or not args.requirement:
+            fail_usage("旧 spec 兼容模式必须提供 --title 和 --from。")
         path = write_spec(root, args.title, args.requirement, track=args.track)
         return 0, {"path": str(path)}
     if args.command == "plan":
+        if args.requirement_id:
+            try:
+                result = requirements_module.generate_artifact(
+                    root,
+                    args.requirement_id,
+                    "plan",
+                    replace=bool(args.replace),
+                )
+            except requirements_module.RequirementError as exc:
+                fail_usage(str(exc))
+            return 0, result
+        require_legacy(args, "plan")
+        legacy_workflow_warning("plan")
+        if not args.title or not args.from_spec:
+            fail_usage("旧 plan 兼容模式必须提供 --title 和 --from-spec。")
         path = write_plan(root, args.title, args.from_spec, track=args.track)
         return 0, {"path": str(path)}
     if args.command == "lifecycle":
-        payload = lifecycle_payload(root, args.task, track=args.track)
+        if args.write and not args.legacy:
+            fail_usage("lifecycle 默认只输出；写入旧 reports 必须显式使用 --legacy。")
+        if not args.task and not args.requirement_id:
+            fail_usage("lifecycle 必须提供 --task 或 --requirement-id。")
+        if any((args.test_kind, args.report_action, args.report_path, args.acceptance)) and not args.requirement_id:
+            fail_usage("lifecycle 指定测试合同必须同时提供 --requirement-id，避免使用未确认的验收标准。")
+        if bool(args.test_kind) != bool(args.report_action):
+            fail_usage("lifecycle 的 --test-kind 与 --report-action 必须同时提供。")
+        requirement_manifest = None
+        acceptance_ids: list[str] = []
+        task = args.task
+        if args.requirement_id:
+            try:
+                requirement_manifest = requirements_module.load_requirement(root, args.requirement_id)
+            except requirements_module.RequirementError as exc:
+                fail_usage(str(exc))
+            task = task or str(requirement_manifest.get("requirementName") or "")
+            known_acceptance = [str(item.get("id")) for item in requirement_manifest.get("acceptanceCriteria", []) if item.get("id")]
+            acceptance_ids = comma_values(args.acceptance) or known_acceptance
+            unknown_acceptance = sorted(set(acceptance_ids) - set(known_acceptance))
+            if unknown_acceptance:
+                fail_usage("lifecycle 指定的验收标准未在需求档案确认：" + ", ".join(unknown_acceptance))
+            if args.report_action == "register" and not args.report_path:
+                fail_usage("lifecycle 的 --report-action register 必须提供 --report-path。")
+            if requirement_manifest.get("externalApiImpact", {}).get("value") and args.test_kind and args.test_kind not in {"service", "both"}:
+                fail_usage("对外接口需求必须选择 --test-kind service 或 both。")
+        payload = lifecycle_payload(
+            root,
+            task or "",
+            track=args.track,
+            requirement_id=args.requirement_id,
+            test_kind=args.test_kind,
+            report_action=args.report_action,
+            report_path=args.report_path,
+            acceptance_ids=acceptance_ids,
+            ticket_kind=str(requirement_manifest.get("ticketKind") or "requirement") if requirement_manifest else "requirement",
+        )
         print(payload["body"])
         path = None
         if args.write:
@@ -4596,14 +5245,36 @@ def dispatch_command(args: argparse.Namespace, root: Path, json_mode: bool) -> t
             print(f"\n已写入任务影响报告：{path}")
         return 0, {"path": str(path) if path else None, **payload["analysis"]}
     if args.command == "debug":
+        if args.write and not args.legacy:
+            fail_usage("debug 默认只输出；写入旧 reports 必须显式使用 --legacy。")
         path = write_debug_context(root, args.bug, write_report=args.write)
         return 0, {"path": str(path) if path else None}
     if args.command == "requirement":
         try:
             if args.requirement_command == "status":
                 result = requirements_module.status_payload(root, args.requirement_id)
+            elif args.requirement_command == "query":
+                if not args.file_path and not args.state:
+                    raise requirements_module.RequirementError("requirement query 至少提供 --file 或 --state。")
+                result = requirements_module.query_requirements(root, file_path=args.file_path, state=args.state)
+                if not json_mode:
+                    if not result:
+                        print("未找到匹配的需求档案。")
+                    for item in result:
+                        print(f"{item.get('requirementId')}\t{item.get('state')}\t{item.get('requirementName')}")
+                return 0, result
+            elif args.requirement_command == "migrate":
+                result = requirements_module.migrate_layout(root, dry_run=not args.apply)
+                if not json_mode:
+                    print(json.dumps(result, ensure_ascii=False, indent=2))
+                return (0 if result.get("ok") else 1), result
             elif args.requirement_command == "generate":
-                result = requirements_module.generate_artifact(root, args.requirement_id, args.type)
+                result = requirements_module.generate_artifact(
+                    root,
+                    args.requirement_id,
+                    args.type,
+                    replace=bool(args.replace),
+                )
             elif args.requirement_command == "add":
                 manual = None
                 if args.type == "manual-test":
@@ -4635,10 +5306,28 @@ def dispatch_command(args: argparse.Namespace, root: Path, json_mode: bool) -> t
                     args.requirement_id,
                     parse_acceptance_values(args.criterion),
                 )
+            elif args.requirement_command == "test-contract":
+                if args.test_contract_command != "set":
+                    return 2, None
+                result = requirements_module.set_test_contract(
+                    root,
+                    args.requirement_id,
+                    kind=args.kind,
+                    report_action=args.report_action,
+                    acceptance_ids=comma_values(args.acceptance),
+                    report_path=args.report_path,
+                )
             elif args.requirement_command == "ready":
                 result = requirements_module.ready_requirement(root, args.requirement_id, args.resolution)
             elif args.requirement_command == "begin":
                 result = requirements_module.begin_requirement(root, args.requirement_id)
+            elif args.requirement_command == "diagnose":
+                result = requirements_module.record_diagnosis(
+                    root,
+                    args.requirement_id,
+                    root_cause=args.root_cause,
+                    evidence=args.evidence,
+                )
             elif args.requirement_command == "defer":
                 result = requirements_module.record_later(root, args.requirement_id, args.type)
             elif args.requirement_command == "reopen":
@@ -4653,6 +5342,10 @@ def dispatch_command(args: argparse.Namespace, root: Path, json_mode: bool) -> t
                     ticket_kind=args.ticket_kind,
                     external_api=external_api,
                     external_api_source="user",
+                    requirement_action=args.requirement_action,
+                    requirement_path=args.requirement_path,
+                    design_action=args.design_action,
+                    design_path=args.design_path,
                     reason=args.reason,
                 )
             elif args.requirement_command == "resolve-finding":
@@ -4705,6 +5398,21 @@ def dispatch_command(args: argparse.Namespace, root: Path, json_mode: bool) -> t
             manual_approval=manual_approval,
         )
     if args.command == "review":
+        if args.dry_run:
+            try:
+                manifest = requirements_module.load_requirement(root, args.requirement_id)
+                snapshot = requirements_module.capture_requirement_scope(root, manifest)
+                result = {
+                    "dryRun": True,
+                    "requirementId": args.requirement_id,
+                    "state": manifest.get("state"),
+                    "files": args.files,
+                    "findings": parse_review_findings(args.finding),
+                    "diffHash": snapshot.get("diffHash"),
+                }
+            except requirements_module.RequirementError as exc:
+                fail_usage(str(exc))
+            return 0, result
         try:
             result = requirements_module.record_review(
                 root,
@@ -4726,6 +5434,19 @@ def dispatch_command(args: argparse.Namespace, root: Path, json_mode: bool) -> t
                 fail_usage("finish 必须提供 --task 或 --requirement-id。")
             require_legacy(args, "finish")
             legacy_workflow_warning("finish")
+        if args.dry_run and args.requirement_id:
+            try:
+                manifest = requirements_module.load_requirement(root, args.requirement_id)
+                snapshot = requirements_module.capture_requirement_scope(root, manifest)
+                requirements_module.validate_scope_selection(
+                    root,
+                    args.files if args.files is not None else list(snapshot.get("files", [])),
+                    snapshot,
+                )
+                requirements_module.validate_finished_freshness(root, args.requirement_id)
+            except requirements_module.RequirementError as exc:
+                fail_usage(str(exc))
+            return 0, {"dryRun": True, "requirementId": args.requirement_id, "state": manifest.get("state")}
         code = finish_project(
             root,
             args.task,
@@ -4734,13 +5455,27 @@ def dispatch_command(args: argparse.Namespace, root: Path, json_mode: bool) -> t
             manual_evidence=args.manual_evidence,
             requirement_id=args.requirement_id,
         )
-        return code, {"report": ".project-intel/reports/finish-report.md"}
+        return code, {
+            "report": (
+                str(requirements_module.active_manifest_path(root, args.requirement_id).relative_to(root))
+                if args.requirement_id else ".project-intel/reports/finish-report.md"
+            )
+        }
     if args.command == "maintain":
         if not args.requirement_id:
             if not args.task:
                 fail_usage("maintain 必须提供 --task 或 --requirement-id。")
             require_legacy(args, "maintain")
             legacy_workflow_warning("maintain")
+        if args.dry_run and args.requirement_id:
+            try:
+                requirements_module.validate_finished_freshness(root, args.requirement_id)
+                manifest = requirements_module.load_requirement(root, args.requirement_id)
+                if manifest.get("state") != "finished":
+                    raise requirements_module.RequirementError("maintain 只能从 finished 状态开始。")
+            except requirements_module.RequirementError as exc:
+                fail_usage(str(exc))
+            return 0, {"dryRun": True, "requirementId": args.requirement_id, "state": manifest.get("state")}
         code = maintain_project(
             root,
             args.task,
@@ -4749,8 +5484,15 @@ def dispatch_command(args: argparse.Namespace, root: Path, json_mode: bool) -> t
             files=args.files,
             requirement_id=args.requirement_id,
         )
-        return code, {"maintenance": ".project-intel/maintenance/latest.md"}
+        return code, {
+            "maintenance": (
+                str(requirements_module.active_manifest_path(root, args.requirement_id).relative_to(root))
+                if args.requirement_id else ".project-intel/maintenance/latest.md"
+            )
+        }
     if args.command == "requirements":
+        require_legacy(args, "requirements")
+        legacy_workflow_warning("requirements")
         paths = update_file_requirement_docs(root, args.task, args.files)
         return 0, {"paths": [str(path) for path in paths]}
     if args.command == "query":
@@ -4795,17 +5537,21 @@ def main(argv: list[str]) -> int:
     parser = build_parser()
     output = io.StringIO()
     errors = io.StringIO()
+    command = "unknown"
     with contextlib.redirect_stdout(output), contextlib.redirect_stderr(errors):
         try:
             args = parser.parse_args(clean_argv)
+            command = args.command
             root = project_root(args.project)
             code, result = dispatch_command(args, root, True)
         except SystemExit as exc:
             code = int(exc.code) if isinstance(exc.code, int) else 2
             result = {"error": errors.getvalue().strip() or output.getvalue().strip() or str(exc) or "command failed"}
-            command = clean_argv[0] if clean_argv else "unknown"
-        else:
-            command = args.command
+        except Exception as exc:
+            # JSON callers must never receive a raw traceback or a partial non-JSON response.
+            # Expected gate failures use exit code 2 above; unexpected runtime errors use 1.
+            code = 1
+            result = {"error": str(exc) or exc.__class__.__name__}
     print(json.dumps(json_envelope(command, code, result, output.getvalue()), ensure_ascii=False, indent=2, default=str))
     return code
 

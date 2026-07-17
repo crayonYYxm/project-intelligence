@@ -18,7 +18,12 @@ def changed_project_files(root: Path, run: Callable[..., tuple[int, str, str]]) 
 
 
 def query_paths(project_dir: Path) -> list[Path]:
-    paths = [project_dir / "manifest.json", project_dir / "config.json", project_dir / "graph" / "project-graph.json"]
+    paths = [
+        project_dir / "manifest.json",
+        project_dir / "config.json",
+        project_dir / "project-status.md",
+        project_dir / "graph" / "project-graph.json",
+    ]
     paths.extend(sorted((project_dir / "standards").glob("*.md")))
     paths.extend(sorted((project_dir / "reports").glob("*.md")))
     paths.extend(sorted((project_dir / "requirements").rglob("*.md")))

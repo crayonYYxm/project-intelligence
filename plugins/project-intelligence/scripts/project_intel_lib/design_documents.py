@@ -100,6 +100,53 @@ CREDENTIAL_ASSIGNMENT_RE = re.compile(
     r'''access[_-]?token|refresh[_-]?token)\b\s*[:=]\s*["']?([^\s,"'}]+)'''
 )
 SAFE_VALUE_MARKERS = ("<", "${", "***", "redacted", "masked", "example", "示例", "虚构", "待确认")
+SOURCE_FILE_SUFFIXES = {
+    ".c",
+    ".cc",
+    ".conf",
+    ".cpp",
+    ".cs",
+    ".css",
+    ".go",
+    ".gradle",
+    ".h",
+    ".hpp",
+    ".html",
+    ".java",
+    ".js",
+    ".json",
+    ".jsx",
+    ".kt",
+    ".kts",
+    ".less",
+    ".m",
+    ".mm",
+    ".php",
+    ".properties",
+    ".py",
+    ".rb",
+    ".rs",
+    ".scss",
+    ".sql",
+    ".swift",
+    ".ts",
+    ".tsx",
+    ".vue",
+    ".wxml",
+    ".wxss",
+    ".xml",
+    ".yaml",
+    ".yml",
+}
+EXTERNAL_SOURCE_GAP_RE = re.compile(
+    r"(?:外部|第三方|依赖|客户中心)[^\n。；;]{0,80}(?:源码|实现)"
+    r"[^\n。；;]{0,40}(?:未取得|未提供|不可用|无法访问|无法核验|缺失)"
+    r"|(?:源码|实现)[^\n。；;]{0,40}(?:未取得|未提供|不可用|无法访问|无法核验|缺失)"
+    r"[^\n。；;]{0,80}(?:外部|第三方|依赖|客户中心)",
+    re.I,
+)
+SYMBOL_LINK_RE = re.compile(r"(?:中的?|内的?|定义的?|函数|方法|类|组件|符号|接口|调用)")
+UNRESOLVED_CONTENT_RE = re.compile(r"(?:待确认|待补充|需澄清|仍需确认|尚需确认|未确认|无法核验)")
 
 
 def normalize_heading(value: str) -> str:
@@ -201,6 +248,142 @@ def source_evidence_values(text: str) -> list[str]:
     return [value for value in inline_code_values(text) if value.strip().lower() not in ignored]
 
 
+def _split_source_reference(value: str) -> tuple[Optional[str], Optional[str]]:
+    """Return a repository path and an optional explicitly attached symbol."""
+    clean = value.strip().strip("<>[](){}'\"")
+    if not clean or "\n" in clean or "\x00" in clean:
+        return None, None
+    clean = re.sub(r"#L\d+(?:-L\d+)?$", "", clean, flags=re.I)
+    clean = re.sub(r":\d+(?::\d+)?$", "", clean)
+    path_value = clean
+    symbol: Optional[str] = None
+    for separator in ("::", "#"):
+        if separator in clean:
+            candidate, attached = clean.split(separator, 1)
+            if Path(candidate).suffix.lower() in SOURCE_FILE_SUFFIXES:
+                path_value, symbol = candidate, attached
+                break
+    if symbol is None and ":" in clean and not re.match(r"^[A-Za-z]:[\\/]", clean):
+        candidate, attached = clean.rsplit(":", 1)
+        if Path(candidate).suffix.lower() in SOURCE_FILE_SUFFIXES and not attached.isdigit():
+            path_value, symbol = candidate, attached
+    if Path(path_value).suffix.lower() not in SOURCE_FILE_SUFFIXES:
+        return None, None
+    if re.search(r"\s", path_value):
+        return None, None
+    normalized_symbol = symbol.strip() if symbol else None
+    return path_value, normalized_symbol or None
+
+
+def _symbol_name(value: str) -> str:
+    clean = value.strip().removesuffix("()").strip()
+    clean = clean.split("(", 1)[0].strip()
+    return clean.rsplit(".", 1)[-1].rsplit("::", 1)[-1]
+
+
+def _symbol_exists(source: str, symbol: str) -> bool:
+    name = _symbol_name(symbol)
+    if not name or not re.match(r"^[A-Za-z_$][\w$-]*$", name):
+        return False
+    return re.search(rf"(?<![\w$]){re.escape(name)}(?![\w$])", source) is not None
+
+
+def _external_source_gaps(text: str) -> list[str]:
+    gaps: list[str] = []
+    for line in text.splitlines():
+        compact = line.strip()
+        if compact and EXTERNAL_SOURCE_GAP_RE.search(compact):
+            gaps.append(compact)
+    return list(dict.fromkeys(gaps))
+
+
+def _unresolved_content_issues(text: str) -> list[str]:
+    issues: list[str] = []
+    for line in text.splitlines():
+        compact = line.strip()
+        if not compact or not UNRESOLVED_CONTENT_RE.search(compact):
+            continue
+        if re.search(r"(?:无|没有|不存在)(?:待确认|待补充|未确认)", compact):
+            continue
+        issues.append(f"设计内容尚未确认：{compact[:240]}")
+    return list(dict.fromkeys(issues))
+
+
+def validate_source_evidence(text: str, repo: Path) -> tuple[list[dict[str, Any]], list[str], list[str]]:
+    """Validate that source claims point to real files and, when named, real symbols."""
+    errors: list[str] = []
+    blocking_issues = [f"外部源码缺口尚未解决：{item}" for item in _external_source_gaps(text)]
+    blocking_issues.extend(_unresolved_content_issues(text))
+    blocking_issues = list(dict.fromkeys(blocking_issues))
+    try:
+        repo_root = repo.resolve(strict=True)
+    except OSError:
+        return [], [f"无法读取目标仓库：{repo}。"], blocking_issues
+
+    matches = list(re.finditer(r"`([^`\n]+)`", text))
+    claims: list[dict[str, Any]] = []
+    for index, match in enumerate(matches):
+        path_value, attached_symbol = _split_source_reference(match.group(1))
+        if path_value is None:
+            continue
+        symbols: list[str] = [attached_symbol] if attached_symbol else []
+        if index + 1 < len(matches):
+            following = matches[index + 1]
+            between = text[match.end() : following.start()]
+            same_line = "\n" not in between
+            next_path, _ = _split_source_reference(following.group(1))
+            candidate_symbol = following.group(1).strip()
+            if (
+                same_line
+                and len(between) <= 80
+                and next_path is None
+                and SYMBOL_LINK_RE.search(between)
+                and re.match(r"^[A-Za-z_$][\w$.:()<>-]*$", candidate_symbol)
+            ):
+                symbols.append(candidate_symbol)
+
+        raw_path = Path(path_value)
+        if raw_path.is_absolute() or ".." in raw_path.parts:
+            errors.append(f"源码证据必须是仓库内相对路径：{path_value}。")
+            continue
+        candidate = repo_root.joinpath(*raw_path.parts)
+        try:
+            resolved = candidate.resolve(strict=True)
+            relative = resolved.relative_to(repo_root).as_posix()
+        except FileNotFoundError:
+            errors.append(
+                f"源码证据路径不存在：{path_value}。"
+                "若属于未取得源码的外部系统，必须在文档中明确标注外部源码缺口。"
+            )
+            continue
+        except (OSError, ValueError):
+            errors.append(f"源码证据路径越界或无法读取：{path_value}。")
+            continue
+        if not resolved.is_file():
+            errors.append(f"源码证据必须指向真实文件：{path_value}。")
+            continue
+        try:
+            source = resolved.read_text(encoding="utf-8", errors="ignore")
+        except OSError:
+            errors.append(f"无法读取源码证据文件：{relative}。")
+            continue
+        unique_symbols = list(dict.fromkeys(item for item in symbols if item))
+        for symbol in unique_symbols:
+            if not _symbol_exists(source, symbol):
+                errors.append(f"源码证据符号不存在：{relative} 中未找到 {symbol}。")
+        claims.append({"path": relative, "symbols": unique_symbols})
+
+    evidence_by_path: dict[str, dict[str, Any]] = {}
+    for item in claims:
+        existing = evidence_by_path.setdefault(item["path"], {"path": item["path"], "symbols": []})
+        existing["symbols"] = list(dict.fromkeys(existing["symbols"] + item["symbols"]))
+    evidence = list(evidence_by_path.values())
+    if not evidence:
+        errors.append("设计文档至少需要一个存在的仓库相对源码路径作为实现依据。")
+    errors.extend(blocking_issues)
+    return evidence, list(dict.fromkeys(errors)), blocking_issues
+
+
 def check_sensitive_content(text: str, errors: list[str]) -> None:
     for label, pattern in STRONG_SENSITIVE_PATTERNS:
         if pattern.search(text):
@@ -250,6 +433,15 @@ def design_filename(identifier: str, name: str, kind: str) -> str:
     return f"{identifier}_{safe_name}_设计文档.md"
 
 
+def _is_canonical_internal_design(relative: str) -> bool:
+    path = Path(relative)
+    return (
+        path.name == "design.md"
+        and len(path.parts) >= 4
+        and path.parts[-4:-2] == (".project-intel", "requirements")
+    )
+
+
 def validate_bug(
     text: str,
     lines: list[str],
@@ -260,6 +452,7 @@ def validate_bug(
 ) -> None:
     sections = collect_sections(lines, headings, BUG_HEADINGS, errors)
     filename = Path(relative).name
+    canonical_internal = _is_canonical_internal_design(relative)
     title_match = re.search(r"(?im)^#\s+(\S+)\s+(.+?)\s*$", text)
     if title_match is None:
         errors.append("Bug 文档标题必须使用“# <Bug 编号> <名称>”。")
@@ -268,7 +461,7 @@ def validate_bug(
         if title_id.isdigit():
             errors.append("纯数字 Bug 编号必须补 bug 前缀，例如 bug56925。")
         expected_filename = design_filename(title_id, title_name, "bug")
-        if filename != expected_filename:
+        if filename != expected_filename and not canonical_internal:
             errors.append(f"Bug 文件名与标题不一致；应为 {expected_filename}。")
     if len(lines) > BUG_MAX_LINES:
         errors.append(f"Bug 文档超过 {BUG_MAX_LINES} 行；请按五段式精简模板压缩。")
@@ -294,7 +487,8 @@ def validate_requirement(
 ) -> None:
     sections = collect_sections(lines, headings, REQUIREMENT_HEADINGS, errors)
     filename = Path(relative).name
-    if not filename.endswith("_设计文档.md"):
+    canonical_internal = _is_canonical_internal_design(relative)
+    if not filename.endswith("_设计文档.md") and not canonical_internal:
         errors.append("Requirement 文件名必须使用“<需求号>_<名称>_设计文档.md”格式。")
     title_match = re.search(r"(?im)^#\s+(.+_设计文档)\s*$", text)
     if title_match is None:
@@ -305,7 +499,7 @@ def validate_requirement(
         if identifier.isdigit():
             errors.append("纯数字 Requirement 编号必须补 req 前缀，例如 req73822。")
         expected_filename = f"{title_value}.md"
-        if filename != expected_filename:
+        if filename != expected_filename and not canonical_internal:
             errors.append(f"Requirement 文件名与标题不一致；应为 {expected_filename}。")
     for label in ("江苏电信BSS项目", "文档更改记录"):
         if label not in text:
@@ -342,7 +536,9 @@ def _validate_identity(
     if not kind or not expected_id or expected_name is None:
         return
     expected_file = design_filename(expected_id, expected_name, kind)
-    if Path(relative).name != expected_file:
+    path = Path(relative)
+    canonical_internal = _is_canonical_internal_design(relative) and path.parts[-2] == expected_id
+    if path.name != expected_file and not canonical_internal:
         label = "Bug 编号" if kind == "bug" else "需求号"
         errors.append(f"设计文档文件名与 manifest {label}/名称不一致；应为 {expected_file}。")
     expected_title = f"# {expected_id} {expected_name}" if kind == "bug" else f"# {expected_id}_{expected_name}_设计文档"
@@ -359,7 +555,6 @@ def validate(
     expected_id: Optional[str] = None,
     expected_name: Optional[str] = None,
 ) -> dict[str, Any]:
-    del repo
     lines = text.splitlines()
     headings = parse_headings(lines)
     errors: list[str] = []
@@ -374,6 +569,8 @@ def validate(
     for label, pattern in PLACEHOLDER_PATTERNS:
         if pattern.search(text):
             errors.append(f"检测到遗留占位内容：{label}。")
+    source_evidence, source_errors, blocking_issues = validate_source_evidence(text, repo)
+    errors.extend(source_errors)
     check_sensitive_content(text, errors)
     return {
         "ok": not errors,
@@ -381,6 +578,8 @@ def validate(
         "file": relative,
         "errors": list(dict.fromkeys(errors)),
         "warnings": list(dict.fromkeys(warnings)),
+        "sourceEvidence": source_evidence,
+        "blockingIssues": list(dict.fromkeys(blocking_issues)),
     }
 
 

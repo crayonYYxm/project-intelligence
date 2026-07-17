@@ -8,14 +8,10 @@ description: Use when shaping a project requirement, brainstorming approaches, c
 Start with project facts, then turn the idea into a concrete direction.
 
 1. Read `.project-intel/manifest.json` if it exists; if missing, use `project-intel doctor` or `project-intel init --dry-run`, and initialize only after explicit user authorization.
-2. Inspect relevant standards, knowledge JSON, graph summary, and recent reports.
+2. Inspect relevant standards, knowledge JSON, graph summary, and `.project-intel/project-status.md`.
 3. Run `project-intel intake --task "<requirement>"` or follow the same classification manually to decide quick/standard/complex.
 4. Ask only questions that materially affect scope, success criteria, reuse, risk, or UX/API behavior.
 5. Present 2-3 feasible approaches with tradeoffs and a recommendation.
-6. When the direction is stable, keep a lightweight Chinese spec in context. Create a persistent spec file only when the user explicitly asks for one:
-
-```bash
-project-intel spec --title "<title>" --from "<requirement>" --track standard
-```
+6. When the direction is stable, keep the brainstorm result in context. Enter the durable lifecycle only when the user explicitly asks to implement the idea or persist a requirement document: invoke `project-intake` and then `project-spec`; do not call the legacy shared `project-intel spec` command or create `.project-intel/specs/`.
 
 Prefer existing components, Hooks, services, APIs, domain flows, and standards. Use GitNexus for precise impact when available and Understand-Anything for architecture/domain context.

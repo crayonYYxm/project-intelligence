@@ -1,6 +1,6 @@
 ---
 name: project-design
-description: Use when converting one or more local Markdown/TXT Bug or requirement tickets into a source-backed development design document, validating an existing development design, or handling the generate/register/later design-document step after project-intake. 根据 Bug 单写开发设计文档, 把需求单转成技术设计, 生成本地需求开发设计文档, 分析代码后补充设计文档, 写 Bug 修复设计说明. Do not use for brainstorming, implementation plans, direct code changes, or document polishing without source analysis.
+description: Use when converting local Markdown/TXT Bug or requirement tickets into a source-backed technical development design, validating an existing design, or handling the lifecycle design action after project-spec and, for Bugs, project-debug. 根据 Bug 单写开发设计文档, 把需求单转成技术设计, 生成本地需求开发设计文档, 分析代码后补充设计文档, 写 Bug 修复设计说明. Standalone design-only requests use only this Skill; do not use it for brainstorming, task checklists, direct code changes, or prose polishing without source analysis.
 ---
 
 # Project Design
@@ -9,24 +9,24 @@ Generate or validate a development design from ticket facts and repository evide
 
 ## Choose the mode
 
-- **Standalone**: When the user asks only for a design document, generate and validate `docs/requirements/<ticket>-<name>-设计文档.md` without running intake, initializing `.project-intel`, or registering lifecycle artifacts.
-- **Lifecycle**: When `project-intake` routes an implementation task here, use the existing requirement ID, name, ticket kind, repository, and selected action. Do not create a second requirement manifest.
+- **Standalone**: When the user asks only for a design document, generate and validate a kind-specific file under `docs/requirements/`: Bugs use `<bug-id>-<name>-设计文档.md`; Requirements use `<requirement-id>_<name>_设计文档.md`. Do not run intake, initialize `.project-intel`, or register lifecycle artifacts.
+- **Lifecycle**: When `project-intake` routes an implementation task here, use the existing requirement ID, name, ticket kind, repository, and selected action. Write the durable design as `.project-intel/requirements/<id>/design.md`; do not create a second manifest or a second lifecycle design file.
 
-For lifecycle mode, read `project-intel requirement status --requirement-id <id> --json` first. Handle the selected action:
+For lifecycle mode, read `project-intel requirement status --requirement-id <id> --json` first. Handle the persisted `workflowSelections.design` action/path; do not ask again or silently choose a different action:
 
 - `generate`: analyze the ticket and source, write the document, validate it, then register it.
 - `register existing`: validate the supplied repository-relative document and register it without rewriting unless the user requested changes.
-- `later`: run `project-intel requirement defer --requirement-id <id> --type requirement-design` and stop before readiness.
+- `later`: run `project-intel requirement defer --requirement-id <id> --type design` and stop before readiness.
 
-For a lifecycle Bug, invoke `project-debug` before generating the document so the root cause is evidence-backed. After a successful lifecycle registration, hand off to `project-spec`; acceptance criteria belong in the manifest and must not be added to the design document.
+For a lifecycle Bug, `project-debug` must have persisted a current `requirement diagnose` result before this Skill generates the document, so the root cause is evidence-backed and machine-gated. `project-spec` must already have produced the current `requirement.md` and manifest AC. Acceptance criteria do not belong in the design document.
 
 ## Establish inputs
 
-1. Accept one or more local `.md` or `.txt` tickets. Read explicitly supplied files outside the repository without copying them into the repository.
+1. In standalone mode, require one or more local `.md` or `.txt` tickets. In lifecycle mode, prefer supplied ticket files, but when none exists use the confirmed intake narrative and requirement manifest as the source ticket; ask only when those facts are insufficient to produce an evidence-backed design. Read explicitly supplied files outside the repository without copying them into the repository.
 2. Use the current Git repository when available; otherwise ask for the target repository before producing a complete design.
 3. Preserve formal ticket identifiers. Prefix a purely numeric Bug with `bug` and a purely numeric Requirement with `req`.
 4. Identify one primary output repository when several repositories are involved. Treat unavailable repositories and services as external evidence gaps.
-5. Write Bugs as `<bug-id>-<name>-设计文档.md` and Requirements as `<requirement-id>_<name>_设计文档.md`. Reject path separators, control characters, and output outside the primary repository.
+5. In standalone mode, write Bugs as `<bug-id>-<name>-设计文档.md` and Requirements as `<requirement-id>_<name>_设计文档.md`. In lifecycle mode always use `.project-intel/requirements/<id>/design.md`. Reject path separators, control characters, and output outside the primary repository.
 
 ## Analyze evidence
 
@@ -61,10 +61,10 @@ In lifecycle mode, register the validated document:
 ```bash
 project-intel requirement add \
   --requirement-id "<id>" \
-  --type requirement-design \
+  --type design \
   --path <repo-relative-design-path>
 ```
 
-Do not call `requirement ready`; `project-spec` must first confirm and persist acceptance criteria. If an existing output would be replaced rather than meaningfully updated, ask before overwriting it.
+Do not call `requirement ready` inside this Skill. In lifecycle mode, return to the orchestrating flow after registration; it may generate the optional complex-task plan and then call ready. Do not loop back to `project-spec` unless source evidence exposes a real contradiction. If an existing output would be replaced rather than meaningfully updated, ask before overwriting it.
 
 Report the output path, ticket type, implementation status, repositories inspected, validation result, lifecycle registration result when applicable, and unresolved external evidence gaps.

@@ -1,6 +1,69 @@
 from __future__ import annotations
 
 
+def requirement_document(requirement_id: str, name: str, *, kind: str = "requirement") -> str:
+    bug_sections = ""
+    if kind == "bug":
+        bug_sections = """## 复现条件
+
+在已登录且具备业务权限的环境中执行目标操作。
+
+## 当前行为
+
+系统仍返回旧结果，未满足单据约定。
+
+## 预期行为
+
+系统按新规则返回结果，同时保持既有兼容行为。
+
+"""
+    return f"""# {requirement_id} {name} 需求文档
+
+## 文档信息
+
+- 需求号：`{requirement_id}`
+- 需求名称：{name}
+- 单据类型：{'Bug' if kind == 'bug' else 'Requirement'}
+
+## 背景与现状
+
+当前实现仍使用旧规则，需要依据来源单据调整目标行为。
+
+## 目标
+
+实现“{name}”，并保持未涉及场景的现有行为不变。
+
+## 业务场景
+
+用户在正常业务流程中触发目标能力，系统按新规则完成处理。
+
+## 范围
+
+本次包含目标逻辑、相关异常边界和回归验证。
+
+## 非目标
+
+不调整无关业务流程，不改动未在本需求中声明的接口契约。
+
+{bug_sections}## 业务规则与异常边界
+
+正常输入按新规则处理；缺失或非法输入继续沿用既有异常处理。
+
+## 验收标准
+
+- AC-01：实现需求约定的目标行为。
+- AC-02：相关测试通过且无重要回归。
+
+## 外部接口影响
+
+不影响对外接口；本测试需求仅调整内部服务行为。
+
+## 待确认事项
+
+无；测试范围和目标行为已经确认。
+"""
+
+
 def requirement_design(requirement_id: str, name: str) -> str:
     return f"""# {requirement_id}_{name}_设计文档
 

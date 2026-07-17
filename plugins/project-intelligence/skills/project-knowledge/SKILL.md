@@ -1,6 +1,6 @@
 ---
 name: project-knowledge
-description: Use when answering questions about project structure, components, Hooks, APIs, services, modules, standards, business flows, generated knowledge, or reusable patterns. 项目知识, 项目结构, 项目架构, 组件, 接口, 服务, 模块.
+description: Use when answering read-only questions about project structure, components, Hooks, APIs, services, modules, standards, business flows, generated knowledge, or reusable patterns. 项目知识查询, 项目结构说明, 项目架构说明, 查询组件, 查询接口, 查询服务, 模块说明. Do not use as the terminal route for requests that add or modify an API, service, module, or feature.
 ---
 
 # Project Knowledge
@@ -11,10 +11,9 @@ Answer from `.project-intel` first:
 - `.project-intel/standards/*.md` for rules and conventions
 - `.project-intel/knowledge/*.json` for components, Hooks, APIs, services, files, and candidates
 - `.project-intel/graph/project-graph.json` for graph summary
-- `.project-intel/specs/*.md` and `.project-intel/plans/*.md` only when the user explicitly generated specs/plans
-- `.project-intel/reports/*.md` for stable initialization, tooling, quality, and optional task/debug reports
-- `.project-intel/maintenance/latest.md` for the latest post-task refresh; timestamped maintenance files exist only when `--archive` was requested
-- `.project-intel/requirements/files/**/*.md` for one concise Chinese requirement history per affected source file
+- `.project-intel/project-status.md` for the replaceable current scan, tooling, and quality summary
+- `.project-intel/requirements/<id>/manifest.json` plus its four lifecycle documents for requirement history
+- `.project-intel/requirements/<id>/plan.md` only when a complex task or explicit request created it
 
 Use GitNexus for precise symbol-level questions. Use Understand-Anything for architecture/domain questions.
 
@@ -22,6 +21,7 @@ Search with:
 
 ```bash
 project-intel query "<question>"
+project-intel requirement query --file <repo-relative-source-path>
 ```
 
 Prefer `.project-intel` facts, GitNexus context, Understand-Anything context, and direct source reads.
