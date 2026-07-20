@@ -77,14 +77,22 @@ Always read the command output before claiming a test passed or a regression was
 
 ## Requirement-Level Report Gate
 
-Before executing tests, ask both questions explicitly:
+Before `requirement ready`, ask both questions explicitly and persist the answer as a contract:
 
 1. Test type: `unit`, `service`, `both`, or `manual`.
 2. Test document action: `generate`, `register existing`, or `later`.
 
+Also confirm the exact AC IDs the selected test is intended to prove. Persist the selection before readiness; do not rely on a CLI default:
+
+```bash
+project-intel requirement test-contract set --requirement-id "<id>" \
+  --kind unit|service|both|manual --report-action generate|register|later \
+  --acceptance AC-01,AC-02 [--report-path <existing-report-if-register>]
+```
+
 In a requirement lifecycle, these questions may be answered while the requirement is `ready`, but do not execute the CLI command, generate/register the report, or edit a test file until `project-task` has successfully run `requirement begin` and the state is `implementing`.
 
-Pass the requirement ID and the selected action:
+After `project-task` successfully begins implementation, pass the requirement ID, selected action, and the explicitly confirmed AC mapping:
 
 ```bash
 project-intel test --requirement-id "<id>" --test-kind unit \
@@ -93,6 +101,6 @@ project-intel test --requirement-id "<id>" --test-kind unit \
   --acceptance AC-01,AC-02
 ```
 
-For external API impact, require `service` or `both`. A generated `test-report.md` starts as a plan and becomes valid only after actual execution is appended. `later`, empty, RED-only, stale, or failed evidence never satisfies finish.
+For external API impact, require `service` or `both`. `both` needs separate passing unit and service evidence. A generated `test-report.md` starts as a plan and becomes valid only after actual execution is appended. A zero-exit command without a recognised positive test count (including `true`, lint, build, or type-check) is not test evidence. `later`, empty, RED-only, stale, or failed evidence never satisfies finish.
 
 Use manual testing only for visual, device, hardware, or configuration behavior that cannot reasonably be automated. Obtain explicit approval and record reason, steps, input, observation, and an existing screenshot/log path using the `--manual-*` options. A one-line “verified manually” statement is invalid.

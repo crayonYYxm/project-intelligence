@@ -50,6 +50,13 @@ class RequirementHardeningTests(unittest.TestCase):
             {"id": "AC-02", "description": "相关测试通过且无重要回归。"},
         ]
         requirements.set_acceptance_criteria(root, identifier, criteria)
+        requirements.set_test_contract(
+            root,
+            identifier,
+            kind="both" if external_api else "unit",
+            report_action="generate",
+            acceptance_ids=["AC-01", "AC-02"],
+        )
         directory = requirements.requirement_dir(root, identifier)
         directory.mkdir(parents=True, exist_ok=True)
         requirement_body = requirement_document(identifier, name)
@@ -476,12 +483,10 @@ class RequirementHardeningTests(unittest.TestCase):
                     "unit-test",
                     report.relative_to(root).as_posix(),
                     result="passed",
-                    acceptance_ids=[acceptance_id],
+                    acceptance_ids=["AC-01", "AC-02"],
                     files=["src/service.py"],
                 )
             manifest = requirements.load_requirement(root, "REQ-HARD")
-            first_archive = root / manifest["testEvidence"][0]["reportSourcePath"]
-            first_archive.unlink()
             snapshot = requirements.capture_requirement_scope(root, manifest)
             requirements.record_review(
                 root,
@@ -492,6 +497,8 @@ class RequirementHardeningTests(unittest.TestCase):
                 files=["src/service.py"],
                 snapshot=snapshot,
             )
+            latest_archive = root / manifest["testEvidence"][-1]["reportSourcePath"]
+            latest_archive.unlink()
             requirements.generate_artifact(root, "REQ-HARD", "closure")
 
             with self.assertRaisesRegex(requirements.RequirementError, "验收标准|测试报告|完整性"):
@@ -580,6 +587,9 @@ class RequirementHardeningTests(unittest.TestCase):
                 {"id": "AC-01", "description": "实现需求约定的目标行为。"},
                 {"id": "AC-02", "description": "相关测试通过且无重要回归。"},
             ])
+            requirements.set_test_contract(
+                root, "bug1234", kind="unit", report_action="generate", acceptance_ids=["AC-01", "AC-02"]
+            )
             directory = requirements.requirement_dir(root, "bug1234")
             requirement_path = directory / "requirement.md"
             requirement_path.write_text(

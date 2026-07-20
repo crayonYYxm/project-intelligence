@@ -20,7 +20,7 @@ project-intel requirement status --requirement-id "<id>" --json
 Do not run intake again for an existing lifecycle requirement: it may have an explicitly confirmed track or other intake values that must not be re-inferred. If no requirement ID or manifest exists, return to `project-intake` and complete spec/design/readiness before resuming this Skill.
 
 2. Before the first code edit, confirm `project-spec` registered `requirement.md`, persisted matching acceptance criteria, and `project-design` registered `design.md`. Do not add AC headings to the design document.
-3. Confirm `project-test` has selected the test type, report action, target test file, command, expected RED failure, GREEN proof, regression scope, and any justified manual-evidence exception. While the requirement is still `ready`, this is planning only. Then run `project-intel requirement begin --requirement-id "<id>"` and confirm `state: implementing` before generating the test report, editing the test file, or executing/recording RED.
+3. Confirm `project-test` has already persisted an explicit test contract before readiness: test type, report action, target test file, command, explicit AC mapping, expected RED failure, GREEN proof, regression scope, and any justified manual-evidence exception. While the requirement is still `ready`, this is planning only. Then run `project-intel requirement begin --requirement-id "<id>"` and confirm `state: implementing` before generating the test report, editing the test file, or executing/recording RED.
 4. Identify related modules, components, Hooks, APIs, services, routes, and standards.
 5. Prefer existing project abstractions before creating new ones.
 6. Treat redundancy findings as `candidate` unless a rule has been promoted to `hard`.

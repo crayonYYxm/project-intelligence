@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import ast
 import json
 import re
 import subprocess
@@ -147,6 +148,13 @@ EXTERNAL_SOURCE_GAP_RE = re.compile(
 )
 SYMBOL_LINK_RE = re.compile(r"(?:中的?|内的?|定义的?|函数|方法|类|组件|符号|接口|调用)")
 UNRESOLVED_CONTENT_RE = re.compile(r"(?:待确认|待补充|需澄清|仍需确认|尚需确认|未确认|无法核验)")
+REQUIREMENT_V2_SCHEMA = "requirement-crm-v2"
+BUG_SCHEMA = "bug-v1"
+SCENE_REQUIRED_LABELS = ("场景名称", "参与对象", "前置条件", "处理过程", "目标结果", "异常边界")
+MAX_REQUIREMENT_CODE_BLOCKS = 3
+MAX_REQUIREMENT_CODE_LINES = 10
+MAX_REQUIREMENT_CODE_TOTAL_LINES = 30
+MAX_REQUIREMENT_MERMAID_LINES = 15
 
 
 def normalize_heading(value: str) -> str:
@@ -281,11 +289,33 @@ def _symbol_name(value: str) -> str:
     return clean.rsplit(".", 1)[-1].rsplit("::", 1)[-1]
 
 
-def _symbol_exists(source: str, symbol: str) -> bool:
+def _mask_comments_and_strings(source: str) -> str:
+    """Mask comments and quoted strings before symbol matching non-Python code."""
+    source = re.sub(r"(?s)/\*.*?\*/", " ", source)
+    source = re.sub(r"(?m)//[^\n]*|#[^\n]*", " ", source)
+    source = re.sub(r"(?s)(['\"]).*?(?<!\\)\1", " ", source)
+    return source
+
+
+def _symbol_exists(source: str, symbol: str, suffix: str) -> bool:
     name = _symbol_name(symbol)
     if not name or not re.match(r"^[A-Za-z_$][\w$-]*$", name):
         return False
-    return re.search(rf"(?<![\w$]){re.escape(name)}(?![\w$])", source) is not None
+    if suffix == ".py":
+        try:
+            tree = ast.parse(source)
+        except SyntaxError:
+            return False
+        for node in ast.walk(tree):
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)) and node.name == name:
+                return True
+            if isinstance(node, ast.Name) and node.id == name:
+                return True
+            if isinstance(node, ast.alias) and (node.asname == name or node.name.rsplit(".", 1)[-1] == name):
+                return True
+        return False
+    clean_source = _mask_comments_and_strings(source)
+    return re.search(rf"(?<![\w$]){re.escape(name)}(?![\w$])", clean_source) is not None
 
 
 def _external_source_gaps(text: str) -> list[str]:
@@ -369,7 +399,7 @@ def validate_source_evidence(text: str, repo: Path) -> tuple[list[dict[str, Any]
             continue
         unique_symbols = list(dict.fromkeys(item for item in symbols if item))
         for symbol in unique_symbols:
-            if not _symbol_exists(source, symbol):
+            if not _symbol_exists(source, symbol, resolved.suffix.lower()):
                 errors.append(f"源码证据符号不存在：{relative} 中未找到 {symbol}。")
         claims.append({"path": relative, "symbols": unique_symbols})
 
@@ -523,6 +553,38 @@ def validate_requirement(
     for name in REQUIREMENT_FORBIDDEN_HEADINGS:
         if find_heading(headings, normalize_heading(name)) is not None:
             errors.append(f"Requirement 样例复刻版不应新增章节：{name}。")
+    scene = sections.get("场景分析", "")
+    if "```" in scene:
+        errors.append("场景分析必须使用中文业务叙述，不能放置业务代码块。")
+    for label in SCENE_REQUIRED_LABELS:
+        if label not in scene:
+            errors.append(f"场景分析缺少中文业务字段：{label}。")
+    implementation = sections.get("实现方案", "")
+    code_blocks = list(re.finditer(r"(?s)```(?!mermaid\b)[^\n]*\n(.*?)```", text, re.I))
+    if len(code_blocks) > MAX_REQUIREMENT_CODE_BLOCKS:
+        errors.append(f"Requirement 最多允许 {MAX_REQUIREMENT_CODE_BLOCKS} 个关键代码块。")
+    code_lines = [sum(1 for line in match.group(1).splitlines() if line.strip()) for match in code_blocks]
+    if any(count > MAX_REQUIREMENT_CODE_LINES for count in code_lines):
+        errors.append(f"Requirement 单个关键代码块最多 {MAX_REQUIREMENT_CODE_LINES} 个非空行。")
+    if sum(code_lines) > MAX_REQUIREMENT_CODE_TOTAL_LINES:
+        errors.append(f"Requirement 关键代码总计最多 {MAX_REQUIREMENT_CODE_TOTAL_LINES} 个非空行。")
+    mermaid_blocks = list(re.finditer(r"(?is)```mermaid\s*\n(.*?)```", text))
+    if len(mermaid_blocks) > 1:
+        errors.append("Requirement 最多允许一个跨系统 Mermaid 图。")
+    if any(sum(1 for line in block.group(1).splitlines() if line.strip()) > MAX_REQUIREMENT_MERMAID_LINES for block in mermaid_blocks):
+        errors.append(f"Mermaid 图最多 {MAX_REQUIREMENT_MERMAID_LINES} 个非空行。")
+    code_characters = sum(len(match.group(1).replace("\n", "")) for match in code_blocks)
+    chinese_prose = len(re.findall(r"[\u4e00-\u9fff]", implementation))
+    if chinese_prose <= code_characters:
+        errors.append("实现方案应以中文业务规则说明为主，中文说明量必须多于代码内容。")
+    design_sections = ("风险考虑", "实现方案", "数据模型", "界面设计")
+    for name in design_sections:
+        value = sections.get(name, "")
+        if "待确认" in value or "待补充" in value:
+            errors.append(f"{name} 属于设计结论，不能保留待确认内容。")
+        for line in value.splitlines():
+            if "不涉及" in line and not re.search(r"(?:依据|原因|因为|本次|当前|未改动)", line):
+                errors.append(f"{name} 中的“不涉及”必须说明依据：{line.strip()[:120]}")
 
 
 def _validate_identity(
@@ -580,6 +642,7 @@ def validate(
         "warnings": list(dict.fromkeys(warnings)),
         "sourceEvidence": source_evidence,
         "blockingIssues": list(dict.fromkeys(blocking_issues)),
+        "schema": BUG_SCHEMA if kind == "bug" else REQUIREMENT_V2_SCHEMA if kind == "requirement" else None,
     }
 
 

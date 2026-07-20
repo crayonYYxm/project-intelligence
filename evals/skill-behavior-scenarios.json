@@ -60,6 +60,20 @@
       "forbiddenSkills": ["project-intake", "project-spec", "project-plan", "project-task", "project-test"]
     },
     {
+      "id": "requirement-design-chinese-scenarios",
+      "routeClass": "standalone-design",
+      "prompt": "根据本地需求单和源码，用 CRM 模板写中文业务场景为主的开发设计，少贴代码，只生成文档。",
+      "expectedSkills": ["project-design"],
+      "forbiddenSkills": ["project-intake", "project-spec", "project-plan", "project-task", "project-test"]
+    },
+    {
+      "id": "requirement-design-crm-template",
+      "routeClass": "standalone-design",
+      "prompt": "按 CRM 正式章节生成这个需求的技术设计，说明字段流转和异常边界，不要开始开发。",
+      "expectedSkills": ["project-design"],
+      "forbiddenSkills": ["project-intake", "project-spec", "project-plan", "project-task"]
+    },
+    {
       "id": "technical-design-is-not-task-plan",
       "routeClass": "standalone-design",
       "prompt": "把这份 Bug 单结合源码写成技术方案文档，只要源码佐证的设计文档，不要任务清单，也不要开发。",

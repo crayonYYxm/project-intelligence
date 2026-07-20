@@ -468,13 +468,13 @@ def create_requirement(
             "acceptanceCriteria": [],
             "artifacts": [],
             "testContract": {
-                "kind": "service" if external_api else "unit",
-                "reportAction": "generate",
+                "kind": None,
+                "reportAction": None,
                 "acceptanceIds": [],
                 "reportPath": None,
-                "status": "selected",
+                "status": "pending",
                 "recordedAt": created,
-                "source": "default",
+                "source": "pending",
             },
             "testEvidence": [],
             "reviewRounds": [],
@@ -1094,10 +1094,6 @@ def set_acceptance_criteria(
         if manifest.get("state") not in {"draft", "specified"}:
             raise RequirementError("只有 draft/specified 状态可以设置验收标准；下游需求请先 reopen。")
         manifest["acceptanceCriteria"] = normalized
-        contract = manifest.get("testContract")
-        if isinstance(contract, dict) and not contract.get("acceptanceIds"):
-            contract["acceptanceIds"] = [item["id"] for item in normalized]
-
     return _mutate(root, requirement_id, mutate)
 
 
@@ -1130,7 +1126,7 @@ def set_test_contract(
         if unknown:
             raise RequirementError("测试契约引用了未知验收标准：" + ", ".join(unknown))
         if not selected:
-            selected = sorted(known)
+            raise RequirementError("测试契约必须显式映射至少一项验收标准。")
         normalized_report_path = None
         if report_path:
             _, normalized_report_path = _resolve_repo_file(root, report_path)
@@ -1141,6 +1137,7 @@ def set_test_contract(
             "reportPath": normalized_report_path,
             "status": "deferred" if clean_action == "later" else "selected",
             "recordedAt": now_iso(),
+            "source": "explicit",
         }
         if clean_action == "later":
             blockers = manifest.setdefault("readiness", {}).setdefault("blockers", [])
@@ -1919,8 +1916,10 @@ def _assert_readiness_inputs(root: Path, manifest: dict[str, Any]) -> None:
     if manifest.get("schemaVersion") == SCHEMA_VERSION:
         if not contract:
             raise RequirementError("缺少实现前测试契约；请先运行 requirement test-contract set。")
-        if contract.get("status") == "deferred":
+        if contract.get("status") in {"pending", "deferred"} or contract.get("source") != "explicit":
             raise RequirementError("测试报告选择稍后处理，不能进入 ready。")
+        if not contract.get("acceptanceIds"):
+            raise RequirementError("测试契约必须显式映射验收标准。")
         if manifest.get("externalApiImpact", {}).get("value") and contract.get("kind") not in {"service", "both"}:
             raise RequirementError("对外接口需求必须选择 service 或 both 测试契约。")
     unresolved = [blocker for blocker in manifest.get("readiness", {}).get("blockers", []) if not blocker.get("resolvedAt")]
@@ -2251,17 +2250,17 @@ def _test_gate_for_records(manifest: dict[str, Any], records: list[dict[str, Any
     ):
         return False
     contract = manifest.get("testContract") if isinstance(manifest.get("testContract"), dict) else None
-    if contract and contract.get("source") != "default":
-        required = set(_test_channels(contract.get("kind")))
-        if required and not required.issubset(set(latest_by_channel)):
-            return False
-        contract_acceptance = set(contract.get("acceptanceIds") or [])
-        if contract_acceptance:
-            covered: set[str] = set()
-            for item in latest_by_channel.values():
-                covered.update(str(value) for value in item.get("acceptanceIds", []))
-            if not contract_acceptance.issubset(covered):
-                return False
+    if not contract or contract.get("source") != "explicit" or contract.get("status") != "selected":
+        return False
+    required = set(_test_channels(contract.get("kind")))
+    if not required or not required.issubset(set(latest_by_channel)):
+        return False
+    contract_acceptance = set(contract.get("acceptanceIds") or [])
+    covered: set[str] = set()
+    for item in latest_by_channel.values():
+        covered.update(str(value) for value in item.get("acceptanceIds", []))
+    if not contract_acceptance or not contract_acceptance.issubset(covered):
+        return False
     if manifest.get("externalApiImpact", {}).get("value"):
         return "service" in latest_by_channel
     return any(
@@ -2306,6 +2305,13 @@ def record_test_result(
             for key, value in manual.items()
         }
     current_manifest = load_requirement(root, requirement_id)
+    contract = current_manifest.get("testContract") if isinstance(current_manifest.get("testContract"), dict) else None
+    if not contract or contract.get("source") != "explicit" or contract.get("status") != "selected":
+        raise RequirementError("测试契约尚未显式确认，不能登记需求级测试证据。")
+    if not acceptance_ids:
+        raise RequirementError("需求级通过测试必须显式传入 --acceptance 映射。")
+    if test_kind not in _test_channels(contract.get("kind")):
+        raise RequirementError("测试证据类型与已确认的测试契约不一致。")
     selected = _normalize_scope_files(root, files)
     if report_path:
         report_file, normalized_report_path = _resolve_repo_file(root, report_path)
@@ -2507,7 +2513,7 @@ def append_test_report_execution(
                 current.rstrip()
                 + f"\n\n### {now_iso()} · {phase_label} / {test_kind}\n\n"
                 + f"- 结果：{result}\n"
-                + f"- 已执行测试数：{max(1, int(executed_count))}\n"
+                + f"- 已执行测试数：{max(0, int(executed_count))}\n"
                 + f"- 验收标准：{', '.join(acceptance_ids) or '未映射'}\n"
                 + f"- 覆盖范围：{scope_label}\n"
                 + f"- Git 提交：`{commit_label}`\n"
@@ -2791,6 +2797,15 @@ def design_validation_status(root: Path, manifest: dict[str, Any]) -> dict[str, 
     validation = artifact.get("validation")
     if not isinstance(validation, dict):
         return {"ok": True, "legacy": True, "warnings": ["该文档由 0.3.0 以前版本登记，重新登记时必须通过新模板校验。"]}
+    if (
+        manifest.get("ticketKind", "requirement") == "requirement"
+        and validation.get("schema") != design_documents.REQUIREMENT_V2_SCHEMA
+    ):
+        return {
+            "ok": True,
+            "legacy": True,
+            "warnings": ["该 Requirement 文档由 requirement-crm-v2 之前版本登记；当前生命周期可继续，重新登记、amend 或 reopen 后必须通过 v2 校验。"],
+        }
     path, relative = _resolve_repo_file(root, str(artifact.get("path") or ""))
     validation = design_documents.validate(
         path.read_text(encoding="utf-8", errors="ignore"),

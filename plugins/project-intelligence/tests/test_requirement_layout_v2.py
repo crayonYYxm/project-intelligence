@@ -91,6 +91,9 @@ class RequirementLayoutV2Tests(unittest.TestCase):
         requirements.set_acceptance_criteria(
             root, identifier, [{"id": "AC-01", "description": "满足已确认的目标行为。"}]
         )
+        requirements.set_test_contract(
+            root, identifier, kind="unit", report_action="generate", acceptance_ids=["AC-01"]
+        )
         path = requirements.requirement_dir(root, identifier) / "requirement.md"
         path.write_text(requirement_text(identifier, "需求档案收敛"), encoding="utf-8")
         return requirements.register_artifact(root, identifier, "requirement", path.relative_to(root).as_posix())
@@ -200,7 +203,7 @@ class RequirementLayoutV2Tests(unittest.TestCase):
                 root,
                 None,
                 "green",
-                commands=[f'"{sys.executable}" -c "assert 2 == 2"'],
+                commands=[f'"{sys.executable}" -c "print(\'1 passed\')"'],
                 files=["src/service.py"],
                 requirement_id="REQ-4000",
                 test_kind="unit",
@@ -292,7 +295,7 @@ class RequirementLayoutV2Tests(unittest.TestCase):
                 root,
                 None,
                 "green",
-                commands=[f'"{sys.executable}" -c "assert 2 == 2"'],
+                commands=[f'"{sys.executable}" -c "print(\'1 passed\')"'],
                 files=["src/service.py"],
                 requirement_id="REQ-4000",
                 test_kind="unit",

@@ -100,6 +100,13 @@ class RequirementWorkflowTests(unittest.TestCase):
             {"id": "AC-01", "description": "实现需求约定的目标行为。"},
             {"id": "AC-02", "description": "相关测试通过且无重要回归。"},
         ])
+        requirements.set_test_contract(
+            root,
+            "REQ-1001",
+            kind="both" if external_api else "unit",
+            report_action="generate",
+            acceptance_ids=["AC-01", "AC-02"],
+        )
         requirement_path = self.write_requirement_document(root)
         requirements.register_artifact(root, "REQ-1001", "requirement", requirement_path)
         design_path = self.write_requirement_design(root)
@@ -209,6 +216,9 @@ class RequirementWorkflowTests(unittest.TestCase):
                 reason="用户决定补齐设计文档",
             )
             requirements.register_artifact(root, "REQ-1001", "design", design_path)
+            requirements.set_test_contract(
+                root, "REQ-1001", kind="unit", report_action="generate", acceptance_ids=["AC-01"]
+            )
             manifest = requirements.ready_requirement(root, "REQ-1001", "已补齐并确认需求设计文档")
             self.assertEqual(manifest["state"], "ready")
             self.assertTrue(all(item.get("resolvedAt") for item in manifest["readiness"]["blockers"]))
@@ -468,6 +478,9 @@ class RequirementWorkflowTests(unittest.TestCase):
             root = Path(tmp)
             source = self.git_project(root)
             self.create_documented_requirement(root)
+            requirements.set_test_contract(
+                root, "REQ-1001", kind="manual", report_action="generate", acceptance_ids=["AC-01", "AC-02"]
+            )
             requirements.ready_requirement(root, "REQ-1001", "已确认")
             requirements.begin_requirement(root, "REQ-1001")
             source.write_text("def answer():\n    return 42\n", encoding="utf-8")
@@ -712,6 +725,9 @@ class RequirementWorkflowTests(unittest.TestCase):
                 "REQ-DOCS",
                 [{"id": "AC-01", "description": "实现目标行为。"}],
             )
+            requirements.set_test_contract(
+                root, "REQ-DOCS", kind="unit", report_action="generate", acceptance_ids=["AC-01"]
+            )
             requirement_path = self.write_requirement_document(root, "REQ-DOCS", "真实设计目录流程")
             requirements.register_artifact(root, "REQ-DOCS", "requirement", requirement_path)
             design = root / "docs" / "requirements" / "REQ-DOCS_真实设计目录流程_设计文档.md"
@@ -769,6 +785,9 @@ class RequirementWorkflowTests(unittest.TestCase):
             )
             requirements.set_acceptance_criteria(
                 root, "REQ-CLOSURE", [{"id": "AC-01", "description": "实现目标行为。"}]
+            )
+            requirements.set_test_contract(
+                root, "REQ-CLOSURE", kind="unit", report_action="generate", acceptance_ids=["AC-01"]
             )
             requirement_path = self.write_requirement_document(root, "REQ-CLOSURE", "登记外部收口总结")
             requirements.register_artifact(root, "REQ-CLOSURE", "requirement", requirement_path)
@@ -915,6 +934,11 @@ class RequirementWorkflowTests(unittest.TestCase):
                 "--criterion", "AC-01:实现需求约定的目标行为",
                 "--criterion", "AC-02:相关测试通过且无重要回归",
             ]), 0)
+            self.assertEqual(project_intel.main([
+                "--project", str(root), "requirement", "test-contract", "set",
+                "--requirement-id", "REQ-CLI-1", "--kind", "unit",
+                "--report-action", "generate", "--acceptance", "AC-01,AC-02",
+            ]), 0)
             requirement_path = self.write_requirement_document(root, "REQ-CLI-1", "需求级命令行闭环")
             self.assertEqual(project_intel.main([
                 "--project", str(root), "requirement", "add",
@@ -943,7 +967,7 @@ class RequirementWorkflowTests(unittest.TestCase):
                 "--test-kind", "unit",
                 "--report-action", "generate",
                 "--phase", "green",
-                "--command", f'"{sys.executable}" -c "assert 42 == 42"',
+                "--command", f'"{sys.executable}" -c "print(\'1 passed\')"',
                 "--files", "src/service.py",
                 "--acceptance", "AC-01,AC-02",
             ]), 0)

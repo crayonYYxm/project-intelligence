@@ -6,7 +6,7 @@ Project Intelligence 是一个同时适配 Claude Code 和 Codex 的本地项目
 
 - 先登记需求号、需求名称、Bug/Requirement 类型和对外接口影响。
 - 再由 `project-spec` 形成需求文档和验收标准；Bug 先由 `project-debug` 登记根因证据，然后由 `project-design` 生成或验证源码佐证设计文档。
-- ready 后才允许进入实现。
+- `project-test` 先明确测试合同（类型、报告动作、AC 映射），ready 后才允许进入实现。
 - 测试、评审、finish、maintain 都写入需求级 manifest。
 - 证据使用当前 Git diff hash 校验，代码变化后旧测试和旧评审会过期。
 - 项目知识、规范、质量检查、图谱上下文统一沉淀在 `.project-intel/`。
@@ -70,7 +70,7 @@ flowchart TD
 | `draft` | 已登记需求号和名称 | `intake` 创建需求档案。 |
 | `specified` | 需求文档已确认 | `requirement.md` 当前有效，需求边界和 AC 已写入。 |
 | `designed` | 开发设计已确认 | `design.md` 当前有效并通过 Bug/Requirement 模板校验。 |
-| `ready` | 允许开始实现 | 需求、设计、manifest AC 均有效；Bug 还必须有当前有效的根因诊断；所有 blocker 有解决说明。 |
+| `ready` | 允许开始实现 | 需求、设计、manifest AC、显式测试合同均有效；Bug 还必须有当前有效的根因诊断；所有 blocker 有解决说明。 |
 | `implementing` | 正在实现 | `requirement begin` 通过 readiness 再检查。 |
 | `verified` | 测试证据满足当前代码 | 至少一份有效通过测试，且满足接口影响规则。 |
 | `reviewed` | 当前代码通过评审 | 无未解决 critical/important 问题，评审 diff hash 当前有效。 |
@@ -199,6 +199,8 @@ project-intel --project /path/to/repo requirement diagnose \
 ```
 
 独立调用 `project-design` 时，Bug 输出 `docs/requirements/<bug编号>-<名称>-设计文档.md`，Requirement 输出 `docs/requirements/<需求号>_<名称>_设计文档.md`；两种模式都不会初始化或修改 `.project-intel`。
+
+Requirement 使用 CRM 固定章节与顺序，但正文以中文业务叙述为主：场景分析必须说明场景名称、参与对象、前置条件、处理过程、目标结果和异常边界；实现方案按模块解释规则、字段流转、调用顺序和兼容处理。源码仅写 `相对路径#符号` 作为依据。最多允许 3 个关键代码块（每块不超过 10 行，总计不超过 30 行）；接口优先使用中文字段表。
 
 生成或已有文档都必须经过验证后登记：
 
@@ -359,7 +361,7 @@ project-intel --project /path/to/repo requirement migrate --apply
 | `project-refresh` | 在已有 `.project-intel` 上刷新项目事实、规范、知识、图谱摘要或显式请求的适配器。 | 刷新项目智能、刷新项目事实、更新项目知识库、git pull 后刷新、understand 完成后刷新 |
 | `project-intake` | 实现前做需求入口分析，登记需求号/名称/对外接口影响，判断 track 和 readiness。 | 我要做一个需求、实现这个功能、修复这个 Bug、接入这个需求、需求入口分析、需求分流 |
 | `project-brainstorm` | 需求还不清楚时做脑暴、方案比较、范围澄清。 | 需求脑暴、比较方案、明确范围、功能应该怎么做、before code changes |
-| `project-design` | 分析本地 Bug/需求单和源码，生成或验证开发设计文档；支持独立和生命周期模式。 | 根据 Bug 单写开发设计文档、把需求单转成技术设计、只写设计文档、分析代码后补充设计文档 |
+| `project-design` | 分析本地 Bug/需求单和源码，生成或验证开发设计文档；支持独立和生命周期模式。 | 根据 Bug 单写开发设计文档、把需求单转成技术设计、根据需求单写中文开发设计、需求设计少贴代码、按业务场景写技术设计 |
 | `project-spec` | 形成需求目录中的 `requirement.md`，并把相同编号验收标准写入 manifest。 | 写需求文档、整理需求、需求澄清、补充验收标准、生成 requirement.md |
 | `project-plan` | complex 或明确要求时生成同需求目录的可选 `plan.md`。 | 写个方案、写实施计划、任务拆分、开发步骤、task checklist |
 | `project-task` | 在 ready 后进入实现，读取项目规范、复用点、图谱和当前需求档案。 | 开始实现、开始修复、继续开发、需求开发、实现需求 |
@@ -377,7 +379,7 @@ project-intel --project /path/to/repo requirement migrate --apply
 
 - “根据单据和源码写技术方案文档”是 `project-design`；“把已确认的设计拆成文件、任务、依赖和验证命令”是 `project-plan`。
 - “只写设计文档”只触发 standalone `project-design`，不运行 intake，不创建 `.project-intel`。
-- 已经 ready 后说“开始修复/开始实现”，先由 `project-test` 确认测试方案，再由 `project-task` 执行 begin 和实现。
+- 已经 ready 后说“开始修复/开始实现”，测试合同已在 ready 前由 `project-test` 确认；直接由 `project-task` 执行 begin 和实现。
 - “新建页面/模块/应用”是开发意图，不是 `project-init`；只有首次创建 `.project-intel` 才用 init。
 - “从云端更新/安装/发布插件”不是 `project-refresh`；refresh 只刷新业务仓库内已存在的 `.project-intel` 事实层。
 - “git pull 后刷新”使用 `project-refresh`；只有需求已经 `finished` 并要关闭时才用 `project-maintain`。
@@ -391,7 +393,7 @@ project-intel --project /path/to/repo requirement migrate --apply
 Agent：触发 project-intake，询问需求号、需求名、是否影响对外接口、文档动作。
 Agent：触发 project-spec，生成并登记 requirement.md，把 AC-01/AC-02 同步写入 manifest。
 Agent：触发 project-design，生成并登记 design.md。
-Agent：ready 通过后触发 project-test，询问 unit/service/both/manual 和报告动作。
+Agent：ready 前触发 project-test，询问 unit/service/both/manual、报告动作并写入带 AC 映射的测试合同。
 Agent：project-task 执行 requirement begin，然后才生成报告、写 RED 测试 -> 实现 -> GREEN/回归。
 Agent：触发 project-review，登记评审。
 Agent：生成 closure-summary.md。
@@ -404,7 +406,7 @@ Agent：project-finish 通过后 project-maintain，需求 closed。
 用户：排查保存订单时偶发 500。
 Agent：需要改代码时先由 project-intake 登记为 Bug，project-spec 登记 Bug 需求文档和 AC。
 Agent：project-debug 定位错误链路和根因，通过 requirement diagnose 登记证据；project-design 再生成精简五段式 Bug 修复设计。
-Agent：ready 后转入 project-test/project-task。
+Agent：project-test 在 ready 前写入测试合同；ready 后转入 project-task。
 Agent：用 RED 复现 bug，再修复并记录 GREEN/回归证据。
 Agent：review、finish、maintain。
 ```

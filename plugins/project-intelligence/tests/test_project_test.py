@@ -50,6 +50,11 @@ class ProjectTestEvidenceTests(unittest.TestCase):
             "--criterion", "AC-01:实现需求约定的目标行为。",
             "--criterion", "AC-02:相关测试通过且无重要回归。",
         ]), 0)
+        self.assertEqual(project_intel.main([
+            "--project", str(root), "requirement", "test-contract", "set",
+            "--requirement-id", "REQ-TEST-1", "--kind", "unit",
+            "--report-action", "generate", "--acceptance", "AC-01,AC-02",
+        ]), 0)
         requirement_dir = root / ".project-intel" / "requirements" / "REQ-TEST-1"
         requirement_dir.mkdir(parents=True, exist_ok=True)
         requirement = requirement_dir / "requirement.md"
@@ -204,6 +209,18 @@ class ProjectTestEvidenceTests(unittest.TestCase):
             os.utime(source, (future, future))
             stale = project_intel.testing_module.evaluate_test_evidence(root, "新增重试退避策略", ["src/service.py"])
             self.assertFalse(stale["ready"])
+
+    def test_zero_exit_without_recognized_test_count_is_not_passing_evidence(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            self.initialized_project(root)
+            with patch.object(project_intel, "run_shell", return_value=(0, "build completed", "")):
+                code, result = project_intel.run_project_test(
+                    root, "不能用构建冒充测试", "verify", commands=["true"], files=["src/service.py"]
+                )
+            self.assertEqual(code, 1)
+            self.assertEqual(result["entry"]["commands"][0]["executedCount"], 0)
+            self.assertEqual(result["entry"]["status"], "failed")
 
     def test_finish_rejects_changed_source_without_evidence(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -395,7 +412,7 @@ class ProjectTestEvidenceTests(unittest.TestCase):
             with patch.object(
                 project_intel,
                 "run_shell",
-                return_value=(0, "access_token=server-token password=hunter2", "Cookie: session=private"),
+                return_value=(0, "1 passed\naccess_token=server-token password=hunter2", "Cookie: session=private"),
             ):
                 code, _ = project_intel.run_project_test(
                     root,

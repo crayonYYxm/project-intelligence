@@ -50,6 +50,37 @@ class ProjectDesignValidationTests(unittest.TestCase):
             self.assertFalse(payload["ok"])
             self.assertTrue(any("验收标准" in item for item in payload["errors"]))
 
+    def test_requirement_v2_rejects_code_heavy_scene_and_unexplained_not_applicable(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            self.write_source(root)
+            text = requirement_design("REQ-1001", "设计文档接入")
+            text = text.replace(
+                "- 参与对象：办理业务的用户、当前项目服务和业务受理页面。",
+                "```python\n" + "\n".join(f"value_{index} = {index}" for index in range(11)) + "\n```\n- 参与对象：办理业务的用户、当前项目服务和业务受理页面。",
+            ).replace("不涉及，依据：本次复用现有模型。", "不涉及。")
+            payload = design_documents.validate(
+                text, root, "docs/requirements/REQ-1001_设计文档接入_设计文档.md", "requirement"
+            )
+            self.assertFalse(payload["ok"])
+            self.assertTrue(any("场景分析" in item or "代码块" in item for item in payload["errors"]))
+            self.assertTrue(any("不涉及" in item for item in payload["errors"]))
+
+    def test_source_symbol_inside_comment_or_string_is_not_evidence(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source = root / "src" / "service.js"
+            source.parent.mkdir(parents=True)
+            source.write_text("// pretendHandler\nconst note = 'pretendHandler';\n", encoding="utf-8")
+            text = requirement_design("REQ-1001", "设计文档接入").replace(
+                "`src/service.py#answer`", "`src/service.js#pretendHandler`"
+            )
+            payload = design_documents.validate(
+                text, root, "docs/requirements/REQ-1001_设计文档接入_设计文档.md", "requirement"
+            )
+            self.assertFalse(payload["ok"])
+            self.assertTrue(any("符号不存在" in item for item in payload["errors"]))
+
     def test_bug_template_and_identity_are_validated(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

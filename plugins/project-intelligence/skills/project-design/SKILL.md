@@ -1,6 +1,6 @@
 ---
 name: project-design
-description: Use when converting local Markdown/TXT Bug or requirement tickets into a source-backed technical development design, validating an existing design, or handling the lifecycle design action after project-spec and, for Bugs, project-debug. 根据 Bug 单写开发设计文档, 把需求单转成技术设计, 生成本地需求开发设计文档, 分析代码后补充设计文档, 写 Bug 修复设计说明. Standalone design-only requests use only this Skill; do not use it for brainstorming, task checklists, direct code changes, or prose polishing without source analysis.
+description: Use when converting local Markdown/TXT Bug or requirement tickets into a source-backed technical development design, validating an existing design, or handling the lifecycle design action after project-spec and, for Bugs, project-debug. 根据 Bug 单写开发设计文档, 把需求单转成技术设计, 生成本地需求开发设计文档, 分析代码后补充设计文档, 写 Bug 修复设计说明, 根据需求单写中文开发设计, 需求设计少贴代码, 按业务场景写技术设计, 用 CRM 模板生成需求设计. Standalone design-only requests use only this Skill; do not use it for brainstorming, task checklists, direct code changes, or prose polishing without source analysis.
 ---
 
 # Project Design
@@ -33,7 +33,7 @@ For a lifecycle Bug, `project-debug` must have persisted a current `requirement 
 1. Read applicable repository instructions, manifests, build files, relevant source, tests, and useful Git history.
 2. Search exact business terms, API names, field names, identifiers, errors, and symbols from the ticket.
 3. Trace the real UI/API/service/data/external path as applicable. Do not invent unavailable implementations.
-4. Use repository-relative paths and symbols for implementation claims.
+4. Use repository-relative paths and symbols for implementation claims; Requirement 文档只将它们作为简短依据，不把完整源码搬进文档。
 5. Disclose ticket/source mismatches in the existing Bug or Requirement sections instead of adding a new heading.
 6. Mask credentials, cookies, tokens, passwords, secrets, API keys, personal identifiers, phone numbers, and customer data.
 
@@ -44,7 +44,14 @@ Read only the matching template completely:
 - Bug: [references/bug-design-template.md](references/bug-design-template.md)
 - Requirement: [references/requirement-design-template.md](references/requirement-design-template.md)
 
-Keep Bugs in the compact five-part structure. Reproduce the CRM Requirement structure and order exactly. Do not add acceptance criteria, test matrices, source-evidence tables, or pending-item sections.
+Keep Bugs in the compact five-part structure without changing its style. Reproduce the CRM Requirement structure and order exactly, but write Requirements in Chinese business language first:
+
+- 在既有“场景分析”章节逐个写场景名称、参与对象、前置条件、处理过程、目标结果和异常边界；不要在场景内贴业务代码。
+- 在既有“实现方案”章节按模块说明改造目的、当前与目标、处理规则、字段流转、调用顺序、异常兼容和 `相对路径#符号` 依据。
+- Requirement 最多 3 个关键代码块，每块最多 10 个非空行、总计最多 30 行；只允许最小关键分支、接口契约或必要模型差异。接口优先用中文字段表。
+- 仅跨 3 段以上系统调用时使用一个不超过 15 行的 Mermaid 图。`不涉及` 必须给出依据；业务设计内容不得用“待确认”替代结论。
+
+Do not add acceptance criteria, test matrices, source-evidence tables, or pending-item sections.
 
 Resolve the validator from this Skill directory, not from the target repository. Run the bundled validator by absolute path and fix all exit-code `1` findings:
 

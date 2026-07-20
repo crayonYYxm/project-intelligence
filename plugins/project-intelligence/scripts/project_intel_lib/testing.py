@@ -54,6 +54,21 @@ SECRET_KEY_PATTERN = (
     r"id[_-]?card|identity[_-]?(?:card|number)|cert(?:ificate)?[_-]?(?:no|number)"
 )
 SECRET_VALUE_PATTERN = r'''(?:"[^"]*"|'[^']*'|[^\s,;&]+)'''
+RAW_SECRET_PATTERNS = (
+    # Personal access tokens and service credentials often appear in raw command
+    # output, without a surrounding `token=` key.  Treat their distinctive public
+    # formats as secrets before persisting any evidence.
+    re.compile(r"\bgh[pousr]_[A-Za-z0-9]{20,}\b"),
+    re.compile(r"\bgithub_pat_[A-Za-z0-9_]{20,}\b", re.I),
+    re.compile(r"\bnpm_[A-Za-z0-9]{20,}\b", re.I),
+    re.compile(r"\bxox[baprs]-[A-Za-z0-9-]{10,}\b", re.I),
+    re.compile(r"\bsk-(?:proj-)?[A-Za-z0-9_-]{20,}\b", re.I),
+    re.compile(r"\bsk-ant-[A-Za-z0-9_-]{20,}\b", re.I),
+    re.compile(r"\bglpat-[A-Za-z0-9_-]{20,}\b", re.I),
+    re.compile(r"\bAIza[0-9A-Za-z_-]{20,}\b"),
+    re.compile(r"\b(?:rk|sk)_live_[A-Za-z0-9]{16,}\b", re.I),
+    re.compile(r"\beyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\b"),
+)
 DATABASE_URL_PATTERN = re.compile(
     r"(?i)\b((?:postgres(?:ql)?|mysql|mariadb|mongodb(?:\+srv)?|redis)://)([^:@/\s]+):([^@/\s]+)@"
 )
@@ -147,9 +162,32 @@ def sanitize_text(value: str) -> str:
     )
     text = DATABASE_URL_PATTERN.sub(lambda match: f"{match.group(1)}[REDACTED]:[REDACTED]@", text)
     text = URL_USERINFO_PATTERN.sub(_redact_url_userinfo, text)
+    for pattern in RAW_SECRET_PATTERNS:
+        text = pattern.sub("[REDACTED]", text)
     text = PRC_IDENTITY_PATTERN.sub("[REDACTED]", text)
     text = MAINLAND_MOBILE_PATTERN.sub("[REDACTED]", text)
     return text
+
+
+def executed_test_count(result: dict[str, Any]) -> int:
+    """Extract a real test count from recognised test-framework output.
+
+    A zero exit code proves only that a command succeeded.  It must not turn a
+    shell builtin, formatter, compiler, or an empty test selection into delivery
+    evidence.  Unknown formats intentionally return zero and must use a
+    registered structured report instead.
+    """
+    text = "\n".join((str(result.get("stdout") or ""), str(result.get("stderr") or "")))
+    patterns = (
+        r"(?im)^\s*Ran\s+(\d+)\s+tests?\b",                    # unittest
+        r"(?im)\b(\d+)\s+passed\b",                            # pytest / many CLIs
+        r"(?im)\bTests?\s+run:\s*(\d+)\b",                     # Maven Surefire
+        r"(?im)\b(\d+)\s+tests?\s+(?:completed|passed)\b",     # Gradle / text reports
+        r"(?im)\b(?:tests?|test cases?)\s*[:=]\s*(\d+)\b",     # Jest / Vitest summaries
+        r'"(?:tests|testCount|numTotalTests)"\s*:\s*(\d+)',     # JSON reporters
+    )
+    counts = [int(match.group(1)) for pattern in patterns for match in re.finditer(pattern, text)]
+    return max(counts, default=0)
 
 
 def _markdown_literal(value: Any, *, line_break: str = "<br>") -> str:
@@ -205,7 +243,7 @@ def phase_passed(
         except re.error:
             return False
         return all(pattern.search("\n".join((str(item.get("stdout") or ""), str(item.get("stderr") or "")))) for item in results)
-    return all(code == 0 for code in codes)
+    return all(code == 0 and executed_test_count(item) > 0 for code, item in zip(codes, results))
 
 
 def render_test_evidence(payload: dict[str, Any]) -> str:
@@ -223,6 +261,7 @@ def render_test_evidence(payload: dict[str, Any]) -> str:
         commands = entry.get("commands", [])
         command_text = "<br>".join(
             f"{_markdown_code(item.get('command'))} → {_markdown_literal(item.get('exitCode'))}"
+            f"（{_markdown_literal(item.get('executedCount', 0))} tests）"
             for item in commands
         )
         if not command_text:
@@ -284,6 +323,7 @@ def record_test_evidence(
             "command": sanitize_text(str(item.get("command") or "")),
             "stdout": sanitize_text(str(item.get("stdout") or "")),
             "stderr": sanitize_text(str(item.get("stderr") or "")),
+            "executedCount": executed_test_count(item),
         }
         for item in results
     ]

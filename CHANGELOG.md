@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.6.0 - 2026-07-20
+
+- Keep the CRM Requirement document structure while enforcing Chinese business scenarios, field/data-flow explanations, and tightly bounded key snippets.
+- Add requirement-crm-v2 validation for scene completeness, code volume, unsubstantiated “不涉及”, design-level pending content, and real source symbols.
+
+## 0.5.1 - 2026-07-20
+
+- Fail closed on managed-path symlinks and external Git hook targets; adapter writes are preflighted and rolled back as one operation.
+- Require an explicit test contract and AC mapping, and reject zero-test command output as delivery evidence.
+- Expand persisted-output redaction and stop automatic remote graph-tool installers.
+
 ## 0.5.0 - 2026-07-17
 
 - Add explicit `project-intel adapters status|preview|apply|remove` commands and make `install` / `refresh --adapters` use the same safe adapter writer.

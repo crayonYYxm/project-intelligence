@@ -45,11 +45,11 @@ from project_intel_lib.scanner import backend as backend_scanner
 from project_intel_lib.scanner import frontend as frontend_scanner
 
 
-VERSION = "0.5.0"
+VERSION = "0.6.0"
 TRACK_CHOICES = ("auto", "quick", "standard", "complex")
 UNDERSTAND_AGENT_COMMAND = "/understand . --language zh"
 UNDERSTAND_REPO = "Egonex-AI/Understand-Anything"
-UNDERSTAND_CODEX_INSTALL_COMMAND = "curl -fsSL https://raw.githubusercontent.com/Egonex-AI/Understand-Anything/main/install.sh | bash -s codex"
+UNDERSTAND_CODEX_INSTALL_COMMAND = "请从 Understand-Anything 官方发布页按固定版本完成安装后，再运行 project-intel refresh --with-graph"
 UNDERSTAND_CLAUDE_PLUGIN_ID = "understand-anything@understand-anything"
 UNDERSTAND_CLAUDE_MARKETPLACE_COMMAND = f"claude plugin marketplace add {UNDERSTAND_REPO}"
 UNDERSTAND_CLAUDE_INSTALL_COMMAND = f"claude plugin install {UNDERSTAND_CLAUDE_PLUGIN_ID}"
@@ -90,6 +90,10 @@ LEGACY_LOCAL_SKILL_NAMES = (
     "project-task",
     "project-test",
 )
+# A historical installation is safe to remove only if its SKILL.md still has an
+# exact known content hash.  Keep this intentionally empty until a released
+# legacy bundle is archived here; name/keyword matching is unsafe.
+LEGACY_LOCAL_SKILL_HASHES: dict[str, set[str]] = {}
 EXCLUDED_DIRS = {
     ".git",
     ".idea",
@@ -255,6 +259,20 @@ def write_text(path: Path, text: str) -> None:
             pass
 
 
+def _assert_safe_managed_path(root: Path, relative: str | Path, *, label: str) -> Path:
+    """Return a repository-internal managed path after rejecting symlink hops."""
+    root_absolute = Path(os.path.abspath(root))
+    candidate = Path(relative)
+    if candidate.is_absolute() or ".." in candidate.parts:
+        raise RuntimeError(f"{label}路径越出项目目录：{relative}")
+    cursor = root_absolute
+    for part in candidate.parts:
+        cursor = cursor / part
+        if cursor.is_symlink():
+            raise RuntimeError(f"{label}路径不能包含符号链接：{cursor}")
+    return cursor
+
+
 def _adapter_relative_path(root: Path, path: Path) -> str:
     try:
         return Path(os.path.abspath(path)).relative_to(Path(os.path.abspath(root))).as_posix()
@@ -266,13 +284,7 @@ def _assert_safe_adapter_path(root: Path, path: Path) -> None:
     relative = _adapter_relative_path(root, path)
     if relative not in {"AGENTS.md", "CLAUDE.md", ".claude/CLAUDE.md"}:
         raise RuntimeError(f"不支持的适配器路径：{relative}")
-    cursor = root.resolve(strict=False)
-    for part in Path(relative).parts:
-        cursor = cursor / part
-        if cursor.is_symlink():
-            raise RuntimeError(f"适配器路径不能包含符号链接：{relative}")
-        if not cursor.exists():
-            break
+    _assert_safe_managed_path(root, relative, label="适配器")
     if path.exists() and path.stat().st_size > ADAPTER_MAX_BYTES:
         raise RuntimeError(f"适配器文件超过 2MiB，停止自动写入：{relative}")
 
@@ -407,25 +419,25 @@ def cleanup_legacy_local_skills(root: Path) -> list[str]:
     """
     removed: list[str] = []
     skills_dir = root / ".claude" / "skills"
+    _assert_safe_managed_path(root, ".claude", label="旧 Skill 清理")
+    _assert_safe_managed_path(root, ".claude/skills", label="旧 Skill 清理")
     for name in LEGACY_LOCAL_SKILL_NAMES:
         skill_dir = skills_dir / name
         skill_md = skill_dir / "SKILL.md"
         if not skill_md.exists():
             continue
-        body = read_text(skill_md, max_bytes=100_000)
-        is_managed_legacy = any(
-            marker in body
-            for marker in (
-                "Project Intelligence",
-                "project-intel ",
-                "project-intelligence:",
-                "/project-",
-                ".project-intel",
-            )
-        )
-        if is_managed_legacy:
-            shutil.rmtree(skill_dir, ignore_errors=True)
-            removed.append(str(skill_dir))
+        if skill_dir.is_symlink() or skill_md.is_symlink():
+            continue
+        digest = hashlib.sha256(skill_md.read_bytes()).hexdigest()
+        if digest not in LEGACY_LOCAL_SKILL_HASHES.get(name, set()):
+            continue
+        backup_root = _assert_safe_managed_path(root, ".project-intel/backups/legacy-skills", label="旧 Skill 备份")
+        backup_root.mkdir(parents=True, exist_ok=True)
+        backup = backup_root / f"{name}-{digest[:12]}"
+        if not backup.exists():
+            shutil.copytree(skill_dir, backup, symlinks=True)
+        shutil.rmtree(skill_dir)
+        removed.append(str(skill_dir))
     if skills_dir.is_dir() and not any(skills_dir.iterdir()):
         skills_dir.rmdir()
     for doc in (root / "CLAUDE.md", root / "AGENTS.md", root / ".claude" / "CLAUDE.md"):
@@ -472,7 +484,7 @@ def project_root(arg: str | None) -> Path:
 
 
 def project_dir(root: Path) -> Path:
-    return root / ".project-intel"
+    return _assert_safe_managed_path(root, ".project-intel", label=".project-intel")
 
 
 def rel(root: Path, path: Path) -> str:
@@ -1354,6 +1366,18 @@ def setup_graph_tools(
             continue
 
         install_command = str(install_option.get("command") or "")
+        # `--setup-missing` may prepare facts, never bootstrap an arbitrary
+        # remote installer.  In particular do not execute curl|bash, PowerShell
+        # download pipes, or a mutable marketplace script on the user's machine.
+        detail = "缺失图谱工具需要人工按固定版本安装；本次仅输出建议，不执行远程安装脚本。"
+        print(f"{tool}：{detail} {testing_module.sanitize_text(install_command)}")
+        results.append({
+            "tool": tool,
+            "status": "needs-manual-install",
+            "command": testing_module.sanitize_text(install_command),
+            "detail": detail,
+        })
+        continue
         allowed, detail = graph_command_authorized(
             root,
             install_command,
@@ -3831,6 +3855,7 @@ def run_project_test(
                 "stdout": out[-4000:],
                 "stderr": err[-4000:],
             }
+            result["executedCount"] = testing_module.executed_test_count(result)
             results.append(result)
             print(f"{phase}：`{testing_module.sanitize_text(command)}` → {code}")
 
@@ -3842,6 +3867,7 @@ def run_project_test(
                 "command": testing_module.sanitize_text(str(item.get("command") or "")),
                 "stdout": testing_module.sanitize_text(str(item.get("stdout") or "")),
                 "stderr": testing_module.sanitize_text(str(item.get("stderr") or "")),
+                "executedCount": testing_module.executed_test_count(item),
             }
             for item in results
         ]
@@ -3878,7 +3904,9 @@ def run_project_test(
     print(f"已更新测试证据：{evidence_path}")
     requirement_result: Optional[dict[str, Any]] = None
     if requirement_id and requirement_manifest is not None and test_kind:
-        mapped_acceptance = acceptance_ids or [str(item.get("id")) for item in requirement_manifest.get("acceptanceCriteria", []) if item.get("id")]
+        mapped_acceptance = list(acceptance_ids)
+        if not mapped_acceptance:
+            fail_usage("需求级测试必须显式传入 --acceptance；不会自动映射全部验收标准。")
         outcome = "failed" if phase == "red" else ("passed" if entry.get("status") == "passed" else "failed")
         command_text = " && ".join(str(item.get("command") or "") for item in entry.get("commands", []))
         detail_text = "\n".join(
@@ -3913,7 +3941,7 @@ def run_project_test(
                     command=testing_module.sanitize_text(command_text),
                     details=testing_module.sanitize_text(detail_text),
                     phase=phase,
-                    executed_count=max(1, len(entry.get("commands", []))),
+                    executed_count=sum(int(item.get("executedCount", 0)) for item in entry.get("commands", [])),
                     files=selected_files,
                     project_wide=project_wide,
                     snapshot=tested_snapshot,
@@ -4169,20 +4197,31 @@ def write_hook_templates(root: Path) -> list[Path]:
     return written
 
 
-def git_hooks_path(root: Path) -> Optional[Path]:
+def git_hooks_path(root: Path, *, allow_external: bool = False) -> Optional[Path]:
     code, out, _ = run(["git", "rev-parse", "--git-path", "hooks"], root, timeout=20)
     if code == 0 and out:
         path = Path(out).expanduser()
-        return path.resolve() if path.is_absolute() else (root / path).resolve()
+        resolved = path.resolve() if path.is_absolute() else (root / path).resolve()
+        git_dir_code, git_dir_raw, _ = run(["git", "rev-parse", "--git-dir"], root, timeout=20)
+        git_dir = (root / git_dir_raw).resolve() if git_dir_code == 0 and git_dir_raw and not Path(git_dir_raw).is_absolute() else Path(git_dir_raw).resolve() if git_dir_raw else None
+        expected = (git_dir / "hooks").resolve() if git_dir else None
+        return resolved
     fallback = root / ".git" / "hooks"
     return fallback if fallback.exists() else None
 
 
-def activate_git_hooks(root: Path) -> list[dict[str, Any]]:
-    git_hooks = git_hooks_path(root)
+def activate_git_hooks(root: Path, *, allow_external: bool = False) -> list[dict[str, Any]]:
+    git_hooks = git_hooks_path(root, allow_external=allow_external)
     results = []
     if git_hooks is None or not git_hooks.exists() or not git_hooks.is_dir():
         return [{"hook": "*", "status": "skipped", "detail": "未找到 .git/hooks 目录。"}]
+    if git_hooks.is_symlink():
+        raise RuntimeError("Git hooks 路径不能是符号链接。")
+    git_dir_code, git_dir_raw, _ = run(["git", "rev-parse", "--git-dir"], root, timeout=20)
+    if git_dir_code == 0 and git_dir_raw:
+        git_dir = (root / git_dir_raw).resolve() if not Path(git_dir_raw).is_absolute() else Path(git_dir_raw).resolve()
+        if not allow_external and git_hooks.resolve() != (git_dir / "hooks").resolve():
+            raise RuntimeError("Git core.hooksPath 指向仓库外目录；默认拒绝写入。若确实需要，请显式传入 --allow-external-hooks。")
     git_hooks.mkdir(parents=True, exist_ok=True)
     for hook_name in ("post-merge", "post-commit", "pre-push"):
         target = git_hooks / hook_name
@@ -4412,19 +4451,53 @@ def adapters_status(root: Path, target: str = "both") -> dict[str, Any]:
 
 
 def adapters_apply(root: Path, target: str = "both", *, dry_run: bool = False) -> dict[str, Any]:
-    results: list[dict[str, Any]] = []
+    """Preflight every adapter then commit all writes, rolling back on failure."""
+    staged: list[dict[str, Any]] = []
     for name, path, block, start, end, prepend in _adapter_targets(root, target):
-        path.parent.mkdir(parents=True, exist_ok=True)
+        _assert_safe_adapter_path(root, path)
+        current = _read_adapter_text(root, path)
+        next_text = current
         if name == "codex":
-            # Remove the older full generic block from AGENTS.md so AGENTS has one concise Codex block.
+            next_text, _ = _replace_single_managed_block(next_text, "", PROJECT_INTEL_BLOCK_START, PROJECT_INTEL_BLOCK_END)
+            next_text = next_text.strip()
+        managed = f"{start}\n{block.strip()}\n{end}"
+        next_text, action = _replace_single_managed_block(next_text, managed, start, end, prepend=prepend)
+        staged.append({
+            "target": name,
+            "path": path,
+            "relative": _adapter_relative_path(root, path),
+            "before": current,
+            "existed": path.exists(),
+            "after": next_text,
+            "action": action if next_text.rstrip() != current.rstrip() else "unchanged",
+            "changed": next_text.rstrip() != current.rstrip(),
+            "sha256": hashlib.sha256(managed.encode("utf-8")).hexdigest(),
+        })
+    if dry_run:
+        return {"ok": True, "dryRun": True, "target": target, "entries": [{k: v for k, v in item.items() if k not in {"path", "before", "after", "existed"}} for item in staged]}
+    written: list[dict[str, Any]] = []
+    try:
+        for item in staged:
+            if not item["changed"]:
+                continue
+            _write_adapter_text(root, item["path"], item["after"])
+            written.append(item)
+    except Exception:
+        for item in reversed(written):
             try:
-                remove_adapter_managed_block(root, path, PROJECT_INTEL_BLOCK_START, PROJECT_INTEL_BLOCK_END, dry_run=dry_run)
-            except RuntimeError:
-                raise
-        result = upsert_adapter_managed_block(root, path, block, start, end, prepend=prepend, dry_run=dry_run)
-        result["target"] = name
-        results.append(result)
-    return {"ok": True, "dryRun": dry_run, "target": target, "entries": results}
+                if item["existed"]:
+                    _write_adapter_text(root, item["path"], item["before"])
+                elif item["path"].exists():
+                    item["path"].unlink()
+            except OSError:
+                pass
+        raise
+    entries = []
+    for item in staged:
+        public = {k: v for k, v in item.items() if k not in {"path", "before", "after", "existed", "relative"}}
+        public["path"] = item["relative"]
+        entries.append(public)
+    return {"ok": True, "dryRun": False, "target": target, "entries": entries}
 
 
 def adapters_remove(root: Path, target: str = "both", *, dry_run: bool = False) -> dict[str, Any]:
@@ -4451,8 +4524,8 @@ def write_agent_entrypoints(root: Path) -> list[str]:
     return [str(agents), str(claude)]
 
 
-def install_claude(root: Path, hooks: bool = False, activate_hooks: bool = False) -> dict[str, Any]:
-    claude = root / ".claude"
+def install_claude(root: Path, hooks: bool = False, activate_hooks: bool = False, *, allow_external_hooks: bool = False) -> dict[str, Any]:
+    claude = _assert_safe_managed_path(root, ".claude", label="Claude 适配器")
     claude.mkdir(parents=True, exist_ok=True)
     legacy_cleanup = cleanup_legacy_local_skills(root)
     nested = claude / "CLAUDE.md"
@@ -4462,7 +4535,7 @@ def install_claude(root: Path, hooks: bool = False, activate_hooks: bool = False
     adapter_result = adapters_apply(root, target="both")
     agent_files = [str(root / item["path"]) for item in adapter_result.get("entries", [])]
     hook_templates = write_hook_templates(root) if hooks or activate_hooks else []
-    hook_results = activate_git_hooks(root) if activate_hooks else []
+    hook_results = activate_git_hooks(root, allow_external=allow_external_hooks) if activate_hooks else []
     return {
         "claude": str(claude),
         "agentFiles": agent_files,
@@ -4776,6 +4849,7 @@ def build_parser() -> argparse.ArgumentParser:
     install = sub.add_parser("install", help="安装 Claude 兼容的项目入口")
     install.add_argument("--hooks", action="store_true", help="在 .project-intel/hooks 下生成可选的 Git 钩子模板")
     install.add_argument("--activate-git-hooks", action="store_true", help="将项目智能包装器安装到 .git/hooks（不覆盖自定义钩子）")
+    install.add_argument("--allow-external-hooks", action="store_true", help="显式允许 core.hooksPath 指向仓库外目录")
     adapters = sub.add_parser("adapters", help="预览、应用或移除 Codex/Claude 根入口适配器")
     adapters_sub = adapters.add_subparsers(dest="adapters_command", required=True)
     adapters_status_parser = adapters_sub.add_parser("status", help="检查适配器当前状态")
@@ -5079,7 +5153,7 @@ def dispatch_command(args: argparse.Namespace, root: Path, json_mode: bool) -> t
             print("已清理旧版本地 skill 残留：" + ", ".join(result["legacyCleanup"]))
         return 0, result
     if args.command == "install":
-        result = install_claude(root, hooks=args.hooks, activate_hooks=args.activate_git_hooks)
+        result = install_claude(root, hooks=args.hooks, activate_hooks=args.activate_git_hooks, allow_external_hooks=args.allow_external_hooks)
         print(f"已安装 Claude 适配器到 {result['claude']}")
         if result.get("agentFiles"):
             print("已维护项目级 Agent 入口：" + ", ".join(result["agentFiles"]))

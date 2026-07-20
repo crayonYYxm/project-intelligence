@@ -93,6 +93,38 @@ class TestingSecurityTests(unittest.TestCase):
 
         self.assertEqual(testing.sanitize_text(raw), raw)
 
+    def test_raw_provider_tokens_are_redacted_without_a_key_name(self):
+        github_token = "".join(("gh", "p_", "abcdefghijklmnopqrstuvwxyz1234567890"))
+        npm_token = "".join(("npm", "_", "abcdefghijklmnopqrstuvwxyz1234567890"))
+        slack_token = "".join(
+            (
+                "xo",
+                "xb-",
+                "123456789012",
+                "-",
+                "abcdefghijklmnopqrstuvwxyz",
+            )
+        )
+        jwt_token = ".".join(
+            (
+                "eyJhbGciOiJIUzI1NiJ9",
+                "eyJzdWIiOiJ0ZXN0In0",
+                "signaturevalue",
+            )
+        )
+        raw = "\n".join(
+            (
+                github_token,
+                npm_token,
+                slack_token,
+                jwt_token,
+            )
+        )
+        safe = testing.sanitize_text(raw)
+        for prefix in ("ghp_", "npm_", "xoxb-", "eyJhbGci"):
+            self.assertNotIn(prefix, safe)
+        self.assertEqual(safe.count("[REDACTED]"), 4)
+
     def test_markdown_renderer_escapes_untrusted_fields_and_uses_safe_fences(self):
         output = "before\n```\n# forged section\n````\nafter Authorization: Basic output-secret"
         payload = {

@@ -1,6 +1,7 @@
 import importlib.util
 import io
 import json
+import os
 import subprocess
 import tempfile
 import unittest
@@ -89,8 +90,8 @@ class HandleToolingSetupTests(unittest.TestCase):
             )
 
         self.assertEqual(result[0]["tool"], "GitNexus")
-        self.assertEqual(result[0]["status"], "ok")
-        run_shell.assert_called_once_with("npx gitnexus analyze", Path("."), timeout=300)
+        self.assertEqual(result[0]["status"], "needs-manual-install")
+        run_shell.assert_not_called()
 
     def test_init_continues_when_missing_graph_tool_is_declined(self):
         tooling = {
@@ -553,12 +554,9 @@ class UnderstandSetupFlowTests(unittest.TestCase):
         ) as run_shell:
             result = project_intel.setup_graph_tools(Path("."), tooling, auto_approve=True)
 
-        self.assertEqual(result[0]["status"], "ok")
-        self.assertEqual(result[0]["command"], project_intel.UNDERSTAND_CLAUDE_MARKETPLACE_COMMAND)
-        self.assertEqual(result[1]["command"], project_intel.UNDERSTAND_CLAUDE_INSTALL_COMMAND)
-        self.assertEqual(result[2]["status"], "ok")
-        self.assertEqual(result[3]["status"], "needs-agent")
-        self.assertEqual(run_shell.call_count, 2)
+        self.assertEqual(result[0]["status"], "needs-manual-install")
+        self.assertEqual(result[0]["command"], project_intel.UNDERSTAND_MANUAL_INSTALL_HINT)
+        run_shell.assert_not_called()
 
     def test_understand_partially_installed_state_can_install_missing_platform(self):
         tooling = {
@@ -593,11 +591,9 @@ class UnderstandSetupFlowTests(unittest.TestCase):
         ) as run_shell:
             result = project_intel.setup_graph_tools(Path("."), tooling, auto_approve=True)
 
-        self.assertEqual(result[0]["command"], project_intel.UNDERSTAND_CLAUDE_MARKETPLACE_COMMAND)
-        self.assertEqual(result[1]["command"], project_intel.UNDERSTAND_CLAUDE_INSTALL_COMMAND)
-        self.assertEqual(result[2]["status"], "ok")
-        self.assertEqual(result[3]["status"], "needs-agent")
-        self.assertEqual(run_shell.call_count, 2)
+        self.assertEqual(result[0]["status"], "needs-manual-install")
+        self.assertEqual(result[0]["command"], project_intel.UNDERSTAND_MANUAL_INSTALL_HINT)
+        run_shell.assert_not_called()
 
     def test_failed_claude_local_install_does_not_mark_platform_ready(self):
         installs = [
@@ -617,6 +613,14 @@ class UnderstandSetupFlowTests(unittest.TestCase):
 
 
 class AgentEntrypointInstallTests(unittest.TestCase):
+    def test_init_rejects_symlinked_project_intel_directory(self):
+        with tempfile.TemporaryDirectory() as tmp, tempfile.TemporaryDirectory() as outside:
+            root = Path(tmp)
+            os.symlink(outside, root / ".project-intel")
+            with self.assertRaisesRegex(RuntimeError, "符号链接"):
+                project_intel.init_project(root, with_graph=False)
+            self.assertFalse((Path(outside) / "manifest.json").exists())
+
     def test_init_is_fact_only_and_explicit_install_writes_root_agent_entrypoints(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -1384,7 +1388,7 @@ class CliAndReleaseContractTests(unittest.TestCase):
         codex = json.loads((plugin_root / ".codex-plugin" / "plugin.json").read_text(encoding="utf-8"))
         npm = json.loads((repo_root / "package.json").read_text(encoding="utf-8"))
 
-        self.assertEqual(project_intel.VERSION, "0.5.0")
+        self.assertEqual(project_intel.VERSION, "0.6.0")
         self.assertEqual(claude["version"], project_intel.VERSION)
         self.assertEqual(codex["version"].split("+")[0], project_intel.VERSION)
         self.assertEqual(npm["version"], project_intel.VERSION)
@@ -2170,13 +2174,13 @@ class LegacyLocalSkillCleanupTests(unittest.TestCase):
             removed = project_intel.cleanup_legacy_local_skills(root)
 
             self.assertTrue(legacy.exists())
-            self.assertFalse(marked.exists())
+            self.assertTrue(marked.exists())
             self.assertTrue(custom.exists())
             text = claude_md.read_text(encoding="utf-8")
             self.assertNotIn("local-project-skills", text)
             self.assertNotIn("旧规则", text)
             self.assertIn("保留我", text)
-            self.assertTrue(removed)
+            self.assertTrue(removed)  # only the managed CLAUDE.md block is removed
 
     def test_cleanup_is_noop_for_clean_project(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -2193,8 +2197,8 @@ class LegacyLocalSkillCleanupTests(unittest.TestCase):
 
             result = project_intel.install_claude(root)
 
-            self.assertFalse(legacy.exists())
-            self.assertTrue(result.get("legacyCleanup"))
+            self.assertTrue(legacy.exists())
+            self.assertFalse(result.get("legacyCleanup"))
 
 
 if __name__ == "__main__":
