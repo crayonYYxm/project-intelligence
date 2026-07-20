@@ -1381,7 +1381,7 @@ agent rule:
           <div class="prompt-table">
             <div class="prompt-row reveal">
               <code>初始化这个项目规范</code>
-              <span>执行无适配器副作用的 `init`，生成 `.project-intel`、前后端标准、知识库和 `project-status.md`；图谱需显式 `--with-graph`，本地 Agent 入口需显式 `install`。</span>
+              <span>执行无适配器副作用的 `init`，生成 `.project-intel`、前后端标准、知识库和 `project-status.md`；默认检查并运行已安装图谱，本地 Agent 入口仍需显式 `install`。</span>
             </div>
             <div class="prompt-row reveal">
               <code>帮我做这个需求</code>
@@ -1508,7 +1508,7 @@ codex plugin add project-intelligence@project-intelligence</pre>
               </div>
               <p>安装后启动新的 Codex 线程加载插件 skills。</p>
               <div class="install-note">
-                Codex 侧安装 Understand-Anything 增强图谱时，插件会使用 `install.sh codex`；GitNexus 通常通过 `npx gitnexus analyze` 准备并分析。
+                Codex 侧安装 Understand-Anything 时会显式指定 `codex` 平台，Windows 不再卡在平台选择；GitNexus 通常通过 `npx gitnexus analyze` 准备并分析。
               </div>
             </article>
           </div>
@@ -1521,7 +1521,7 @@ codex plugin add project-intelligence@project-intelligence</pre>
                 <button class="copy" data-copy="init-cmd">copy</button>
                 <pre id="init-cmd">project-intel init</pre>
               </div>
-              <p>会检查 GitNexus、Understand-Anything、Node/package manager 和质量工具；非交互环境只给建议，`--interactive` 才询问，`--setup-missing` 才安装。</p>
+              <p>会检查 GitNexus、Understand-Anything、Node/package manager 和质量工具；已安装分析器自动运行，交互终端弹出选择，非交互 Agent 先取得中文授权后使用 `--setup-missing` 安装。</p>
             </article>
             <article class="card reveal">
               <span class="tag rose">图谱增强</span>

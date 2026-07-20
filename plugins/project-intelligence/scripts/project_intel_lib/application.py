@@ -21,8 +21,9 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import threading
 from collections import Counter, defaultdict
-from pathlib import Path
+from pathlib import Path, PurePosixPath, PureWindowsPath
 from typing import Any, Optional
 
 if sys.version_info < (3, 9):
@@ -49,7 +50,13 @@ VERSION = "0.6.0"
 TRACK_CHOICES = ("auto", "quick", "standard", "complex")
 UNDERSTAND_AGENT_COMMAND = "/understand . --language zh"
 UNDERSTAND_REPO = "Egonex-AI/Understand-Anything"
-UNDERSTAND_CODEX_INSTALL_COMMAND = "请从 Understand-Anything 官方发布页按固定版本完成安装后，再运行 project-intel refresh --with-graph"
+UNDERSTAND_CODEX_INSTALL_COMMAND = "curl -fsSL https://raw.githubusercontent.com/Egonex-AI/Understand-Anything/main/install.sh | bash -s codex"
+UNDERSTAND_WINDOWS_INSTALL_COMMAND = (
+    "powershell -NoProfile -ExecutionPolicy Bypass -Command "
+    '"$installer = Join-Path ([IO.Path]::GetTempPath()) \'understand-anything-install.ps1\'; '
+    "iwr -useb https://raw.githubusercontent.com/Egonex-AI/Understand-Anything/main/install.ps1 -OutFile $installer; "
+    "try { & $installer codex } finally { Remove-Item -LiteralPath $installer -Force -ErrorAction SilentlyContinue }\""
+)
 UNDERSTAND_CLAUDE_PLUGIN_ID = "understand-anything@understand-anything"
 UNDERSTAND_CLAUDE_MARKETPLACE_COMMAND = f"claude plugin marketplace add {UNDERSTAND_REPO}"
 UNDERSTAND_CLAUDE_INSTALL_COMMAND = f"claude plugin install {UNDERSTAND_CLAUDE_PLUGIN_ID}"
@@ -182,6 +189,13 @@ def run_shell(command: str, cwd: Path, timeout: int = 120) -> tuple[int, str, st
 
 def command_exists(name: str) -> bool:
     return shutil.which(name) is not None
+
+
+def user_home() -> Path | None:
+    try:
+        return Path.home()
+    except RuntimeError:
+        return None
 
 
 def package_manager(root: Path) -> str:
@@ -680,19 +694,22 @@ detect_quality_commands = quality_module.detect_quality_commands
 
 
 def understand_plugin_roots() -> list[Path]:
-    home = Path.home()
-    candidates = [
-        home / ".understand-anything-plugin",
-        home / ".codex" / "understand-anything" / "understand-anything-plugin",
-        home / ".opencode" / "understand-anything" / "understand-anything-plugin",
-        home / ".pi" / "understand-anything" / "understand-anything-plugin",
-        home / "understand-anything" / "understand-anything-plugin",
-    ]
+    home = user_home()
+    candidates = []
+    if home is not None:
+        candidates.extend([
+            home / ".understand-anything-plugin",
+            home / ".understand-anything" / "repo" / "understand-anything-plugin",
+            home / ".codex" / "understand-anything" / "understand-anything-plugin",
+            home / ".opencode" / "understand-anything" / "understand-anything-plugin",
+            home / ".pi" / "understand-anything" / "understand-anything-plugin",
+            home / "understand-anything" / "understand-anything-plugin",
+        ])
     configured_root = os.environ.get("CLAUDE_PLUGIN_ROOT", "").strip()
     if configured_root:
         candidates.insert(0, Path(configured_root))
-    claude_cache = home / ".claude" / "plugins" / "cache"
-    if claude_cache.exists():
+    claude_cache = home / ".claude" / "plugins" / "cache" if home is not None else None
+    if claude_cache is not None and claude_cache.exists():
         candidates.extend(claude_cache.glob("*/understand-anything"))
         candidates.extend(claude_cache.glob("*/understand-anything/*"))
     roots = []
@@ -724,9 +741,12 @@ def current_agent_platform() -> str:
 
 
 def claude_understand_installs() -> list[dict[str, Any]]:
-    installed = load_json(Path.home() / ".claude" / "plugins" / "installed_plugins.json", {})
+    home = user_home()
+    if home is None:
+        return []
+    installed = load_json(home / ".claude" / "plugins" / "installed_plugins.json", {})
     plugins = installed.get("plugins", {}) if isinstance(installed, dict) else {}
-    enabled_plugins = load_json(Path.home() / ".claude" / "settings.json", {}).get("enabledPlugins", {})
+    enabled_plugins = load_json(home / ".claude" / "settings.json", {}).get("enabledPlugins", {})
     plugin_statuses = claude_plugin_list_statuses()
     results = []
     for plugin_id, entries in plugins.items():
@@ -747,7 +767,10 @@ def claude_understand_installs() -> list[dict[str, Any]]:
 def claude_plugin_list_statuses() -> dict[str, str]:
     if not command_exists("claude"):
         return {}
-    code, out, _ = run(["claude", "plugin", "list"], Path.home(), timeout=20)
+    home = user_home()
+    if home is None:
+        return {}
+    code, out, _ = run(["claude", "plugin", "list"], home, timeout=20)
     if code != 0:
         return {}
     statuses: dict[str, str] = {}
@@ -787,10 +810,15 @@ def claude_understand_install_is_repairable(install: dict[str, Any]) -> bool:
 
 def understand_installed_platforms(roots: list[Path], claude_installs: list[dict[str, Any]]) -> list[str]:
     platforms = set()
-    home = Path.home()
+    home = user_home()
     for root in roots:
-        text = str(root)
-        if root == home / ".understand-anything-plugin" or ".codex/understand-anything" in text or ".agents/skills" in text:
+        text = root.as_posix().lower()
+        if (
+            (home is not None and root == home / ".understand-anything-plugin")
+            or "/.understand-anything/repo/understand-anything-plugin" in text
+            or "/.codex/understand-anything/" in text
+            or "/.agents/skills/" in text
+        ):
             platforms.add("codex")
     if any(claude_understand_install_is_ready(install) for install in claude_installs):
         platforms.add("claude")
@@ -842,11 +870,10 @@ def understand_install_options(claude_installs: list[dict[str, Any]] | None = No
             }
         )
     if os.name == "nt":
-        powershell_command = (
-            "powershell -NoProfile -ExecutionPolicy Bypass -Command "
-            '"iwr -useb https://raw.githubusercontent.com/Egonex-AI/Understand-Anything/main/install.ps1 | iex"'
-        )
         if command_exists("powershell") or command_exists("pwsh"):
+            powershell_command = UNDERSTAND_WINDOWS_INSTALL_COMMAND
+            if not command_exists("powershell"):
+                powershell_command = powershell_command.replace("powershell ", "pwsh ", 1)
             options.append(
                 {
                     "platform": "codex",
@@ -1074,7 +1101,7 @@ def detect_tooling(root: Path, package: dict[str, Any]) -> dict[str, Any]:
         "schemaVersion": 1,
         "generatedAt": now_iso(),
         "required": [
-            {"name": "python3", "status": "present" if command_exists("python3") else "missing"},
+            {"name": "python>=3.9", "status": "present"},
             {"name": "project-write-access", "status": "present" if os.access(root, os.W_OK) else "missing"},
         ],
         "optional": {
@@ -1153,8 +1180,33 @@ def print_graph_tools_report(tooling: dict[str, Any], as_json: bool = False) -> 
         print(f"   命令：{command}")
 
 
+def graph_timeout_seconds() -> int:
+    raw = os.environ.get("PROJECT_INTEL_GRAPH_TIMEOUT_SECONDS", "900").strip()
+    try:
+        return min(7200, max(30, int(raw)))
+    except ValueError:
+        return 900
+
+
 def run_graph_command(root: Path, action: dict[str, Any], command: str) -> dict[str, Any]:
-    code, out, err = run_shell(command, root, timeout=300)
+    timeout = graph_timeout_seconds()
+    tool = str(action.get("tool") or "图谱工具")
+    stop = threading.Event()
+
+    def report_progress() -> None:
+        elapsed = 0
+        while not stop.wait(15):
+            elapsed += 15
+            print(f"{tool} 仍在运行，已等待 {elapsed} 秒（超时上限 {timeout} 秒）...", flush=True)
+
+    print(f"{tool} 开始执行，超时上限 {timeout} 秒。", flush=True)
+    progress = threading.Thread(target=report_progress, name="project-intel-graph-progress", daemon=True)
+    progress.start()
+    try:
+        code, out, err = run_shell(command, root, timeout=timeout)
+    finally:
+        stop.set()
+        progress.join(timeout=1)
     return {
         "tool": action.get("tool"),
         "status": "ok" if code == 0 else "failed",
@@ -1162,19 +1214,28 @@ def run_graph_command(root: Path, action: dict[str, Any], command: str) -> dict[
         "exitCode": code,
         "stdout": testing_module.sanitize_text(out[-4000:]),
         "stderr": testing_module.sanitize_text(err[-4000:]),
+        "detail": f"执行超过 {timeout} 秒后已终止。可通过 PROJECT_INTEL_GRAPH_TIMEOUT_SECONDS 调整。" if code == 124 else "",
     }
 
 
 def command_uses_external_path(root: Path, command: str) -> bool:
     try:
-        values = shlex.split(command)
+        values = shlex.split(command, posix=os.name != "nt")
     except ValueError:
         values = command.split()
     root_resolved = root.resolve()
     for value in values:
-        candidate = Path(value).expanduser()
-        if not candidate.is_absolute():
+        cleaned = value.strip("\"'")
+        try:
+            candidate = Path(cleaned).expanduser()
+        except RuntimeError:
+            return True
+        native_absolute = candidate.is_absolute()
+        any_platform_absolute = PureWindowsPath(cleaned).is_absolute() or PurePosixPath(cleaned).is_absolute()
+        if not any_platform_absolute:
             continue
+        if not native_absolute:
+            return True
         try:
             candidate.resolve(strict=False).relative_to(root_resolved)
         except ValueError:
@@ -1366,18 +1427,6 @@ def setup_graph_tools(
             continue
 
         install_command = str(install_option.get("command") or "")
-        # `--setup-missing` may prepare facts, never bootstrap an arbitrary
-        # remote installer.  In particular do not execute curl|bash, PowerShell
-        # download pipes, or a mutable marketplace script on the user's machine.
-        detail = "缺失图谱工具需要人工按固定版本安装；本次仅输出建议，不执行远程安装脚本。"
-        print(f"{tool}：{detail} {testing_module.sanitize_text(install_command)}")
-        results.append({
-            "tool": tool,
-            "status": "needs-manual-install",
-            "command": testing_module.sanitize_text(install_command),
-            "detail": detail,
-        })
-        continue
         allowed, detail = graph_command_authorized(
             root,
             install_command,
@@ -2932,7 +2981,7 @@ def build_tooling_report(tooling: dict[str, Any], setup_results: list[dict[str, 
 
 {table(["工具", "状态", "命令/详情", "退出码"], setup_rows)}
 
-`init` 会检查图谱工具。已检测到可执行分析命令时会自动运行分析；未检测到时会询问是否安装/初始化，选择跳过时继续初始化 `.project-intel`。使用 `--setup-missing` 可跳过询问并直接运行支持的安装/初始化命令。对于只能在 agent 会话里执行的图谱工具，CLI 会把它们列到“后续 Agent 步骤”，但不会把初始化视为失败或反复要求重跑。
+`init` 默认检查图谱工具。已检测到可执行分析命令时会自动运行分析；在交互终端中，未检测到时会询问是否安装/初始化，选择跳过时继续初始化 `.project-intel`。非交互环境不会等待输入；使用 `--setup-missing` 可在用户已授权后跳过询问并直接运行支持的安装/初始化命令。对于只能在 agent 会话里执行的图谱工具，CLI 会把它们列到“后续 Agent 步骤”，但不会把初始化视为失败或反复要求重跑。
 """
 
 
@@ -4831,9 +4880,9 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--version", action="store_true", help="打印版本号")
     sub = parser.add_subparsers(dest="command", required=True)
     init = sub.add_parser("init", help="初始化 .project-intel")
-    init.add_argument("--interactive", action="store_true", help="在交互终端询问是否准备缺失图谱工具")
+    init.add_argument("--interactive", action="store_true", help="显式要求在交互终端询问是否准备缺失图谱工具（init 默认已自动启用）")
     init.add_argument("--setup-missing", action="store_true", help="对缺失的可选图谱工具跳过询问并运行支持的安装/初始化命令")
-    init.add_argument("--with-graph", action="store_true", default=False, help="显式检查图谱工具并运行已安装的分析器；默认关闭")
+    init.add_argument("--with-graph", action="store_true", default=True, help="检查图谱工具并运行已安装的分析器（init 默认启用）")
     init.add_argument("--no-graph", dest="with_graph", action="store_false", help="跳过图谱工具初始化")
     init.add_argument("--allow-repo-runner", action="store_true", help="允许执行项目仓库内发现的图谱 runner")
     init.add_argument("--allow-env-command", action="store_true", help="允许执行环境变量提供的图谱命令")
@@ -5108,6 +5157,8 @@ def dispatch_command(args: argparse.Namespace, root: Path, json_mode: bool) -> t
         print(VERSION)
         return 0, {"version": VERSION}
     if args.command == "init":
+        if (args.setup_missing or args.interactive) and not args.with_graph:
+            fail_usage("--setup-missing/--interactive 不能与 --no-graph 同时使用。")
         if args.strict and not args.with_graph:
             fail_usage("--strict 不能与 --no-graph 同时使用。")
         if args.dry_run:
@@ -5117,7 +5168,7 @@ def dispatch_command(args: argparse.Namespace, root: Path, json_mode: bool) -> t
         result = init_project(
             root,
             refresh=False,
-            interactive=args.interactive,
+            interactive=args.interactive or (args.with_graph and not args.setup_missing),
             setup_missing=args.setup_missing,
             with_graph=args.with_graph,
             strict=args.strict,

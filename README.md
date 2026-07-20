@@ -94,9 +94,9 @@ project-intel --project /path/to/repo requirement migrate
 
 说明：
 
-- `init` 默认不运行图谱命令，只写项目事实；使用 `--with-graph` 才会运行已安装的图谱分析器。
+- `init` 默认检查图谱工具并自动运行已安装的 shell 分析器；交互终端会询问是否准备缺失工具，非交互环境不会等待输入。使用 `--no-graph` 可只生成项目事实。
 - `init` 和普通 `refresh` 默认只写 `.project-intel` 项目事实，不修改根 `.gitignore`、`AGENTS.md` 或 `CLAUDE.md`；只有显式 `adapters apply`、`install` 或 `refresh --adapters` 才维护适配器。`adapters preview/status/remove` 可先预览、检查或移除 Project Intelligence 管理块。
-- `init --interactive` 只在交互终端询问安装选择；`init --setup-missing` 只应在用户明确授权后使用。
+- `init --interactive` 可显式要求交互选择；`init --setup-missing` 只应在用户明确授权后使用，并会跳过询问直接准备缺失工具。
 - `refresh` 默认只刷新当前项目事实并读取已有图谱产物；`refresh --with-graph` 才重新运行已安装的图谱分析器，且不会安装缺失工具。仓库 runner、环境变量命令和项目外绝对路径还分别需要 `--allow-repo-runner`、`--allow-env-command`、`--allow-external-path`。
 - `graph-tools --json` 可用于在非交互 agent 会话里先读取图谱工具状态，再由 agent 用中文向用户确认安装选择；当多个图谱动作可用时，应提供“全部”和组合选择。
 - `intake` 将需求分为 `quick`、`standard`、`complex`，并输出 readiness、风险、缺失信息、必经阶段和复用候选；默认只打印，不生成文件。
@@ -110,10 +110,11 @@ project-intel --project /path/to/repo requirement migrate
 - `test` 要求显式 `--files` 或 `--project-wide`；RED 还必须用 `--expect-failure` 匹配预期失败，退出码 2/3/4/5、命令不存在和超时都不会被误判为有效 RED。需求级 `test-report.md` 按执行追加命令、结果、覆盖文件、AC、commit 和 diff hash；登记已有报告时还会保留脱敏后的不可变证据副本。
 - `review` 持久化结果、问题级别、完整 Git 范围和 diff hash；存在未解决的 critical/important 问题或评审后代码变化时不能 finish。修复后使用 `requirement resolve-finding` 按稳定 finding ID 写入解决人和解决说明，再执行新一轮 review。
 - `finish` 检查需求/设计、测试策略、验收标准映射、评审、实际 Git 变更范围、证据 hash 和结构完整的收口总结。登记已有测试报告时会解析实际通过/失败结果并与声明结果核对；人工测试只能通过 `project-test` 的审批式 visual/device/hardware/configuration 例外登记，不能由 finish 一行文字绕过。它不会自动提交、推送、部署或发布。
-- 图谱工具未准备好但有支持的 setup 命令时，只有显式 `--with-graph --interactive` 才会询问是否继续。GitNexus 通常是 `npx gitnexus analyze` 这种“下载并运行分析”；Understand-Anything 会按当前环境安装到 Codex 或 Claude Code。
+- 图谱工具未准备好但有支持的 setup 命令时，普通 `init` 会在交互终端询问是否继续；非交互 Agent 应先运行 `graph-tools --json` 并用中文取得用户选择。GitNexus 通常是 `npx gitnexus analyze` 这种“下载并运行分析”；Understand-Anything 会按当前环境安装到 Codex 或 Claude Code。
 - `init --setup-missing` 会跳过询问并直接运行支持的安装/初始化命令。
-- Understand-Anything 的 Codex 安装使用官方 `install.sh codex`；Claude Code 安装使用 `claude plugin marketplace add Egonex-AI/Understand-Anything` 和 `claude plugin install understand-anything@understand-anything`。
+- Understand-Anything 的 Codex 安装在 macOS/Linux 使用官方 `install.sh codex`，Windows 下载 `install.ps1` 后显式传入 `codex`，不会停在平台选择；Claude Code 安装使用 `claude plugin marketplace add Egonex-AI/Understand-Anything` 和 `claude plugin install understand-anything@understand-anything`。
 - Understand-Anything 如果只能通过 agent slash command 使用，安装后需要重启 agent 并运行 `/understand . --language zh`，随后再运行 `refresh` 让 `.project-intel` 记录图谱元数据。
+- 图谱命令默认超时为 900 秒，运行中每 15 秒输出一次进度；可通过 `PROJECT_INTEL_GRAPH_TIMEOUT_SECONDS` 调整为 30 到 7200 秒。
 - `check` 会执行结构化 hard 规则；纯文本 hard 规则标记为 `manual-review`。退出码 `0` 表示自动检查通过，`1` 表示自动 hard/质量检查失败，`2` 表示未初始化、配置或路径无效。
 - 可提交的 `.project-intel/config.json` 只保存团队规则、扫描范围和质量命令；本机工具状态与扫描缓存写入默认忽略的 `.project-intel/local/`。
 - `--strict` 只接受可验证的 GitNexus 或 Understand-Anything 图谱，空 `.gitnexus/` 目录和损坏 JSON 不会通过。

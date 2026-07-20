@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import tempfile
 import unittest
+import os
 from pathlib import Path
 
 import sys
@@ -15,6 +16,15 @@ if str(SCRIPTS) not in sys.path:
 
 from design_fixtures import bug_design, requirement_design, requirement_document
 from project_intel_lib import design_documents, requirement_documents
+
+
+def symlink_or_skip(testcase, target: Path, link: Path) -> None:
+    try:
+        link.symlink_to(target)
+    except OSError as exc:
+        if os.name == "nt" and getattr(exc, "winerror", None) == 1314:
+            testcase.skipTest("Windows symbolic links require Developer Mode or elevated privileges.")
+        raise
 
 
 class DesignSourceTruthTests(unittest.TestCase):
@@ -62,7 +72,7 @@ class DesignSourceTruthTests(unittest.TestCase):
             outside = base / "outside.py"
             outside.write_text("def answer():\n    return 1\n", encoding="utf-8")
             link = root / "src" / "outside.py"
-            link.symlink_to(outside)
+            symlink_or_skip(self, outside, link)
             text = bug_design("bug1234", "返回值错误").replace("src/service.py", "src/outside.py")
             payload = self.validate_bug(root, text)
             self.assertFalse(payload["ok"])

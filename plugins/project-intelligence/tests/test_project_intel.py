@@ -17,6 +17,15 @@ assert SPEC and SPEC.loader
 SPEC.loader.exec_module(project_intel)
 
 
+def symlink_or_skip(testcase, target: Path, link: Path, *, target_is_directory: bool = False) -> None:
+    try:
+        link.symlink_to(target, target_is_directory=target_is_directory)
+    except OSError as exc:
+        if os.name == "nt" and getattr(exc, "winerror", None) == 1314:
+            testcase.skipTest("Windows symbolic links require Developer Mode or elevated privileges.")
+        raise
+
+
 class FileDiscoveryTests(unittest.TestCase):
     def test_iter_files_excludes_hidden_paths(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -61,7 +70,7 @@ class HandleToolingSetupTests(unittest.TestCase):
 
         self.assertEqual(result[0]["tool"], "GitNexus")
         self.assertEqual(result[0]["status"], "ok")
-        run_shell.assert_called_once_with("gitnexus analyze", Path("."), timeout=300)
+        run_shell.assert_called_once_with("gitnexus analyze", Path("."), timeout=900)
 
     def test_init_asks_before_installing_missing_graph_tool(self):
         tooling = {
@@ -90,8 +99,8 @@ class HandleToolingSetupTests(unittest.TestCase):
             )
 
         self.assertEqual(result[0]["tool"], "GitNexus")
-        self.assertEqual(result[0]["status"], "needs-manual-install")
-        run_shell.assert_not_called()
+        self.assertEqual(result[0]["status"], "ok")
+        run_shell.assert_called_once_with("npx gitnexus analyze", Path("."), timeout=900)
 
     def test_init_continues_when_missing_graph_tool_is_declined(self):
         tooling = {
@@ -195,7 +204,7 @@ class HandleToolingSetupTests(unittest.TestCase):
 
         self.assertEqual(result[0]["tool"], "Understand-Anything")
         self.assertEqual(result[0]["status"], "ok")
-        run_shell.assert_called_once_with("understand .", Path("."), timeout=300)
+        run_shell.assert_called_once_with("understand .", Path("."), timeout=900)
 
     def test_repo_runner_and_environment_commands_require_explicit_authorization(self):
         tooling = {
@@ -251,6 +260,20 @@ class HandleToolingSetupTests(unittest.TestCase):
         self.assertEqual(result[0]["status"], "skipped")
         self.assertIn("--allow-external-path", result[0]["detail"])
         run_shell.assert_not_called()
+
+    def test_unquoted_windows_absolute_graph_command_is_external(self):
+        self.assertTrue(
+            project_intel.command_uses_external_path(Path.cwd(), r"C:\Tools\understand.exe .")
+        )
+
+    def test_graph_timeout_is_configurable(self):
+        with patch.dict(project_intel.os.environ, {"PROJECT_INTEL_GRAPH_TIMEOUT_SECONDS": "45"}), patch.object(
+            project_intel, "run_shell", return_value=(0, "ok", "")
+        ) as run_shell:
+            result = project_intel.run_graph_command(Path("."), {"tool": "GitNexus"}, "gitnexus analyze")
+
+        self.assertEqual(result["status"], "ok")
+        run_shell.assert_called_once_with("gitnexus analyze", Path("."), timeout=45)
 
     def test_quality_report_redacts_commands_stdout_and_stderr(self):
         report = project_intel.build_quality_report(
@@ -318,11 +341,15 @@ class GraphToolsReportTests(unittest.TestCase):
 class GraphToolCommandTests(unittest.TestCase):
     def test_default_understand_install_command_prefers_current_agent(self):
         with patch.dict(project_intel.os.environ, {"PROJECT_INTEL_AGENT": "codex"}, clear=True), patch.object(
-            project_intel, "command_exists", side_effect=lambda name: name in {"curl", "bash", "claude"}
+            project_intel, "command_exists", side_effect=lambda name: name in {"curl", "bash", "claude", "powershell"}
         ):
             command = project_intel.default_understand_install_command()
 
-        self.assertEqual(command, project_intel.UNDERSTAND_CODEX_INSTALL_COMMAND)
+        expected = project_intel.UNDERSTAND_WINDOWS_INSTALL_COMMAND if os.name == "nt" else project_intel.UNDERSTAND_CODEX_INSTALL_COMMAND
+        self.assertEqual(command, expected)
+        if os.name == "nt":
+            self.assertIn("& $installer codex", command)
+            self.assertNotIn("| iex", command)
 
     def test_default_understand_install_command_can_be_overridden_by_env(self):
         with patch.dict(project_intel.os.environ, {"PROJECT_INTEL_UNDERSTAND_INSTALL_COMMAND": "custom install"}):
@@ -359,6 +386,13 @@ class GraphToolCommandTests(unittest.TestCase):
         self.assertEqual(understand["state"], "agent-installed")
         self.assertEqual(understand["stateLabel"], "已安装到 agent；当前 shell 不能直接分析")
         self.assertEqual(understand["agentCommand"], "/understand . --language zh")
+
+    def test_understand_repo_checkout_is_recognized_as_codex_install(self):
+        roots = [Path("C:/Users/test/.understand-anything/repo/understand-anything-plugin")]
+
+        platforms = project_intel.understand_installed_platforms(roots, [])
+
+        self.assertIn("codex", platforms)
 
     def test_detect_graph_actions_marks_understand_as_installable(self):
         options = [
@@ -554,9 +588,12 @@ class UnderstandSetupFlowTests(unittest.TestCase):
         ) as run_shell:
             result = project_intel.setup_graph_tools(Path("."), tooling, auto_approve=True)
 
-        self.assertEqual(result[0]["status"], "needs-manual-install")
-        self.assertEqual(result[0]["command"], project_intel.UNDERSTAND_MANUAL_INSTALL_HINT)
-        run_shell.assert_not_called()
+        self.assertEqual(result[0]["status"], "ok")
+        self.assertEqual(result[0]["command"], project_intel.UNDERSTAND_CLAUDE_MARKETPLACE_COMMAND)
+        self.assertEqual(result[1]["command"], project_intel.UNDERSTAND_CLAUDE_INSTALL_COMMAND)
+        self.assertEqual(result[2]["status"], "ok")
+        self.assertEqual(result[3]["status"], "needs-agent")
+        self.assertEqual(run_shell.call_count, 2)
 
     def test_understand_partially_installed_state_can_install_missing_platform(self):
         tooling = {
@@ -591,9 +628,11 @@ class UnderstandSetupFlowTests(unittest.TestCase):
         ) as run_shell:
             result = project_intel.setup_graph_tools(Path("."), tooling, auto_approve=True)
 
-        self.assertEqual(result[0]["status"], "needs-manual-install")
-        self.assertEqual(result[0]["command"], project_intel.UNDERSTAND_MANUAL_INSTALL_HINT)
-        run_shell.assert_not_called()
+        self.assertEqual(result[0]["command"], project_intel.UNDERSTAND_CLAUDE_MARKETPLACE_COMMAND)
+        self.assertEqual(result[1]["command"], project_intel.UNDERSTAND_CLAUDE_INSTALL_COMMAND)
+        self.assertEqual(result[2]["status"], "ok")
+        self.assertEqual(result[3]["status"], "needs-agent")
+        self.assertEqual(run_shell.call_count, 2)
 
     def test_failed_claude_local_install_does_not_mark_platform_ready(self):
         installs = [
@@ -616,7 +655,7 @@ class AgentEntrypointInstallTests(unittest.TestCase):
     def test_init_rejects_symlinked_project_intel_directory(self):
         with tempfile.TemporaryDirectory() as tmp, tempfile.TemporaryDirectory() as outside:
             root = Path(tmp)
-            os.symlink(outside, root / ".project-intel")
+            symlink_or_skip(self, Path(outside), root / ".project-intel", target_is_directory=True)
             with self.assertRaisesRegex(RuntimeError, "符号链接"):
                 project_intel.init_project(root, with_graph=False)
             self.assertFalse((Path(outside) / "manifest.json").exists())
@@ -739,7 +778,7 @@ class AgentEntrypointInstallTests(unittest.TestCase):
     def test_adapters_reject_symlink_oversized_and_duplicate_marker_files(self):
         with tempfile.TemporaryDirectory() as tmp, tempfile.TemporaryDirectory() as outside:
             root = Path(tmp)
-            (root / "AGENTS.md").symlink_to(Path(outside) / "AGENTS.md")
+            symlink_or_skip(self, Path(outside) / "AGENTS.md", root / "AGENTS.md")
             with self.assertRaisesRegex(RuntimeError, "符号链接"):
                 project_intel.adapters_apply(root, target="codex")
 
@@ -954,7 +993,7 @@ class SafetyAndConfigTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp, tempfile.TemporaryDirectory() as outside:
             root = Path(tmp)
             (root / "src").mkdir()
-            (root / "src" / "external").symlink_to(Path(outside), target_is_directory=True)
+            symlink_or_skip(self, Path(outside), root / "src" / "external", target_is_directory=True)
 
             self.assertIsNone(project_intel.normalize_project_file(root, "src/../../../../../escaped.ts"))
             self.assertIsNone(project_intel.normalize_project_file(root, "src/external/secret.ts"))
@@ -1258,6 +1297,22 @@ class SkillCommandPathTests(unittest.TestCase):
 
 
 class CliAndReleaseContractTests(unittest.TestCase):
+    def test_init_checks_graph_by_default_and_setup_requires_graph(self):
+        result = {"manifest": {"fileCount": 0}, "agentFiles": [], "legacyCleanup": []}
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            with patch.object(project_intel, "init_project", return_value=result) as init_project:
+                self.assertEqual(project_intel.main(["--project", str(root), "init"]), 0)
+                init_project.assert_called_once_with(
+                    root.resolve(), refresh=False, interactive=True, setup_missing=False,
+                    with_graph=True, strict=False, allow_repo_runner=False,
+                    allow_env_command=False, allow_external_path=False,
+                )
+
+            with self.assertRaises(SystemExit) as raised:
+                project_intel.main(["--project", str(root), "init", "--no-graph", "--setup-missing"])
+            self.assertEqual(raised.exception.code, 2)
+
     def test_json_parser_and_runtime_failures_are_machine_readable(self):
         output = io.StringIO()
         with redirect_stdout(output):

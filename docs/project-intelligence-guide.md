@@ -128,9 +128,9 @@ project-intel --project /path/to/repo doctor --json
 project-intel --project /path/to/repo graph-tools --json
 ```
 
-`init` 和普通 `refresh` 默认只更新 `.project-intel` 事实，不修改根目录 `AGENTS.md`、`CLAUDE.md`、`.gitignore`。只有显式执行 `adapters apply`、`install` 或 `refresh --adapters` 才更新适配器文件。可先运行 `adapters status --json` 或 `adapters preview --target both --json` 检查将要写入的管理块。
+`init` 默认检查图谱工具、运行已安装的 shell 分析器并更新 `.project-intel`；交互终端会询问缺失工具，非交互环境不会等待输入。使用 `init --no-graph` 可只生成项目事实。普通 `refresh` 仍只读取已有图谱产物。两者都不修改根目录 `AGENTS.md`、`CLAUDE.md`、`.gitignore`；只有显式执行 `adapters apply`、`install` 或 `refresh --adapters` 才更新适配器文件。
 
-图谱分析默认关闭。运行仓库 runner、环境变量提供的命令或引用项目外绝对路径时，需要分别显式授权：
+`refresh` 的图谱重跑默认关闭。运行仓库 runner、环境变量提供的命令或引用项目外绝对路径时，需要分别显式授权：
 
 ```bash
 project-intel --project /path/to/repo refresh --with-graph --allow-repo-runner

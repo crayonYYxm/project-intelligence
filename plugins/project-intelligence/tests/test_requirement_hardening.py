@@ -18,6 +18,15 @@ from design_fixtures import bug_design, requirement_design, requirement_document
 from project_intel_lib import requirements
 
 
+def symlink_or_skip(testcase, target: Path, link: Path) -> None:
+    try:
+        link.symlink_to(target, target_is_directory=True)
+    except OSError as exc:
+        if os.name == "nt" and getattr(exc, "winerror", None) == 1314:
+            testcase.skipTest("Windows symbolic links require Developer Mode or elevated privileges.")
+        raise
+
+
 class RequirementHardeningTests(unittest.TestCase):
     def git_project(self, root: Path, *, preexisting_dirty: bool = False) -> Path:
         subprocess.run(["git", "init", "-q"], cwd=root, check=True)
@@ -127,7 +136,7 @@ class RequirementHardeningTests(unittest.TestCase):
             root = Path(tmp)
             (root / ".project-intel" / "requirements").mkdir(parents=True)
             outside = Path(outside_tmp)
-            os.symlink(outside, root / ".project-intel" / "requirements" / "REQ-LINK")
+            symlink_or_skip(self, outside, root / ".project-intel" / "requirements" / "REQ-LINK")
             with self.assertRaisesRegex(requirements.RequirementError, "符号链接|项目目录"):
                 requirements.create_requirement(root, "REQ-LINK", "符号链接越界")
             self.assertFalse((outside / "manifest.json").exists())
@@ -720,7 +729,7 @@ class RequirementHardeningTests(unittest.TestCase):
                 '"state": "closed", "changedFiles": []}\n',
                 encoding="utf-8",
             )
-            os.symlink(outside, requirement_root / "EVIL")
+            symlink_or_skip(self, outside, requirement_root / "EVIL")
 
             self.assertEqual(requirements.query_requirements(root, state="closed"), [])
 

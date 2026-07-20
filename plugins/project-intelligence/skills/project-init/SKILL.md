@@ -32,7 +32,7 @@ By default, `init` checks graph tools before writing project facts and runs anal
 - `installable`: Understand-Anything is not installed, disabled, or the Claude Code install is broken. Ask whether to install/enable/repair it. If approved, use `init --setup-missing` or run the selected install command before `init`.
 - `missing`: no supported install path was detected. Print the setup suggestion and continue without graph enhancement.
 
-In noninteractive agent shells such as Codex/Claude tool runs, first run `graph-tools --json`, inspect `installOptions`, and ask the user in Chinese whether to run all graph setup, install GitNexus, install/enable Understand-Anything for Codex or Claude Code, run the `/understand` follow-up, or skip. Plain `init` never waits for input. Support combination answers such as `1,2`, `1+3`, `全部`, or `all`.
+In noninteractive agent shells such as Codex/Claude tool runs, first run `graph-tools --json`, inspect `installOptions`, and ask the user in Chinese whether to run all graph setup, install GitNexus, install/enable Understand-Anything for Codex or Claude Code, run the `/understand` follow-up, or skip. When the host exposes a structured choice or `request_user_input` tool, use it so the choices appear as a selectable popup; fall back to a concise Chinese text prompt only when structured input is unavailable. Plain `init` never waits for input in a noninteractive shell. Support combination answers such as `1,2`, `1+3`, `全部`, or `all`.
 
 Use a concise Chinese choice prompt, for example:
 
@@ -61,7 +61,7 @@ After the user answers:
 
 Use `--setup-missing` only when the user has already approved automatic setup. For GitNexus this usually means downloading the CLI via `npx` and immediately running `analyze`, not a separate global install. For Understand-Anything, install according to the chosen target:
 
-- Codex: `curl -fsSL https://raw.githubusercontent.com/Egonex-AI/Understand-Anything/main/install.sh | bash -s codex`
+- Codex on macOS/Linux: `curl -fsSL https://raw.githubusercontent.com/Egonex-AI/Understand-Anything/main/install.sh | bash -s codex`. On Windows, download `install.ps1` to a temporary file and execute it with the positional `codex` argument; never omit the platform argument in a noninteractive run.
 - Claude Code CLI: `claude plugin marketplace add Egonex-AI/Understand-Anything`, then `claude plugin install understand-anything@understand-anything`, then `claude plugin enable understand-anything@understand-anything`. Verify with `claude plugin list`; do not report success if the plugin is disabled or failed to load.
 - Claude Code slash UI equivalent: `/plugin marketplace add Egonex-AI/Understand-Anything`, then `/plugin install understand-anything`. The plugin name is `understand-anything`; the CLI form uses `understand-anything@understand-anything` only to specify the marketplace explicitly.
 

@@ -239,7 +239,10 @@ class _RequirementLock:
         *,
         filename: str = ".manifest.lock",
     ) -> None:
-        self.path = directory / filename
+        # Keep lock handles outside requirement directories so Windows can move
+        # a legacy directory while the requirement remains exclusively locked.
+        lock_parent = directory.parent.parent if directory.parent.name == "by-id" else directory.parent
+        self.path = lock_parent / f".{directory.name}{filename}"
         self.timeout = timeout
         self.fd: Optional[int] = None
 
@@ -3393,7 +3396,6 @@ def migrate_layout(root: Path, *, dry_run: bool = True) -> dict[str, Any]:
                         destination = item["destination"]
                         destination.parent.mkdir(parents=True, exist_ok=True)
                         os.replace(source, destination)
-                        item["lock"].path = destination / ".manifest.lock"
                         moved.append(item)
                         _write_manifest(destination / "manifest.json", item["payload"])
                 except Exception:
@@ -3402,7 +3404,6 @@ def migrate_layout(root: Path, *, dry_run: bool = True) -> dict[str, Any]:
                         source = item["source"]
                         if destination.exists() and not source.exists():
                             os.replace(destination, source)
-                        item["lock"].path = source / ".manifest.lock"
                         _atomic_write(source / "manifest.json", item["originalBytes"])
                     raise
         except Exception as exc:
