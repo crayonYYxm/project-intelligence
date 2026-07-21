@@ -1,0 +1,622 @@
+{
+  "nodes": [
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:normalize_test_files",
+      "type": "function",
+      "name": "normalize_test_files",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        3813,
+        3826
+      ],
+      "summary": "规范化 finish/test 阶段传入的测试文件列表。",
+      "tags": [
+        "application-core",
+        "cli",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:configured_test_commands",
+      "type": "function",
+      "name": "configured_test_commands",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        3829,
+        3835
+      ],
+      "summary": "读取项目配置中的测试命令列表。",
+      "tags": [
+        "application-core",
+        "cli",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:run_project_test",
+      "type": "function",
+      "name": "run_project_test",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        3838,
+        4040
+      ],
+      "summary": "执行测试运行并产出 RED/GREEN/回归证据，支持手动审批与失败预期。",
+      "tags": [
+        "test",
+        "runner",
+        "evidence"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:git_diff_summary",
+      "type": "function",
+      "name": "git_diff_summary",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        4043,
+        4056
+      ],
+      "summary": "对 git diff 输出做摘要，列出变更文件与增删行数。",
+      "tags": [
+        "application-core",
+        "cli",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:build_finish_report",
+      "type": "function",
+      "name": "build_finish_report",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        4059,
+        4121
+      ],
+      "summary": "生成 finish 阶段报告，覆盖变更、质量、测试证据与验收。",
+      "tags": [
+        "finish",
+        "report",
+        "lifecycle"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:finish_project",
+      "type": "function",
+      "name": "finish_project",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        4124,
+        4217
+      ],
+      "summary": "执行 finish 流程：检查测试/质量证据、归档需求并输出报告。",
+      "tags": [
+        "finish",
+        "lifecycle",
+        "gate"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:hook_script_body",
+      "type": "function",
+      "name": "hook_script_body",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        4220,
+        4233
+      ],
+      "summary": "生成 git hook 脚本内容，调用 project-intel 校验命令。",
+      "tags": [
+        "application-core",
+        "cli",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:write_hook_templates",
+      "type": "function",
+      "name": "write_hook_templates",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        4236,
+        4257
+      ],
+      "summary": "将 hook 脚本模板写入 .project-intel/hooks 目录。",
+      "tags": [
+        "hooks",
+        "writer",
+        "git"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:git_hooks_path",
+      "type": "function",
+      "name": "git_hooks_path",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        4260,
+        4270
+      ],
+      "summary": "解析当前仓库的 git hooks 路径，可选放行外部路径。",
+      "tags": [
+        "application-core",
+        "cli",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:activate_git_hooks",
+      "type": "function",
+      "name": "activate_git_hooks",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        4273,
+        4306
+      ],
+      "summary": "将 project-intel hook 模板链接到 git hooks 目录。",
+      "tags": [
+        "hooks",
+        "git",
+        "installer"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:agent_project_intelligence_priority_rules",
+      "type": "function",
+      "name": "agent_project_intelligence_priority_rules",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        4309,
+        4334
+      ],
+      "summary": "生成 agent 优先级规则文本，用于 adapter 注入。",
+      "tags": [
+        "application-core",
+        "cli",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:project_agent_rules",
+      "type": "function",
+      "name": "project_agent_rules",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        4337,
+        4382
+      ],
+      "summary": "生成项目级 agent 规则文本，覆盖工作流与质量约束。",
+      "tags": [
+        "application-core",
+        "cli",
+        "service"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:claude_project_agent_rules",
+      "type": "function",
+      "name": "claude_project_agent_rules",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        4385,
+        4409
+      ],
+      "summary": "生成 Claude 平台特定的项目 agent 规则文本。",
+      "tags": [
+        "application-core",
+        "cli",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:codex_adapter_rules",
+      "type": "function",
+      "name": "codex_adapter_rules",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        4412,
+        4427
+      ],
+      "summary": "生成 Codex adapter 的注入规则文本。",
+      "tags": [
+        "application-core",
+        "cli",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:claude_adapter_rules",
+      "type": "function",
+      "name": "claude_adapter_rules",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        4430,
+        4443
+      ],
+      "summary": "生成 Claude adapter 的注入规则文本。",
+      "tags": [
+        "application-core",
+        "cli",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:_adapter_targets",
+      "type": "function",
+      "name": "_adapter_targets",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        4452,
+        4481
+      ],
+      "summary": "枚举 adapter 注入目标文件及其存在性状态。",
+      "tags": [
+        "application-core",
+        "cli",
+        "service"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:adapters_status",
+      "type": "function",
+      "name": "adapters_status",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        4488,
+        4510
+      ],
+      "summary": "展示各 adapter 目标的当前注入状态。",
+      "tags": [
+        "adapter",
+        "status",
+        "agent-rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:adapters_apply",
+      "type": "function",
+      "name": "adapters_apply",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        4513,
+        4560
+      ],
+      "summary": "向目标文件注入 adapter 规则块，支持 dry-run。",
+      "tags": [
+        "adapter",
+        "writer",
+        "agent-rules"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:adapters_remove",
+      "type": "function",
+      "name": "adapters_remove",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        4563,
+        4577
+      ],
+      "summary": "从目标文件移除 adapter 规则块，支持 dry-run。",
+      "tags": [
+        "adapter",
+        "writer",
+        "agent-rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:install_claude",
+      "type": "function",
+      "name": "install_claude",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        4587,
+        4606
+      ],
+      "summary": "为 Claude 平台安装 project-intel 入口与可选 hooks。",
+      "tags": [
+        "adapter",
+        "claude",
+        "installer"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:selected_hard_rule_files",
+      "type": "function",
+      "name": "selected_hard_rule_files",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        4615,
+        4622
+      ],
+      "summary": "根据配置与 check 标志选出需要执行 hard rule 校验的文件。",
+      "tags": [
+        "application-core",
+        "cli",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:run_hard_rule_checks",
+      "type": "function",
+      "name": "run_hard_rule_checks",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        4625,
+        4668
+      ],
+      "summary": "对选定文件执行 forbid/require 类 hard rule 校验并收集结果。",
+      "tags": [
+        "hard-rules",
+        "validation",
+        "runner"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:markdown_command_output",
+      "type": "function",
+      "name": "markdown_command_output",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        4671,
+        4682
+      ],
+      "summary": "将命令执行结果格式化为 markdown 代码块输出。",
+      "tags": [
+        "application-core",
+        "cli",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:run_check",
+      "type": "function",
+      "name": "run_check",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        4685,
+        4720
+      ],
+      "summary": "执行 check 命令：运行 hard rules 与可选质量工具并汇总结果。",
+      "tags": [
+        "check",
+        "quality",
+        "runner"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:build_quality_report",
+      "type": "function",
+      "name": "build_quality_report",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        4723,
+        4772
+      ],
+      "summary": "汇总质量工具与 hard rule 校验结果生成质量报告。",
+      "tags": [
+        "quality",
+        "report",
+        "validation"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:query_project",
+      "type": "function",
+      "name": "query_project",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        4775,
+        4793
+      ],
+      "summary": "基于项目快照对自然语言查询做关键词匹配并返回相关条目。",
+      "tags": [
+        "query",
+        "search",
+        "knowledge"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:marketplace_bundle_root",
+      "type": "function",
+      "name": "marketplace_bundle_root",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        4803,
+        4808
+      ],
+      "summary": "解析 agent 插件 marketplace 包的根路径。",
+      "tags": [
+        "application-core",
+        "cli",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:agent_install_commands",
+      "type": "function",
+      "name": "agent_install_commands",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        4811,
+        4825
+      ],
+      "summary": "为指定 agent 平台生成插件安装命令序列。",
+      "tags": [
+        "application-core",
+        "cli",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:install_agent_plugin",
+      "type": "function",
+      "name": "install_agent_plugin",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        4828,
+        4864
+      ],
+      "summary": "为目标 agent 平台安装 project-intelligence 插件，支持 dry-run。",
+      "tags": [
+        "agent-plugin",
+        "installer",
+        "marketplace"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:doctor_report",
+      "type": "function",
+      "name": "doctor_report",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        4867,
+        4885
+      ],
+      "summary": "生成 doctor 诊断报告，检查项目初始化与工具健康度。",
+      "tags": [
+        "doctor",
+        "diagnostics",
+        "report"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:build_parser",
+      "type": "function",
+      "name": "build_parser",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        4888,
+        5123
+      ],
+      "summary": "构建 project-intel CLI 的 argparse 命令树，覆盖全部子命令与选项。",
+      "tags": [
+        "cli",
+        "argparse",
+        "command-tree"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:parse_review_findings",
+      "type": "function",
+      "name": "parse_review_findings",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        5133,
+        5142
+      ],
+      "summary": "解析 review 子命令传入的 findings 字符串为结构化列表。",
+      "tags": [
+        "application-core",
+        "cli",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:parse_acceptance_values",
+      "type": "function",
+      "name": "parse_acceptance_values",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        5145,
+        5154
+      ],
+      "summary": "解析验收标准编号字符串为去重的整数列表。",
+      "tags": [
+        "application-core",
+        "cli",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:dispatch_command",
+      "type": "function",
+      "name": "dispatch_command",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        5166,
+        5656
+      ],
+      "summary": "命令派发核心：按 args.command 路由到对应子命令处理函数。",
+      "tags": [
+        "dispatch",
+        "cli",
+        "command-router"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:main",
+      "type": "function",
+      "name": "main",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        5659,
+        5692
+      ],
+      "summary": "CLI 入口：解析参数、处理 --json/--version 并派发命令。",
+      "tags": [
+        "entry-point",
+        "cli",
+        "dispatch"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:plugins/project-intelligence/scripts/project_intel_lib/scanner/__init__.py",
+      "type": "file",
+      "name": "__init__.py",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/scanner/__init__.py",
+      "summary": "scanner 子包入口，re-export scan_backend/scan_frontend/extract_emits/extract_vue_props 四个对外扫描 API。",
+      "tags": [
+        "entry-point",
+        "barrel",
+        "scanner",
+        "package-init"
+      ],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:main",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/cli.py:json_envelope",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    }
+  ]
+}

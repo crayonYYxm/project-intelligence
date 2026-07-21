@@ -1,0 +1,741 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 19,
+  "filesSkipped": [],
+  "results": [
+    {
+      "path": ".project-intel/standards/api.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 24,
+      "nonEmptyLines": 14,
+      "sections": [
+        {
+          "heading": "API 与请求规范",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "请求封装",
+          "level": 2,
+          "line": 3
+        },
+        {
+          "heading": "服务前缀",
+          "level": 2,
+          "line": 7
+        },
+        {
+          "heading": "接口路径热点",
+          "level": 2,
+          "line": 11
+        },
+        {
+          "heading": "API 模块清单",
+          "level": 2,
+          "line": 15
+        },
+        {
+          "heading": "约定",
+          "level": 2,
+          "line": 19
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 6
+      }
+    },
+    {
+      "path": ".project-intel/standards/backend-api.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 40,
+      "nonEmptyLines": 30,
+      "sections": [
+        {
+          "heading": "后端 API 与入口规范",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "框架入口分布",
+          "level": 2,
+          "line": 3
+        },
+        {
+          "heading": "API/入口清单",
+          "level": 2,
+          "line": 9
+        },
+        {
+          "heading": "路径热点",
+          "level": 2,
+          "line": 17
+        },
+        {
+          "heading": "非标准入口候选",
+          "level": 2,
+          "line": 31
+        },
+        {
+          "heading": "约定",
+          "level": 2,
+          "line": 35
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 6
+      }
+    },
+    {
+      "path": ".project-intel/standards/backend-async.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 32,
+      "nonEmptyLines": 26,
+      "sections": [
+        {
+          "heading": "后端消息与任务规范",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "消息/任务信号",
+          "level": 2,
+          "line": 3
+        },
+        {
+          "heading": "信号热点",
+          "level": 2,
+          "line": 11
+        },
+        {
+          "heading": "约定",
+          "level": 2,
+          "line": 27
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 4
+      }
+    },
+    {
+      "path": ".project-intel/standards/backend-config.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 23,
+      "nonEmptyLines": 17,
+      "sections": [
+        {
+          "heading": "后端配置规范",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "配置文件/配置类",
+          "level": 2,
+          "line": 3
+        },
+        {
+          "heading": "配置前缀热点",
+          "level": 2,
+          "line": 9
+        },
+        {
+          "heading": "约定",
+          "level": 2,
+          "line": 18
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 4
+      }
+    },
+    {
+      "path": ".project-intel/standards/backend-errors.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 25,
+      "nonEmptyLines": 19,
+      "sections": [
+        {
+          "heading": "后端错误码与异常规范",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "错误码/异常信号",
+          "level": 2,
+          "line": 3
+        },
+        {
+          "heading": "信号热点",
+          "level": 2,
+          "line": 11
+        },
+        {
+          "heading": "约定",
+          "level": 2,
+          "line": 20
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 4
+      }
+    },
+    {
+      "path": ".project-intel/standards/backend-models.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 24,
+      "nonEmptyLines": 14,
+      "sections": [
+        {
+          "heading": "后端 DTO/VO/Entity 规范",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "类型分布",
+          "level": 2,
+          "line": 3
+        },
+        {
+          "heading": "数据类型清单",
+          "level": 2,
+          "line": 7
+        },
+        {
+          "heading": "字段热点",
+          "level": 2,
+          "line": 11
+        },
+        {
+          "heading": "注解热点",
+          "level": 2,
+          "line": 15
+        },
+        {
+          "heading": "约定",
+          "level": 2,
+          "line": 19
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 6
+      }
+    },
+    {
+      "path": ".project-intel/standards/backend-remote-calls.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 32,
+      "nonEmptyLines": 26,
+      "sections": [
+        {
+          "heading": "后端远程调用规范",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "远程调用信号",
+          "level": 2,
+          "line": 3
+        },
+        {
+          "heading": "信号热点",
+          "level": 2,
+          "line": 12
+        },
+        {
+          "heading": "约定",
+          "level": 2,
+          "line": 27
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 4
+      }
+    },
+    {
+      "path": ".project-intel/standards/backend-repository.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 30,
+      "nonEmptyLines": 22,
+      "sections": [
+        {
+          "heading": "后端 Repository/Mapper 规范",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "仓库层分布",
+          "level": 2,
+          "line": 3
+        },
+        {
+          "heading": "Repository/Mapper 清单",
+          "level": 2,
+          "line": 9
+        },
+        {
+          "heading": "SQL 操作热点",
+          "level": 2,
+          "line": 15
+        },
+        {
+          "heading": "约定",
+          "level": 2,
+          "line": 25
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 5
+      }
+    },
+    {
+      "path": ".project-intel/standards/backend-security.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 38,
+      "nonEmptyLines": 32,
+      "sections": [
+        {
+          "heading": "后端权限与认证规范",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "权限/认证信号",
+          "level": 2,
+          "line": 3
+        },
+        {
+          "heading": "信号热点",
+          "level": 2,
+          "line": 19
+        },
+        {
+          "heading": "约定",
+          "level": 2,
+          "line": 33
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 4
+      }
+    },
+    {
+      "path": ".project-intel/standards/backend-services.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 32,
+      "nonEmptyLines": 26,
+      "sections": [
+        {
+          "heading": "后端 Service 与业务编排规范",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "Service 清单",
+          "level": 2,
+          "line": 3
+        },
+        {
+          "heading": "方法命名前缀热点",
+          "level": 2,
+          "line": 10
+        },
+        {
+          "heading": "约定",
+          "level": 2,
+          "line": 27
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 4
+      }
+    },
+    {
+      "path": ".project-intel/standards/backend-transactions.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 25,
+      "nonEmptyLines": 19,
+      "sections": [
+        {
+          "heading": "后端事务边界规范",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "事务信号",
+          "level": 2,
+          "line": 3
+        },
+        {
+          "heading": "信号热点",
+          "level": 2,
+          "line": 10
+        },
+        {
+          "heading": "约定",
+          "level": 2,
+          "line": 20
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 4
+      }
+    },
+    {
+      "path": ".project-intel/standards/backend-utilities.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 16,
+      "nonEmptyLines": 10,
+      "sections": [
+        {
+          "heading": "后端公共工具规范",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "工具类/公共函数",
+          "level": 2,
+          "line": 3
+        },
+        {
+          "heading": "工具目录热点",
+          "level": 2,
+          "line": 7
+        },
+        {
+          "heading": "约定",
+          "level": 2,
+          "line": 11
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 4
+      }
+    },
+    {
+      "path": ".project-intel/standards/backend.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 50,
+      "nonEmptyLines": 41,
+      "sections": [
+        {
+          "heading": "后端规范",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "已提取的事实",
+          "level": 2,
+          "line": 3
+        },
+        {
+          "heading": "细分规范",
+          "level": 2,
+          "line": 18
+        },
+        {
+          "heading": "推断规范",
+          "level": 2,
+          "line": 32
+        },
+        {
+          "heading": "默认规则",
+          "level": 2,
+          "line": 45
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 5
+      }
+    },
+    {
+      "path": ".project-intel/standards/components.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 34,
+      "nonEmptyLines": 19,
+      "sections": [
+        {
+          "heading": "组件与复用规范",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "组件分布",
+          "level": 2,
+          "line": 3
+        },
+        {
+          "heading": "公共组件清单",
+          "level": 2,
+          "line": 7
+        },
+        {
+          "heading": "页面局部组件热点",
+          "level": 2,
+          "line": 13
+        },
+        {
+          "heading": "重名/相似组件候选",
+          "level": 2,
+          "line": 17
+        },
+        {
+          "heading": "常见 Props / Emits",
+          "level": 2,
+          "line": 23
+        },
+        {
+          "heading": "约定",
+          "level": 2,
+          "line": 29
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 7
+      }
+    },
+    {
+      "path": ".project-intel/standards/domain-flows.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 21,
+      "nonEmptyLines": 12,
+      "sections": [
+        {
+          "heading": "业务流与图谱规范",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "业务域候选",
+          "level": 2,
+          "line": 3
+        },
+        {
+          "heading": "关键模块摘要",
+          "level": 2,
+          "line": 9
+        },
+        {
+          "heading": "图谱路径热点",
+          "level": 2,
+          "line": 13
+        },
+        {
+          "heading": "约定",
+          "level": 2,
+          "line": 17
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 5
+      }
+    },
+    {
+      "path": ".project-intel/standards/frontend.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 30,
+      "nonEmptyLines": 21,
+      "sections": [
+        {
+          "heading": "前端规范",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "已提取的事实",
+          "level": 2,
+          "line": 3
+        },
+        {
+          "heading": "细分规范",
+          "level": 2,
+          "line": 12
+        },
+        {
+          "heading": "推断规范",
+          "level": 2,
+          "line": 19
+        },
+        {
+          "heading": "默认规则",
+          "level": 2,
+          "line": 25
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 5
+      }
+    },
+    {
+      "path": ".project-intel/standards/quality.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 22,
+      "nonEmptyLines": 15,
+      "sections": [
+        {
+          "heading": "质量检查",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "检测到的命令",
+          "level": 2,
+          "line": 12
+        },
+        {
+          "heading": "策略",
+          "level": 2,
+          "line": 18
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 3
+      }
+    },
+    {
+      "path": ".project-intel/standards/reuse.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 7,
+      "nonEmptyLines": 5,
+      "sections": [
+        {
+          "heading": "复用与冗余",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "策略",
+          "level": 2,
+          "line": 3
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 2
+      }
+    },
+    {
+      "path": ".project-intel/standards/router.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 16,
+      "nonEmptyLines": 10,
+      "sections": [
+        {
+          "heading": "路由与分包规范",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "路由模块",
+          "level": 2,
+          "line": 3
+        },
+        {
+          "heading": "页面标题热点",
+          "level": 2,
+          "line": 7
+        },
+        {
+          "heading": "约定",
+          "level": 2,
+          "line": 11
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 4
+      }
+    }
+  ]
+}

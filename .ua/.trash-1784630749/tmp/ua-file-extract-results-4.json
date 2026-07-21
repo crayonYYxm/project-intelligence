@@ -1,0 +1,397 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 3,
+  "filesSkipped": [],
+  "results": [
+    {
+      "path": "scripts/run-skill-evals.mjs",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 128,
+      "nonEmptyLines": 120,
+      "functions": [
+        {
+          "name": "option",
+          "startLine": 16,
+          "endLine": 19,
+          "params": [
+            "name"
+          ]
+        },
+        {
+          "name": "prepareCodexProfile",
+          "startLine": 32,
+          "endLine": 41,
+          "params": []
+        },
+        {
+          "name": "evalPrompt",
+          "startLine": 48,
+          "endLine": 48,
+          "params": [
+            "scenario"
+          ]
+        },
+        {
+          "name": "invocation",
+          "startLine": 50,
+          "endLine": 81,
+          "params": [
+            "scenario"
+          ]
+        },
+        {
+          "name": "failureDetail",
+          "startLine": 83,
+          "endLine": 104,
+          "params": [
+            "result"
+          ]
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "option",
+          "callee": "args.indexOf",
+          "lineNumber": 17
+        },
+        {
+          "caller": "prepareCodexProfile",
+          "callee": "mkdtempSync",
+          "lineNumber": 35
+        },
+        {
+          "caller": "prepareCodexProfile",
+          "callee": "join",
+          "lineNumber": 35
+        },
+        {
+          "caller": "prepareCodexProfile",
+          "callee": "tmpdir",
+          "lineNumber": 35
+        },
+        {
+          "caller": "prepareCodexProfile",
+          "callee": "spawnSync",
+          "lineNumber": 37
+        },
+        {
+          "caller": "prepareCodexProfile",
+          "callee": "spawnSync",
+          "lineNumber": 39
+        },
+        {
+          "caller": "invocation",
+          "callee": "evalPrompt",
+          "lineNumber": 51
+        },
+        {
+          "caller": "failureDetail",
+          "callee": "skillToolInvocations",
+          "lineNumber": 84
+        },
+        {
+          "caller": "failureDetail",
+          "callee": "(result.stdout ?? \"\").split",
+          "lineNumber": 86
+        },
+        {
+          "caller": "failureDetail",
+          "callee": "line.trim().startsWith",
+          "lineNumber": 87
+        },
+        {
+          "caller": "failureDetail",
+          "callee": "line.trim",
+          "lineNumber": 87
+        },
+        {
+          "caller": "failureDetail",
+          "callee": "JSON.parse",
+          "lineNumber": 89
+        },
+        {
+          "caller": "failureDetail",
+          "callee": "JSON.stringify",
+          "lineNumber": 91
+        },
+        {
+          "caller": "failureDetail",
+          "callee": "[\n    result.error?.message,\n    result.stderr?.trim(),\n    terminal,\n    invocations.length ? `skills=${invocations.join(\" -> \")}` : \"skills=none\",\n    `exit=${result.status}${result.signal ? ` signal=${result.signal}` : \"\"}`,\n  ].filter(Boolean).join",
+          "lineNumber": 97
+        },
+        {
+          "caller": "failureDetail",
+          "callee": "[\n    result.error?.message,\n    result.stderr?.trim(),\n    terminal,\n    invocations.length ? `skills=${invocations.join(\" -> \")}` : \"skills=none\",\n    `exit=${result.status}${result.signal ? ` signal=${result.signal}` : \"\"}`,\n  ].filter",
+          "lineNumber": 97
+        },
+        {
+          "caller": "failureDetail",
+          "callee": "result.stderr?.trim",
+          "lineNumber": 99
+        },
+        {
+          "caller": "failureDetail",
+          "callee": "invocations.join",
+          "lineNumber": 101
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 0,
+        "functionCount": 5,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "scripts/skill-eval-events.mjs",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 42,
+      "nonEmptyLines": 40,
+      "functions": [
+        {
+          "name": "buildSkillNamePattern",
+          "startLine": 1,
+          "endLine": 4,
+          "params": [
+            "skillNames"
+          ]
+        },
+        {
+          "name": "skillToolInvocations",
+          "startLine": 6,
+          "endLine": 31,
+          "params": [
+            "stdout",
+            "skillNamePattern"
+          ]
+        },
+        {
+          "name": "evaluateSkillRoute",
+          "startLine": 33,
+          "endLine": 42,
+          "params": [
+            "scenario",
+            "actual"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "buildSkillNamePattern",
+          "line": 1,
+          "isDefault": false
+        },
+        {
+          "name": "skillToolInvocations",
+          "line": 6,
+          "isDefault": false
+        },
+        {
+          "name": "evaluateSkillRoute",
+          "line": 33,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "escapeRegExp",
+          "callee": "value.replace",
+          "lineNumber": 2
+        },
+        {
+          "caller": "buildSkillNamePattern",
+          "callee": "[...skillNames].sort((left, right) => right.length - left.length).map(escapeRegExp).join",
+          "lineNumber": 3
+        },
+        {
+          "caller": "buildSkillNamePattern",
+          "callee": "[...skillNames].sort((left, right) => right.length - left.length).map",
+          "lineNumber": 3
+        },
+        {
+          "caller": "buildSkillNamePattern",
+          "callee": "[...skillNames].sort",
+          "lineNumber": 3
+        },
+        {
+          "caller": "skillToolInvocations",
+          "callee": "stdout.split",
+          "lineNumber": 8
+        },
+        {
+          "caller": "skillToolInvocations",
+          "callee": "line.trim().startsWith",
+          "lineNumber": 9
+        },
+        {
+          "caller": "skillToolInvocations",
+          "callee": "line.trim",
+          "lineNumber": 9
+        },
+        {
+          "caller": "skillToolInvocations",
+          "callee": "JSON.parse",
+          "lineNumber": 12
+        },
+        {
+          "caller": "visit",
+          "callee": "String(item.type ?? \"\").toLowerCase",
+          "lineNumber": 18
+        },
+        {
+          "caller": "visit",
+          "callee": "String",
+          "lineNumber": 18
+        },
+        {
+          "caller": "visit",
+          "callee": "String(item.name ?? item.tool_name ?? item.toolName ?? \"\").toLowerCase",
+          "lineNumber": 19
+        },
+        {
+          "caller": "visit",
+          "callee": "String",
+          "lineNumber": 19
+        },
+        {
+          "caller": "visit",
+          "callee": "new Set([\"skill\", \"skill_use\", \"skill_call\", \"skill_invocation\"]).has",
+          "lineNumber": 20
+        },
+        {
+          "caller": "visit",
+          "callee": "/(?:tool|function)(?:_use|_call)?/.test",
+          "lineNumber": 21
+        },
+        {
+          "caller": "visit",
+          "callee": "/skill/.test",
+          "lineNumber": 21
+        },
+        {
+          "caller": "visit",
+          "callee": "JSON.stringify",
+          "lineNumber": 23
+        },
+        {
+          "caller": "visit",
+          "callee": "body.matchAll",
+          "lineNumber": 24
+        },
+        {
+          "caller": "visit",
+          "callee": "found.push",
+          "lineNumber": 24
+        },
+        {
+          "caller": "visit",
+          "callee": "Array.isArray",
+          "lineNumber": 26
+        },
+        {
+          "caller": "visit",
+          "callee": "Object.values",
+          "lineNumber": 26
+        },
+        {
+          "caller": "visit",
+          "callee": "visit",
+          "lineNumber": 26
+        },
+        {
+          "caller": "skillToolInvocations",
+          "callee": "visit",
+          "lineNumber": 28
+        },
+        {
+          "caller": "evaluateSkillRoute",
+          "callee": "expected.filter",
+          "lineNumber": 36
+        },
+        {
+          "caller": "evaluateSkillRoute",
+          "callee": "actual.includes",
+          "lineNumber": 36
+        },
+        {
+          "caller": "evaluateSkillRoute",
+          "callee": "(scenario.forbiddenSkills ?? []).filter",
+          "lineNumber": 37
+        },
+        {
+          "caller": "evaluateSkillRoute",
+          "callee": "actual.includes",
+          "lineNumber": 37
+        },
+        {
+          "caller": "evaluateSkillRoute",
+          "callee": "actual.filter",
+          "lineNumber": 38
+        },
+        {
+          "caller": "evaluateSkillRoute",
+          "callee": "allowed.has",
+          "lineNumber": 38
+        },
+        {
+          "caller": "evaluateSkillRoute",
+          "callee": "(scenario.expectedOrder ?? []).map",
+          "lineNumber": 39
+        },
+        {
+          "caller": "evaluateSkillRoute",
+          "callee": "actual.indexOf",
+          "lineNumber": 39
+        },
+        {
+          "caller": "evaluateSkillRoute",
+          "callee": "positions.every",
+          "lineNumber": 40
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 3,
+        "functionCount": 3,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "scripts/validate-skill-evals.mjs",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 192,
+      "nonEmptyLines": 183,
+      "functions": [
+        {
+          "name": "skillText",
+          "startLine": 14,
+          "endLine": 14,
+          "params": [
+            "name"
+          ]
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "skillText",
+          "callee": "readFileSync",
+          "lineNumber": 14
+        },
+        {
+          "caller": "skillText",
+          "callee": "resolve",
+          "lineNumber": 14
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 0,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    }
+  ]
+}

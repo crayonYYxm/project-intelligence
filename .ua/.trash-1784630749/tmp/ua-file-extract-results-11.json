@@ -1,0 +1,1398 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 25,
+  "filesSkipped": [],
+  "results": [
+    {
+      "path": "plugins/project-intelligence/scripts/project_intel_lib/quality.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 186,
+      "nonEmptyLines": 165,
+      "functions": [
+        {
+          "name": "load_json",
+          "startLine": 11,
+          "endLine": 16,
+          "params": [
+            "path"
+          ]
+        },
+        {
+          "name": "workspace_package_files",
+          "startLine": 19,
+          "endLine": 41,
+          "params": [
+            "root",
+            "root_package"
+          ]
+        },
+        {
+          "name": "package_frameworks",
+          "startLine": 44,
+          "endLine": 62,
+          "params": [
+            "deps"
+          ]
+        },
+        {
+          "name": "detect_package",
+          "startLine": 65,
+          "endLine": 100,
+          "params": [
+            "root"
+          ]
+        },
+        {
+          "name": "package_manager",
+          "startLine": 103,
+          "endLine": 108,
+          "params": [
+            "root"
+          ]
+        },
+        {
+          "name": "package_script_command",
+          "startLine": 111,
+          "endLine": 118,
+          "params": [
+            "manager",
+            "directory",
+            "script"
+          ]
+        },
+        {
+          "name": "append_unique",
+          "startLine": 121,
+          "endLine": 123,
+          "params": [
+            "commands",
+            "item"
+          ]
+        },
+        {
+          "name": "detect_quality_commands",
+          "startLine": 126,
+          "endLine": 186,
+          "params": [
+            "root",
+            "package"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "load_json",
+          "line": 11,
+          "isDefault": false
+        },
+        {
+          "name": "workspace_package_files",
+          "line": 19,
+          "isDefault": false
+        },
+        {
+          "name": "package_frameworks",
+          "line": 44,
+          "isDefault": false
+        },
+        {
+          "name": "detect_package",
+          "line": 65,
+          "isDefault": false
+        },
+        {
+          "name": "package_manager",
+          "line": 103,
+          "isDefault": false
+        },
+        {
+          "name": "package_script_command",
+          "line": 111,
+          "isDefault": false
+        },
+        {
+          "name": "append_unique",
+          "line": 121,
+          "isDefault": false
+        },
+        {
+          "name": "detect_quality_commands",
+          "line": 126,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "load_json",
+          "callee": "json.loads",
+          "lineNumber": 13
+        },
+        {
+          "caller": "load_json",
+          "callee": "path.read_text",
+          "lineNumber": 13
+        },
+        {
+          "caller": "load_json",
+          "callee": "isinstance",
+          "lineNumber": 16
+        },
+        {
+          "caller": "workspace_package_files",
+          "callee": "root_package.get",
+          "lineNumber": 20
+        },
+        {
+          "caller": "workspace_package_files",
+          "callee": "isinstance",
+          "lineNumber": 21
+        },
+        {
+          "caller": "workspace_package_files",
+          "callee": "workspaces.get",
+          "lineNumber": 22
+        },
+        {
+          "caller": "workspace_package_files",
+          "callee": "isinstance",
+          "lineNumber": 23
+        },
+        {
+          "caller": "workspace_package_files",
+          "callee": "isinstance",
+          "lineNumber": 23
+        },
+        {
+          "caller": "workspace_package_files",
+          "callee": "set",
+          "lineNumber": 24
+        },
+        {
+          "caller": "workspace_package_files",
+          "callee": "pattern.rstrip",
+          "lineNumber": 26
+        },
+        {
+          "caller": "workspace_package_files",
+          "callee": "root.glob",
+          "lineNumber": 27
+        },
+        {
+          "caller": "workspace_package_files",
+          "callee": "directory.is_dir",
+          "lineNumber": 28
+        },
+        {
+          "caller": "workspace_package_files",
+          "callee": "path.is_file",
+          "lineNumber": 29
+        },
+        {
+          "caller": "workspace_package_files",
+          "callee": "candidates.add",
+          "lineNumber": 30
+        },
+        {
+          "caller": "workspace_package_files",
+          "callee": "base.is_dir",
+          "lineNumber": 34
+        },
+        {
+          "caller": "workspace_package_files",
+          "callee": "base.glob",
+          "lineNumber": 36
+        },
+        {
+          "caller": "workspace_package_files",
+          "callee": "candidates.add",
+          "lineNumber": 37
+        },
+        {
+          "caller": "workspace_package_files",
+          "callee": "sorted",
+          "lineNumber": 38
+        },
+        {
+          "caller": "workspace_package_files",
+          "callee": "any",
+          "lineNumber": 39
+        },
+        {
+          "caller": "workspace_package_files",
+          "callee": "path.relative_to",
+          "lineNumber": 39
+        },
+        {
+          "caller": "workspace_package_files",
+          "callee": "path.as_posix",
+          "lineNumber": 40
+        },
+        {
+          "caller": "package_frameworks",
+          "callee": "{\n        \"Vue\": [\"vue\", \"@vitejs/plugin-vue\", \"nuxt\"],\n        \"React\": [\"react\", \"next\", \"@vitejs/plugin-react\"],\n        \"Vite\": [\"vite\"],\n        \"NestJS\": [\"@nestjs/core\", \"@nestjs/common\"],\n        \"Express\": [\"express\"],\n        \"Koa\": [\"koa\"],\n        \"Fastify\": [\"fastify\"],\n        \"TypeScript\": [\"typescript\"],\n        \"Element Plus\": [\"element-plus\"],\n        \"Pinia\": [\"pinia\"],\n        \"Vue Router\": [\"vue-router\"],\n        \"Redux\": [\"redux\", \"@reduxjs/toolkit\"],\n    }.items",
+          "lineNumber": 46
+        },
+        {
+          "caller": "package_frameworks",
+          "callee": "any",
+          "lineNumber": 60
+        },
+        {
+          "caller": "package_frameworks",
+          "callee": "frameworks.append",
+          "lineNumber": 61
+        },
+        {
+          "caller": "detect_package",
+          "callee": "load_json",
+          "lineNumber": 66
+        },
+        {
+          "caller": "detect_package",
+          "callee": "workspace_package_files",
+          "lineNumber": 67
+        },
+        {
+          "caller": "detect_package",
+          "callee": "set",
+          "lineNumber": 69
+        },
+        {
+          "caller": "detect_package",
+          "callee": "load_json",
+          "lineNumber": 71
+        },
+        {
+          "caller": "detect_package",
+          "callee": "deps.update",
+          "lineNumber": 74
+        },
+        {
+          "caller": "detect_package",
+          "callee": "payload.get",
+          "lineNumber": 74
+        },
+        {
+          "caller": "detect_package",
+          "callee": "package_frameworks",
+          "lineNumber": 75
+        },
+        {
+          "caller": "detect_package",
+          "callee": "frameworks.update",
+          "lineNumber": 76
+        },
+        {
+          "caller": "detect_package",
+          "callee": "packages.append",
+          "lineNumber": 77
+        },
+        {
+          "caller": "detect_package",
+          "callee": "path.parent.relative_to(root).as_posix",
+          "lineNumber": 79
+        },
+        {
+          "caller": "detect_package",
+          "callee": "path.parent.relative_to",
+          "lineNumber": 79
+        },
+        {
+          "caller": "detect_package",
+          "callee": "payload.get",
+          "lineNumber": 80
+        },
+        {
+          "caller": "detect_package",
+          "callee": "payload.get",
+          "lineNumber": 81
+        },
+        {
+          "caller": "detect_package",
+          "callee": "{\n        \"Java/Spring\": [\"pom.xml\", \"build.gradle\", \"build.gradle.kts\"],\n        \"Python\": [\"pyproject.toml\", \"requirements.txt\", \"manage.py\"],\n        \"Go\": [\"go.mod\"],\n        \"Rust\": [\"Cargo.toml\"],\n    }.items",
+          "lineNumber": 85
+        },
+        {
+          "caller": "detect_package",
+          "callee": "any",
+          "lineNumber": 91
+        },
+        {
+          "caller": "detect_package",
+          "callee": "(root / marker).exists",
+          "lineNumber": 91
+        },
+        {
+          "caller": "detect_package",
+          "callee": "frameworks.add",
+          "lineNumber": 92
+        },
+        {
+          "caller": "detect_package",
+          "callee": "root_payload.get",
+          "lineNumber": 94
+        },
+        {
+          "caller": "detect_package",
+          "callee": "root_payload.get",
+          "lineNumber": 95
+        },
+        {
+          "caller": "detect_package",
+          "callee": "sorted",
+          "lineNumber": 96
+        },
+        {
+          "caller": "detect_package",
+          "callee": "bool",
+          "lineNumber": 97
+        },
+        {
+          "caller": "detect_package",
+          "callee": "len",
+          "lineNumber": 99
+        },
+        {
+          "caller": "package_manager",
+          "callee": "(root / \"pnpm-lock.yaml\").exists",
+          "lineNumber": 104
+        },
+        {
+          "caller": "package_manager",
+          "callee": "(root / \"yarn.lock\").exists",
+          "lineNumber": 106
+        },
+        {
+          "caller": "append_unique",
+          "callee": "item.get",
+          "lineNumber": 122
+        },
+        {
+          "caller": "append_unique",
+          "callee": "any",
+          "lineNumber": 122
+        },
+        {
+          "caller": "append_unique",
+          "callee": "existing.get",
+          "lineNumber": 122
+        },
+        {
+          "caller": "append_unique",
+          "callee": "item.get",
+          "lineNumber": 122
+        },
+        {
+          "caller": "append_unique",
+          "callee": "commands.append",
+          "lineNumber": 123
+        },
+        {
+          "caller": "detect_quality_commands",
+          "callee": "package_manager",
+          "lineNumber": 135
+        },
+        {
+          "caller": "detect_quality_commands",
+          "callee": "package.get",
+          "lineNumber": 136
+        },
+        {
+          "caller": "detect_quality_commands",
+          "callee": "package.get",
+          "lineNumber": 136
+        },
+        {
+          "caller": "detect_quality_commands",
+          "callee": "package.get",
+          "lineNumber": 136
+        },
+        {
+          "caller": "detect_quality_commands",
+          "callee": "workspace.get",
+          "lineNumber": 138
+        },
+        {
+          "caller": "detect_quality_commands",
+          "callee": "workspace.get",
+          "lineNumber": 139
+        },
+        {
+          "caller": "detect_quality_commands",
+          "callee": "aliases.items",
+          "lineNumber": 140
+        },
+        {
+          "caller": "detect_quality_commands",
+          "callee": "append_unique",
+          "lineNumber": 143
+        },
+        {
+          "caller": "detect_quality_commands",
+          "callee": "package_script_command",
+          "lineNumber": 145
+        },
+        {
+          "caller": "detect_quality_commands",
+          "callee": "item.get",
+          "lineNumber": 150
+        },
+        {
+          "caller": "detect_quality_commands",
+          "callee": "item.get",
+          "lineNumber": 150
+        },
+        {
+          "caller": "detect_quality_commands",
+          "callee": "any",
+          "lineNumber": 151
+        },
+        {
+          "caller": "detect_quality_commands",
+          "callee": "(root / name).exists",
+          "lineNumber": 151
+        },
+        {
+          "caller": "detect_quality_commands",
+          "callee": "append_unique",
+          "lineNumber": 152
+        },
+        {
+          "caller": "detect_quality_commands",
+          "callee": "(root / \"tsconfig.json\").exists",
+          "lineNumber": 153
+        },
+        {
+          "caller": "detect_quality_commands",
+          "callee": "package.get",
+          "lineNumber": 154
+        },
+        {
+          "caller": "detect_quality_commands",
+          "callee": "append_unique",
+          "lineNumber": 155
+        },
+        {
+          "caller": "detect_quality_commands",
+          "callee": "any",
+          "lineNumber": 156
+        },
+        {
+          "caller": "detect_quality_commands",
+          "callee": "(root / name).exists",
+          "lineNumber": 156
+        },
+        {
+          "caller": "detect_quality_commands",
+          "callee": "append_unique",
+          "lineNumber": 157
+        },
+        {
+          "caller": "detect_quality_commands",
+          "callee": "any",
+          "lineNumber": 158
+        },
+        {
+          "caller": "detect_quality_commands",
+          "callee": "(root / name).exists",
+          "lineNumber": 158
+        },
+        {
+          "caller": "detect_quality_commands",
+          "callee": "append_unique",
+          "lineNumber": 159
+        },
+        {
+          "caller": "detect_quality_commands",
+          "callee": "(root / \"pom.xml\").exists",
+          "lineNumber": 161
+        },
+        {
+          "caller": "detect_quality_commands",
+          "callee": "(root / \"mvnw\").exists",
+          "lineNumber": 162
+        },
+        {
+          "caller": "detect_quality_commands",
+          "callee": "append_unique",
+          "lineNumber": 163
+        },
+        {
+          "caller": "detect_quality_commands",
+          "callee": "append_unique",
+          "lineNumber": 164
+        },
+        {
+          "caller": "detect_quality_commands",
+          "callee": "(root / \"build.gradle\").exists",
+          "lineNumber": 165
+        },
+        {
+          "caller": "detect_quality_commands",
+          "callee": "(root / \"build.gradle.kts\").exists",
+          "lineNumber": 165
+        },
+        {
+          "caller": "detect_quality_commands",
+          "callee": "(root / \"gradlew\").exists",
+          "lineNumber": 166
+        },
+        {
+          "caller": "detect_quality_commands",
+          "callee": "append_unique",
+          "lineNumber": 167
+        },
+        {
+          "caller": "detect_quality_commands",
+          "callee": "append_unique",
+          "lineNumber": 168
+        },
+        {
+          "caller": "detect_quality_commands",
+          "callee": "(root / \"pyproject.toml\").exists",
+          "lineNumber": 169
+        },
+        {
+          "caller": "detect_quality_commands",
+          "callee": "(root / \"requirements.txt\").exists",
+          "lineNumber": 169
+        },
+        {
+          "caller": "detect_quality_commands",
+          "callee": "(root / \"pyproject.toml\").read_text",
+          "lineNumber": 170
+        },
+        {
+          "caller": "detect_quality_commands",
+          "callee": "(root / \"pyproject.toml\").exists",
+          "lineNumber": 170
+        },
+        {
+          "caller": "detect_quality_commands",
+          "callee": "(root / \"requirements.txt\").read_text",
+          "lineNumber": 171
+        },
+        {
+          "caller": "detect_quality_commands",
+          "callee": "(root / \"requirements.txt\").exists",
+          "lineNumber": 171
+        },
+        {
+          "caller": "detect_quality_commands",
+          "callee": "(pyproject + \"\\n\" + requirements).lower",
+          "lineNumber": 172
+        },
+        {
+          "caller": "detect_quality_commands",
+          "callee": "(root / \"tests\").is_dir",
+          "lineNumber": 173
+        },
+        {
+          "caller": "detect_quality_commands",
+          "callee": "append_unique",
+          "lineNumber": 174
+        },
+        {
+          "caller": "detect_quality_commands",
+          "callee": "append_unique",
+          "lineNumber": 176
+        },
+        {
+          "caller": "detect_quality_commands",
+          "callee": "append_unique",
+          "lineNumber": 178
+        },
+        {
+          "caller": "detect_quality_commands",
+          "callee": "(root / \"go.mod\").exists",
+          "lineNumber": 179
+        },
+        {
+          "caller": "detect_quality_commands",
+          "callee": "append_unique",
+          "lineNumber": 180
+        },
+        {
+          "caller": "detect_quality_commands",
+          "callee": "append_unique",
+          "lineNumber": 181
+        },
+        {
+          "caller": "detect_quality_commands",
+          "callee": "(root / \"Cargo.toml\").exists",
+          "lineNumber": 182
+        },
+        {
+          "caller": "detect_quality_commands",
+          "callee": "append_unique",
+          "lineNumber": 183
+        },
+        {
+          "caller": "detect_quality_commands",
+          "callee": "append_unique",
+          "lineNumber": 184
+        },
+        {
+          "caller": "detect_quality_commands",
+          "callee": "append_unique",
+          "lineNumber": 185
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 8,
+        "functionCount": 8,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "plugins/project-intelligence/scripts/project_intel_lib/standards.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 39,
+      "nonEmptyLines": 34,
+      "functions": [
+        {
+          "name": "project_domain_candidates",
+          "startLine": 14,
+          "endLine": 39,
+          "params": [
+            "frontend",
+            "backend",
+            "graph"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "project_domain_candidates",
+          "line": 14,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "project_domain_candidates",
+          "callee": "Counter",
+          "lineNumber": 15
+        },
+        {
+          "caller": "project_domain_candidates",
+          "callee": "paths.extend",
+          "lineNumber": 19
+        },
+        {
+          "caller": "project_domain_candidates",
+          "callee": "str",
+          "lineNumber": 19
+        },
+        {
+          "caller": "project_domain_candidates",
+          "callee": "item.get",
+          "lineNumber": 19
+        },
+        {
+          "caller": "project_domain_candidates",
+          "callee": "frontend.get",
+          "lineNumber": 19
+        },
+        {
+          "caller": "project_domain_candidates",
+          "callee": "isinstance",
+          "lineNumber": 19
+        },
+        {
+          "caller": "project_domain_candidates",
+          "callee": "paths.extend",
+          "lineNumber": 21
+        },
+        {
+          "caller": "project_domain_candidates",
+          "callee": "str",
+          "lineNumber": 21
+        },
+        {
+          "caller": "project_domain_candidates",
+          "callee": "item.get",
+          "lineNumber": 21
+        },
+        {
+          "caller": "project_domain_candidates",
+          "callee": "backend.get",
+          "lineNumber": 21
+        },
+        {
+          "caller": "project_domain_candidates",
+          "callee": "isinstance",
+          "lineNumber": 21
+        },
+        {
+          "caller": "project_domain_candidates",
+          "callee": "Path",
+          "lineNumber": 23
+        },
+        {
+          "caller": "project_domain_candidates",
+          "callee": "part.lower",
+          "lineNumber": 23
+        },
+        {
+          "caller": "project_domain_candidates",
+          "callee": "part.startswith",
+          "lineNumber": 23
+        },
+        {
+          "caller": "project_domain_candidates",
+          "callee": "locations.setdefault(name, []).append",
+          "lineNumber": 28
+        },
+        {
+          "caller": "project_domain_candidates",
+          "callee": "locations.setdefault",
+          "lineNumber": 28
+        },
+        {
+          "caller": "project_domain_candidates",
+          "callee": "graph.get(\"understandSummary\", {}).get",
+          "lineNumber": 29
+        },
+        {
+          "caller": "project_domain_candidates",
+          "callee": "graph.get",
+          "lineNumber": 29
+        },
+        {
+          "caller": "project_domain_candidates",
+          "callee": "isinstance",
+          "lineNumber": 30
+        },
+        {
+          "caller": "project_domain_candidates",
+          "callee": "item.get",
+          "lineNumber": 30
+        },
+        {
+          "caller": "project_domain_candidates",
+          "callee": "str",
+          "lineNumber": 32
+        },
+        {
+          "caller": "project_domain_candidates",
+          "callee": "int",
+          "lineNumber": 33
+        },
+        {
+          "caller": "project_domain_candidates",
+          "callee": "item.get",
+          "lineNumber": 33
+        },
+        {
+          "caller": "project_domain_candidates",
+          "callee": "locations.setdefault(name, []).extend",
+          "lineNumber": 34
+        },
+        {
+          "caller": "project_domain_candidates",
+          "callee": "locations.setdefault",
+          "lineNumber": 34
+        },
+        {
+          "caller": "project_domain_candidates",
+          "callee": "str",
+          "lineNumber": 34
+        },
+        {
+          "caller": "project_domain_candidates",
+          "callee": "item.get",
+          "lineNumber": 34
+        },
+        {
+          "caller": "project_domain_candidates",
+          "callee": "list",
+          "lineNumber": 36
+        },
+        {
+          "caller": "project_domain_candidates",
+          "callee": "dict.fromkeys",
+          "lineNumber": 36
+        },
+        {
+          "caller": "project_domain_candidates",
+          "callee": "locations.get",
+          "lineNumber": 36
+        },
+        {
+          "caller": "project_domain_candidates",
+          "callee": "counts.most_common",
+          "lineNumber": 37
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "plugins/project-intelligence/scripts/project_intel.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 14,
+      "nonEmptyLines": 10,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "plugins/project-intelligence/scripts/project-intel",
+      "language": "unknown",
+      "fileCategory": "code",
+      "totalLines": 3,
+      "nonEmptyLines": 3,
+      "metrics": {}
+    },
+    {
+      "path": "plugins/project-intelligence/skills/project-brainstorm/SKILL.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 17,
+      "nonEmptyLines": 13,
+      "sections": [
+        {
+          "heading": "Project Brainstorm",
+          "level": 1,
+          "line": 6
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 1
+      }
+    },
+    {
+      "path": "plugins/project-intelligence/skills/project-debug/SKILL.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 34,
+      "nonEmptyLines": 25,
+      "sections": [
+        {
+          "heading": "Project Debug",
+          "level": 1,
+          "line": 6
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 1
+      }
+    },
+    {
+      "path": "plugins/project-intelligence/skills/project-design/agents/openai.yaml",
+      "language": "yaml",
+      "fileCategory": "config",
+      "totalLines": 4,
+      "nonEmptyLines": 4,
+      "sections": [
+        {
+          "heading": "interface",
+          "level": 1,
+          "line": 1
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 1
+      }
+    },
+    {
+      "path": "plugins/project-intelligence/skills/project-design/references/bug-design-template.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 55,
+      "nonEmptyLines": 32,
+      "sections": [
+        {
+          "heading": "Bug 开发设计文档精简模板",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "命名规则",
+          "level": 2,
+          "line": 43
+        },
+        {
+          "heading": "精简规则",
+          "level": 2,
+          "line": 49
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 3
+      }
+    },
+    {
+      "path": "plugins/project-intelligence/skills/project-design/references/requirement-design-template.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 152,
+      "nonEmptyLines": 94,
+      "sections": [
+        {
+          "heading": "Requirement 开发设计文档模板",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "目录",
+          "level": 2,
+          "line": 5
+        },
+        {
+          "heading": "命名规则",
+          "level": 2,
+          "line": 137
+        },
+        {
+          "heading": "内容规则",
+          "level": 2,
+          "line": 143
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 4
+      }
+    },
+    {
+      "path": "plugins/project-intelligence/skills/project-design/scripts/validate_design_doc.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 17,
+      "nonEmptyLines": 11,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "plugins/project-intelligence/skills/project-design/SKILL.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 77,
+      "nonEmptyLines": 54,
+      "sections": [
+        {
+          "heading": "Project Design",
+          "level": 1,
+          "line": 6
+        },
+        {
+          "heading": "Choose the mode",
+          "level": 2,
+          "line": 10
+        },
+        {
+          "heading": "Establish inputs",
+          "level": 2,
+          "line": 23
+        },
+        {
+          "heading": "Analyze evidence",
+          "level": 2,
+          "line": 31
+        },
+        {
+          "heading": "Write and validate",
+          "level": 2,
+          "line": 40
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 5
+      }
+    },
+    {
+      "path": "plugins/project-intelligence/skills/project-finish/SKILL.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 44,
+      "nonEmptyLines": 32,
+      "sections": [
+        {
+          "heading": "Project Finish",
+          "level": 1,
+          "line": 6
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 1
+      }
+    },
+    {
+      "path": "plugins/project-intelligence/skills/project-init/SKILL.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 72,
+      "nonEmptyLines": 52,
+      "sections": [
+        {
+          "heading": "Project Init",
+          "level": 1,
+          "line": 6
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 1
+      }
+    },
+    {
+      "path": "plugins/project-intelligence/skills/project-intake/SKILL.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 44,
+      "nonEmptyLines": 34,
+      "sections": [
+        {
+          "heading": "Project Intake",
+          "level": 1,
+          "line": 6
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 1
+      }
+    },
+    {
+      "path": "plugins/project-intelligence/skills/project-knowledge/SKILL.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 29,
+      "nonEmptyLines": 21,
+      "sections": [
+        {
+          "heading": "Project Knowledge",
+          "level": 1,
+          "line": 6
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 1
+      }
+    },
+    {
+      "path": "plugins/project-intelligence/skills/project-maintain/SKILL.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 38,
+      "nonEmptyLines": 24,
+      "sections": [
+        {
+          "heading": "Project Maintain",
+          "level": 1,
+          "line": 6
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 1
+      }
+    },
+    {
+      "path": "plugins/project-intelligence/skills/project-orchestrate/SKILL.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 77,
+      "nonEmptyLines": 52,
+      "sections": [
+        {
+          "heading": "Project Orchestrate",
+          "level": 1,
+          "line": 6
+        },
+        {
+          "heading": "When To Use",
+          "level": 2,
+          "line": 10
+        },
+        {
+          "heading": "Execution Modes",
+          "level": 2,
+          "line": 20
+        },
+        {
+          "heading": "Required Handoff",
+          "level": 2,
+          "line": 29
+        },
+        {
+          "heading": "Review Loop",
+          "level": 2,
+          "line": 45
+        },
+        {
+          "heading": "Review Feedback Discipline",
+          "level": 2,
+          "line": 63
+        },
+        {
+          "heading": "Completion Gate",
+          "level": 2,
+          "line": 71
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 7
+      }
+    },
+    {
+      "path": "plugins/project-intelligence/skills/project-plan/SKILL.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 41,
+      "nonEmptyLines": 30,
+      "sections": [
+        {
+          "heading": "Project Plan",
+          "level": 1,
+          "line": 6
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 1
+      }
+    },
+    {
+      "path": "plugins/project-intelligence/skills/project-quality/SKILL.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 30,
+      "nonEmptyLines": 19,
+      "sections": [
+        {
+          "heading": "Project Quality",
+          "level": 1,
+          "line": 6
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 1
+      }
+    },
+    {
+      "path": "plugins/project-intelligence/skills/project-refresh/SKILL.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 59,
+      "nonEmptyLines": 41,
+      "sections": [
+        {
+          "heading": "Project Refresh",
+          "level": 1,
+          "line": 6
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 1
+      }
+    },
+    {
+      "path": "plugins/project-intelligence/skills/project-review/SKILL.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 49,
+      "nonEmptyLines": 35,
+      "sections": [
+        {
+          "heading": "Project Review",
+          "level": 1,
+          "line": 6
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 1
+      }
+    },
+    {
+      "path": "plugins/project-intelligence/skills/project-spec/SKILL.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 61,
+      "nonEmptyLines": 45,
+      "sections": [
+        {
+          "heading": "Project Spec",
+          "level": 1,
+          "line": 6
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 1
+      }
+    },
+    {
+      "path": "plugins/project-intelligence/skills/project-standards/SKILL.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 25,
+      "nonEmptyLines": 17,
+      "sections": [
+        {
+          "heading": "Project Standards",
+          "level": 1,
+          "line": 6
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 1
+      }
+    },
+    {
+      "path": "plugins/project-intelligence/skills/project-task/SKILL.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 86,
+      "nonEmptyLines": 63,
+      "sections": [
+        {
+          "heading": "Project Task",
+          "level": 1,
+          "line": 6
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 1
+      }
+    },
+    {
+      "path": "plugins/project-intelligence/skills/project-test/SKILL.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 106,
+      "nonEmptyLines": 74,
+      "sections": [
+        {
+          "heading": "Project Test",
+          "level": 1,
+          "line": 6
+        },
+        {
+          "heading": "Choose The Evidence Mode",
+          "level": 2,
+          "line": 10
+        },
+        {
+          "heading": "Automated Test Cycle",
+          "level": 2,
+          "line": 17
+        },
+        {
+          "heading": "Manual Evidence",
+          "level": 2,
+          "line": 50
+        },
+        {
+          "heading": "Existing Code And Exceptions",
+          "level": 2,
+          "line": 65
+        },
+        {
+          "heading": "Completion Gate",
+          "level": 2,
+          "line": 72
+        },
+        {
+          "heading": "Requirement-Level Report Gate",
+          "level": 2,
+          "line": 78
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 7
+      }
+    }
+  ]
+}

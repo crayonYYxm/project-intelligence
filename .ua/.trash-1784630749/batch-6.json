@@ -1,0 +1,57 @@
+{
+  "nodes": [
+    {
+      "id": "config:.project-intel/knowledge/backend.json",
+      "type": "config",
+      "name": "backend.json",
+      "filePath": ".project-intel/knowledge/backend.json",
+      "summary": "项目后端知识库快照，由 project-intelligence 扫描器生成，汇总 13 个维度的后端结构信号：API、服务、仓储、配置、权限校验、事务、远程调用、消息任务、错误码等，覆盖 application.py、scanner/backend.py 及相关测试文件，扫描模式为 python-ast 与 regex-fallback。",
+      "tags": ["knowledge-base", "backend", "scanner-output", "project-intelligence", "configuration"],
+      "complexity": "complex",
+      "languageNotes": "JSON 知识库文件，顶层键即分区；多数信号以 candidate 级别标注，表明扫描器采用启发式而非精确语义分析。"
+    },
+    {
+      "id": "config:.project-intel/knowledge/files.json",
+      "type": "config",
+      "name": "files.json",
+      "filePath": ".project-intel/knowledge/files.json",
+      "summary": "项目文件清单索引，记录 49 个项目文件的路径、大小、修改时间与后缀，作为 backend.json / frontend.json 知识扫描的输入清单，涵盖文档、Python 脚本、SKILL.md、测试与配置文件。",
+      "tags": ["file-inventory", "knowledge-base", "project-intelligence", "configuration"],
+      "complexity": "moderate",
+      "languageNotes": "顶层为 JSON 数组，每项含 path/size/mtime/suffix 四字段，是扫描器遍历项目文件的依据。"
+    },
+    {
+      "id": "config:.project-intel/knowledge/frontend.json",
+      "type": "config",
+      "name": "frontend.json",
+      "filePath": ".project-intel/knowledge/frontend.json",
+      "summary": "项目前端知识库快照，包含组件、hooks、路由、API 模块、stores、样式、冗余候选等 8 个分区；当前均为空数组，表明该项目无前端代码，扫描以 regex-fallback 模式运行未发现前端产物。",
+      "tags": ["knowledge-base", "frontend", "scanner-output", "project-intelligence", "configuration"],
+      "complexity": "simple",
+      "languageNotes": "scanMode 为 regex-fallback，且所有分区为空，说明前端扫描器在该 Python 项目中未命中任何前端框架信号。"
+    }
+  ],
+  "edges": [
+    {
+      "source": "config:.project-intel/knowledge/backend.json",
+      "target": "config:.project-intel/knowledge/files.json",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "config:.project-intel/knowledge/frontend.json",
+      "target": "config:.project-intel/knowledge/files.json",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "config:.project-intel/knowledge/backend.json",
+      "target": "config:.project-intel/knowledge/frontend.json",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    }
+  ]
+}

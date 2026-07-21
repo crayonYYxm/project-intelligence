@@ -1,0 +1,560 @@
+{
+  "projectRoot": "/Users/xumeng/Desktop/code/project-intelligence",
+  "files": [
+    {
+      "path": ".agents/plugins/marketplace.json",
+      "language": "json",
+      "fileCategory": "config"
+    },
+    {
+      "path": ".claude-plugin/marketplace.json",
+      "language": "json",
+      "fileCategory": "config"
+    },
+    {
+      "path": ".claude/CLAUDE.md",
+      "language": "markdown",
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".claude/skills/gitnexus/gitnexus-cli/SKILL.md",
+      "language": "markdown",
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".claude/skills/gitnexus/gitnexus-debugging/SKILL.md",
+      "language": "markdown",
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".claude/skills/gitnexus/gitnexus-exploring/SKILL.md",
+      "language": "markdown",
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".claude/skills/gitnexus/gitnexus-guide/SKILL.md",
+      "language": "markdown",
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".claude/skills/gitnexus/gitnexus-impact-analysis/SKILL.md",
+      "language": "markdown",
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".claude/skills/gitnexus/gitnexus-refactoring/SKILL.md",
+      "language": "markdown",
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".github/workflows/live-skill-evals.yml",
+      "language": "yaml",
+      "fileCategory": "infra"
+    },
+    {
+      "path": ".github/workflows/validate.yml",
+      "language": "yaml",
+      "fileCategory": "infra"
+    },
+    {
+      "path": ".npmignore",
+      "language": "unknown",
+      "fileCategory": "code"
+    },
+    {
+      "path": ".project-intel/config.json",
+      "language": "json",
+      "fileCategory": "config"
+    },
+    {
+      "path": ".project-intel/graph/project-graph.json",
+      "language": "json",
+      "fileCategory": "config"
+    },
+    {
+      "path": ".project-intel/knowledge/backend.json",
+      "language": "json",
+      "fileCategory": "config"
+    },
+    {
+      "path": ".project-intel/knowledge/files.json",
+      "language": "json",
+      "fileCategory": "config"
+    },
+    {
+      "path": ".project-intel/knowledge/frontend.json",
+      "language": "json",
+      "fileCategory": "config"
+    },
+    {
+      "path": ".project-intel/manifest.json",
+      "language": "json",
+      "fileCategory": "config"
+    },
+    {
+      "path": ".project-intel/reports/frontend-quality.md",
+      "language": "markdown",
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".project-intel/reports/init-report.md",
+      "language": "markdown",
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".project-intel/reports/redundancy-report.md",
+      "language": "markdown",
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".project-intel/reports/tooling-report.md",
+      "language": "markdown",
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".project-intel/standards/api.md",
+      "language": "markdown",
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".project-intel/standards/backend-api.md",
+      "language": "markdown",
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".project-intel/standards/backend-async.md",
+      "language": "markdown",
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".project-intel/standards/backend-config.md",
+      "language": "markdown",
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".project-intel/standards/backend-errors.md",
+      "language": "markdown",
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".project-intel/standards/backend-models.md",
+      "language": "markdown",
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".project-intel/standards/backend-remote-calls.md",
+      "language": "markdown",
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".project-intel/standards/backend-repository.md",
+      "language": "markdown",
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".project-intel/standards/backend-security.md",
+      "language": "markdown",
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".project-intel/standards/backend-services.md",
+      "language": "markdown",
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".project-intel/standards/backend-transactions.md",
+      "language": "markdown",
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".project-intel/standards/backend-utilities.md",
+      "language": "markdown",
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".project-intel/standards/backend.md",
+      "language": "markdown",
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".project-intel/standards/components.md",
+      "language": "markdown",
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".project-intel/standards/domain-flows.md",
+      "language": "markdown",
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".project-intel/standards/frontend.md",
+      "language": "markdown",
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".project-intel/standards/quality.md",
+      "language": "markdown",
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".project-intel/standards/reuse.md",
+      "language": "markdown",
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".project-intel/standards/router.md",
+      "language": "markdown",
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".ua/.understandignore",
+      "language": "unknown",
+      "fileCategory": "code"
+    },
+    {
+      "path": ".ua/config.json",
+      "language": "json",
+      "fileCategory": "config"
+    },
+    {
+      "path": "AGENTS.md",
+      "language": "markdown",
+      "fileCategory": "docs"
+    },
+    {
+      "path": "bin/project-intel.mjs",
+      "language": "javascript",
+      "fileCategory": "code"
+    },
+    {
+      "path": "CHANGELOG.md",
+      "language": "markdown",
+      "fileCategory": "docs"
+    },
+    {
+      "path": "CLAUDE.md",
+      "language": "markdown",
+      "fileCategory": "docs"
+    },
+    {
+      "path": "docs/node-typescript-migration-requirement.md",
+      "language": "markdown",
+      "fileCategory": "docs"
+    },
+    {
+      "path": "docs/project-intelligence-guide.md",
+      "language": "markdown",
+      "fileCategory": "docs"
+    },
+    {
+      "path": "evals/skill-behavior-scenarios.json",
+      "language": "json",
+      "fileCategory": "config"
+    },
+    {
+      "path": "package.json",
+      "language": "json",
+      "fileCategory": "config"
+    },
+    {
+      "path": "plugins/project-intelligence/.claude-plugin/plugin.json",
+      "language": "json",
+      "fileCategory": "config"
+    },
+    {
+      "path": "plugins/project-intelligence/.codex-plugin/plugin.json",
+      "language": "json",
+      "fileCategory": "config"
+    },
+    {
+      "path": "plugins/project-intelligence/assets/plugin-intro.html",
+      "language": "html",
+      "fileCategory": "markup"
+    },
+    {
+      "path": "plugins/project-intelligence/scripts/.npmignore",
+      "language": "unknown",
+      "fileCategory": "code"
+    },
+    {
+      "path": "plugins/project-intelligence/scripts/project_intel_lib/__init__.py",
+      "language": "python",
+      "fileCategory": "code"
+    },
+    {
+      "path": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "language": "python",
+      "fileCategory": "code"
+    },
+    {
+      "path": "plugins/project-intelligence/scripts/project_intel_lib/cli.py",
+      "language": "python",
+      "fileCategory": "code"
+    },
+    {
+      "path": "plugins/project-intelligence/scripts/project_intel_lib/core.py",
+      "language": "python",
+      "fileCategory": "code"
+    },
+    {
+      "path": "plugins/project-intelligence/scripts/project_intel_lib/design_documents.py",
+      "language": "python",
+      "fileCategory": "code"
+    },
+    {
+      "path": "plugins/project-intelligence/scripts/project_intel_lib/graph.py",
+      "language": "python",
+      "fileCategory": "code"
+    },
+    {
+      "path": "plugins/project-intelligence/scripts/project_intel_lib/lifecycle.py",
+      "language": "python",
+      "fileCategory": "code"
+    },
+    {
+      "path": "plugins/project-intelligence/scripts/project_intel_lib/quality.py",
+      "language": "python",
+      "fileCategory": "code"
+    },
+    {
+      "path": "plugins/project-intelligence/scripts/project_intel_lib/requirement_documents.py",
+      "language": "python",
+      "fileCategory": "code"
+    },
+    {
+      "path": "plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "language": "python",
+      "fileCategory": "code"
+    },
+    {
+      "path": "plugins/project-intelligence/scripts/project_intel_lib/scanner/__init__.py",
+      "language": "python",
+      "fileCategory": "code"
+    },
+    {
+      "path": "plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py",
+      "language": "python",
+      "fileCategory": "code"
+    },
+    {
+      "path": "plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py",
+      "language": "python",
+      "fileCategory": "code"
+    },
+    {
+      "path": "plugins/project-intelligence/scripts/project_intel_lib/standards.py",
+      "language": "python",
+      "fileCategory": "code"
+    },
+    {
+      "path": "plugins/project-intelligence/scripts/project_intel_lib/testing.py",
+      "language": "python",
+      "fileCategory": "code"
+    },
+    {
+      "path": "plugins/project-intelligence/scripts/project_intel.py",
+      "language": "python",
+      "fileCategory": "code"
+    },
+    {
+      "path": "plugins/project-intelligence/scripts/project-intel",
+      "language": "unknown",
+      "fileCategory": "code"
+    },
+    {
+      "path": "plugins/project-intelligence/skills/project-brainstorm/SKILL.md",
+      "language": "markdown",
+      "fileCategory": "docs"
+    },
+    {
+      "path": "plugins/project-intelligence/skills/project-debug/SKILL.md",
+      "language": "markdown",
+      "fileCategory": "docs"
+    },
+    {
+      "path": "plugins/project-intelligence/skills/project-design/agents/openai.yaml",
+      "language": "yaml",
+      "fileCategory": "config"
+    },
+    {
+      "path": "plugins/project-intelligence/skills/project-design/references/bug-design-template.md",
+      "language": "markdown",
+      "fileCategory": "docs"
+    },
+    {
+      "path": "plugins/project-intelligence/skills/project-design/references/requirement-design-template.md",
+      "language": "markdown",
+      "fileCategory": "docs"
+    },
+    {
+      "path": "plugins/project-intelligence/skills/project-design/scripts/validate_design_doc.py",
+      "language": "python",
+      "fileCategory": "code"
+    },
+    {
+      "path": "plugins/project-intelligence/skills/project-design/SKILL.md",
+      "language": "markdown",
+      "fileCategory": "docs"
+    },
+    {
+      "path": "plugins/project-intelligence/skills/project-finish/SKILL.md",
+      "language": "markdown",
+      "fileCategory": "docs"
+    },
+    {
+      "path": "plugins/project-intelligence/skills/project-init/SKILL.md",
+      "language": "markdown",
+      "fileCategory": "docs"
+    },
+    {
+      "path": "plugins/project-intelligence/skills/project-intake/SKILL.md",
+      "language": "markdown",
+      "fileCategory": "docs"
+    },
+    {
+      "path": "plugins/project-intelligence/skills/project-knowledge/SKILL.md",
+      "language": "markdown",
+      "fileCategory": "docs"
+    },
+    {
+      "path": "plugins/project-intelligence/skills/project-maintain/SKILL.md",
+      "language": "markdown",
+      "fileCategory": "docs"
+    },
+    {
+      "path": "plugins/project-intelligence/skills/project-orchestrate/SKILL.md",
+      "language": "markdown",
+      "fileCategory": "docs"
+    },
+    {
+      "path": "plugins/project-intelligence/skills/project-plan/SKILL.md",
+      "language": "markdown",
+      "fileCategory": "docs"
+    },
+    {
+      "path": "plugins/project-intelligence/skills/project-quality/SKILL.md",
+      "language": "markdown",
+      "fileCategory": "docs"
+    },
+    {
+      "path": "plugins/project-intelligence/skills/project-refresh/SKILL.md",
+      "language": "markdown",
+      "fileCategory": "docs"
+    },
+    {
+      "path": "plugins/project-intelligence/skills/project-review/SKILL.md",
+      "language": "markdown",
+      "fileCategory": "docs"
+    },
+    {
+      "path": "plugins/project-intelligence/skills/project-spec/SKILL.md",
+      "language": "markdown",
+      "fileCategory": "docs"
+    },
+    {
+      "path": "plugins/project-intelligence/skills/project-standards/SKILL.md",
+      "language": "markdown",
+      "fileCategory": "docs"
+    },
+    {
+      "path": "plugins/project-intelligence/skills/project-task/SKILL.md",
+      "language": "markdown",
+      "fileCategory": "docs"
+    },
+    {
+      "path": "plugins/project-intelligence/skills/project-test/SKILL.md",
+      "language": "markdown",
+      "fileCategory": "docs"
+    },
+    {
+      "path": "plugins/project-intelligence/tests/design_fixtures.py",
+      "language": "python",
+      "fileCategory": "code"
+    },
+    {
+      "path": "plugins/project-intelligence/tests/test_document_truth_validation.py",
+      "language": "python",
+      "fileCategory": "code"
+    },
+    {
+      "path": "plugins/project-intelligence/tests/test_project_design.py",
+      "language": "python",
+      "fileCategory": "code"
+    },
+    {
+      "path": "plugins/project-intelligence/tests/test_project_intel.py",
+      "language": "python",
+      "fileCategory": "code"
+    },
+    {
+      "path": "plugins/project-intelligence/tests/test_project_test.py",
+      "language": "python",
+      "fileCategory": "code"
+    },
+    {
+      "path": "plugins/project-intelligence/tests/test_requirement_hardening.py",
+      "language": "python",
+      "fileCategory": "code"
+    },
+    {
+      "path": "plugins/project-intelligence/tests/test_requirement_layout_v2.py",
+      "language": "python",
+      "fileCategory": "code"
+    },
+    {
+      "path": "plugins/project-intelligence/tests/test_requirement_workflow.py",
+      "language": "python",
+      "fileCategory": "code"
+    },
+    {
+      "path": "plugins/project-intelligence/tests/test_testing_security.py",
+      "language": "python",
+      "fileCategory": "code"
+    },
+    {
+      "path": "README.md",
+      "language": "markdown",
+      "fileCategory": "docs"
+    },
+    {
+      "path": "scripts/check-package.mjs",
+      "language": "javascript",
+      "fileCategory": "code"
+    },
+    {
+      "path": "scripts/check-release.mjs",
+      "language": "javascript",
+      "fileCategory": "code"
+    },
+    {
+      "path": "scripts/npm-pack-dry-run.mjs",
+      "language": "javascript",
+      "fileCategory": "code"
+    },
+    {
+      "path": "scripts/run-skill-evals.mjs",
+      "language": "javascript",
+      "fileCategory": "code"
+    },
+    {
+      "path": "scripts/run-tests.mjs",
+      "language": "javascript",
+      "fileCategory": "code"
+    },
+    {
+      "path": "scripts/skill-eval-events.mjs",
+      "language": "javascript",
+      "fileCategory": "code"
+    },
+    {
+      "path": "scripts/validate_bundle.py",
+      "language": "python",
+      "fileCategory": "code"
+    },
+    {
+      "path": "scripts/validate-skill-evals.mjs",
+      "language": "javascript",
+      "fileCategory": "code"
+    }
+  ]
+}

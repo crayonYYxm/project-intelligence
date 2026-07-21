@@ -1,0 +1,938 @@
+{
+  "nodes": [
+    {
+      "id": "file:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py",
+      "type": "file",
+      "name": "design_documents.py",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/design_documents.py",
+      "summary": "设计文档与 Bug 文档的解析、源码证据校验、敏感信息检测与脚手架生成模块，定义需求/Bug 设计文档的章节规范和校验逻辑。",
+      "tags": [
+        "文档校验",
+        "源码证据",
+        "敏感信息",
+        "脚手架",
+        "validation"
+      ],
+      "complexity": "complex",
+      "languageNotes": "使用 ast 模块解析源码符号并通过正则匹配大量中文章节标题与占位符模板。"
+    },
+    {
+      "id": "file:plugins/project-intelligence/scripts/project_intel_lib/requirement_documents.py",
+      "type": "file",
+      "name": "requirement_documents.py",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/requirement_documents.py",
+      "summary": "需求文档脚手架生成与校验模块，解析文档信息、验收标准与外部接口影响，并对待确认事项进行内容阻断校验。",
+      "tags": [
+        "文档校验",
+        "脚手架",
+        "验收标准",
+        "requirement",
+        "validation"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py:UsageError",
+      "type": "class",
+      "name": "UsageError",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/design_documents.py",
+      "lineRange": [
+        14,
+        15
+      ],
+      "summary": "设计文档 CLI 在遇到非法用法时抛出的运行时异常。",
+      "tags": [
+        "异常",
+        "error",
+        "cli"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py:parse_headings",
+      "type": "function",
+      "name": "parse_headings",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/design_documents.py",
+      "lineRange": [
+        166,
+        183
+      ],
+      "summary": "逐行解析 Markdown 文本，提取标题层级与规范化标题名，返回标题列表供后续章节定位使用。",
+      "tags": [
+        "解析",
+        "markdown",
+        "标题",
+        "utility"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py:resolve_repo",
+      "type": "function",
+      "name": "resolve_repo",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/design_documents.py",
+      "lineRange": [
+        206,
+        219
+      ],
+      "summary": "解析仓库名称值，规范化并校验路径合法性，返回可用于后续源码证据校验的仓库标识。",
+      "tags": [
+        "解析",
+        "仓库",
+        "validation",
+        "utility"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py:resolve_document",
+      "type": "function",
+      "name": "resolve_document",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/design_documents.py",
+      "lineRange": [
+        222,
+        232
+      ],
+      "summary": "解析文档路径值并结合仓库根目录，返回规范化的相对文档路径。",
+      "tags": [
+        "解析",
+        "文档路径",
+        "validation",
+        "utility"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py:infer_kind",
+      "type": "function",
+      "name": "infer_kind",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/design_documents.py",
+      "lineRange": [
+        235,
+        247
+      ],
+      "summary": "根据文档文本、标题与请求类型推断设计文档类型（需求或 Bug），处理显式与隐式推断场景。",
+      "tags": [
+        "推断",
+        "文档类型",
+        "validation",
+        "utility"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py:_split_source_reference",
+      "type": "function",
+      "name": "_split_source_reference",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/design_documents.py",
+      "lineRange": [
+        259,
+        283
+      ],
+      "summary": "拆分源码证据引用字符串，分离文件路径、行号范围与符号名，供源码符号存在性校验使用。",
+      "tags": [
+        "解析",
+        "源码证据",
+        "引用拆分",
+        "utility"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py:_symbol_exists",
+      "type": "function",
+      "name": "_symbol_exists",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/design_documents.py",
+      "lineRange": [
+        300,
+        318
+      ],
+      "summary": "使用 ast 解析源码文件，判断指定符号（函数/类/变量）是否存在，支持后缀匹配。",
+      "tags": [
+        "ast",
+        "符号校验",
+        "源码证据",
+        "validation"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py:_external_source_gaps",
+      "type": "function",
+      "name": "_external_source_gaps",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/design_documents.py",
+      "lineRange": [
+        321,
+        327
+      ],
+      "summary": "识别设计文档中引用的外部源码证据缺口，返回未能解析的引用列表。",
+      "tags": [
+        "源码证据",
+        "缺口检测",
+        "validation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py:_unresolved_content_issues",
+      "type": "function",
+      "name": "_unresolved_content_issues",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/design_documents.py",
+      "lineRange": [
+        330,
+        339
+      ],
+      "summary": "检测文档中未解决的占位符与待填写内容，返回需补充的内容问题列表。",
+      "tags": [
+        "占位符",
+        "内容校验",
+        "validation",
+        "utility"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py:validate_source_evidence",
+      "type": "function",
+      "name": "validate_source_evidence",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/design_documents.py",
+      "lineRange": [
+        342,
+        414
+      ],
+      "summary": "校验设计文档中的源码证据引用，确认文件存在、符号匹配且行号范围合理，收集各类证据缺口问题。",
+      "tags": [
+        "源码证据",
+        "校验",
+        "ast",
+        "validation"
+      ],
+      "complexity": "complex",
+      "languageNotes": "通过 ast 模块解析源码并逐条校验引用，是设计文档门禁的核心校验逻辑。"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py:check_sensitive_content",
+      "type": "function",
+      "name": "check_sensitive_content",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/design_documents.py",
+      "lineRange": [
+        417,
+        427
+      ],
+      "summary": "使用强敏感正则与凭据赋值模式检测文档中的密钥、手机号、身份证等敏感信息，将命中项追加到错误列表。",
+      "tags": [
+        "敏感信息",
+        "安全",
+        "脱敏检测",
+        "validation"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py:collect_sections",
+      "type": "function",
+      "name": "collect_sections",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/design_documents.py",
+      "lineRange": [
+        430,
+        451
+      ],
+      "summary": "按标题列表收集各章节文本，校验必填章节是否存在并记录缺失章节错误。",
+      "tags": [
+        "章节",
+        "校验",
+        "utility"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py:design_filename",
+      "type": "function",
+      "name": "design_filename",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/design_documents.py",
+      "lineRange": [
+        459,
+        463
+      ],
+      "summary": "根据需求标识、名称与文档类型生成规范化的设计文档文件名。",
+      "tags": [
+        "文件名",
+        "脚手架",
+        "utility"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py:validate_bug",
+      "type": "function",
+      "name": "validate_bug",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/design_documents.py",
+      "lineRange": [
+        475,
+        508
+      ],
+      "summary": "校验 Bug 设计文档的章节结构、行数上限与禁止章节，收集结构与内容错误。",
+      "tags": [
+        "bug",
+        "校验",
+        "章节",
+        "validation"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py:validate_requirement",
+      "type": "function",
+      "name": "validate_requirement",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/design_documents.py",
+      "lineRange": [
+        511,
+        587
+      ],
+      "summary": "校验需求设计文档的必填章节、选项字段与禁止章节，确保需求描述符合规范。",
+      "tags": [
+        "需求",
+        "校验",
+        "章节",
+        "validation"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py:_validate_identity",
+      "type": "function",
+      "name": "_validate_identity",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/design_documents.py",
+      "lineRange": [
+        590,
+        608
+      ],
+      "summary": "校验设计文档的身份信息（需求号、名称、类型）是否与预期一致，记录不匹配错误。",
+      "tags": [
+        "身份校验",
+        "validation",
+        "utility"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py:validate",
+      "type": "function",
+      "name": "validate",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/design_documents.py",
+      "lineRange": [
+        611,
+        646
+      ],
+      "summary": "设计文档校验入口，解析标题后按文档类型分发到 validate_bug/validate_requirement 并执行身份与源码证据校验。",
+      "tags": [
+        "校验入口",
+        "validation",
+        "入口点"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py:requirement_scaffold",
+      "type": "function",
+      "name": "requirement_scaffold",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/design_documents.py",
+      "lineRange": [
+        649,
+        739
+      ],
+      "summary": "生成需求设计文档的脚手架文本，包含全部标准章节、占位符模板与文档信息块。",
+      "tags": [
+        "脚手架",
+        "需求",
+        "模板生成",
+        "utility"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py:bug_scaffold",
+      "type": "function",
+      "name": "bug_scaffold",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/design_documents.py",
+      "lineRange": [
+        742,
+        778
+      ],
+      "summary": "生成 Bug 设计文档的脚手架文本，包含 bug 专有章节与占位符模板。",
+      "tags": [
+        "脚手架",
+        "bug",
+        "模板生成",
+        "utility"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py:emit",
+      "type": "function",
+      "name": "emit",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/design_documents.py",
+      "lineRange": [
+        785,
+        795
+      ],
+      "summary": "将 payload 以 JSON 或纯文本形式输出到标准输出，供 CLI 结果展示使用。",
+      "tags": [
+        "输出",
+        "json",
+        "cli",
+        "utility"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py:build_parser",
+      "type": "function",
+      "name": "build_parser",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/design_documents.py",
+      "lineRange": [
+        798,
+        806
+      ],
+      "summary": "构建设计文档 CLI 的 argparse 解析器，定义子命令与公共参数。",
+      "tags": [
+        "argparse",
+        "cli",
+        "入口点",
+        "utility"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py:main",
+      "type": "function",
+      "name": "main",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/design_documents.py",
+      "lineRange": [
+        809,
+        828
+      ],
+      "summary": "设计文档模块的 CLI 入口，解析参数并分发到校验或脚手架生成子命令。",
+      "tags": [
+        "入口点",
+        "cli",
+        "入口点"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/requirement_documents.py:scaffold_text",
+      "type": "function",
+      "name": "scaffold_text",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/requirement_documents.py",
+      "lineRange": [
+        29,
+        90
+      ],
+      "summary": "生成需求文档脚手架文本，根据单据类型插入 Bug 专有章节并填充标准章节占位符。",
+      "tags": [
+        "脚手架",
+        "需求文档",
+        "模板生成",
+        "utility"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/requirement_documents.py:_parse_document_info",
+      "type": "function",
+      "name": "_parse_document_info",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/requirement_documents.py",
+      "lineRange": [
+        110,
+        124
+      ],
+      "summary": "解析需求文档的文档信息块（需求号、名称、单据类型），检测重复字段并记录错误。",
+      "tags": [
+        "解析",
+        "文档信息",
+        "validation"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/requirement_documents.py:_normalize_kind",
+      "type": "function",
+      "name": "_normalize_kind",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/requirement_documents.py",
+      "lineRange": [
+        127,
+        133
+      ],
+      "summary": "规范化单据类型值，将大小写与别名映射为标准的 bug/requirement 类型。",
+      "tags": [
+        "规范化",
+        "文档类型",
+        "utility"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/requirement_documents.py:_parse_acceptance_criteria",
+      "type": "function",
+      "name": "_parse_acceptance_criteria",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/requirement_documents.py",
+      "lineRange": [
+        136,
+        154
+      ],
+      "summary": "解析验收标准章节，提取 AC-NN 编号与描述并记录格式错误。",
+      "tags": [
+        "验收标准",
+        "解析",
+        "validation"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/requirement_documents.py:_expected_criteria",
+      "type": "function",
+      "name": "_expected_criteria",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/requirement_documents.py",
+      "lineRange": [
+        157,
+        176
+      ],
+      "summary": "比对文档中声明的验收标准与预期标准列表，返回缺失与多余的验收编号。",
+      "tags": [
+        "验收标准",
+        "比对",
+        "validation"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/requirement_documents.py:_parse_external_api_impact",
+      "type": "function",
+      "name": "_parse_external_api_impact",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/requirement_documents.py",
+      "lineRange": [
+        179,
+        191
+      ],
+      "summary": "解析外部接口影响章节，返回是否声明影响及确认依据文本。",
+      "tags": [
+        "外部接口",
+        "解析",
+        "validation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/requirement_documents.py:_pending_blockers",
+      "type": "function",
+      "name": "_pending_blockers",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/requirement_documents.py",
+      "lineRange": [
+        194,
+        200
+      ],
+      "summary": "从待确认事项章节提取仍需确认的条目，识别表述待确认的语义标记。",
+      "tags": [
+        "待确认事项",
+        "解析",
+        "validation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/requirement_documents.py:_critical_content_blockers",
+      "type": "function",
+      "name": "_critical_content_blockers",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/requirement_documents.py",
+      "lineRange": [
+        203,
+        215
+      ],
+      "summary": "检测需求文档关键章节的内容阻断问题，如占位符未填写或关键字段缺失。",
+      "tags": [
+        "内容阻断",
+        "校验",
+        "validation"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/requirement_documents.py:validate",
+      "type": "function",
+      "name": "validate",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/requirement_documents.py",
+      "lineRange": [
+        218,
+        296
+      ],
+      "summary": "需求文档校验入口，校验文档信息、验收标准、外部接口影响与待确认事项，汇总各类内容阻断错误。",
+      "tags": [
+        "校验入口",
+        "validation",
+        "入口点"
+      ],
+      "complexity": "complex"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py:parse_headings",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py:resolve_repo",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py:resolve_document",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py:infer_kind",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py:_split_source_reference",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py:_symbol_exists",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py:_external_source_gaps",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py:_unresolved_content_issues",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py:validate_source_evidence",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py:check_sensitive_content",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py:collect_sections",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py:design_filename",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py:validate_bug",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py:validate_requirement",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py:_validate_identity",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py:validate",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py:requirement_scaffold",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py:bug_scaffold",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py:emit",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py:build_parser",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py:main",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py",
+      "target": "class:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py:UsageError",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py:parse_headings",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py:resolve_repo",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py:resolve_document",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py:infer_kind",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py:validate_source_evidence",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py:check_sensitive_content",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py:collect_sections",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py:design_filename",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py:validate_bug",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py:validate_requirement",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py:validate",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py:requirement_scaffold",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py:bug_scaffold",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py:emit",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py:build_parser",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py:main",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py",
+      "target": "class:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py:UsageError",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirement_documents.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirement_documents.py:scaffold_text",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirement_documents.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirement_documents.py:_parse_document_info",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirement_documents.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirement_documents.py:_normalize_kind",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirement_documents.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirement_documents.py:_parse_acceptance_criteria",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirement_documents.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirement_documents.py:_expected_criteria",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirement_documents.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirement_documents.py:_parse_external_api_impact",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirement_documents.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirement_documents.py:_pending_blockers",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirement_documents.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirement_documents.py:_critical_content_blockers",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirement_documents.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirement_documents.py:validate",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirement_documents.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirement_documents.py:scaffold_text",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirement_documents.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirement_documents.py:validate",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirement_documents.py",
+      "target": "file:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    }
+  ]
+}

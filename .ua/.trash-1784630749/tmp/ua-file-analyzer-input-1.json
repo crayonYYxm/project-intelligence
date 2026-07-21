@@ -1,0 +1,21 @@
+{
+  "projectRoot": "/Users/xumeng/Desktop/code/project-intelligence",
+  "batchFiles": [
+    {"path": "plugins/project-intelligence/scripts/project_intel_lib/__init__.py", "language": "python", "sizeLines": 5, "fileCategory": "code"},
+    {"path": "plugins/project-intelligence/scripts/project_intel_lib/application.py", "language": "python", "sizeLines": 5696, "fileCategory": "code"},
+    {"path": "plugins/project-intelligence/scripts/project_intel_lib/cli.py", "language": "python", "sizeLines": 48, "fileCategory": "code"},
+    {"path": "plugins/project-intelligence/scripts/project_intel_lib/core.py", "language": "python", "sizeLines": 120, "fileCategory": "code"},
+    {"path": "plugins/project-intelligence/scripts/project_intel_lib/scanner/__init__.py", "language": "python", "sizeLines": 4, "fileCategory": "code"},
+    {"path": "plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py", "language": "python", "sizeLines": 491, "fileCategory": "code"},
+    {"path": "plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py", "language": "python", "sizeLines": 288, "fileCategory": "code"}
+  ],
+  "batchImportData": {
+    "plugins/project-intelligence/scripts/project_intel_lib/__init__.py": ["plugins/project-intelligence/scripts/project_intel_lib/core.py"],
+    "plugins/project-intelligence/scripts/project_intel_lib/application.py": ["plugins/project-intelligence/scripts/project_intel_lib/__init__.py", "plugins/project-intelligence/scripts/project_intel_lib/cli.py", "plugins/project-intelligence/scripts/project_intel_lib/scanner/__init__.py"],
+    "plugins/project-intelligence/scripts/project_intel_lib/cli.py": [],
+    "plugins/project-intelligence/scripts/project_intel_lib/core.py": [],
+    "plugins/project-intelligence/scripts/project_intel_lib/scanner/__init__.py": [],
+    "plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py": [],
+    "plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py": []
+  }
+}

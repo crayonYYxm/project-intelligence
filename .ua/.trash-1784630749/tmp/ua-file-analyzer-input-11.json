@@ -1,0 +1,31 @@
+{
+  "projectRoot": "/Users/xumeng/Desktop/code/project-intelligence",
+  "batchFiles": [
+    {"path": "plugins/project-intelligence/scripts/project_intel_lib/quality.py", "language": "python", "sizeLines": 186, "fileCategory": "code"},
+    {"path": "plugins/project-intelligence/scripts/project_intel_lib/standards.py", "language": "python", "sizeLines": 39, "fileCategory": "code"},
+    {"path": "plugins/project-intelligence/scripts/project_intel.py", "language": "python", "sizeLines": 14, "fileCategory": "code"},
+    {"path": "plugins/project-intelligence/scripts/project-intel", "language": "unknown", "sizeLines": 3, "fileCategory": "code"},
+    {"path": "plugins/project-intelligence/skills/project-brainstorm/SKILL.md", "language": "markdown", "sizeLines": 17, "fileCategory": "docs"},
+    {"path": "plugins/project-intelligence/skills/project-debug/SKILL.md", "language": "markdown", "sizeLines": 34, "fileCategory": "docs"},
+    {"path": "plugins/project-intelligence/skills/project-design/agents/openai.yaml", "language": "yaml", "sizeLines": 4, "fileCategory": "config"},
+    {"path": "plugins/project-intelligence/skills/project-design/references/bug-design-template.md", "language": "markdown", "sizeLines": 55, "fileCategory": "docs"},
+    {"path": "plugins/project-intelligence/skills/project-design/references/requirement-design-template.md", "language": "markdown", "sizeLines": 152, "fileCategory": "docs"},
+    {"path": "plugins/project-intelligence/skills/project-design/scripts/validate_design_doc.py", "language": "python", "sizeLines": 17, "fileCategory": "code"},
+    {"path": "plugins/project-intelligence/skills/project-design/SKILL.md", "language": "markdown", "sizeLines": 77, "fileCategory": "docs"},
+    {"path": "plugins/project-intelligence/skills/project-finish/SKILL.md", "language": "markdown", "sizeLines": 44, "fileCategory": "docs"},
+    {"path": "plugins/project-intelligence/skills/project-init/SKILL.md", "language": "markdown", "sizeLines": 72, "fileCategory": "docs"},
+    {"path": "plugins/project-intelligence/skills/project-intake/SKILL.md", "language": "markdown", "sizeLines": 44, "fileCategory": "docs"},
+    {"path": "plugins/project-intelligence/skills/project-knowledge/SKILL.md", "language": "markdown", "sizeLines": 29, "fileCategory": "docs"},
+    {"path": "plugins/project-intelligence/skills/project-maintain/SKILL.md", "language": "markdown", "sizeLines": 38, "fileCategory": "docs"},
+    {"path": "plugins/project-intelligence/skills/project-orchestrate/SKILL.md", "language": "markdown", "sizeLines": 77, "fileCategory": "docs"},
+    {"path": "plugins/project-intelligence/skills/project-plan/SKILL.md", "language": "markdown", "sizeLines": 41, "fileCategory": "docs"},
+    {"path": "plugins/project-intelligence/skills/project-quality/SKILL.md", "language": "markdown", "sizeLines": 30, "fileCategory": "docs"},
+    {"path": "plugins/project-intelligence/skills/project-refresh/SKILL.md", "language": "markdown", "sizeLines": 59, "fileCategory": "docs"},
+    {"path": "plugins/project-intelligence/skills/project-review/SKILL.md", "language": "markdown", "sizeLines": 49, "fileCategory": "docs"},
+    {"path": "plugins/project-intelligence/skills/project-spec/SKILL.md", "language": "markdown", "sizeLines": 61, "fileCategory": "docs"},
+    {"path": "plugins/project-intelligence/skills/project-standards/SKILL.md", "language": "markdown", "sizeLines": 25, "fileCategory": "docs"},
+    {"path": "plugins/project-intelligence/skills/project-task/SKILL.md", "language": "markdown", "sizeLines": 86, "fileCategory": "docs"},
+    {"path": "plugins/project-intelligence/skills/project-test/SKILL.md", "language": "markdown", "sizeLines": 106, "fileCategory": "docs"}
+  ],
+  "batchImportData": {}
+}

@@ -1,0 +1,774 @@
+{
+  "nodes": [
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:standards_docs",
+      "type": "function",
+      "name": "standards_docs",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        2482,
+        2609
+      ],
+      "summary": "将所有规范渲染为按主题分组的 markdown 文档集合。",
+      "tags": [
+        "standards",
+        "documentation",
+        "renderer"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:table",
+      "type": "function",
+      "name": "table",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        2612,
+        2624
+      ],
+      "summary": "将表头与行列表渲染为对齐的纯文本表格。",
+      "tags": [
+        "application-core",
+        "cli",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:collect_project_state",
+      "type": "function",
+      "name": "collect_project_state",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        2627,
+        2666
+      ],
+      "summary": "采集 package/tooling/扫描结果/配置汇总成项目状态快照。",
+      "tags": [
+        "snapshot",
+        "scan",
+        "state"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:preview_init",
+      "type": "function",
+      "name": "preview_init",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        2669,
+        2695
+      ],
+      "summary": "预览 project-intel init 将写入的文件清单与变更摘要。",
+      "tags": [
+        "init",
+        "preview",
+        "dry-run"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:init_project",
+      "type": "function",
+      "name": "init_project",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        2698,
+        2768
+      ],
+      "summary": "执行项目初始化：写配置、生成 manifest、装配 adapter、可选安装图谱工具。",
+      "tags": [
+        "init",
+        "lifecycle",
+        "bootstrap"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:ensure_project_intel_gitignore",
+      "type": "function",
+      "name": "ensure_project_intel_gitignore",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        2771,
+        2784
+      ],
+      "summary": "确保 .project-intel 目录被加入项目 .gitignore。",
+      "tags": [
+        "application-core",
+        "cli",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:ensure_gitignore",
+      "type": "function",
+      "name": "ensure_gitignore",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        2787,
+        2820
+      ],
+      "summary": "维护项目 .gitignore，注入 project-intel 推荐的忽略条目。",
+      "tags": [
+        "application-core",
+        "cli",
+        "service"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:build_init_report",
+      "type": "function",
+      "name": "build_init_report",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        2823,
+        2867
+      ],
+      "summary": "生成 init 命令的人类可读报告，覆盖 manifest/前后端/工具状态。",
+      "tags": [
+        "application-core",
+        "cli",
+        "service"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:build_project_status",
+      "type": "function",
+      "name": "build_project_status",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        2870,
+        2933
+      ],
+      "summary": "生成 status 命令报告，展示项目事实、工具与图谱状态。",
+      "tags": [
+        "status",
+        "report",
+        "lifecycle"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:build_redundancy_report",
+      "type": "function",
+      "name": "build_redundancy_report",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        2936,
+        2946
+      ],
+      "summary": "基于前端扫描结果生成可复用组件冗余报告。",
+      "tags": [
+        "application-core",
+        "cli",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:build_tooling_report",
+      "type": "function",
+      "name": "build_tooling_report",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        2949,
+        2996
+      ],
+      "summary": "生成工具探测与安装结果的报告。",
+      "tags": [
+        "application-core",
+        "cli",
+        "service"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:load_project_snapshot",
+      "type": "function",
+      "name": "load_project_snapshot",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        3004,
+        3013
+      ],
+      "summary": "加载 .project-intel 下的 manifest 与扫描快照。",
+      "tags": [
+        "application-core",
+        "cli",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:collect_reuse_candidates",
+      "type": "function",
+      "name": "collect_reuse_candidates",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        3021,
+        3035
+      ],
+      "summary": "从快照中筛选最可能被复用的组件候选项。",
+      "tags": [
+        "application-core",
+        "cli",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:standard_paths",
+      "type": "function",
+      "name": "standard_paths",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        3038,
+        3052
+      ],
+      "summary": "枚举快照中出现的规范/文档路径。",
+      "tags": [
+        "application-core",
+        "cli",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:infer_affected_areas",
+      "type": "function",
+      "name": "infer_affected_areas",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        3055,
+        3076
+      ],
+      "summary": "根据任务描述与快照推断受影响的代码区域。",
+      "tags": [
+        "application-core",
+        "cli",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:analyze_task_intake",
+      "type": "function",
+      "name": "analyze_task_intake",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        3079,
+        3148
+      ],
+      "summary": "执行 intake 分析：分流 quick/standard/complex 并产出影响面与建议。",
+      "tags": [
+        "intake",
+        "lifecycle",
+        "triage"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:build_intake_doc",
+      "type": "function",
+      "name": "build_intake_doc",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        3158,
+        3199
+      ],
+      "summary": "生成 intake 阶段的 markdown 文档，含分流结果与影响面。",
+      "tags": [
+        "intake",
+        "documentation",
+        "lifecycle"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:write_intake",
+      "type": "function",
+      "name": "write_intake",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        3202,
+        3212
+      ],
+      "summary": "将 intake 文档写入 .project-intel 并返回路径。",
+      "tags": [
+        "intake",
+        "writer",
+        "lifecycle"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:build_spec_doc",
+      "type": "function",
+      "name": "build_spec_doc",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        3219,
+        3297
+      ],
+      "summary": "生成需求 spec 文档，含验收标准与 source-backed 依据。",
+      "tags": [
+        "spec",
+        "documentation",
+        "lifecycle"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:write_spec",
+      "type": "function",
+      "name": "write_spec",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        3300,
+        3305
+      ],
+      "summary": "将 spec 文档写入项目并返回路径。",
+      "tags": [
+        "spec",
+        "writer",
+        "lifecycle"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:build_plan_doc",
+      "type": "function",
+      "name": "build_plan_doc",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        3315,
+        3359
+      ],
+      "summary": "基于 spec 生成可执行的实施计划文档。",
+      "tags": [
+        "plan",
+        "documentation",
+        "lifecycle"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:write_plan",
+      "type": "function",
+      "name": "write_plan",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        3362,
+        3371
+      ],
+      "summary": "将实施计划写入项目并返回路径。",
+      "tags": [
+        "plan",
+        "writer",
+        "lifecycle"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:build_task_impact_doc",
+      "type": "function",
+      "name": "build_task_impact_doc",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        3374,
+        3467
+      ],
+      "summary": "生成任务影响面文档，覆盖测试类型、报告动作与验收编号。",
+      "tags": [
+        "impact",
+        "documentation",
+        "lifecycle"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:lifecycle_payload",
+      "type": "function",
+      "name": "lifecycle_payload",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        3470,
+        3495
+      ],
+      "summary": "组装 lifecycle 阶段共享的事件 payload。",
+      "tags": [
+        "lifecycle",
+        "payload",
+        "event"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:write_lifecycle",
+      "type": "function",
+      "name": "write_lifecycle",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        3498,
+        3506
+      ],
+      "summary": "将 lifecycle 事件写入项目并返回路径。",
+      "tags": [
+        "lifecycle",
+        "writer",
+        "event"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:build_debug_doc",
+      "type": "function",
+      "name": "build_debug_doc",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        3509,
+        3567
+      ],
+      "summary": "生成 Bug 调查上下文文档，含受影响面与可复用线索。",
+      "tags": [
+        "debug",
+        "documentation",
+        "lifecycle"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:write_debug_context",
+      "type": "function",
+      "name": "write_debug_context",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        3570,
+        3579
+      ],
+      "summary": "将 debug 上下文写入项目并返回路径。",
+      "tags": [
+        "debug",
+        "writer",
+        "lifecycle"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:normalize_project_file",
+      "type": "function",
+      "name": "normalize_project_file",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        3591,
+        3601
+      ],
+      "summary": "将用户输入的项目文件路径规范化为相对路径。",
+      "tags": [
+        "application-core",
+        "cli",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:should_track_requirement_file",
+      "type": "function",
+      "name": "should_track_requirement_file",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        3604,
+        3614
+      ],
+      "summary": "判断相对路径是否应纳入需求级文件跟踪。",
+      "tags": [
+        "application-core",
+        "cli",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:changed_requirement_files",
+      "type": "function",
+      "name": "changed_requirement_files",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        3617,
+        3623
+      ],
+      "summary": "结合 git diff 列出本需求跟踪范围内变更的文件。",
+      "tags": [
+        "application-core",
+        "cli",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:requirement_doc_path",
+      "type": "function",
+      "name": "requirement_doc_path",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        3626,
+        3632
+      ],
+      "summary": "为指定文件推导对应的 per-file 需求文档路径。",
+      "tags": [
+        "application-core",
+        "cli",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:build_file_requirement_doc",
+      "type": "function",
+      "name": "build_file_requirement_doc",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        3635,
+        3651
+      ],
+      "summary": "为单个文件生成 per-file 需求文档内容。",
+      "tags": [
+        "application-core",
+        "cli",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:resolve_requirement_files",
+      "type": "function",
+      "name": "resolve_requirement_files",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        3654,
+        3669
+      ],
+      "summary": "解析需求任务涉及的全部相对路径集合。",
+      "tags": [
+        "application-core",
+        "cli",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:write_file_requirement_docs",
+      "type": "function",
+      "name": "write_file_requirement_docs",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        3672,
+        3680
+      ],
+      "summary": "批量写入 per-file 需求文档。",
+      "tags": [
+        "application-core",
+        "cli",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:update_file_requirement_docs",
+      "type": "function",
+      "name": "update_file_requirement_docs",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        3683,
+        3688
+      ],
+      "summary": "按变更文件更新对应的 per-file 需求文档。",
+      "tags": [
+        "application-core",
+        "cli",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:build_maintenance_report",
+      "type": "function",
+      "name": "build_maintenance_report",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        3691,
+        3725
+      ],
+      "summary": "生成 maintain 阶段报告，覆盖刷新/退出码/质量/需求文档。",
+      "tags": [
+        "maintain",
+        "report",
+        "lifecycle"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:maintain_project",
+      "type": "function",
+      "name": "maintain_project",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        3728,
+        3786
+      ],
+      "summary": "执行 maintain 流程：刷新事实、运行质量、归档需求、更新文档。",
+      "tags": [
+        "maintain",
+        "lifecycle",
+        "refresh"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:finish_changed_files",
+      "type": "function",
+      "name": "finish_changed_files",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        3789,
+        3810
+      ],
+      "summary": "规范化并去重 finish 阶段传入的变更文件列表。",
+      "tags": [
+        "application-core",
+        "cli",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:plugins/project-intelligence/scripts/project_intel_lib/core.py",
+      "type": "file",
+      "name": "core.py",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/core.py",
+      "summary": "扫描与工具状态的核心原语：file_signature 提供基于 size+mtime 的廉价缓存签名，IncrementalScanCache 提供增量扫描缓存，sanitize_tooling 抽取可持久化的工具状态子集。",
+      "tags": [
+        "utility",
+        "cache",
+        "data-model",
+        "serialization"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "IncrementalScanCache 用 schemaVersion + per-file signature 实现增量扫描复用；sanitize_tooling 限定可提交到仓库的工具状态字段。"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/core.py:file_signature",
+      "type": "function",
+      "name": "file_signature",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/core.py",
+      "lineRange": [
+        13,
+        20
+      ],
+      "summary": "基于文件 size 与 mtime_ns 生成 sha256 截断签名，用于增量扫描缓存键。",
+      "tags": [
+        "utility",
+        "cache",
+        "signature"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/core.py:sanitize_tooling",
+      "type": "function",
+      "name": "sanitize_tooling",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/core.py",
+      "lineRange": [
+        58,
+        120
+      ],
+      "summary": "从完整 tooling 探测结果中抽取可安全持久化到仓库的字段子集，统一 schemaVersion。",
+      "tags": [
+        "serialization",
+        "tooling",
+        "sanitizer"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:plugins/project-intelligence/scripts/project_intel_lib/core.py:IncrementalScanCache",
+      "type": "class",
+      "name": "IncrementalScanCache",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/core.py",
+      "lineRange": [
+        23,
+        55
+      ],
+      "summary": "增量扫描缓存：按文件签名缓存多个 namespace 的扫描结果，支持 load/get/put 并在 payload() 时按 seen 集合保留有效条目。",
+      "tags": [
+        "cache",
+        "data-model",
+        "scanner"
+      ],
+      "complexity": "moderate"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/core.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/core.py:file_signature",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/core.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/core.py:sanitize_tooling",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/core.py",
+      "target": "class:plugins/project-intelligence/scripts/project_intel_lib/core.py:IncrementalScanCache",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/core.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/core.py:file_signature",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/core.py",
+      "target": "class:plugins/project-intelligence/scripts/project_intel_lib/core.py:IncrementalScanCache",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/core.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/core.py:sanitize_tooling",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:collect_project_state",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:scan_frontend",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:collect_project_state",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:scan_backend",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    }
+  ]
+}

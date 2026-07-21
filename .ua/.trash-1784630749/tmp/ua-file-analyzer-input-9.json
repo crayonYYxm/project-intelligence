@@ -1,0 +1,11 @@
+{
+  "projectRoot": "/Users/xumeng/Desktop/code/project-intelligence",
+  "batchFiles": [
+    {"path": "AGENTS.md", "language": "markdown", "sizeLines": 116, "fileCategory": "docs"},
+    {"path": "CHANGELOG.md", "language": "markdown", "sizeLines": 113, "fileCategory": "docs"},
+    {"path": "CLAUDE.md", "language": "markdown", "sizeLines": 90, "fileCategory": "docs"},
+    {"path": "README.md", "language": "markdown", "sizeLines": 196, "fileCategory": "docs"},
+    {"path": "package.json", "language": "json", "sizeLines": 54, "fileCategory": "config"}
+  ],
+  "batchImportData": {}
+}

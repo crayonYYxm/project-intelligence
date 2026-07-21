@@ -1,0 +1,180 @@
+{
+  "nodes": [
+    {
+      "id": "file:scripts/run-skill-evals.mjs",
+      "type": "file",
+      "name": "run-skill-evals.mjs",
+      "filePath": "scripts/run-skill-evals.mjs",
+      "summary": "针对 Claude 或 Codex 代理运行 skill 行为评测的脚手架脚本，按场景构造提示词、spawn 代理 CLI 并校验实际触发的 skill 路由是否符合预期。",
+      "tags": ["test-runner", "evaluation", "cli", "skill-eval", "process-spawning"],
+      "complexity": "moderate",
+      "languageNotes": "Node.js ESM 脚本，通过 spawnSync 调用 claude/codex CLI 并以 stream-json 输出解析 skill 调用；支持 --dry-run 与 --max-budget-usd 预算控制，并为 Codex 创建隔离的 CODEX_HOME 临时配置。"
+    },
+    {
+      "id": "file:scripts/skill-eval-events.mjs",
+      "type": "file",
+      "name": "skill-eval-events.mjs",
+      "filePath": "scripts/skill-eval-events.mjs",
+      "summary": "纯函数工具模块，从代理 stdout 中解析 skill 工具调用事件，并评估实际触发的 skill 路由是否匹配场景的期望、禁止与顺序约束。",
+      "tags": ["utility", "event-parsing", "skill-eval", "validation", "parsing"],
+      "complexity": "simple",
+      "languageNotes": "导出三个纯函数，递归遍历任意嵌套事件结构识别 skill 调用，兼容 Claude tool_use 与 Codex skill_call 两种事件形态。"
+    },
+    {
+      "id": "file:scripts/validate-skill-evals.mjs",
+      "type": "file",
+      "name": "validate-skill-evals.mjs",
+      "filePath": "scripts/validate-skill-evals.mjs",
+      "summary": "校验 skill 行为场景契约的脚本，检查场景 schema、路由分类、自然语言场景覆盖、skill 覆盖以及 SKILL.md 文本契约，任何违例均抛错中断。",
+      "tags": ["validation", "contract-checking", "skill-eval", "schema-validation", "test"],
+      "complexity": "complex",
+      "languageNotes": "顶层过程式校验脚本，无函数封装；通过 throw 在任一契约违例时中断，最终输出场景与 skill 计数。"
+    },
+    {
+      "id": "function:scripts/run-skill-evals.mjs:prepareCodexProfile",
+      "type": "function",
+      "name": "prepareCodexProfile",
+      "filePath": "scripts/run-skill-evals.mjs",
+      "lineRange": [32, 41],
+      "summary": "为 Codex 实时评测创建隔离的 CODEX_HOME 临时目录，注册本地 marketplace 并安装当前工作树插件；仅在 codex 代理且非 dry-run 时执行。",
+      "tags": ["isolation", "codex", "profile-setup", "skill-eval"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:scripts/run-skill-evals.mjs:invocation",
+      "type": "function",
+      "name": "invocation",
+      "filePath": "scripts/run-skill-evals.mjs",
+      "lineRange": [50, 81],
+      "summary": "根据场景与目标代理构造 spawn 调用参数，为 Claude 组装 stream-json 只读路由命令，为 Codex 组装 ephemeral read-only exec 命令。",
+      "tags": ["cli", "process-spawning", "agent-invocation", "skill-eval"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:scripts/run-skill-evals.mjs:failureDetail",
+      "type": "function",
+      "name": "failureDetail",
+      "filePath": "scripts/run-skill-evals.mjs",
+      "lineRange": [83, 104],
+      "summary": "从失败的 spawn 结果中提取 skill 调用链、终端事件、stderr 与退出码，汇总为单行诊断字符串用于错误日志。",
+      "tags": ["diagnostics", "error-reporting", "parsing", "skill-eval"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:scripts/skill-eval-events.mjs:buildSkillNamePattern",
+      "type": "function",
+      "name": "buildSkillNamePattern",
+      "filePath": "scripts/skill-eval-events.mjs",
+      "lineRange": [1, 4],
+      "summary": "将 skill 名称列表按长度降序排序并转义为正则，构造全局匹配任一 skill 名的 RegExp，避免短前缀遮蔽长名称。",
+      "tags": ["utility", "regex", "parsing", "skill-eval"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:scripts/skill-eval-events.mjs:skillToolInvocations",
+      "type": "function",
+      "name": "skillToolInvocations",
+      "filePath": "scripts/skill-eval-events.mjs",
+      "lineRange": [6, 31],
+      "summary": "逐行解析代理 stdout 中的 JSON 事件，递归遍历识别 skill/skill_use/tool_use 等事件并从 input/arguments 中匹配 skill 名称，返回按出现顺序的调用列表。",
+      "tags": ["event-parsing", "recursion", "skill-eval", "parsing"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:scripts/skill-eval-events.mjs:evaluateSkillRoute",
+      "type": "function",
+      "name": "evaluateSkillRoute",
+      "filePath": "scripts/skill-eval-events.mjs",
+      "lineRange": [33, 42],
+      "summary": "对比场景期望与实际 skill 调用，计算缺失、禁止、意外三类违例并校验期望顺序是否保持，返回结构化路由评估结果。",
+      "tags": ["validation", "route-checking", "skill-eval", "contract"],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:scripts/run-skill-evals.mjs",
+      "target": "function:scripts/run-skill-evals.mjs:prepareCodexProfile",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:scripts/run-skill-evals.mjs",
+      "target": "function:scripts/run-skill-evals.mjs:invocation",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:scripts/run-skill-evals.mjs",
+      "target": "function:scripts/run-skill-evals.mjs:failureDetail",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:scripts/skill-eval-events.mjs",
+      "target": "function:scripts/skill-eval-events.mjs:buildSkillNamePattern",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:scripts/skill-eval-events.mjs",
+      "target": "function:scripts/skill-eval-events.mjs:skillToolInvocations",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:scripts/skill-eval-events.mjs",
+      "target": "function:scripts/skill-eval-events.mjs:evaluateSkillRoute",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:scripts/skill-eval-events.mjs",
+      "target": "function:scripts/skill-eval-events.mjs:buildSkillNamePattern",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:scripts/skill-eval-events.mjs",
+      "target": "function:scripts/skill-eval-events.mjs:skillToolInvocations",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:scripts/skill-eval-events.mjs",
+      "target": "function:scripts/skill-eval-events.mjs:evaluateSkillRoute",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:scripts/run-skill-evals.mjs",
+      "target": "file:scripts/skill-eval-events.mjs",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:scripts/validate-skill-evals.mjs",
+      "target": "file:scripts/skill-eval-events.mjs",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "function:scripts/run-skill-evals.mjs:failureDetail",
+      "target": "function:scripts/skill-eval-events.mjs:skillToolInvocations",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    }
+  ]
+}

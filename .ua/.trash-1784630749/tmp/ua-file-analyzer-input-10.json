@@ -1,0 +1,22 @@
+{
+  "projectRoot": "/Users/xumeng/Desktop/code/project-intelligence",
+  "batchFiles": [
+    {"path": ".agents/plugins/marketplace.json", "language": "json", "sizeLines": 20, "fileCategory": "config"},
+    {"path": ".claude-plugin/marketplace.json", "language": "json", "sizeLines": 17, "fileCategory": "config"},
+    {"path": ".claude/CLAUDE.md", "language": "markdown", "sizeLines": 45, "fileCategory": "docs"},
+    {"path": ".claude/skills/gitnexus/gitnexus-cli/SKILL.md", "language": "markdown", "sizeLines": 86, "fileCategory": "docs"},
+    {"path": ".claude/skills/gitnexus/gitnexus-debugging/SKILL.md", "language": "markdown", "sizeLines": 101, "fileCategory": "docs"},
+    {"path": ".claude/skills/gitnexus/gitnexus-exploring/SKILL.md", "language": "markdown", "sizeLines": 78, "fileCategory": "docs"},
+    {"path": ".claude/skills/gitnexus/gitnexus-guide/SKILL.md", "language": "markdown", "sizeLines": 138, "fileCategory": "docs"},
+    {"path": ".claude/skills/gitnexus/gitnexus-impact-analysis/SKILL.md", "language": "markdown", "sizeLines": 97, "fileCategory": "docs"},
+    {"path": ".claude/skills/gitnexus/gitnexus-refactoring/SKILL.md", "language": "markdown", "sizeLines": 121, "fileCategory": "docs"},
+    {"path": ".npmignore", "language": "unknown", "sizeLines": 4, "fileCategory": "code"},
+    {"path": ".project-intel/config.json", "language": "json", "sizeLines": 116, "fileCategory": "config"},
+    {"path": ".project-intel/graph/project-graph.json", "language": "json", "sizeLines": 87, "fileCategory": "config"},
+    {"path": ".project-intel/manifest.json", "language": "json", "sizeLines": 65, "fileCategory": "config"},
+    {"path": ".ua/.understandignore", "language": "unknown", "sizeLines": 46, "fileCategory": "code"},
+    {"path": ".ua/config.json", "language": "json", "sizeLines": 1, "fileCategory": "config"},
+    {"path": "bin/project-intel.mjs", "language": "javascript", "sizeLines": 33, "fileCategory": "code"}
+  ],
+  "batchImportData": {}
+}

@@ -1,0 +1,61 @@
+{
+  "fixedSectionOk": true,
+  "nodesRecovered": 2,
+  "edgesRestored": 7,
+  "crossBatchEdgesAdded": 0,
+  "typesRemapped": 0,
+  "complexityRemapped": 0,
+  "issues": [
+    {
+      "id": "dropped-depends-on-config-targets",
+      "severity": "medium",
+      "summary": "Merge dropped 7 depends_on edges because batch LLM emitted them with `file:` target IDs for plugin.json / marketplace.json / package.json, but those files were classified as `config:` nodes by the merge script.",
+      "affected": [
+        "file:scripts/check-release.mjs -> file:package.json",
+        "file:scripts/check-release.mjs -> file:plugins/project-intelligence/.claude-plugin/plugin.json",
+        "file:scripts/check-release.mjs -> file:plugins/project-intelligence/.codex-plugin/plugin.json",
+        "file:scripts/validate_bundle.py -> file:plugins/project-intelligence/.codex-plugin/plugin.json",
+        "file:scripts/validate_bundle.py -> file:plugins/project-intelligence/.claude-plugin/plugin.json",
+        "file:scripts/validate_bundle.py -> file:.agents/plugins/marketplace.json",
+        "file:scripts/validate_bundle.py -> file:.claude-plugin/marketplace.json"
+      ],
+      "resolution": "All 7 edges restored with corrected `config:` targets (weight 0.6, direction forward). 2 missing config nodes (the two plugin.json manifests) were created with content-derived summaries; the other 5 targets (package.json, two marketplace.json, two already-config nodes) already existed as config: nodes."
+    },
+    {
+      "id": "orphan-nodes",
+      "severity": "low",
+      "summary": "8 nodes have no edges touching them. All exist on disk and carry valid summaries, so this reflects missing-edge coverage rather than bad data. No fix applied (would require speculative edges).",
+      "affected": [
+        "document:.project-intel/standards/quality.md",
+        "document:.project-intel/standards/reuse.md",
+        "document:CHANGELOG.md",
+        "document:README.md",
+        "config:package.json (now has an incoming depends_on edge after the fix above, so will no longer be orphan)",
+        "file:.npmignore",
+        "document:plugins/project-intelligence/skills/project-standards/SKILL.md",
+        "file:scripts/npm-pack-dry-run.mjs"
+      ],
+      "recommendation": "Upstream batches did not emit `documents` / `related` edges from CHANGELOG/README/standards docs to the code they describe, nor `depends_on` edges from npm-pack-dry-run.mjs / .npmignore to package.json. Consider prompting batches to emit `documents` / `related` edges for top-level docs."
+    },
+    {
+      "id": "tested-by-supplement",
+      "severity": "low",
+      "summary": "The merge linker produced 0 new tested_by edges (path-convention supplement) and tagged only 6 production nodes as 'tested'. The graph already has 10 tested_by edges produced by batches directly, so test coverage links are present but limited. No fix applied."
+    }
+  ],
+  "warnings": [
+    "5 of 7 dropped-edge targets existed only as `config:` nodes, not `file:` nodes. The merge script's drop-dangling-edges step is correct mechanically, but the upstream batch LLM inconsistently used `file:` IDs for files that the scan classifier later typed as `config:`. Retargeting to the existing `config:` node is the semantically correct recovery and was applied here.",
+    "2 plugin.json files (plugins/project-intelligence/.claude-plugin/plugin.json and .codex-plugin/plugin.json) were scanned and listed in scan-result.json but never produced a node in any batch, so they had to be reconstructed with default summaries/tags/complexity. Their summaries were written from the actual manifest contents (name, version, description, author, skills path, interface config) rather than the generic 'No summary available' placeholder, since the files are small and self-describing.",
+    "8 orphan nodes remain after fixes (down from 8 originally; package.json is no longer orphan after the depends_on restore). These are real files with valid metadata but no edges. Not fixing because the spec forbids speculative edges."
+  ],
+  "notes": [
+    "Sanity check of the 'Fixed' section: node type distribution is clean (function 323, document 53, file 36, class 28, config 11, pipeline 2) with zero prefix/type mismatches and zero unknown types, so the `func: -> function:` and prefix-normalization fixes applied cleanly with no residual mis-mappings.",
+    "Complexity values are all valid (simple 217, moderate 153, complex 83); no unknown complexity values needed remapping. Distribution skews simple, which is expected for a CLI/plugin codebase dominated by small functions.",
+    "Edge weights are all in {0.5, 0.6, 0.7, 0.8, 1.0}; no out-of-range or missing weights. No edges missing `direction`. No duplicate edges by (source,target,type). No duplicate node IDs.",
+    "All 453 original nodes have non-empty id, name, filePath, summary, tags; all function/class nodes have complexity. No malformed nodes requiring recovery.",
+    "Cross-batch imports verification: all 15 non-empty importMap entries map to 20 existing `imports` edges already present in the graph (the merge linker recovered them). 0 additional cross-batch imports edges needed. 96 of 111 importMap entries are empty (config/markdown/yaml files with no static imports) — expected.",
+    "All 8 scripts/*.mjs and scripts/*.py files on disk have corresponding file: nodes; spot-check of 40 random nodes found 0 missing-on-disk file paths.",
+    "Final graph: 455 nodes, 793 edges, 0 dangling edges, 0 duplicate edges, 0 duplicate nodes. The merge script's `Imports edge recovery: Recovered 4` line refers to a different (older) importMap pass; the current scan-result.json importMap drives all 20 imports edges, all verified present.",
+    "Upstream data quality is good overall: the only systematic issue is the file:/config: ID-class mismatch that caused the 7 dropped depends_on edges, which is now fully recovered."
+  ]
+}

@@ -1,0 +1,1432 @@
+{
+  "schemaVersion": 1,
+  "algorithm": "louvain",
+  "totalFiles": 111,
+  "totalBatches": 12,
+  "exportsByPath": {
+    ".npmignore": [],
+    ".ua/.understandignore": [],
+    "bin/project-intel.mjs": [],
+    "plugins/project-intelligence/scripts/.npmignore": [],
+    "plugins/project-intelligence/scripts/project_intel_lib/__init__.py": [],
+    "plugins/project-intelligence/scripts/project_intel_lib/application.py": [
+      "now_iso",
+      "script_path",
+      "run",
+      "run_shell",
+      "command_exists",
+      "user_home",
+      "package_manager",
+      "slugify",
+      "today_slug",
+      "truncate",
+      "read_text",
+      "write_json",
+      "write_text",
+      "_assert_safe_managed_path",
+      "_adapter_relative_path",
+      "_assert_safe_adapter_path",
+      "_read_adapter_text",
+      "_write_adapter_text",
+      "_replace_single_managed_block",
+      "upsert_adapter_managed_block",
+      "remove_adapter_managed_block",
+      "upsert_managed_block_with_markers",
+      "upsert_managed_block",
+      "remove_managed_block_with_markers",
+      "cleanup_legacy_local_skills",
+      "load_json",
+      "fail_usage",
+      "JsonArgumentParser",
+      "load_json_strict",
+      "project_root",
+      "project_dir",
+      "rel",
+      "path_matches_pattern",
+      "path_matches_any",
+      "scan_settings",
+      "is_excluded",
+      "iter_project_files",
+      "iter_files",
+      "git_info",
+      "detect_package",
+      "detect_quality_commands",
+      "understand_plugin_roots",
+      "current_agent_platform",
+      "claude_understand_installs",
+      "claude_plugin_list_statuses",
+      "claude_understand_install_is_ready",
+      "claude_understand_install_is_repairable",
+      "understand_installed_platforms",
+      "understand_install_options",
+      "filter_understand_install_options",
+      "default_understand_install_command",
+      "understand_analyze_command",
+      "detect_graph_actions",
+      "detect_quality_tool_status",
+      "detect_tooling",
+      "tooling_has_missing_optional",
+      "print_tooling_summary",
+      "print_graph_tools_report",
+      "graph_timeout_seconds",
+      "run_graph_command",
+      "command_uses_external_path",
+      "command_has_shell_expansion",
+      "graph_command_authorized",
+      "install_options_for_action",
+      "choose_install_option",
+      "run_install_option",
+      "verify_understand_claude_install",
+      "setup_graph_tools",
+      "tooling_with_graph_actions",
+      "handle_tooling_setup",
+      "extract_backend_endpoints",
+      "scan_frontend",
+      "scan_backend",
+      "file_index",
+      "build_manifest",
+      "default_config",
+      "validate_string_list",
+      "validate_relative_pattern",
+      "validate_project_config",
+      "merge_quality_commands",
+      "prepare_project_config",
+      "read_project_config",
+      "dominant_parent",
+      "infer_standards",
+      "render_inferred_rules",
+      "render_components_standard",
+      "render_api_standard",
+      "render_router_standard",
+      "fallback_domain_rows",
+      "render_domain_flows_standard",
+      "render_backend_api_standard",
+      "render_backend_services_standard",
+      "render_backend_models_standard",
+      "render_backend_repository_standard",
+      "render_backend_config_standard",
+      "render_backend_security_standard",
+      "render_backend_transaction_standard",
+      "render_backend_remote_calls_standard",
+      "render_backend_async_standard",
+      "render_backend_errors_standard",
+      "render_backend_utilities_standard",
+      "standards_docs",
+      "table",
+      "collect_project_state",
+      "preview_init",
+      "init_project",
+      "ensure_project_intel_gitignore",
+      "ensure_gitignore",
+      "build_init_report",
+      "build_project_status",
+      "build_redundancy_report",
+      "build_tooling_report",
+      "ensure_initialized",
+      "load_project_snapshot",
+      "text_has_any",
+      "collect_reuse_candidates",
+      "standard_paths",
+      "infer_affected_areas",
+      "analyze_task_intake",
+      "bullet_list",
+      "build_intake_doc",
+      "write_intake",
+      "spec_filename",
+      "build_spec_doc",
+      "write_spec",
+      "resolve_input_path",
+      "build_plan_doc",
+      "write_plan",
+      "build_task_impact_doc",
+      "lifecycle_payload",
+      "write_lifecycle",
+      "build_debug_doc",
+      "write_debug_context",
+      "contains_cjk",
+      "normalize_requirement_summary",
+      "normalize_project_file",
+      "should_track_requirement_file",
+      "changed_requirement_files",
+      "requirement_doc_path",
+      "build_file_requirement_doc",
+      "resolve_requirement_files",
+      "write_file_requirement_docs",
+      "update_file_requirement_docs",
+      "build_maintenance_report",
+      "maintain_project",
+      "finish_changed_files",
+      "normalize_test_files",
+      "configured_test_commands",
+      "run_project_test",
+      "git_diff_summary",
+      "build_finish_report",
+      "finish_project",
+      "hook_script_body",
+      "write_hook_templates",
+      "git_hooks_path",
+      "activate_git_hooks",
+      "agent_project_intelligence_priority_rules",
+      "project_agent_rules",
+      "claude_project_agent_rules",
+      "codex_adapter_rules",
+      "claude_adapter_rules",
+      "nested_claude_adapter_rules",
+      "_adapter_targets",
+      "adapters_preview",
+      "adapters_status",
+      "adapters_apply",
+      "adapters_remove",
+      "write_agent_entrypoints",
+      "install_claude",
+      "hard_rule_text",
+      "selected_hard_rule_files",
+      "run_hard_rule_checks",
+      "markdown_command_output",
+      "run_check",
+      "build_quality_report",
+      "query_project",
+      "report_graph_tools",
+      "marketplace_bundle_root",
+      "agent_install_commands",
+      "install_agent_plugin",
+      "doctor_report",
+      "build_parser",
+      "comma_values",
+      "parse_review_findings",
+      "parse_acceptance_values",
+      "legacy_workflow_warning",
+      "require_legacy",
+      "dispatch_command",
+      "main"
+    ],
+    "plugins/project-intelligence/scripts/project_intel_lib/cli.py": [
+      "_sanitize_error_text",
+      "extract_global_json",
+      "json_envelope",
+      "add_global_options"
+    ],
+    "plugins/project-intelligence/scripts/project_intel_lib/core.py": [
+      "file_signature",
+      "IncrementalScanCache",
+      "sanitize_tooling"
+    ],
+    "plugins/project-intelligence/scripts/project_intel_lib/design_documents.py": [
+      "UsageError",
+      "normalize_heading",
+      "parse_headings",
+      "find_heading",
+      "section_text",
+      "has_meaningful_content",
+      "resolve_repo",
+      "resolve_document",
+      "infer_kind",
+      "inline_code_values",
+      "source_evidence_values",
+      "_split_source_reference",
+      "_symbol_name",
+      "_mask_comments_and_strings",
+      "_symbol_exists",
+      "_external_source_gaps",
+      "_unresolved_content_issues",
+      "validate_source_evidence",
+      "check_sensitive_content",
+      "collect_sections",
+      "safe_filename_component",
+      "design_filename",
+      "_is_canonical_internal_design",
+      "validate_bug",
+      "validate_requirement",
+      "_validate_identity",
+      "validate",
+      "requirement_scaffold",
+      "bug_scaffold",
+      "scaffold_text",
+      "emit",
+      "build_parser",
+      "main"
+    ],
+    "plugins/project-intelligence/scripts/project_intel_lib/graph.py": [
+      "load_json_checked",
+      "gitnexus_summary",
+      "understand_summary",
+      "detect_graph_sources",
+      "meaningful_domain",
+      "path_prefix",
+      "understand_graph_summary"
+    ],
+    "plugins/project-intelligence/scripts/project_intel_lib/lifecycle.py": [
+      "changed_project_files",
+      "query_paths",
+      "match_context"
+    ],
+    "plugins/project-intelligence/scripts/project_intel_lib/quality.py": [
+      "load_json",
+      "workspace_package_files",
+      "package_frameworks",
+      "detect_package",
+      "package_manager",
+      "package_script_command",
+      "append_unique",
+      "detect_quality_commands"
+    ],
+    "plugins/project-intelligence/scripts/project_intel_lib/requirement_documents.py": [
+      "scaffold_text",
+      "_acceptance_ids",
+      "_plain_value",
+      "_parse_document_info",
+      "_normalize_kind",
+      "_parse_acceptance_criteria",
+      "_expected_criteria",
+      "_parse_external_api_impact",
+      "_pending_blockers",
+      "_critical_content_blockers",
+      "validate"
+    ],
+    "plugins/project-intelligence/scripts/project_intel_lib/requirements.py": [
+      "RequirementError",
+      "now_iso",
+      "generate_requirement_id",
+      "normalize_requirement_id",
+      "canonicalize_ticket_id",
+      "_assert_safe_internal_path",
+      "requirement_root",
+      "requirement_dir",
+      "manifest_path",
+      "legacy_requirement_dir",
+      "legacy_manifest_path",
+      "active_manifest_path",
+      "active_requirement_dir",
+      "_json_bytes",
+      "_atomic_write",
+      "_RequirementLock",
+      "_write_manifest",
+      "load_requirement",
+      "_mutate",
+      "_set_state",
+      "_prepare_document_selection",
+      "_selection_matches",
+      "_assert_document_selection",
+      "_mark_document_selection",
+      "create_requirement",
+      "amend_requirement",
+      "_resolve_repo_file",
+      "_test_report_path_valid",
+      "_external_report_artifact_path_valid",
+      "_delivery_document_artifact_path_valid",
+      "_normalized_report_result",
+      "_json_report_result",
+      "_xml_report_result",
+      "_text_report_result",
+      "_report_execution_count",
+      "_declared_test_kinds",
+      "_validate_test_report_file",
+      "_canonicalize_test_report",
+      "_validate_closure_file",
+      "_validate_plan_file",
+      "file_sha256",
+      "set_acceptance_criteria",
+      "set_test_contract",
+      "record_diagnosis",
+      "_upsert_artifact",
+      "_test_report_text",
+      "_closure_text",
+      "_refresh_closure_artifact",
+      "_canonical_artifact_type",
+      "_assert_artifact_state",
+      "_plan_text",
+      "generate_artifact",
+      "_validate_delivery_document",
+      "_register_delivery_document",
+      "register_artifact",
+      "_resolve_blockers",
+      "record_later",
+      "_assert_readiness_inputs",
+      "ready_requirement",
+      "begin_requirement",
+      "_git",
+      "_business_path",
+      "_committed_scope_entries",
+      "capture_scope_snapshot",
+      "capture_requirement_scope",
+      "_scope_identity",
+      "_require_same_scope",
+      "_normalize_scope_files",
+      "validate_scope_selection",
+      "_manual_valid",
+      "_manual_evidence_path_valid",
+      "_current_test_evidence",
+      "_test_channels",
+      "_test_gate_for_records",
+      "_test_gate_satisfied",
+      "record_test_result",
+      "append_test_report_execution",
+      "record_review",
+      "resolve_review_findings",
+      "_artifact_is_current",
+      "_current_test_artifact",
+      "_validated_passing_test_evidence",
+      "_test_gate_with_current_reports",
+      "requirement_validation_status",
+      "_has_valid_requirement",
+      "design_validation_status",
+      "_has_valid_design",
+      "plan_validation_status",
+      "_best_document_state",
+      "finish_requirement",
+      "_validate_finished_invariants",
+      "validate_finished_freshness",
+      "close_requirement",
+      "reopen_requirement",
+      "status_payload",
+      "record_changed_files",
+      "_requirement_manifest_files",
+      "query_requirements",
+      "migrate_layout"
+    ],
+    "plugins/project-intelligence/scripts/project_intel_lib/scanner/__init__.py": [],
+    "plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py": [
+      "unique_limited",
+      "flatten_regex_hits",
+      "annotation_values",
+      "mask_comments_and_strings",
+      "annotation_values_in_code",
+      "quoted_literal_at",
+      "python_ast_facts",
+      "detect_backend_framework",
+      "extract_backend_endpoints",
+      "extract_backend_methods",
+      "extract_backend_fields",
+      "extract_repository_methods",
+      "extract_sql_ops",
+      "extract_config_keys",
+      "extract_signals",
+      "extract_permission_signals",
+      "extract_transaction_signals",
+      "extract_remote_call_signals",
+      "extract_message_job_signals",
+      "extract_error_code_signals",
+      "extract_exported_functions",
+      "scan_backend_file",
+      "scan_backend"
+    ],
+    "plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py": [
+      "extract_object_argument_blocks",
+      "split_top_level_items",
+      "top_level_object_keys",
+      "extract_vue_props",
+      "extract_emits",
+      "extract_slots",
+      "extract_expose",
+      "extract_dependencies",
+      "component_scope",
+      "extract_service_prefixes",
+      "extract_api_endpoints",
+      "extract_exported_functions",
+      "extract_react_props",
+      "route_module_info",
+      "scan_frontend_file",
+      "scan_frontend"
+    ],
+    "plugins/project-intelligence/scripts/project_intel_lib/standards.py": [
+      "project_domain_candidates"
+    ],
+    "plugins/project-intelligence/scripts/project_intel_lib/testing.py": [
+      "evidence_json_path",
+      "evidence_markdown_path",
+      "load_test_evidence",
+      "manual_evidence_valid",
+      "_find_unescaped",
+      "_redact_header_values",
+      "_redact_url_userinfo",
+      "sanitize_text",
+      "executed_test_count",
+      "_markdown_literal",
+      "_markdown_code",
+      "_markdown_fence",
+      "_hash_files",
+      "phase_passed",
+      "render_test_evidence",
+      "record_test_evidence",
+      "_parse_time",
+      "evaluate_test_evidence"
+    ],
+    "plugins/project-intelligence/scripts/project_intel.py": [],
+    "plugins/project-intelligence/scripts/project-intel": [],
+    "plugins/project-intelligence/skills/project-design/scripts/validate_design_doc.py": [],
+    "plugins/project-intelligence/tests/design_fixtures.py": [
+      "requirement_document",
+      "requirement_design",
+      "bug_design"
+    ],
+    "plugins/project-intelligence/tests/test_document_truth_validation.py": [
+      "symlink_or_skip",
+      "DesignSourceTruthTests",
+      "RequirementManifestTruthTests"
+    ],
+    "plugins/project-intelligence/tests/test_project_design.py": [
+      "ProjectDesignValidationTests"
+    ],
+    "plugins/project-intelligence/tests/test_project_intel.py": [
+      "symlink_or_skip",
+      "FileDiscoveryTests",
+      "HandleToolingSetupTests",
+      "GraphToolsReportTests",
+      "GraphToolCommandTests",
+      "UnderstandSetupFlowTests",
+      "AgentEntrypointInstallTests",
+      "LifecycleArtifactTests",
+      "SafetyAndConfigTests",
+      "HardRuleAndQualityTests",
+      "HookTests",
+      "SkillCommandPathTests",
+      "CliAndReleaseContractTests",
+      "InferStandardsTests",
+      "StabilityAndPackagingTests",
+      "LegacyLocalSkillCleanupTests"
+    ],
+    "plugins/project-intelligence/tests/test_project_test.py": [
+      "ProjectTestEvidenceTests"
+    ],
+    "plugins/project-intelligence/tests/test_requirement_hardening.py": [
+      "symlink_or_skip",
+      "RequirementHardeningTests"
+    ],
+    "plugins/project-intelligence/tests/test_requirement_layout_v2.py": [
+      "requirement_text",
+      "RequirementLayoutV2Tests"
+    ],
+    "plugins/project-intelligence/tests/test_requirement_workflow.py": [
+      "RequirementWorkflowTests"
+    ],
+    "plugins/project-intelligence/tests/test_testing_security.py": [
+      "TestingSecurityTests"
+    ],
+    "scripts/check-package.mjs": [],
+    "scripts/check-release.mjs": [],
+    "scripts/npm-pack-dry-run.mjs": [],
+    "scripts/run-skill-evals.mjs": [],
+    "scripts/run-tests.mjs": [],
+    "scripts/skill-eval-events.mjs": [
+      "buildSkillNamePattern",
+      "skillToolInvocations",
+      "evaluateSkillRoute"
+    ],
+    "scripts/validate_bundle.py": [
+      "load",
+      "require",
+      "main"
+    ],
+    "scripts/validate-skill-evals.mjs": []
+  },
+  "batches": [
+    {
+      "batchIndex": 1,
+      "files": [
+        {
+          "path": "plugins/project-intelligence/scripts/project_intel_lib/__init__.py",
+          "language": "python",
+          "sizeLines": 5,
+          "fileCategory": "code"
+        },
+        {
+          "path": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+          "language": "python",
+          "sizeLines": 5696,
+          "fileCategory": "code"
+        },
+        {
+          "path": "plugins/project-intelligence/scripts/project_intel_lib/cli.py",
+          "language": "python",
+          "sizeLines": 48,
+          "fileCategory": "code"
+        },
+        {
+          "path": "plugins/project-intelligence/scripts/project_intel_lib/core.py",
+          "language": "python",
+          "sizeLines": 120,
+          "fileCategory": "code"
+        },
+        {
+          "path": "plugins/project-intelligence/scripts/project_intel_lib/scanner/__init__.py",
+          "language": "python",
+          "sizeLines": 4,
+          "fileCategory": "code"
+        },
+        {
+          "path": "plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py",
+          "language": "python",
+          "sizeLines": 491,
+          "fileCategory": "code"
+        },
+        {
+          "path": "plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py",
+          "language": "python",
+          "sizeLines": 288,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        "plugins/project-intelligence/scripts/project_intel_lib/__init__.py": [
+          "plugins/project-intelligence/scripts/project_intel_lib/core.py"
+        ],
+        "plugins/project-intelligence/scripts/project_intel_lib/application.py": [
+          "plugins/project-intelligence/scripts/project_intel_lib/__init__.py",
+          "plugins/project-intelligence/scripts/project_intel_lib/cli.py",
+          "plugins/project-intelligence/scripts/project_intel_lib/scanner/__init__.py"
+        ],
+        "plugins/project-intelligence/scripts/project_intel_lib/cli.py": [],
+        "plugins/project-intelligence/scripts/project_intel_lib/core.py": [],
+        "plugins/project-intelligence/scripts/project_intel_lib/scanner/__init__.py": [
+          "plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py",
+          "plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py"
+        ],
+        "plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py": [
+          "plugins/project-intelligence/scripts/project_intel_lib/core.py"
+        ],
+        "plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py": [
+          "plugins/project-intelligence/scripts/project_intel_lib/core.py"
+        ]
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 2,
+      "files": [
+        {
+          "path": "plugins/project-intelligence/tests/design_fixtures.py",
+          "language": "python",
+          "sizeLines": 210,
+          "fileCategory": "code"
+        },
+        {
+          "path": "plugins/project-intelligence/tests/test_document_truth_validation.py",
+          "language": "python",
+          "sizeLines": 211,
+          "fileCategory": "code"
+        },
+        {
+          "path": "plugins/project-intelligence/tests/test_project_design.py",
+          "language": "python",
+          "sizeLines": 196,
+          "fileCategory": "code"
+        },
+        {
+          "path": "plugins/project-intelligence/tests/test_project_test.py",
+          "language": "python",
+          "sizeLines": 456,
+          "fileCategory": "code"
+        },
+        {
+          "path": "plugins/project-intelligence/tests/test_requirement_hardening.py",
+          "language": "python",
+          "sizeLines": 738,
+          "fileCategory": "code"
+        },
+        {
+          "path": "plugins/project-intelligence/tests/test_requirement_layout_v2.py",
+          "language": "python",
+          "sizeLines": 476,
+          "fileCategory": "code"
+        },
+        {
+          "path": "plugins/project-intelligence/tests/test_requirement_workflow.py",
+          "language": "python",
+          "sizeLines": 1257,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        "plugins/project-intelligence/tests/design_fixtures.py": [],
+        "plugins/project-intelligence/tests/test_document_truth_validation.py": [
+          "plugins/project-intelligence/tests/design_fixtures.py"
+        ],
+        "plugins/project-intelligence/tests/test_project_design.py": [
+          "plugins/project-intelligence/tests/design_fixtures.py"
+        ],
+        "plugins/project-intelligence/tests/test_project_test.py": [
+          "plugins/project-intelligence/tests/design_fixtures.py"
+        ],
+        "plugins/project-intelligence/tests/test_requirement_hardening.py": [
+          "plugins/project-intelligence/tests/design_fixtures.py"
+        ],
+        "plugins/project-intelligence/tests/test_requirement_layout_v2.py": [
+          "plugins/project-intelligence/tests/design_fixtures.py"
+        ],
+        "plugins/project-intelligence/tests/test_requirement_workflow.py": [
+          "plugins/project-intelligence/tests/design_fixtures.py"
+        ]
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 3,
+      "files": [
+        {
+          "path": "plugins/project-intelligence/scripts/project_intel_lib/design_documents.py",
+          "language": "python",
+          "sizeLines": 832,
+          "fileCategory": "code"
+        },
+        {
+          "path": "plugins/project-intelligence/scripts/project_intel_lib/requirement_documents.py",
+          "language": "python",
+          "sizeLines": 296,
+          "fileCategory": "code"
+        },
+        {
+          "path": "plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+          "language": "python",
+          "sizeLines": 3422,
+          "fileCategory": "code"
+        },
+        {
+          "path": "plugins/project-intelligence/scripts/project_intel_lib/testing.py",
+          "language": "python",
+          "sizeLines": 406,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        "plugins/project-intelligence/scripts/project_intel_lib/design_documents.py": [],
+        "plugins/project-intelligence/scripts/project_intel_lib/requirement_documents.py": [
+          "plugins/project-intelligence/scripts/project_intel_lib/design_documents.py"
+        ],
+        "plugins/project-intelligence/scripts/project_intel_lib/requirements.py": [
+          "plugins/project-intelligence/scripts/project_intel_lib/design_documents.py",
+          "plugins/project-intelligence/scripts/project_intel_lib/requirement_documents.py",
+          "plugins/project-intelligence/scripts/project_intel_lib/testing.py"
+        ],
+        "plugins/project-intelligence/scripts/project_intel_lib/testing.py": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 4,
+      "files": [
+        {
+          "path": "scripts/run-skill-evals.mjs",
+          "language": "javascript",
+          "sizeLines": 128,
+          "fileCategory": "code"
+        },
+        {
+          "path": "scripts/skill-eval-events.mjs",
+          "language": "javascript",
+          "sizeLines": 42,
+          "fileCategory": "code"
+        },
+        {
+          "path": "scripts/validate-skill-evals.mjs",
+          "language": "javascript",
+          "sizeLines": 192,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        "scripts/run-skill-evals.mjs": [
+          "scripts/skill-eval-events.mjs"
+        ],
+        "scripts/skill-eval-events.mjs": [],
+        "scripts/validate-skill-evals.mjs": [
+          "scripts/skill-eval-events.mjs"
+        ]
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 5,
+      "files": [
+        {
+          "path": ".github/workflows/live-skill-evals.yml",
+          "language": "yaml",
+          "sizeLines": 43,
+          "fileCategory": "infra"
+        },
+        {
+          "path": ".github/workflows/validate.yml",
+          "language": "yaml",
+          "sizeLines": 57,
+          "fileCategory": "infra"
+        }
+      ],
+      "batchImportData": {
+        ".github/workflows/live-skill-evals.yml": [],
+        ".github/workflows/validate.yml": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 6,
+      "files": [
+        {
+          "path": ".project-intel/knowledge/backend.json",
+          "language": "json",
+          "sizeLines": 506,
+          "fileCategory": "config"
+        },
+        {
+          "path": ".project-intel/knowledge/files.json",
+          "language": "json",
+          "sizeLines": 320,
+          "fileCategory": "config"
+        },
+        {
+          "path": ".project-intel/knowledge/frontend.json",
+          "language": "json",
+          "sizeLines": 10,
+          "fileCategory": "config"
+        }
+      ],
+      "batchImportData": {
+        ".project-intel/knowledge/backend.json": [],
+        ".project-intel/knowledge/files.json": [],
+        ".project-intel/knowledge/frontend.json": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 7,
+      "files": [
+        {
+          "path": ".project-intel/reports/frontend-quality.md",
+          "language": "markdown",
+          "sizeLines": 22,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".project-intel/reports/init-report.md",
+          "language": "markdown",
+          "sizeLines": 43,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".project-intel/reports/redundancy-report.md",
+          "language": "markdown",
+          "sizeLines": 5,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".project-intel/reports/tooling-report.md",
+          "language": "markdown",
+          "sizeLines": 50,
+          "fileCategory": "docs"
+        }
+      ],
+      "batchImportData": {
+        ".project-intel/reports/frontend-quality.md": [],
+        ".project-intel/reports/init-report.md": [],
+        ".project-intel/reports/redundancy-report.md": [],
+        ".project-intel/reports/tooling-report.md": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 8,
+      "files": [
+        {
+          "path": ".project-intel/standards/api.md",
+          "language": "markdown",
+          "sizeLines": 24,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".project-intel/standards/backend-api.md",
+          "language": "markdown",
+          "sizeLines": 40,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".project-intel/standards/backend-async.md",
+          "language": "markdown",
+          "sizeLines": 32,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".project-intel/standards/backend-config.md",
+          "language": "markdown",
+          "sizeLines": 23,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".project-intel/standards/backend-errors.md",
+          "language": "markdown",
+          "sizeLines": 25,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".project-intel/standards/backend-models.md",
+          "language": "markdown",
+          "sizeLines": 24,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".project-intel/standards/backend-remote-calls.md",
+          "language": "markdown",
+          "sizeLines": 32,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".project-intel/standards/backend-repository.md",
+          "language": "markdown",
+          "sizeLines": 30,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".project-intel/standards/backend-security.md",
+          "language": "markdown",
+          "sizeLines": 38,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".project-intel/standards/backend-services.md",
+          "language": "markdown",
+          "sizeLines": 32,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".project-intel/standards/backend-transactions.md",
+          "language": "markdown",
+          "sizeLines": 25,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".project-intel/standards/backend-utilities.md",
+          "language": "markdown",
+          "sizeLines": 16,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".project-intel/standards/backend.md",
+          "language": "markdown",
+          "sizeLines": 50,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".project-intel/standards/components.md",
+          "language": "markdown",
+          "sizeLines": 34,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".project-intel/standards/domain-flows.md",
+          "language": "markdown",
+          "sizeLines": 21,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".project-intel/standards/frontend.md",
+          "language": "markdown",
+          "sizeLines": 30,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".project-intel/standards/quality.md",
+          "language": "markdown",
+          "sizeLines": 22,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".project-intel/standards/reuse.md",
+          "language": "markdown",
+          "sizeLines": 7,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".project-intel/standards/router.md",
+          "language": "markdown",
+          "sizeLines": 16,
+          "fileCategory": "docs"
+        }
+      ],
+      "batchImportData": {
+        ".project-intel/standards/api.md": [],
+        ".project-intel/standards/backend-api.md": [],
+        ".project-intel/standards/backend-async.md": [],
+        ".project-intel/standards/backend-config.md": [],
+        ".project-intel/standards/backend-errors.md": [],
+        ".project-intel/standards/backend-models.md": [],
+        ".project-intel/standards/backend-remote-calls.md": [],
+        ".project-intel/standards/backend-repository.md": [],
+        ".project-intel/standards/backend-security.md": [],
+        ".project-intel/standards/backend-services.md": [],
+        ".project-intel/standards/backend-transactions.md": [],
+        ".project-intel/standards/backend-utilities.md": [],
+        ".project-intel/standards/backend.md": [],
+        ".project-intel/standards/components.md": [],
+        ".project-intel/standards/domain-flows.md": [],
+        ".project-intel/standards/frontend.md": [],
+        ".project-intel/standards/quality.md": [],
+        ".project-intel/standards/reuse.md": [],
+        ".project-intel/standards/router.md": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 9,
+      "files": [
+        {
+          "path": "AGENTS.md",
+          "language": "markdown",
+          "sizeLines": 116,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "CHANGELOG.md",
+          "language": "markdown",
+          "sizeLines": 113,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "CLAUDE.md",
+          "language": "markdown",
+          "sizeLines": 90,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "README.md",
+          "language": "markdown",
+          "sizeLines": 196,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "package.json",
+          "language": "json",
+          "sizeLines": 54,
+          "fileCategory": "config"
+        }
+      ],
+      "batchImportData": {
+        "AGENTS.md": [],
+        "CHANGELOG.md": [],
+        "CLAUDE.md": [],
+        "README.md": [],
+        "package.json": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 10,
+      "files": [
+        {
+          "path": ".agents/plugins/marketplace.json",
+          "language": "json",
+          "sizeLines": 20,
+          "fileCategory": "config"
+        },
+        {
+          "path": ".claude-plugin/marketplace.json",
+          "language": "json",
+          "sizeLines": 17,
+          "fileCategory": "config"
+        },
+        {
+          "path": ".claude/CLAUDE.md",
+          "language": "markdown",
+          "sizeLines": 45,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/skills/gitnexus/gitnexus-cli/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 86,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/skills/gitnexus/gitnexus-debugging/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 101,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/skills/gitnexus/gitnexus-exploring/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 78,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/skills/gitnexus/gitnexus-guide/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 138,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/skills/gitnexus/gitnexus-impact-analysis/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 97,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".claude/skills/gitnexus/gitnexus-refactoring/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 121,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".npmignore",
+          "language": "unknown",
+          "sizeLines": 4,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".project-intel/config.json",
+          "language": "json",
+          "sizeLines": 116,
+          "fileCategory": "config"
+        },
+        {
+          "path": ".project-intel/graph/project-graph.json",
+          "language": "json",
+          "sizeLines": 87,
+          "fileCategory": "config"
+        },
+        {
+          "path": ".project-intel/manifest.json",
+          "language": "json",
+          "sizeLines": 65,
+          "fileCategory": "config"
+        },
+        {
+          "path": ".ua/.understandignore",
+          "language": "unknown",
+          "sizeLines": 46,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".ua/config.json",
+          "language": "json",
+          "sizeLines": 1,
+          "fileCategory": "config"
+        },
+        {
+          "path": "bin/project-intel.mjs",
+          "language": "javascript",
+          "sizeLines": 33,
+          "fileCategory": "code"
+        },
+        {
+          "path": "docs/node-typescript-migration-requirement.md",
+          "language": "markdown",
+          "sizeLines": 167,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "docs/project-intelligence-guide.md",
+          "language": "markdown",
+          "sizeLines": 498,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "evals/skill-behavior-scenarios.json",
+          "language": "json",
+          "sizeLines": 200,
+          "fileCategory": "config"
+        },
+        {
+          "path": "plugins/project-intelligence/.claude-plugin/plugin.json",
+          "language": "json",
+          "sizeLines": 8,
+          "fileCategory": "config"
+        },
+        {
+          "path": "plugins/project-intelligence/.codex-plugin/plugin.json",
+          "language": "json",
+          "sizeLines": 27,
+          "fileCategory": "config"
+        },
+        {
+          "path": "plugins/project-intelligence/assets/plugin-intro.html",
+          "language": "html",
+          "sizeLines": 1673,
+          "fileCategory": "markup"
+        },
+        {
+          "path": "plugins/project-intelligence/scripts/.npmignore",
+          "language": "unknown",
+          "sizeLines": 2,
+          "fileCategory": "code"
+        },
+        {
+          "path": "plugins/project-intelligence/scripts/project_intel_lib/graph.py",
+          "language": "python",
+          "sizeLines": 159,
+          "fileCategory": "code"
+        },
+        {
+          "path": "plugins/project-intelligence/scripts/project_intel_lib/lifecycle.py",
+          "language": "python",
+          "sizeLines": 47,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        ".agents/plugins/marketplace.json": [],
+        ".claude-plugin/marketplace.json": [],
+        ".claude/CLAUDE.md": [],
+        ".claude/skills/gitnexus/gitnexus-cli/SKILL.md": [],
+        ".claude/skills/gitnexus/gitnexus-debugging/SKILL.md": [],
+        ".claude/skills/gitnexus/gitnexus-exploring/SKILL.md": [],
+        ".claude/skills/gitnexus/gitnexus-guide/SKILL.md": [],
+        ".claude/skills/gitnexus/gitnexus-impact-analysis/SKILL.md": [],
+        ".claude/skills/gitnexus/gitnexus-refactoring/SKILL.md": [],
+        ".npmignore": [],
+        ".project-intel/config.json": [],
+        ".project-intel/graph/project-graph.json": [],
+        ".project-intel/manifest.json": [],
+        ".ua/.understandignore": [],
+        ".ua/config.json": [],
+        "bin/project-intel.mjs": [],
+        "docs/node-typescript-migration-requirement.md": [],
+        "docs/project-intelligence-guide.md": [],
+        "evals/skill-behavior-scenarios.json": [],
+        "plugins/project-intelligence/.claude-plugin/plugin.json": [],
+        "plugins/project-intelligence/.codex-plugin/plugin.json": [],
+        "plugins/project-intelligence/assets/plugin-intro.html": [],
+        "plugins/project-intelligence/scripts/.npmignore": [],
+        "plugins/project-intelligence/scripts/project_intel_lib/graph.py": [],
+        "plugins/project-intelligence/scripts/project_intel_lib/lifecycle.py": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 11,
+      "files": [
+        {
+          "path": "plugins/project-intelligence/scripts/project_intel_lib/quality.py",
+          "language": "python",
+          "sizeLines": 186,
+          "fileCategory": "code"
+        },
+        {
+          "path": "plugins/project-intelligence/scripts/project_intel_lib/standards.py",
+          "language": "python",
+          "sizeLines": 39,
+          "fileCategory": "code"
+        },
+        {
+          "path": "plugins/project-intelligence/scripts/project_intel.py",
+          "language": "python",
+          "sizeLines": 14,
+          "fileCategory": "code"
+        },
+        {
+          "path": "plugins/project-intelligence/scripts/project-intel",
+          "language": "unknown",
+          "sizeLines": 3,
+          "fileCategory": "code"
+        },
+        {
+          "path": "plugins/project-intelligence/skills/project-brainstorm/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 17,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "plugins/project-intelligence/skills/project-debug/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 34,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "plugins/project-intelligence/skills/project-design/agents/openai.yaml",
+          "language": "yaml",
+          "sizeLines": 4,
+          "fileCategory": "config"
+        },
+        {
+          "path": "plugins/project-intelligence/skills/project-design/references/bug-design-template.md",
+          "language": "markdown",
+          "sizeLines": 55,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "plugins/project-intelligence/skills/project-design/references/requirement-design-template.md",
+          "language": "markdown",
+          "sizeLines": 152,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "plugins/project-intelligence/skills/project-design/scripts/validate_design_doc.py",
+          "language": "python",
+          "sizeLines": 17,
+          "fileCategory": "code"
+        },
+        {
+          "path": "plugins/project-intelligence/skills/project-design/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 77,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "plugins/project-intelligence/skills/project-finish/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 44,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "plugins/project-intelligence/skills/project-init/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 72,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "plugins/project-intelligence/skills/project-intake/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 44,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "plugins/project-intelligence/skills/project-knowledge/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 29,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "plugins/project-intelligence/skills/project-maintain/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 38,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "plugins/project-intelligence/skills/project-orchestrate/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 77,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "plugins/project-intelligence/skills/project-plan/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 41,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "plugins/project-intelligence/skills/project-quality/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 30,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "plugins/project-intelligence/skills/project-refresh/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 59,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "plugins/project-intelligence/skills/project-review/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 49,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "plugins/project-intelligence/skills/project-spec/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 61,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "plugins/project-intelligence/skills/project-standards/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 25,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "plugins/project-intelligence/skills/project-task/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 86,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "plugins/project-intelligence/skills/project-test/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 106,
+          "fileCategory": "docs"
+        }
+      ],
+      "batchImportData": {
+        "plugins/project-intelligence/scripts/project_intel_lib/quality.py": [],
+        "plugins/project-intelligence/scripts/project_intel_lib/standards.py": [],
+        "plugins/project-intelligence/scripts/project_intel.py": [],
+        "plugins/project-intelligence/scripts/project-intel": [],
+        "plugins/project-intelligence/skills/project-brainstorm/SKILL.md": [],
+        "plugins/project-intelligence/skills/project-debug/SKILL.md": [],
+        "plugins/project-intelligence/skills/project-design/agents/openai.yaml": [],
+        "plugins/project-intelligence/skills/project-design/references/bug-design-template.md": [],
+        "plugins/project-intelligence/skills/project-design/references/requirement-design-template.md": [],
+        "plugins/project-intelligence/skills/project-design/scripts/validate_design_doc.py": [],
+        "plugins/project-intelligence/skills/project-design/SKILL.md": [],
+        "plugins/project-intelligence/skills/project-finish/SKILL.md": [],
+        "plugins/project-intelligence/skills/project-init/SKILL.md": [],
+        "plugins/project-intelligence/skills/project-intake/SKILL.md": [],
+        "plugins/project-intelligence/skills/project-knowledge/SKILL.md": [],
+        "plugins/project-intelligence/skills/project-maintain/SKILL.md": [],
+        "plugins/project-intelligence/skills/project-orchestrate/SKILL.md": [],
+        "plugins/project-intelligence/skills/project-plan/SKILL.md": [],
+        "plugins/project-intelligence/skills/project-quality/SKILL.md": [],
+        "plugins/project-intelligence/skills/project-refresh/SKILL.md": [],
+        "plugins/project-intelligence/skills/project-review/SKILL.md": [],
+        "plugins/project-intelligence/skills/project-spec/SKILL.md": [],
+        "plugins/project-intelligence/skills/project-standards/SKILL.md": [],
+        "plugins/project-intelligence/skills/project-task/SKILL.md": [],
+        "plugins/project-intelligence/skills/project-test/SKILL.md": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 12,
+      "files": [
+        {
+          "path": "plugins/project-intelligence/tests/test_project_intel.py",
+          "language": "python",
+          "sizeLines": 2339,
+          "fileCategory": "code"
+        },
+        {
+          "path": "plugins/project-intelligence/tests/test_testing_security.py",
+          "language": "python",
+          "sizeLines": 166,
+          "fileCategory": "code"
+        },
+        {
+          "path": "scripts/check-package.mjs",
+          "language": "javascript",
+          "sizeLines": 93,
+          "fileCategory": "code"
+        },
+        {
+          "path": "scripts/check-release.mjs",
+          "language": "javascript",
+          "sizeLines": 22,
+          "fileCategory": "code"
+        },
+        {
+          "path": "scripts/npm-pack-dry-run.mjs",
+          "language": "javascript",
+          "sizeLines": 11,
+          "fileCategory": "code"
+        },
+        {
+          "path": "scripts/run-tests.mjs",
+          "language": "javascript",
+          "sizeLines": 43,
+          "fileCategory": "code"
+        },
+        {
+          "path": "scripts/validate_bundle.py",
+          "language": "python",
+          "sizeLines": 57,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        "plugins/project-intelligence/tests/test_project_intel.py": [],
+        "plugins/project-intelligence/tests/test_testing_security.py": [],
+        "scripts/check-package.mjs": [],
+        "scripts/check-release.mjs": [],
+        "scripts/npm-pack-dry-run.mjs": [],
+        "scripts/run-tests.mjs": [],
+        "scripts/validate_bundle.py": []
+      },
+      "neighborMap": {}
+    }
+  ]
+}

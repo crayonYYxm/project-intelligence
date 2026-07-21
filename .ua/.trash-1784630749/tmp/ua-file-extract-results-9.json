@@ -1,0 +1,342 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 5,
+  "filesSkipped": [],
+  "results": [
+    {
+      "path": "AGENTS.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 116,
+      "nonEmptyLines": 93,
+      "sections": [
+        {
+          "heading": "Project Intelligence First",
+          "level": 2,
+          "line": 2
+        },
+        {
+          "heading": "GitNexus — Code Intelligence",
+          "level": 1,
+          "line": 28
+        },
+        {
+          "heading": "Always Do",
+          "level": 2,
+          "line": 34
+        },
+        {
+          "heading": "Never Do",
+          "level": 2,
+          "line": 43
+        },
+        {
+          "heading": "Resources",
+          "level": 2,
+          "line": 50
+        },
+        {
+          "heading": "CLI",
+          "level": 2,
+          "line": 59
+        },
+        {
+          "heading": "Project Intelligence",
+          "level": 2,
+          "line": 73
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 7
+      }
+    },
+    {
+      "path": "CHANGELOG.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 113,
+      "nonEmptyLines": 85,
+      "sections": [
+        {
+          "heading": "Changelog",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "0.6.1 - 2026-07-21",
+          "level": 2,
+          "line": 3
+        },
+        {
+          "heading": "0.6.0 - 2026-07-20",
+          "level": 2,
+          "line": 8
+        },
+        {
+          "heading": "0.5.1 - 2026-07-20",
+          "level": 2,
+          "line": 13
+        },
+        {
+          "heading": "0.5.0 - 2026-07-17",
+          "level": 2,
+          "line": 19
+        },
+        {
+          "heading": "0.4.0 - 2026-07-17",
+          "level": 2,
+          "line": 27
+        },
+        {
+          "heading": "0.3.1 - 2026-07-17",
+          "level": 2,
+          "line": 45
+        },
+        {
+          "heading": "0.3.0 - 2026-07-16",
+          "level": 2,
+          "line": 54
+        },
+        {
+          "heading": "0.2.1 - 2026-07-16",
+          "level": 2,
+          "line": 62
+        },
+        {
+          "heading": "0.2.0 - 2026-07-16",
+          "level": 2,
+          "line": 73
+        },
+        {
+          "heading": "0.1.17 - 2026-07-16",
+          "level": 2,
+          "line": 81
+        },
+        {
+          "heading": "0.1.16 - 2026-07-13",
+          "level": 2,
+          "line": 89
+        },
+        {
+          "heading": "0.1.15 - 2026-07-13",
+          "level": 2,
+          "line": 96
+        },
+        {
+          "heading": "0.1.14 - 2026-07-13",
+          "level": 2,
+          "line": 102
+        },
+        {
+          "heading": "0.1.13 - 2026-07-11",
+          "level": 2,
+          "line": 107
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 15
+      }
+    },
+    {
+      "path": "CLAUDE.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 90,
+      "nonEmptyLines": 72,
+      "sections": [
+        {
+          "heading": "GitNexus — Code Intelligence",
+          "level": 1,
+          "line": 2
+        },
+        {
+          "heading": "Always Do",
+          "level": 2,
+          "line": 8
+        },
+        {
+          "heading": "Never Do",
+          "level": 2,
+          "line": 17
+        },
+        {
+          "heading": "Resources",
+          "level": 2,
+          "line": 24
+        },
+        {
+          "heading": "CLI",
+          "level": 2,
+          "line": 33
+        },
+        {
+          "heading": "Project Intelligence",
+          "level": 2,
+          "line": 47
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 6
+      }
+    },
+    {
+      "path": "README.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 196,
+      "nonEmptyLines": 159,
+      "sections": [
+        {
+          "heading": "项目智能 (Project Intelligence)",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "安装",
+          "level": 2,
+          "line": 9
+        },
+        {
+          "heading": "npm（推荐）",
+          "level": 3,
+          "line": 11
+        },
+        {
+          "heading": "Claude Code",
+          "level": 3,
+          "line": 30
+        },
+        {
+          "heading": "Codex CLI（不使用 npm 时）",
+          "level": 3,
+          "line": 44
+        },
+        {
+          "heading": "CLI",
+          "level": 2,
+          "line": 53
+        },
+        {
+          "heading": "Skills",
+          "level": 2,
+          "line": 145
+        },
+        {
+          "heading": "执行纪律",
+          "level": 2,
+          "line": 165
+        },
+        {
+          "heading": "Skill 行为评测",
+          "level": 2,
+          "line": 177
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 9
+      }
+    },
+    {
+      "path": "package.json",
+      "language": "json",
+      "fileCategory": "config",
+      "totalLines": 54,
+      "nonEmptyLines": 54,
+      "sections": [
+        {
+          "heading": "name",
+          "level": 1,
+          "line": 2
+        },
+        {
+          "heading": "version",
+          "level": 1,
+          "line": 3
+        },
+        {
+          "heading": "description",
+          "level": 1,
+          "line": 4
+        },
+        {
+          "heading": "license",
+          "level": 1,
+          "line": 5
+        },
+        {
+          "heading": "type",
+          "level": 1,
+          "line": 6
+        },
+        {
+          "heading": "bin",
+          "level": 1,
+          "line": 7
+        },
+        {
+          "heading": "files",
+          "level": 1,
+          "line": 11
+        },
+        {
+          "heading": "engines",
+          "level": 1,
+          "line": 26
+        },
+        {
+          "heading": "repository",
+          "level": 1,
+          "line": 29
+        },
+        {
+          "heading": "bugs",
+          "level": 1,
+          "line": 33
+        },
+        {
+          "heading": "homepage",
+          "level": 1,
+          "line": 36
+        },
+        {
+          "heading": "keywords",
+          "level": 1,
+          "line": 37
+        },
+        {
+          "heading": "scripts",
+          "level": 1,
+          "line": 44
+        },
+        {
+          "heading": "publishConfig",
+          "level": 1,
+          "line": 51
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 14
+      }
+    }
+  ]
+}

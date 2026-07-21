@@ -1,0 +1,1179 @@
+{
+  "nodes": [
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:print_graph_tools_report",
+      "type": "function",
+      "name": "print_graph_tools_report",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        1159,
+        1180
+      ],
+      "summary": "输出图谱工具状态报告，支持 JSON 与文本两种格式。",
+      "tags": [
+        "application-core",
+        "cli",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:graph_timeout_seconds",
+      "type": "function",
+      "name": "graph_timeout_seconds",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        1183,
+        1188
+      ],
+      "summary": "application 服务函数 graph_timeout_seconds。",
+      "tags": [
+        "application-core",
+        "cli",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:run_graph_command",
+      "type": "function",
+      "name": "run_graph_command",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        1191,
+        1218
+      ],
+      "summary": "执行图谱分析命令并捕获 stdout/stderr/退出码，应用超时控制。",
+      "tags": [
+        "graph-tools",
+        "runner",
+        "subprocess"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:command_uses_external_path",
+      "type": "function",
+      "name": "command_uses_external_path",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        1221,
+        1248
+      ],
+      "summary": "判断图谱命令是否引用项目根目录之外的路径。",
+      "tags": [
+        "application-core",
+        "cli",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:graph_command_authorized",
+      "type": "function",
+      "name": "graph_command_authorized",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        1255,
+        1272
+      ],
+      "summary": "按权限开关判定图谱命令是否被允许执行。",
+      "tags": [
+        "graph-tools",
+        "security",
+        "authorization"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:install_options_for_action",
+      "type": "function",
+      "name": "install_options_for_action",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        1275,
+        1282
+      ],
+      "summary": "application 服务函数 install_options_for_action。",
+      "tags": [
+        "application-core",
+        "cli",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:choose_install_option",
+      "type": "function",
+      "name": "choose_install_option",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        1285,
+        1326
+      ],
+      "summary": "在交互或自动模式下为图谱动作选择安装方案。",
+      "tags": [
+        "application-core",
+        "cli",
+        "service"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:run_install_option",
+      "type": "function",
+      "name": "run_install_option",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        1329,
+        1340
+      ],
+      "summary": "执行选定的 Understand-Anything 安装/启用命令。",
+      "tags": [
+        "application-core",
+        "cli",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:verify_understand_claude_install",
+      "type": "function",
+      "name": "verify_understand_claude_install",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        1343,
+        1381
+      ],
+      "summary": "校验 Claude 侧 Understand-Anything 插件安装与启用状态。",
+      "tags": [
+        "understand-anything",
+        "claude",
+        "verifier"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:setup_graph_tools",
+      "type": "function",
+      "name": "setup_graph_tools",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        1384,
+        1492
+      ],
+      "summary": "为缺失的图谱工具执行安装/启用，并校验安装结果。",
+      "tags": [
+        "tooling",
+        "graph-tools",
+        "installer"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:handle_tooling_setup",
+      "type": "function",
+      "name": "handle_tooling_setup",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        1501,
+        1532
+      ],
+      "summary": "按交互/自动模式编排图谱工具的批量安装流程。",
+      "tags": [
+        "tooling",
+        "graph-tools",
+        "orchestration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:scan_frontend",
+      "type": "function",
+      "name": "scan_frontend",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        1570,
+        1577
+      ],
+      "summary": "facade：调用 frontend_scanner.scan_frontend 扫描前端组件与依赖。",
+      "tags": [
+        "scanner",
+        "facade",
+        "frontend"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:scan_backend",
+      "type": "function",
+      "name": "scan_backend",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        1580,
+        1589
+      ],
+      "summary": "facade：调用 backend_scanner.scan_backend 扫描后端结构信号。",
+      "tags": [
+        "scanner",
+        "facade",
+        "backend"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:file_index",
+      "type": "function",
+      "name": "file_index",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        1592,
+        1600
+      ],
+      "summary": "为扫描到的文件构建相对路径与签名索引。",
+      "tags": [
+        "application-core",
+        "cli",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:build_manifest",
+      "type": "function",
+      "name": "build_manifest",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        1603,
+        1629
+      ],
+      "summary": "汇总 package、扫描结果、图谱来源与工具状态生成项目 manifest。",
+      "tags": [
+        "manifest",
+        "scan",
+        "report"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:default_config",
+      "type": "function",
+      "name": "default_config",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        1632,
+        1649
+      ],
+      "summary": "为项目生成默认配置，包含 exclude/include/质量命令等字段。",
+      "tags": [
+        "config",
+        "factory",
+        "defaults"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:validate_string_list",
+      "type": "function",
+      "name": "validate_string_list",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        1652,
+        1659
+      ],
+      "summary": "校验配置字段是否为非空字符串列表，按需允许空列表。",
+      "tags": [
+        "application-core",
+        "cli",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:validate_project_config",
+      "type": "function",
+      "name": "validate_project_config",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        1668,
+        1755
+      ],
+      "summary": "全面校验 .project-intel 配置 schema，报告字段级错误。",
+      "tags": [
+        "config",
+        "validation",
+        "schema"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:merge_quality_commands",
+      "type": "function",
+      "name": "merge_quality_commands",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        1758,
+        1767
+      ],
+      "summary": "将探测到的质量命令与用户已有配置合并，优先保留用户配置。",
+      "tags": [
+        "application-core",
+        "cli",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:prepare_project_config",
+      "type": "function",
+      "name": "prepare_project_config",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        1770,
+        1794
+      ],
+      "summary": "结合探测结果生成待写入的项目配置并做字段校验。",
+      "tags": [
+        "config",
+        "writer",
+        "bootstrap"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:read_project_config",
+      "type": "function",
+      "name": "read_project_config",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        1797,
+        1805
+      ],
+      "summary": "读取并解析 .project-intel 配置文件，缺失时返回默认值。",
+      "tags": [
+        "config",
+        "reader"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:dominant_parent",
+      "type": "function",
+      "name": "dominant_parent",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        1808,
+        1816
+      ],
+      "summary": "application 服务函数 dominant_parent。",
+      "tags": [
+        "application-core",
+        "cli",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:infer_standards",
+      "type": "function",
+      "name": "infer_standards",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        1819,
+        1983
+      ],
+      "summary": "依据前端/后端扫描结果推断项目级开发规范规则集合。",
+      "tags": [
+        "standards",
+        "inference",
+        "scan"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:render_components_standard",
+      "type": "function",
+      "name": "render_components_standard",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        1993,
+        2039
+      ],
+      "summary": "渲染前端组件命名/组织/复用相关规范文档。",
+      "tags": [
+        "standards",
+        "frontend",
+        "renderer"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:render_api_standard",
+      "type": "function",
+      "name": "render_api_standard",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        2042,
+        2088
+      ],
+      "summary": "渲染前端 API 调用/封装相关规范文档。",
+      "tags": [
+        "standards",
+        "frontend",
+        "renderer"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:render_router_standard",
+      "type": "function",
+      "name": "render_router_standard",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        2091,
+        2120
+      ],
+      "summary": "渲染前端路由组织与命名规范文档。",
+      "tags": [
+        "application-core",
+        "cli",
+        "service"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:render_domain_flows_standard",
+      "type": "function",
+      "name": "render_domain_flows_standard",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        2128,
+        2162
+      ],
+      "summary": "渲染基于图谱的领域流程规范文档。",
+      "tags": [
+        "application-core",
+        "cli",
+        "service"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:render_backend_api_standard",
+      "type": "function",
+      "name": "render_backend_api_standard",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        2165,
+        2208
+      ],
+      "summary": "渲染后端 API/控制器层规范文档。",
+      "tags": [
+        "standards",
+        "backend",
+        "renderer"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:render_backend_services_standard",
+      "type": "function",
+      "name": "render_backend_services_standard",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        2211,
+        2246
+      ],
+      "summary": "渲染后端服务层规范文档。",
+      "tags": [
+        "standards",
+        "backend",
+        "renderer"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:render_backend_models_standard",
+      "type": "function",
+      "name": "render_backend_models_standard",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        2249,
+        2282
+      ],
+      "summary": "渲染后端数据模型层规范文档。",
+      "tags": [
+        "standards",
+        "backend",
+        "renderer"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:render_backend_repository_standard",
+      "type": "function",
+      "name": "render_backend_repository_standard",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        2285,
+        2313
+      ],
+      "summary": "渲染后端仓储层规范文档。",
+      "tags": [
+        "application-core",
+        "cli",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:render_backend_config_standard",
+      "type": "function",
+      "name": "render_backend_config_standard",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        2316,
+        2341
+      ],
+      "summary": "渲染后端配置管理规范文档。",
+      "tags": [
+        "application-core",
+        "cli",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:render_backend_security_standard",
+      "type": "function",
+      "name": "render_backend_security_standard",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        2344,
+        2364
+      ],
+      "summary": "渲染后端安全（鉴权/越权）规范文档。",
+      "tags": [
+        "application-core",
+        "cli",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:render_backend_transaction_standard",
+      "type": "function",
+      "name": "render_backend_transaction_standard",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        2367,
+        2387
+      ],
+      "summary": "渲染后端事务边界规范文档。",
+      "tags": [
+        "application-core",
+        "cli",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:render_backend_remote_calls_standard",
+      "type": "function",
+      "name": "render_backend_remote_calls_standard",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        2390,
+        2410
+      ],
+      "summary": "渲染后端远程调用规范文档。",
+      "tags": [
+        "application-core",
+        "cli",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:render_backend_async_standard",
+      "type": "function",
+      "name": "render_backend_async_standard",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        2413,
+        2433
+      ],
+      "summary": "渲染后端异步/消息任务规范文档。",
+      "tags": [
+        "application-core",
+        "cli",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:render_backend_errors_standard",
+      "type": "function",
+      "name": "render_backend_errors_standard",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        2436,
+        2456
+      ],
+      "summary": "渲染后端错误码与异常处理规范文档。",
+      "tags": [
+        "application-core",
+        "cli",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:render_backend_utilities_standard",
+      "type": "function",
+      "name": "render_backend_utilities_standard",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        2459,
+        2479
+      ],
+      "summary": "渲染后端工具/公共函数规范文档。",
+      "tags": [
+        "application-core",
+        "cli",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:plugins/project-intelligence/scripts/project_intel_lib/cli.py",
+      "type": "file",
+      "name": "cli.py",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/cli.py",
+      "summary": "CLI 共享工具层：提供 --json 全局选项提取、统一 JSON envelope 输出与错误文本脱敏。",
+      "tags": [
+        "utility",
+        "cli",
+        "serialization",
+        "security"
+      ],
+      "complexity": "simple",
+      "languageNotes": "json_envelope 是 CLI 与 agent 调用方的统一返回契约；_sanitize_error_text 在输出前对 token/密钥做正则脱敏。"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/cli.py:_sanitize_error_text",
+      "type": "function",
+      "name": "_sanitize_error_text",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/cli.py",
+      "lineRange": [
+        8,
+        19
+      ],
+      "summary": "用一组正则对错误文本中的 token/cookie/密钥/AWS 凭证/URL userinfo 做脱敏，避免泄漏到 JSON 输出。",
+      "tags": [
+        "security",
+        "sanitizer",
+        "redaction"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/cli.py:json_envelope",
+      "type": "function",
+      "name": "json_envelope",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/cli.py",
+      "lineRange": [
+        26,
+        44
+      ],
+      "summary": "构建 CLI 统一返回 envelope：包含 ok/status/exitCode/error/result/output，失败时调用 _sanitize_error_text 脱敏。",
+      "tags": [
+        "serialization",
+        "cli",
+        "envelope"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py",
+      "type": "file",
+      "name": "frontend.py",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py",
+      "summary": "前端扫描器：从 Vue/React/TS/JS 源码中提取组件 props/emits/slots/expose、依赖、API 端点、service 前缀与路由模块信息，供 infer_standards 与 manifest 使用。",
+      "tags": [
+        "scanner",
+        "frontend",
+        "vue",
+        "react",
+        "static-analysis"
+      ],
+      "complexity": "complex",
+      "languageNotes": "extract_object_argument_blocks 用括号深度计数解析嵌套对象字面量，兼容 defineProps/defineEmits 等 Vue 编译宏。"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py:extract_object_argument_blocks",
+      "type": "function",
+      "name": "extract_object_argument_blocks",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py",
+      "lineRange": [
+        16,
+        43
+      ],
+      "summary": "按括号深度解析指定函数调用处的对象字面量参数块文本。",
+      "tags": [
+        "parsing",
+        "object-literal"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py:split_top_level_items",
+      "type": "function",
+      "name": "split_top_level_items",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py",
+      "lineRange": [
+        46,
+        74
+      ],
+      "summary": "将对象字面量文本按顶层逗号切分为多个键值项。",
+      "tags": [
+        "parsing",
+        "object-literal"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py:top_level_object_keys",
+      "type": "function",
+      "name": "top_level_object_keys",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py",
+      "lineRange": [
+        77,
+        83
+      ],
+      "summary": "提取对象字面量文本中的顶层键名列表。",
+      "tags": [
+        "parsing",
+        "object-literal"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py:extract_vue_props",
+      "type": "function",
+      "name": "extract_vue_props",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py",
+      "lineRange": [
+        86,
+        96
+      ],
+      "summary": "从 Vue defineProps 调用中提取组件 props 声明。",
+      "tags": [
+        "extraction",
+        "vue",
+        "props"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py:extract_emits",
+      "type": "function",
+      "name": "extract_emits",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py",
+      "lineRange": [
+        99,
+        108
+      ],
+      "summary": "从 Vue defineEmits 调用中提取组件事件声明。",
+      "tags": [
+        "extraction",
+        "vue",
+        "emits"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py:extract_expose",
+      "type": "function",
+      "name": "extract_expose",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py",
+      "lineRange": [
+        118,
+        125
+      ],
+      "summary": "从 Vue defineExpose 调用中提取对外暴露的成员。",
+      "tags": [
+        "extraction",
+        "vue",
+        "expose"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py:component_scope",
+      "type": "function",
+      "name": "component_scope",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py",
+      "lineRange": [
+        133,
+        140
+      ],
+      "summary": "依据文件路径推断组件的作用域命名空间。",
+      "tags": [
+        "extraction",
+        "component",
+        "naming"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py:extract_service_prefixes",
+      "type": "function",
+      "name": "extract_service_prefixes",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py",
+      "lineRange": [
+        143,
+        148
+      ],
+      "summary": "从前端代码中提取 service 调用前缀，用于推断 API 客户端组织方式。",
+      "tags": [
+        "extraction",
+        "service",
+        "frontend"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py:extract_api_endpoints",
+      "type": "function",
+      "name": "extract_api_endpoints",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py",
+      "lineRange": [
+        151,
+        159
+      ],
+      "summary": "从前端代码中提取被调用的 API 端点字符串。",
+      "tags": [
+        "extraction",
+        "endpoint",
+        "frontend"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py:extract_react_props",
+      "type": "function",
+      "name": "extract_react_props",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py",
+      "lineRange": [
+        168,
+        176
+      ],
+      "summary": "从 React 组件的 Props 类型/接口中提取字段。",
+      "tags": [
+        "extraction",
+        "react",
+        "props"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py:route_module_info",
+      "type": "function",
+      "name": "route_module_info",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py",
+      "lineRange": [
+        179,
+        188
+      ],
+      "summary": "从路由模块中提取路由声明与元信息。",
+      "tags": [
+        "extraction",
+        "router",
+        "frontend"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py:scan_frontend_file",
+      "type": "function",
+      "name": "scan_frontend_file",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py",
+      "lineRange": [
+        201,
+        245
+      ],
+      "summary": "对单个前端文件执行组件/依赖/API/路由信号提取，产出结构化结果。",
+      "tags": [
+        "scanner",
+        "frontend",
+        "orchestration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py:scan_frontend",
+      "type": "function",
+      "name": "scan_frontend",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py",
+      "lineRange": [
+        248,
+        288
+      ],
+      "summary": "遍历前端文件集合，结合增量缓存执行批量扫描并汇总结果。",
+      "tags": [
+        "scanner",
+        "frontend",
+        "orchestration"
+      ],
+      "complexity": "moderate"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/cli.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/cli.py:_sanitize_error_text",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/cli.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/cli.py:json_envelope",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py:extract_object_argument_blocks",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py:split_top_level_items",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py:top_level_object_keys",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py:extract_vue_props",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py:extract_emits",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py:extract_expose",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py:component_scope",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py:extract_service_prefixes",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py:extract_api_endpoints",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py:extract_react_props",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py:route_module_info",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py:scan_frontend_file",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py:scan_frontend",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/cli.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/cli.py:_sanitize_error_text",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/cli.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/cli.py:json_envelope",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py:extract_object_argument_blocks",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py:split_top_level_items",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py:top_level_object_keys",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py:extract_vue_props",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py:extract_emits",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py:extract_expose",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py:component_scope",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py:extract_service_prefixes",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py:extract_api_endpoints",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py:extract_react_props",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py:route_module_info",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py:scan_frontend_file",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py:scan_frontend",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py",
+      "target": "file:plugins/project-intelligence/scripts/project_intel_lib/core.py",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:scan_frontend",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py:scan_frontend",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:scan_backend",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py:scan_backend",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py:scan_frontend",
+      "target": "class:plugins/project-intelligence/scripts/project_intel_lib/core.py:IncrementalScanCache",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py:scan_frontend",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/core.py:file_signature",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    }
+  ]
+}

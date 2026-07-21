@@ -1,0 +1,8 @@
+{
+  "projectRoot": "/Users/xumeng/Desktop/code/project-intelligence",
+  "batchFiles": [
+    {"path": ".github/workflows/live-skill-evals.yml", "language": "yaml", "sizeLines": 43, "fileCategory": "infra"},
+    {"path": ".github/workflows/validate.yml", "language": "yaml", "sizeLines": 57, "fileCategory": "infra"}
+  ],
+  "batchImportData": {".github/workflows/live-skill-evals.yml": [], ".github/workflows/validate.yml": []}
+}

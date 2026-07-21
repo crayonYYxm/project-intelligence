@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 2,
+  "toolVersion": "0.1.16",
+  "projectRoot": ".",
+  "generatedAt": "2026-07-21T10:46:36.799622+00:00",
+  "git": {
+    "commit": "d677a4725f46d10fd2b9bebbc98b27183c3da009",
+    "branch": "main",
+    "dirty": true
+  },
+  "frameworks": [],
+  "packageName": "project-intelligence",
+  "packages": [
+    {
+      "path": ".",
+      "name": "project-intelligence",
+      "frameworks": []
+    }
+  ],
+  "fileCount": 53,
+  "suffixCounts": {
+    ".py": 27,
+    ".md": 23,
+    ".json": 2,
+    ".yaml": 1
+  },
+  "graphSources": [
+    {
+      "name": "GitNexus",
+      "path": ".gitnexus/meta.json",
+      "role": "符号调用、影响、变更风险",
+      "status": "present",
+      "schemaVersion": 5,
+      "indexedCommit": "d677a4725f46d10fd2b9bebbc98b27183c3da009",
+      "stats": {
+        "files": 61,
+        "nodes": 1502,
+        "edges": 3574,
+        "communities": 66,
+        "processes": 131
+      },
+      "capabilities": {
+        "graph": "available",
+        "fts": "available",
+        "vectorSearch": "unavailable"
+      }
+    },
+    {
+      "name": "Understand-Anything",
+      "path": ".understand-anything/knowledge-graph.json",
+      "role": "架构、模块、领域流、入职",
+      "status": "present",
+      "nodes": 455,
+      "edges": 793
+    }
+  ],
+  "tooling": {
+    "node": "present",
+    "gitnexus": "present",
+    "understandAnything": "present",
+    "recommendedActions": 0
+  },
+  "notes": [
+    "可用时优先使用 GitNexus 和 Understand-Anything 作为图谱来源。"
+  ]
+}

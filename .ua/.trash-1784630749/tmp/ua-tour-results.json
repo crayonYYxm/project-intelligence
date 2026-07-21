@@ -1,0 +1,1276 @@
+{
+  "scriptCompleted": true,
+  "entryPointCandidates": [
+    {
+      "id": "document:README.md",
+      "score": 5,
+      "name": "README.md",
+      "summary": "Project Intelligence 项目主入口文档，以中文介绍安装方式（npm/Claude Code/Codex CLI）、CLI 命令、可用 Skills、执行纪律与 Skill 行为评测，是新用户上手的首要入口。",
+      "type": "document"
+    },
+    {
+      "id": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "score": 2,
+      "name": "requirements.py",
+      "summary": "需求生命周期的核心状态机模块，管理草稿到关闭全流程的门禁、文档产物、测试证据、评审记录、范围快照与布局迁移。",
+      "type": "file"
+    },
+    {
+      "id": "pipeline:.github/workflows/validate.yml",
+      "score": 2,
+      "name": "validate.yml",
+      "summary": "GitHub Actions 校验工作流，在 push 与 pull_request 时触发；test job 矩阵跑 Python 3.9/3.10/3.12 的单元测试与多脚本校验，cli-smoke job 在 ubuntu/macos/windows 三平台执行冒烟测试。",
+      "type": "pipeline"
+    },
+    {
+      "id": "document:AGENTS.md",
+      "score": 2,
+      "name": "AGENTS.md",
+      "summary": "面向 Codex/通用 Agent 的项目级指令文件，汇总 Project Intelligence 与 GitNexus 的工作守则、资源清单、CLI 用法及技能调用规则，供 Agent 在仓库内自动加载遵循。",
+      "type": "document"
+    },
+    {
+      "id": "document:CHANGELOG.md",
+      "score": 2,
+      "name": "CHANGELOG.md",
+      "summary": "Project Intelligence 的版本发布日志，按版本号倒序记录从 0.1.13 到 0.6.1 的功能新增、修复与变更，是项目演进历史的单一事实来源。",
+      "type": "document"
+    }
+  ],
+  "fanInRanking": [
+    {
+      "id": "document:plugins/project-intelligence/skills/project-test/SKILL.md",
+      "fanIn": 8,
+      "name": "SKILL.md",
+      "summary": "project-test 技能说明：在 requirement ready 后选择测试类型与报告动作，requirement begin 后执行或记录 RED/GREEN/regression/manual 证据，finish 需任务匹配且文件作用域的新鲜通过证据。"
+    },
+    {
+      "id": "file:plugins/project-intelligence/tests/design_fixtures.py",
+      "fanIn": 6,
+      "name": "design_fixtures.py",
+      "summary": "为需求/Bug 测试用例提供统一的文档与设计脚手架文本生成器，是 tests 目录下多个 unittest 模块共享的 fixture 工厂。"
+    },
+    {
+      "id": "file:bin/project-intel.mjs",
+      "fanIn": 6,
+      "name": "project-intel.mjs",
+      "summary": "Node CLI 入口 shim，定位包内 plugins/project-intelligence/scripts/project_intel.py，按平台候选 python3/python/py 依次 spawnSync 调用并透传参数与退出码，缺失或无 Python 时报错退出。"
+    },
+    {
+      "id": "document:plugins/project-intelligence/skills/project-debug/SKILL.md",
+      "fanIn": 6,
+      "name": "SKILL.md",
+      "summary": "project-debug 技能说明：基于项目事实系统排查 Bug、错误与回归并证明根因，在 Bug 生命周期中位于 project-spec 之后、project-design 之前，持久化证据支撑的 diagnose 结果。"
+    },
+    {
+      "id": "file:plugins/project-intelligence/scripts/project_intel_lib/core.py",
+      "fanIn": 5,
+      "name": "core.py",
+      "summary": "扫描与工具状态的核心原语：file_signature 提供基于 size+mtime 的廉价缓存签名，IncrementalScanCache 提供增量扫描缓存，sanitize_tooling 抽取可持久化的工具状态子集。"
+    },
+    {
+      "id": "document:plugins/project-intelligence/skills/project-design/SKILL.md",
+      "fanIn": 5,
+      "name": "SKILL.md",
+      "summary": "project-design 技能说明：把本地 Bug/需求工单结合仓库证据转为源码支撑的技术开发设计并校验，区分 standalone 与 lifecycle 两种模式，依赖 project-spec 与 project-debug 前置产物并运行自带校验器。"
+    },
+    {
+      "id": "file:plugins/project-intelligence/scripts/project_intel.py",
+      "fanIn": 4,
+      "name": "project_intel.py",
+      "summary": "Project Intelligence CLI 的向后兼容门面入口：通过 exec() 在自身命名空间加载并执行 project_intel_lib/application.py，保留历史直接导入与 monkey-patch 行为。"
+    },
+    {
+      "id": "document:plugins/project-intelligence/skills/project-spec/SKILL.md",
+      "fanIn": 4,
+      "name": "SKILL.md",
+      "summary": "project-spec 技能说明：在 project-intake 之后、project-debug/project-design 之前创建或注册 requirement.md 并持久化编号一致的验收标准，处理 generate/register existing/later 三种动作。"
+    },
+    {
+      "id": "document:plugins/project-intelligence/skills/project-finish/SKILL.md",
+      "fanIn": 3,
+      "name": "SKILL.md",
+      "summary": "project-finish 技能说明：在实现证据与评审修复之后校验发布就绪，确认 diff、测试证据、范围与高风险类别，证据缺失时回到 project-test，完成后转交 project-maintain。"
+    },
+    {
+      "id": "document:plugins/project-intelligence/skills/project-task/SKILL.md",
+      "fanIn": 3,
+      "name": "SKILL.md",
+      "summary": "project-task 技能说明：生命周期 ready 之后开始或继续业务代码实现，requirement begin 后执行影响/复用分析、选择执行模式，实现后串联 check/test/review/finish/maintain 完整闭环。"
+    },
+    {
+      "id": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "fanIn": 2,
+      "name": "application.py",
+      "summary": "project-intel CLI 的应用服务层与命令派发核心，承载 init/status/intake/spec/plan/test/finish/maintain/check 等全部子命令实现、项目扫描装配、工具探测、规范渲染与 adapter 注入。"
+    },
+    {
+      "id": "file:plugins/project-intelligence/tests/test_document_truth_validation.py",
+      "fanIn": 2,
+      "name": "test_document_truth_validation.py",
+      "summary": "针对设计文档与需求清单的来源真相校验逻辑进行 unittest 覆盖，确保文档中声明的代码路径与符号真实存在且无法通过符号链接逃逸仓库边界。"
+    },
+    {
+      "id": "file:plugins/project-intelligence/tests/test_requirement_layout_v2.py",
+      "fanIn": 2,
+      "name": "test_requirement_layout_v2.py",
+      "summary": "对需求 v2 目录布局与迁移逻辑进行 unittest 覆盖，校验四份规范文档直接落位、外部文档复制、plan 可选生成、ready 双门禁、测试证据归属、文件历史派生以及 v1→v2 迁移 dry-run/apply/回滚行为。"
+    },
+    {
+      "id": "file:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py",
+      "fanIn": 2,
+      "name": "design_documents.py",
+      "summary": "设计文档与 Bug 文档的解析、源码证据校验、敏感信息检测与脚手架生成模块，定义需求/Bug 设计文档的章节规范和校验逻辑。"
+    },
+    {
+      "id": "file:scripts/skill-eval-events.mjs",
+      "fanIn": 2,
+      "name": "skill-eval-events.mjs",
+      "summary": "纯函数工具模块，从代理 stdout 中解析 skill 工具调用事件，并评估实际触发的 skill 路由是否匹配场景的期望、禁止与顺序约束。"
+    },
+    {
+      "id": "file:scripts/validate-skill-evals.mjs",
+      "fanIn": 2,
+      "name": "validate-skill-evals.mjs",
+      "summary": "校验 skill 行为场景契约的脚本，检查场景 schema、路由分类、自然语言场景覆盖、skill 覆盖以及 SKILL.md 文本契约，任何违例均抛错中断。"
+    },
+    {
+      "id": "config:.project-intel/knowledge/files.json",
+      "fanIn": 2,
+      "name": "files.json",
+      "summary": "项目文件清单索引，记录 49 个项目文件的路径、大小、修改时间与后缀，作为 backend.json / frontend.json 知识扫描的输入清单，涵盖文档、Python 脚本、SKILL.md、测试与配置文件。"
+    },
+    {
+      "id": "document:.project-intel/reports/redundancy-report.md",
+      "fanIn": 2,
+      "name": "redundancy-report.md",
+      "summary": "冗余候选报告，列出默认为 candidate 级别、不阻塞开发的冗余发现；本次未检测到任何冗余候选。"
+    },
+    {
+      "id": "config:.project-intel/config.json",
+      "fanIn": 2,
+      "name": "config.json",
+      "summary": "Project Intelligence 工具配置，定义扫描 include/exclude 范围、quality 测试命令、backend 入口识别规则，以及后端分层、API、配置、权限、事务、远程调用等 inferred 级规则。"
+    },
+    {
+      "id": "config:.project-intel/manifest.json",
+      "fanIn": 2,
+      "name": "manifest.json",
+      "summary": "Project Intelligence 项目清单，记录 schema/tool 版本、git 提交与分支、框架、包名、文件与后缀计数、图谱源状态与工具链 (node/gitnexus/understandAnything) 可用性。"
+    }
+  ],
+  "fanOutRanking": [
+    {
+      "id": "document:.project-intel/standards/backend.md",
+      "fanOut": 11,
+      "name": "backend.md"
+    },
+    {
+      "id": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "fanOut": 6,
+      "name": "requirements.py"
+    },
+    {
+      "id": "pipeline:.github/workflows/validate.yml",
+      "fanOut": 5,
+      "name": "validate.yml"
+    },
+    {
+      "id": "document:.claude/skills/gitnexus/gitnexus-guide/SKILL.md",
+      "fanOut": 5,
+      "name": "SKILL.md"
+    },
+    {
+      "id": "document:plugins/project-intelligence/skills/project-design/SKILL.md",
+      "fanOut": 5,
+      "name": "SKILL.md"
+    },
+    {
+      "id": "file:scripts/check-release.mjs",
+      "fanOut": 5,
+      "name": "check-release.mjs"
+    },
+    {
+      "id": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "fanOut": 4,
+      "name": "application.py"
+    },
+    {
+      "id": "document:.project-intel/standards/frontend.md",
+      "fanOut": 4,
+      "name": "frontend.md"
+    },
+    {
+      "id": "document:plugins/project-intelligence/skills/project-review/SKILL.md",
+      "fanOut": 4,
+      "name": "SKILL.md"
+    },
+    {
+      "id": "file:scripts/check-package.mjs",
+      "fanOut": 4,
+      "name": "check-package.mjs"
+    },
+    {
+      "id": "file:scripts/validate_bundle.py",
+      "fanOut": 4,
+      "name": "validate_bundle.py"
+    },
+    {
+      "id": "document:.project-intel/reports/init-report.md",
+      "fanOut": 3,
+      "name": "init-report.md"
+    },
+    {
+      "id": "document:.claude/CLAUDE.md",
+      "fanOut": 3,
+      "name": "CLAUDE.md"
+    },
+    {
+      "id": "document:plugins/project-intelligence/skills/project-debug/SKILL.md",
+      "fanOut": 3,
+      "name": "SKILL.md"
+    },
+    {
+      "id": "document:plugins/project-intelligence/skills/project-intake/SKILL.md",
+      "fanOut": 3,
+      "name": "SKILL.md"
+    },
+    {
+      "id": "document:plugins/project-intelligence/skills/project-maintain/SKILL.md",
+      "fanOut": 3,
+      "name": "SKILL.md"
+    },
+    {
+      "id": "document:plugins/project-intelligence/skills/project-spec/SKILL.md",
+      "fanOut": 3,
+      "name": "SKILL.md"
+    },
+    {
+      "id": "document:plugins/project-intelligence/skills/project-test/SKILL.md",
+      "fanOut": 3,
+      "name": "SKILL.md"
+    },
+    {
+      "id": "file:scripts/run-tests.mjs",
+      "fanOut": 3,
+      "name": "run-tests.mjs"
+    },
+    {
+      "id": "file:plugins/project-intelligence/scripts/project_intel_lib/scanner/__init__.py",
+      "fanOut": 2,
+      "name": "__init__.py"
+    }
+  ],
+  "bfsTraversal": {
+    "startNode": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+    "order": [
+      "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "file:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py",
+      "file:plugins/project-intelligence/scripts/project_intel_lib/requirement_documents.py",
+      "file:plugins/project-intelligence/scripts/project_intel_lib/testing.py"
+    ],
+    "depthMap": {
+      "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py": 0,
+      "file:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py": 1,
+      "file:plugins/project-intelligence/scripts/project_intel_lib/requirement_documents.py": 1,
+      "file:plugins/project-intelligence/scripts/project_intel_lib/testing.py": 1
+    },
+    "byDepth": {
+      "0": [
+        "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py"
+      ],
+      "1": [
+        "file:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py",
+        "file:plugins/project-intelligence/scripts/project_intel_lib/requirement_documents.py",
+        "file:plugins/project-intelligence/scripts/project_intel_lib/testing.py"
+      ]
+    }
+  },
+  "nonCodeFiles": {
+    "documentation": [
+      {
+        "id": "document:.project-intel/reports/frontend-quality.md",
+        "name": "frontend-quality.md",
+        "type": "document",
+        "summary": "前端质量报告，记录 Hard 规范检测、质量命令、命令输出与冗余候选情况；本次检测中各项目均为空或未执行。"
+      },
+      {
+        "id": "document:.project-intel/reports/init-report.md",
+        "name": "init-report.md",
+        "type": "document",
+        "summary": "Project Intelligence 初始化生成的总览报告，汇总图谱来源、前后端概况、质量命令与后续 Agent 步骤，并指引用户补全 Understand-Anything 图谱。"
+      },
+      {
+        "id": "document:.project-intel/reports/redundancy-report.md",
+        "name": "redundancy-report.md",
+        "type": "document",
+        "summary": "冗余候选报告，列出默认为 candidate 级别、不阻塞开发的冗余发现；本次未检测到任何冗余候选。"
+      },
+      {
+        "id": "document:.project-intel/reports/tooling-report.md",
+        "name": "tooling-report.md",
+        "type": "document",
+        "summary": "工具环境报告，记录必需工具、可选运行时、包管理器、质量命令及安装结果，并给出 Understand-Anything 图谱补全的后续 Agent 步骤。"
+      },
+      {
+        "id": "document:.project-intel/standards/api.md",
+        "name": "api.md",
+        "type": "document",
+        "summary": "前端 API 与请求规范，约定接口放置位置、请求封装复用、服务前缀与接口路径热点，禁止页面/组件直接调用 uni.request、axios 或裸 fetch。"
+      },
+      {
+        "id": "document:.project-intel/standards/backend-api.md",
+        "name": "backend-api.md",
+        "type": "document",
+        "summary": "后端 API 与入口规范，记录框架入口分布、API/入口清单、路径热点与非标准入口候选，指导新增 API 的入口声明方式。"
+      },
+      {
+        "id": "document:.project-intel/standards/backend-async.md",
+        "name": "backend-async.md",
+        "type": "document",
+        "summary": "后端消息与任务规范，提取消息/任务信号与信号热点，要求异步入口修改时检查幂等、重试与调度配置。"
+      },
+      {
+        "id": "document:.project-intel/standards/backend-config.md",
+        "name": "backend-config.md",
+        "type": "document",
+        "summary": "后端配置规范，汇总配置文件/配置类分布与配置前缀热点，约定新增配置需同步默认值与环境差异。"
+      },
+      {
+        "id": "document:.project-intel/standards/backend-errors.md",
+        "name": "backend-errors.md",
+        "type": "document",
+        "summary": "后端错误码与异常规范，提取错误码/异常信号与信号热点，要求复用既有错误码体系并同步前端/调用方语义。"
+      },
+      {
+        "id": "document:.project-intel/standards/backend-models.md",
+        "name": "backend-models.md",
+        "type": "document",
+        "summary": "后端 DTO/VO/Entity 规范，记录类型分布、数据类型清单、字段热点与注解热点，指导数据模型的字段与注解约定。"
+      },
+      {
+        "id": "document:.project-intel/standards/backend-remote-calls.md",
+        "name": "backend-remote-calls.md",
+        "type": "document",
+        "summary": "后端远程调用规范，提取远程调用信号与信号热点，要求复用已有客户端/适配器并检查超时、重试、错误映射与调用链影响。"
+      },
+      {
+        "id": "document:.project-intel/standards/backend-repository.md",
+        "name": "backend-repository.md",
+        "type": "document",
+        "summary": "后端 Repository/Mapper 规范，汇总仓库层分布、Repository/Mapper 清单与 SQL 操作热点，约束数据访问层的边界与写操作。"
+      },
+      {
+        "id": "document:.project-intel/standards/backend-security.md",
+        "name": "backend-security.md",
+        "type": "document",
+        "summary": "后端权限与认证规范，提取权限/认证信号与信号热点，要求新增入口不能绕过认证边界并作为接口改动前置检查。"
+      },
+      {
+        "id": "document:.project-intel/standards/backend-services.md",
+        "name": "backend-services.md",
+        "type": "document",
+        "summary": "后端 Service 与业务编排规范，汇总 Service 清单与方法命名前缀热点，约束业务编排层的方法命名与职责边界。"
+      },
+      {
+        "id": "document:.project-intel/standards/backend-transactions.md",
+        "name": "backend-transactions.md",
+        "type": "document",
+        "summary": "后端事务边界规范，提取事务信号与信号热点，要求写操作、订单、支付或跨表修改复用已有事务边界。"
+      },
+      {
+        "id": "document:.project-intel/standards/backend-utilities.md",
+        "name": "backend-utilities.md",
+        "type": "document",
+        "summary": "后端公共工具规范，汇总工具类/公共函数分布与工具目录热点，约束公共工具的复用与抽取边界。"
+      },
+      {
+        "id": "document:.project-intel/standards/backend.md",
+        "name": "backend.md",
+        "type": "document",
+        "summary": "后端规范总览，汇总已提取的事实、11 项细分规范、由扫描器推断的 Controller→Service→Repository 分层等约定与默认规则，作为后端所有子规范的入口文档。"
+      },
+      {
+        "id": "document:.project-intel/standards/components.md",
+        "name": "components.md",
+        "type": "document",
+        "summary": "组件与复用规范，汇总组件分布、公共组件清单、页面局部组件热点、重名/相似组件候选与常见 Props/Emits，指导前端组件的复用与抽取。"
+      },
+      {
+        "id": "document:.project-intel/standards/domain-flows.md",
+        "name": "domain-flows.md",
+        "type": "document",
+        "summary": "业务流与图谱规范，汇总业务域候选、关键模块摘要与图谱路径热点，指导业务流的抽象与知识图谱构建。"
+      },
+      {
+        "id": "document:.project-intel/standards/frontend.md",
+        "name": "frontend.md",
+        "type": "document",
+        "summary": "前端规范总览，汇总已提取的事实、细分规范、推断规范与默认规则，作为前端 components/api/router/domain-flows 子规范的入口文档。"
+      },
+      {
+        "id": "document:.project-intel/standards/quality.md",
+        "name": "quality.md",
+        "type": "document",
+        "summary": "质量检查规范，定义 hard/preferred/inferred/candidate 规则等级语义，记录检测到的 test 命令与质量策略，约定优先复用项目 package scripts。"
+      },
+      {
+        "id": "document:.project-intel/standards/reuse.md",
+        "name": "reuse.md",
+        "type": "document",
+        "summary": "复用与冗余规范，要求实现组件/Hook/API 客户端/服务/工具函数前先搜索 .project-intel/knowledge，并将重复模式默认标记为 candidate 发现。"
+      },
+      {
+        "id": "document:.project-intel/standards/router.md",
+        "name": "router.md",
+        "type": "document",
+        "summary": "路由与分包规范，汇总路由模块分布与页面标题热点，约束前端路由的组织与分包方式。"
+      },
+      {
+        "id": "document:AGENTS.md",
+        "name": "AGENTS.md",
+        "type": "document",
+        "summary": "面向 Codex/通用 Agent 的项目级指令文件，汇总 Project Intelligence 与 GitNexus 的工作守则、资源清单、CLI 用法及技能调用规则，供 Agent 在仓库内自动加载遵循。"
+      },
+      {
+        "id": "document:CHANGELOG.md",
+        "name": "CHANGELOG.md",
+        "type": "document",
+        "summary": "Project Intelligence 的版本发布日志，按版本号倒序记录从 0.1.13 到 0.6.1 的功能新增、修复与变更，是项目演进历史的单一事实来源。"
+      },
+      {
+        "id": "document:CLAUDE.md",
+        "name": "CLAUDE.md",
+        "type": "document",
+        "summary": "面向 Claude Code 的项目级指令文件，提供与 AGENTS.md 一致的工作守则、GitNexus 资源、CLI 用法及 Project Intelligence 技能调用规则，确保不同 Agent 行为统一。"
+      },
+      {
+        "id": "document:README.md",
+        "name": "README.md",
+        "type": "document",
+        "summary": "Project Intelligence 项目主入口文档，以中文介绍安装方式（npm/Claude Code/Codex CLI）、CLI 命令、可用 Skills、执行纪律与 Skill 行为评测，是新用户上手的首要入口。"
+      },
+      {
+        "id": "document:.claude/CLAUDE.md",
+        "name": "CLAUDE.md",
+        "type": "document",
+        "summary": "Claude Code 仓库级指令文档，规定在任何代码改动前必须进入对应的 Project Intelligence 工作流，并列出全部斜杠技能与 project-intel CLI 回退命令。"
+      },
+      {
+        "id": "document:.claude/skills/gitnexus/gitnexus-cli/SKILL.md",
+        "name": "SKILL.md",
+        "type": "document",
+        "summary": "GitNexus CLI 命令参考，覆盖 analyze、status、clean、wiki、list 五个子命令及其 flag，说明项目本地 runner 的回退选择与常见排错。"
+      },
+      {
+        "id": "document:.claude/skills/gitnexus/gitnexus-debugging/SKILL.md",
+        "name": "SKILL.md",
+        "type": "document",
+        "summary": "GitNexus 调试技能文档，给出从症状到根因的工作流、checklist、症状对照表，以及 query/context/cypher/trace 工具的用法示例。"
+      },
+      {
+        "id": "document:.claude/skills/gitnexus/gitnexus-exploring/SKILL.md",
+        "name": "SKILL.md",
+        "type": "document",
+        "summary": "GitNexus 代码探索技能文档，说明如何用 query/context 与 process/clusters 资源理解陌生代码库的架构与执行流。"
+      },
+      {
+        "id": "document:.claude/skills/gitnexus/gitnexus-guide/SKILL.md",
+        "name": "SKILL.md",
+        "type": "document",
+        "summary": "GitNexus 总览参考，集中列出全部 MCP 工具、轻量资源、图谱 schema，以及 list_repos 分页、explain 污点、pdg_query 依赖、trace 最短路径等高级用法。"
+      },
+      {
+        "id": "document:.claude/skills/gitnexus/gitnexus-impact-analysis/SKILL.md",
+        "name": "SKILL.md",
+        "type": "document",
+        "summary": "GitNexus 影响分析技能文档，定义 impact 按深度分级 (d=1 必坏/d=2 可能/d=3 需测) 的风险评估表与 detect_changes 提交前检查流程。"
+      },
+      {
+        "id": "document:.claude/skills/gitnexus/gitnexus-refactoring/SKILL.md",
+        "name": "SKILL.md",
+        "type": "document",
+        "summary": "GitNexus 重构技能文档，提供 rename、extract、split 三类重构的 checklist，结合 rename 多文件改名与 detect_changes 验证作用域，并列出风险缓解规则。"
+      },
+      {
+        "id": "document:plugins/project-intelligence/skills/project-brainstorm/SKILL.md",
+        "name": "SKILL.md",
+        "type": "document",
+        "summary": "project-brainstorm 技能说明：在编码前基于项目事实塑造需求、澄清范围、对比实现方向并产出 2-3 个可行方案与推荐，方向稳定后再进入 project-intake 与 project-spec。"
+      },
+      {
+        "id": "document:plugins/project-intelligence/skills/project-debug/SKILL.md",
+        "name": "SKILL.md",
+        "type": "document",
+        "summary": "project-debug 技能说明：基于项目事实系统排查 Bug、错误与回归并证明根因，在 Bug 生命周期中位于 project-spec 之后、project-design 之前，持久化证据支撑的 diagnose 结果。"
+      },
+      {
+        "id": "document:plugins/project-intelligence/skills/project-design/references/bug-design-template.md",
+        "name": "bug-design-template.md",
+        "type": "document",
+        "summary": "Bug 开发设计文档精简模板：五段式结构（现象/原因/修复/影响/验证），正文控制在 120 行内，禁用需求型元数据、源码证据表与 AC 列表。"
+      },
+      {
+        "id": "document:plugins/project-intelligence/skills/project-design/references/requirement-design-template.md",
+        "name": "requirement-design-template.md",
+        "type": "document",
+        "summary": "Requirement 开发设计文档模板：CRM 风格中文业务设计结构，含场景分析、实现方案、字段流转与相对路径#符号依据，要求最多 3 个关键代码块与必要的 Mermaid 图。"
+      },
+      {
+        "id": "document:plugins/project-intelligence/skills/project-design/SKILL.md",
+        "name": "SKILL.md",
+        "type": "document",
+        "summary": "project-design 技能说明：把本地 Bug/需求工单结合仓库证据转为源码支撑的技术开发设计并校验，区分 standalone 与 lifecycle 两种模式，依赖 project-spec 与 project-debug 前置产物并运行自带校验器。"
+      },
+      {
+        "id": "document:plugins/project-intelligence/skills/project-finish/SKILL.md",
+        "name": "SKILL.md",
+        "type": "document",
+        "summary": "project-finish 技能说明：在实现证据与评审修复之后校验发布就绪，确认 diff、测试证据、范围与高风险类别，证据缺失时回到 project-test，完成后转交 project-maintain。"
+      },
+      {
+        "id": "document:plugins/project-intelligence/skills/project-init/SKILL.md",
+        "name": "SKILL.md",
+        "type": "document",
+        "summary": "project-init 技能说明：首次为仓库初始化 .project-intel 事实层，生成规范、知识、图谱摘要与质量配置，并在非交互 shell 中以中文选择式提示引导 GitNexus/Understand-Anything 图谱工具安装。"
+      },
+      {
+        "id": "document:plugins/project-intelligence/skills/project-intake/SKILL.md",
+        "name": "SKILL.md",
+        "type": "document",
+        "summary": "project-intake 技能说明：在实现意图开始时注册并分流 Bug/需求，判定 quick/standard/complex 轨道与 readiness，持久化 workflowSelections 后按 spec→debug→design 顺序路由到后续技能。"
+      },
+      {
+        "id": "document:plugins/project-intelligence/skills/project-knowledge/SKILL.md",
+        "name": "SKILL.md",
+        "type": "document",
+        "summary": "project-knowledge 技能说明：以 .project-intel 事实层为优先来源回答只读的项目结构、组件、Hook、API、服务、规范与业务流问题，实现意图请求须回到 project-test 与 project-task。"
+      },
+      {
+        "id": "document:plugins/project-intelligence/skills/project-maintain/SKILL.md",
+        "name": "SKILL.md",
+        "type": "document",
+        "summary": "project-maintain 技能说明：仅在 project-finish 成功且状态为 finished 后运行，刷新项目事实、记录变更文件并关闭需求；提交变更则回到 project-test/project-review/project-finish。"
+      },
+      {
+        "id": "document:plugins/project-intelligence/skills/project-orchestrate/SKILL.md",
+        "name": "SKILL.md",
+        "type": "document",
+        "summary": "project-orchestrate 技能说明：为含可分离子任务的实现计划提供 subagent 编排，覆盖 inline/sequential/parallel/worktree 执行模式、任务交接契约、逐任务评审循环与最终 whole-diff 评审 gate。"
+      },
+      {
+        "id": "document:plugins/project-intelligence/skills/project-plan/SKILL.md",
+        "name": "SKILL.md",
+        "type": "document",
+        "summary": "project-plan 技能说明：在 project-design 之后为复杂需求或显式请求产出可执行实施计划，拆分文件级任务、接口约束与验证命令，并以 requirement ready 作为编码前 gate。"
+      },
+      {
+        "id": "document:plugins/project-intelligence/skills/project-quality/SKILL.md",
+        "name": "SKILL.md",
+        "type": "document",
+        "summary": "project-quality 技能说明：运行与解读前后端质量检查（ESLint/Stylelint/Prettier/tsc 等），解释 hard/preferred/inferred/candidate 规则级别，任务完成证据须路由到 project-test。"
+      },
+      {
+        "id": "document:plugins/project-intelligence/skills/project-refresh/SKILL.md",
+        "name": "SKILL.md",
+        "type": "document",
+        "summary": "project-refresh 技能说明：在工作区变更、git 合并或图谱分析完成后刷新既有 .project-intel 事实层，区分 fact-only refresh 与显式 --adapters/install 适配器维护，并处理 Understand-Anything 各安装态。"
+      },
+      {
+        "id": "document:plugins/project-intelligence/skills/project-review/SKILL.md",
+        "name": "SKILL.md",
+        "type": "document",
+        "summary": "project-review 技能说明：评审代码改动、PR、实现质量、安全与工作流缺口，结合 GitNexus/Understand-Anything 上下文按严重度排序，修复后经 project-test 重新记录评审轮次并转 finish/maintain。"
+      },
+      {
+        "id": "document:plugins/project-intelligence/skills/project-spec/SKILL.md",
+        "name": "SKILL.md",
+        "type": "document",
+        "summary": "project-spec 技能说明：在 project-intake 之后、project-debug/project-design 之前创建或注册 requirement.md 并持久化编号一致的验收标准，处理 generate/register existing/later 三种动作。"
+      },
+      {
+        "id": "document:plugins/project-intelligence/skills/project-standards/SKILL.md",
+        "name": "SKILL.md",
+        "type": "document",
+        "summary": "project-standards 技能说明：查询、解释、确认、提升或降级项目规范及 hard/preferred/inferred/candidate 规则级别，禁止未经人工确认将 candidate 冗余或入口发现提升为 hard。"
+      },
+      {
+        "id": "document:plugins/project-intelligence/skills/project-task/SKILL.md",
+        "name": "SKILL.md",
+        "type": "document",
+        "summary": "project-task 技能说明：生命周期 ready 之后开始或继续业务代码实现，requirement begin 后执行影响/复用分析、选择执行模式，实现后串联 check/test/review/finish/maintain 完整闭环。"
+      },
+      {
+        "id": "document:plugins/project-intelligence/skills/project-test/SKILL.md",
+        "name": "SKILL.md",
+        "type": "document",
+        "summary": "project-test 技能说明：在 requirement ready 后选择测试类型与报告动作，requirement begin 后执行或记录 RED/GREEN/regression/manual 证据，finish 需任务匹配且文件作用域的新鲜通过证据。"
+      }
+    ],
+    "infrastructure": [
+      {
+        "id": "pipeline:.github/workflows/live-skill-evals.yml",
+        "name": "live-skill-evals.yml",
+        "type": "pipeline",
+        "summary": "GitHub Actions 定时工作流，每周一 02:30 UTC 或手动触发，分别针对 Claude 与 Codex 两个 agent 运行隔离的 skill 评测，缺少对应 API Key 时安全跳过。"
+      },
+      {
+        "id": "pipeline:.github/workflows/validate.yml",
+        "name": "validate.yml",
+        "type": "pipeline",
+        "summary": "GitHub Actions 校验工作流，在 push 与 pull_request 时触发；test job 矩阵跑 Python 3.9/3.10/3.12 的单元测试与多脚本校验，cli-smoke job 在 ubuntu/macos/windows 三平台执行冒烟测试。"
+      }
+    ],
+    "data": [],
+    "config": [
+      {
+        "id": "config:.project-intel/knowledge/backend.json",
+        "name": "backend.json",
+        "type": "config",
+        "summary": "项目后端知识库快照，由 project-intelligence 扫描器生成，汇总 13 个维度的后端结构信号：API、服务、仓储、配置、权限校验、事务、远程调用、消息任务、错误码等，覆盖 application.py、scanner/backend.py 及相关测试文件，扫描模式为 python-ast 与 regex-fallback。"
+      },
+      {
+        "id": "config:.project-intel/knowledge/files.json",
+        "name": "files.json",
+        "type": "config",
+        "summary": "项目文件清单索引，记录 49 个项目文件的路径、大小、修改时间与后缀，作为 backend.json / frontend.json 知识扫描的输入清单，涵盖文档、Python 脚本、SKILL.md、测试与配置文件。"
+      },
+      {
+        "id": "config:.project-intel/knowledge/frontend.json",
+        "name": "frontend.json",
+        "type": "config",
+        "summary": "项目前端知识库快照，包含组件、hooks、路由、API 模块、stores、样式、冗余候选等 8 个分区；当前均为空数组，表明该项目无前端代码，扫描以 regex-fallback 模式运行未发现前端产物。"
+      },
+      {
+        "id": "config:package.json",
+        "name": "package.json",
+        "type": "config",
+        "summary": "Project Intelligence 的 npm 包清单，声明包名、版本、ESM 模块类型、CLI bin 入口、发布文件列表、Node 引擎要求及构建/发布脚本，是包发布与本地开发的核心配置。"
+      },
+      {
+        "id": "config:.agents/plugins/marketplace.json",
+        "name": "marketplace.json",
+        "type": "config",
+        "summary": "Codex 代理插件市场清单，声明 project-intelligence 插件并指向本地 ./plugins/project-intelligence 目录，设置安装与认证策略。"
+      },
+      {
+        "id": "config:.claude-plugin/marketplace.json",
+        "name": "marketplace.json",
+        "type": "config",
+        "summary": "Claude Code 插件市场清单，引用 Anthropic marketplace schema，声明 project-intelligence 插件的名称、描述、分类与 GitHub 主页。"
+      },
+      {
+        "id": "config:.project-intel/config.json",
+        "name": "config.json",
+        "type": "config",
+        "summary": "Project Intelligence 工具配置，定义扫描 include/exclude 范围、quality 测试命令、backend 入口识别规则，以及后端分层、API、配置、权限、事务、远程调用等 inferred 级规则。"
+      },
+      {
+        "id": "config:.project-intel/graph/project-graph.json",
+        "name": "project-graph.json",
+        "type": "config",
+        "summary": "Project Intelligence 合并图谱摘要，记录 GitNexus 与 Understand-Anything 两个图谱源的状态、统计与角色，汇总组件/API/服务数量与项目领域分布。"
+      },
+      {
+        "id": "config:.project-intel/manifest.json",
+        "name": "manifest.json",
+        "type": "config",
+        "summary": "Project Intelligence 项目清单，记录 schema/tool 版本、git 提交与分支、框架、包名、文件与后缀计数、图谱源状态与工具链 (node/gitnexus/understandAnything) 可用性。"
+      },
+      {
+        "id": "config:.ua/config.json",
+        "name": "config.json",
+        "type": "config",
+        "summary": "Understand-Anything 工具配置，设置 outputLanguage 为 zh，使生成的图谱文本内容输出为中文。"
+      },
+      {
+        "id": "config:plugins/project-intelligence/skills/project-design/agents/openai.yaml",
+        "name": "openai.yaml",
+        "type": "config",
+        "summary": "project-design 技能的 OpenAI/Claude agent 接口配置，定义展示名称、简短描述与默认提示语，用于把本地工单与仓库分析转化为已校验的开发设计文档。"
+      },
+      {
+        "id": "config:plugins/project-intelligence/.claude-plugin/plugin.json",
+        "name": "plugin.json",
+        "type": "config",
+        "summary": "Claude Code 插件清单，声明 project-intelligence 插件的名称、版本、描述与作者，供 .claude-plugin/marketplace.json 引用与安装。"
+      },
+      {
+        "id": "config:plugins/project-intelligence/.codex-plugin/plugin.json",
+        "name": "plugin.json",
+        "type": "config",
+        "summary": "Codex CLI 插件清单，声明 project-intelligence 插件的名称、版本、描述、作者，并指向 skills 目录与 OpenAI/Claude agent 接口配置，供 .agents/plugins/marketplace.json 引用与安装。"
+      }
+    ]
+  },
+  "clusters": [],
+  "layers": {
+    "count": 8,
+    "list": [
+      {
+        "id": "layer:cli-entry",
+        "name": "CLI 入口与启动垫片",
+        "description": "project-intel CLI 的多平台启动入口与向后兼容门面，含 Node 垫片、shell 垫片、Python 门面与设计文档校验器启动脚本。"
+      },
+      {
+        "id": "layer:application-core",
+        "name": "应用核心层 (project_intel_lib)",
+        "description": "Project Intelligence 的 Python 应用核心，承载 CLI 子命令派发、需求生命周期状态机、设计/需求文档校验、测试证据、质量探测、规范提取与前后端扫描器。"
+      },
+      {
+        "id": "layer:skills",
+        "name": "工作流技能层 (Skills)",
+        "description": "plugins/project-intelligence/skills 下全部生命周期技能的 SKILL.md 工作流文档、设计文档模板、引用与 agent 接口配置。"
+      },
+      {
+        "id": "layer:tests",
+        "name": "测试套件",
+        "description": "plugins/project-intelligence/tests 下的 unittest 模块与共享 fixture 工厂，覆盖需求生命周期、设计文档校验、测试证据安全与 CLI 发布契约。"
+      },
+      {
+        "id": "layer:build-and-release",
+        "name": "构建与发布流水线",
+        "description": "scripts 下的构建/发布/skill 评测脚本与 .github/workflows 下的 GitHub Actions CI 工作流，负责打包校验、版本一致性、测试与定时 skill 评测。"
+      },
+      {
+        "id": "layer:plugin-manifests",
+        "name": "插件清单与发布配置",
+        "description": "npm 包清单、Claude Code/Codex 双端 marketplace 与 plugin.json 清单及 .npmignore 发布忽略规则，声明插件元数据与发布产物边界。"
+      },
+      {
+        "id": "layer:project-intel-facts",
+        "name": "项目智能本地事实层 (.project-intel)",
+        "description": ".project-intel 下由扫描器生成的规范、知识快照、质量报告、合并图谱摘要与 manifest/config，作为只读事实来源供技能与 CLI 复用。"
+      },
+      {
+        "id": "layer:project-docs",
+        "name": "项目文档与 Agent 集成",
+        "description": "README、CHANGELOG、docs 指南、AGENTS.md/CLAUDE.md/.claude 仓库级 Agent 指令、GitNexus 技能文档以及 .ua 本地工具配置，覆盖用户与 Agent 双视角。"
+      }
+    ]
+  },
+  "nodeSummaryIndex": {
+    "file:plugins/project-intelligence/scripts/project_intel_lib/scanner/__init__.py": {
+      "name": "__init__.py",
+      "type": "file",
+      "summary": "scanner 子包入口，re-export scan_backend/scan_frontend/extract_emits/extract_vue_props 四个对外扫描 API。"
+    },
+    "file:plugins/project-intelligence/scripts/project_intel_lib/cli.py": {
+      "name": "cli.py",
+      "type": "file",
+      "summary": "CLI 共享工具层：提供 --json 全局选项提取、统一 JSON envelope 输出与错误文本脱敏。"
+    },
+    "file:plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py": {
+      "name": "frontend.py",
+      "type": "file",
+      "summary": "前端扫描器：从 Vue/React/TS/JS 源码中提取组件 props/emits/slots/expose、依赖、API 端点、service 前缀与路由模块信息，供 infer_standards 与 manifest 使用。"
+    },
+    "file:plugins/project-intelligence/scripts/project_intel_lib/core.py": {
+      "name": "core.py",
+      "type": "file",
+      "summary": "扫描与工具状态的核心原语：file_signature 提供基于 size+mtime 的廉价缓存签名，IncrementalScanCache 提供增量扫描缓存，sanitize_tooling 抽取可持久化的工具状态子集。"
+    },
+    "file:plugins/project-intelligence/scripts/project_intel_lib/application.py": {
+      "name": "application.py",
+      "type": "file",
+      "summary": "project-intel CLI 的应用服务层与命令派发核心，承载 init/status/intake/spec/plan/test/finish/maintain/check 等全部子命令实现、项目扫描装配、工具探测、规范渲染与 adapter 注入。"
+    },
+    "file:plugins/project-intelligence/scripts/project_intel_lib/__init__.py": {
+      "name": "__init__.py",
+      "type": "file",
+      "summary": "project_intel_lib 包入口，re-export core 模块的 IncrementalScanCache、file_signature、sanitize_tooling 三个公共符号。"
+    },
+    "file:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py": {
+      "name": "backend.py",
+      "type": "file",
+      "summary": "后端扫描器：用 Python AST 与正则从 Java/Kotlin/Python/Go/TS 源码中提取框架、端点、方法、字段、仓储、SQL、配置键与权限/事务/远程调用/消息/错误码等结构信号。"
+    },
+    "file:plugins/project-intelligence/tests/design_fixtures.py": {
+      "name": "design_fixtures.py",
+      "type": "file",
+      "summary": "为需求/Bug 测试用例提供统一的文档与设计脚手架文本生成器，是 tests 目录下多个 unittest 模块共享的 fixture 工厂。"
+    },
+    "file:plugins/project-intelligence/tests/test_document_truth_validation.py": {
+      "name": "test_document_truth_validation.py",
+      "type": "file",
+      "summary": "针对设计文档与需求清单的来源真相校验逻辑进行 unittest 覆盖，确保文档中声明的代码路径与符号真实存在且无法通过符号链接逃逸仓库边界。"
+    },
+    "file:plugins/project-intelligence/tests/test_project_design.py": {
+      "name": "test_project_design.py",
+      "type": "file",
+      "summary": "针对项目设计文档校验器与打包 CLI 的退出码进行 unittest 覆盖，校验需求模板合规性、Bug 模板与标题匹配、空章节与敏感值等异常路径。"
+    },
+    "file:plugins/project-intelligence/tests/test_project_test.py": {
+      "name": "test_project_test.py",
+      "type": "file",
+      "summary": "对项目测试证据登记与 finish 门禁进行端到端 unittest 覆盖，校验 RED/GREEN 阶段、手动证据、测试计数、git 变更范围与敏感信息脱敏等行为。"
+    },
+    "file:plugins/project-intelligence/tests/test_requirement_hardening.py": {
+      "name": "test_requirement_hardening.py",
+      "type": "file",
+      "summary": "对需求生命周期加固逻辑进行 unittest 覆盖，校验符号链接逃逸、零测试报告、手动报告冒充服务测试、契约双方证据、脏文件归属、注册失败回滚、外部 API 当前服务证据、并发报告可读性等加固约束。"
+    },
+    "file:plugins/project-intelligence/tests/test_requirement_layout_v2.py": {
+      "name": "test_requirement_layout_v2.py",
+      "type": "file",
+      "summary": "对需求 v2 目录布局与迁移逻辑进行 unittest 覆盖，校验四份规范文档直接落位、外部文档复制、plan 可选生成、ready 双门禁、测试证据归属、文件历史派生以及 v1→v2 迁移 dry-run/apply/回滚行为。"
+    },
+    "file:plugins/project-intelligence/tests/test_requirement_workflow.py": {
+      "name": "test_requirement_workflow.py",
+      "type": "file",
+      "summary": "对需求完整生命周期工作流进行大规模 unittest 覆盖，校验状态机、外部 API 服务测试门禁、后续动作阻断、证据失效、review 阻断、人工例外、测试报告结构校验、close 门禁、CLI 全流程与 intake/amend 等边界行为。"
+    },
+    "file:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py": {
+      "name": "design_documents.py",
+      "type": "file",
+      "summary": "设计文档与 Bug 文档的解析、源码证据校验、敏感信息检测与脚手架生成模块，定义需求/Bug 设计文档的章节规范和校验逻辑。"
+    },
+    "file:plugins/project-intelligence/scripts/project_intel_lib/requirement_documents.py": {
+      "name": "requirement_documents.py",
+      "type": "file",
+      "summary": "需求文档脚手架生成与校验模块，解析文档信息、验收标准与外部接口影响，并对待确认事项进行内容阻断校验。"
+    },
+    "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py": {
+      "name": "requirements.py",
+      "type": "file",
+      "summary": "需求生命周期的核心状态机模块，管理草稿到关闭全流程的门禁、文档产物、测试证据、评审记录、范围快照与布局迁移。"
+    },
+    "file:plugins/project-intelligence/scripts/project_intel_lib/testing.py": {
+      "name": "testing.py",
+      "type": "file",
+      "summary": "测试证据的持久化与渲染模块，负责脱敏处理、文件哈希计算、RED/GREEN/regression 阶段判定与 Markdown/JSON 证据报告生成。"
+    },
+    "file:scripts/run-skill-evals.mjs": {
+      "name": "run-skill-evals.mjs",
+      "type": "file",
+      "summary": "针对 Claude 或 Codex 代理运行 skill 行为评测的脚手架脚本，按场景构造提示词、spawn 代理 CLI 并校验实际触发的 skill 路由是否符合预期。"
+    },
+    "file:scripts/skill-eval-events.mjs": {
+      "name": "skill-eval-events.mjs",
+      "type": "file",
+      "summary": "纯函数工具模块，从代理 stdout 中解析 skill 工具调用事件，并评估实际触发的 skill 路由是否匹配场景的期望、禁止与顺序约束。"
+    },
+    "file:scripts/validate-skill-evals.mjs": {
+      "name": "validate-skill-evals.mjs",
+      "type": "file",
+      "summary": "校验 skill 行为场景契约的脚本，检查场景 schema、路由分类、自然语言场景覆盖、skill 覆盖以及 SKILL.md 文本契约，任何违例均抛错中断。"
+    },
+    "pipeline:.github/workflows/live-skill-evals.yml": {
+      "name": "live-skill-evals.yml",
+      "type": "pipeline",
+      "summary": "GitHub Actions 定时工作流，每周一 02:30 UTC 或手动触发，分别针对 Claude 与 Codex 两个 agent 运行隔离的 skill 评测，缺少对应 API Key 时安全跳过。"
+    },
+    "pipeline:.github/workflows/validate.yml": {
+      "name": "validate.yml",
+      "type": "pipeline",
+      "summary": "GitHub Actions 校验工作流，在 push 与 pull_request 时触发；test job 矩阵跑 Python 3.9/3.10/3.12 的单元测试与多脚本校验，cli-smoke job 在 ubuntu/macos/windows 三平台执行冒烟测试。"
+    },
+    "config:.project-intel/knowledge/backend.json": {
+      "name": "backend.json",
+      "type": "config",
+      "summary": "项目后端知识库快照，由 project-intelligence 扫描器生成，汇总 13 个维度的后端结构信号：API、服务、仓储、配置、权限校验、事务、远程调用、消息任务、错误码等，覆盖 application.py、scanner/backend.py 及相关测试文件，扫描模式为 python-ast 与 regex-fallback。"
+    },
+    "config:.project-intel/knowledge/files.json": {
+      "name": "files.json",
+      "type": "config",
+      "summary": "项目文件清单索引，记录 49 个项目文件的路径、大小、修改时间与后缀，作为 backend.json / frontend.json 知识扫描的输入清单，涵盖文档、Python 脚本、SKILL.md、测试与配置文件。"
+    },
+    "config:.project-intel/knowledge/frontend.json": {
+      "name": "frontend.json",
+      "type": "config",
+      "summary": "项目前端知识库快照，包含组件、hooks、路由、API 模块、stores、样式、冗余候选等 8 个分区；当前均为空数组，表明该项目无前端代码，扫描以 regex-fallback 模式运行未发现前端产物。"
+    },
+    "document:.project-intel/reports/frontend-quality.md": {
+      "name": "frontend-quality.md",
+      "type": "document",
+      "summary": "前端质量报告，记录 Hard 规范检测、质量命令、命令输出与冗余候选情况；本次检测中各项目均为空或未执行。"
+    },
+    "document:.project-intel/reports/init-report.md": {
+      "name": "init-report.md",
+      "type": "document",
+      "summary": "Project Intelligence 初始化生成的总览报告，汇总图谱来源、前后端概况、质量命令与后续 Agent 步骤，并指引用户补全 Understand-Anything 图谱。"
+    },
+    "document:.project-intel/reports/redundancy-report.md": {
+      "name": "redundancy-report.md",
+      "type": "document",
+      "summary": "冗余候选报告，列出默认为 candidate 级别、不阻塞开发的冗余发现；本次未检测到任何冗余候选。"
+    },
+    "document:.project-intel/reports/tooling-report.md": {
+      "name": "tooling-report.md",
+      "type": "document",
+      "summary": "工具环境报告，记录必需工具、可选运行时、包管理器、质量命令及安装结果，并给出 Understand-Anything 图谱补全的后续 Agent 步骤。"
+    },
+    "document:.project-intel/standards/api.md": {
+      "name": "api.md",
+      "type": "document",
+      "summary": "前端 API 与请求规范，约定接口放置位置、请求封装复用、服务前缀与接口路径热点，禁止页面/组件直接调用 uni.request、axios 或裸 fetch。"
+    },
+    "document:.project-intel/standards/backend-api.md": {
+      "name": "backend-api.md",
+      "type": "document",
+      "summary": "后端 API 与入口规范，记录框架入口分布、API/入口清单、路径热点与非标准入口候选，指导新增 API 的入口声明方式。"
+    },
+    "document:.project-intel/standards/backend-async.md": {
+      "name": "backend-async.md",
+      "type": "document",
+      "summary": "后端消息与任务规范，提取消息/任务信号与信号热点，要求异步入口修改时检查幂等、重试与调度配置。"
+    },
+    "document:.project-intel/standards/backend-config.md": {
+      "name": "backend-config.md",
+      "type": "document",
+      "summary": "后端配置规范，汇总配置文件/配置类分布与配置前缀热点，约定新增配置需同步默认值与环境差异。"
+    },
+    "document:.project-intel/standards/backend-errors.md": {
+      "name": "backend-errors.md",
+      "type": "document",
+      "summary": "后端错误码与异常规范，提取错误码/异常信号与信号热点，要求复用既有错误码体系并同步前端/调用方语义。"
+    },
+    "document:.project-intel/standards/backend-models.md": {
+      "name": "backend-models.md",
+      "type": "document",
+      "summary": "后端 DTO/VO/Entity 规范，记录类型分布、数据类型清单、字段热点与注解热点，指导数据模型的字段与注解约定。"
+    },
+    "document:.project-intel/standards/backend-remote-calls.md": {
+      "name": "backend-remote-calls.md",
+      "type": "document",
+      "summary": "后端远程调用规范，提取远程调用信号与信号热点，要求复用已有客户端/适配器并检查超时、重试、错误映射与调用链影响。"
+    },
+    "document:.project-intel/standards/backend-repository.md": {
+      "name": "backend-repository.md",
+      "type": "document",
+      "summary": "后端 Repository/Mapper 规范，汇总仓库层分布、Repository/Mapper 清单与 SQL 操作热点，约束数据访问层的边界与写操作。"
+    },
+    "document:.project-intel/standards/backend-security.md": {
+      "name": "backend-security.md",
+      "type": "document",
+      "summary": "后端权限与认证规范，提取权限/认证信号与信号热点，要求新增入口不能绕过认证边界并作为接口改动前置检查。"
+    },
+    "document:.project-intel/standards/backend-services.md": {
+      "name": "backend-services.md",
+      "type": "document",
+      "summary": "后端 Service 与业务编排规范，汇总 Service 清单与方法命名前缀热点，约束业务编排层的方法命名与职责边界。"
+    },
+    "document:.project-intel/standards/backend-transactions.md": {
+      "name": "backend-transactions.md",
+      "type": "document",
+      "summary": "后端事务边界规范，提取事务信号与信号热点，要求写操作、订单、支付或跨表修改复用已有事务边界。"
+    },
+    "document:.project-intel/standards/backend-utilities.md": {
+      "name": "backend-utilities.md",
+      "type": "document",
+      "summary": "后端公共工具规范，汇总工具类/公共函数分布与工具目录热点，约束公共工具的复用与抽取边界。"
+    },
+    "document:.project-intel/standards/backend.md": {
+      "name": "backend.md",
+      "type": "document",
+      "summary": "后端规范总览，汇总已提取的事实、11 项细分规范、由扫描器推断的 Controller→Service→Repository 分层等约定与默认规则，作为后端所有子规范的入口文档。"
+    },
+    "document:.project-intel/standards/components.md": {
+      "name": "components.md",
+      "type": "document",
+      "summary": "组件与复用规范，汇总组件分布、公共组件清单、页面局部组件热点、重名/相似组件候选与常见 Props/Emits，指导前端组件的复用与抽取。"
+    },
+    "document:.project-intel/standards/domain-flows.md": {
+      "name": "domain-flows.md",
+      "type": "document",
+      "summary": "业务流与图谱规范，汇总业务域候选、关键模块摘要与图谱路径热点，指导业务流的抽象与知识图谱构建。"
+    },
+    "document:.project-intel/standards/frontend.md": {
+      "name": "frontend.md",
+      "type": "document",
+      "summary": "前端规范总览，汇总已提取的事实、细分规范、推断规范与默认规则，作为前端 components/api/router/domain-flows 子规范的入口文档。"
+    },
+    "document:.project-intel/standards/quality.md": {
+      "name": "quality.md",
+      "type": "document",
+      "summary": "质量检查规范，定义 hard/preferred/inferred/candidate 规则等级语义，记录检测到的 test 命令与质量策略，约定优先复用项目 package scripts。"
+    },
+    "document:.project-intel/standards/reuse.md": {
+      "name": "reuse.md",
+      "type": "document",
+      "summary": "复用与冗余规范，要求实现组件/Hook/API 客户端/服务/工具函数前先搜索 .project-intel/knowledge，并将重复模式默认标记为 candidate 发现。"
+    },
+    "document:.project-intel/standards/router.md": {
+      "name": "router.md",
+      "type": "document",
+      "summary": "路由与分包规范，汇总路由模块分布与页面标题热点，约束前端路由的组织与分包方式。"
+    },
+    "document:AGENTS.md": {
+      "name": "AGENTS.md",
+      "type": "document",
+      "summary": "面向 Codex/通用 Agent 的项目级指令文件，汇总 Project Intelligence 与 GitNexus 的工作守则、资源清单、CLI 用法及技能调用规则，供 Agent 在仓库内自动加载遵循。"
+    },
+    "document:CHANGELOG.md": {
+      "name": "CHANGELOG.md",
+      "type": "document",
+      "summary": "Project Intelligence 的版本发布日志，按版本号倒序记录从 0.1.13 到 0.6.1 的功能新增、修复与变更，是项目演进历史的单一事实来源。"
+    },
+    "document:CLAUDE.md": {
+      "name": "CLAUDE.md",
+      "type": "document",
+      "summary": "面向 Claude Code 的项目级指令文件，提供与 AGENTS.md 一致的工作守则、GitNexus 资源、CLI 用法及 Project Intelligence 技能调用规则，确保不同 Agent 行为统一。"
+    },
+    "document:README.md": {
+      "name": "README.md",
+      "type": "document",
+      "summary": "Project Intelligence 项目主入口文档，以中文介绍安装方式（npm/Claude Code/Codex CLI）、CLI 命令、可用 Skills、执行纪律与 Skill 行为评测，是新用户上手的首要入口。"
+    },
+    "config:package.json": {
+      "name": "package.json",
+      "type": "config",
+      "summary": "Project Intelligence 的 npm 包清单，声明包名、版本、ESM 模块类型、CLI bin 入口、发布文件列表、Node 引擎要求及构建/发布脚本，是包发布与本地开发的核心配置。"
+    },
+    "config:.agents/plugins/marketplace.json": {
+      "name": "marketplace.json",
+      "type": "config",
+      "summary": "Codex 代理插件市场清单，声明 project-intelligence 插件并指向本地 ./plugins/project-intelligence 目录，设置安装与认证策略。"
+    },
+    "config:.claude-plugin/marketplace.json": {
+      "name": "marketplace.json",
+      "type": "config",
+      "summary": "Claude Code 插件市场清单，引用 Anthropic marketplace schema，声明 project-intelligence 插件的名称、描述、分类与 GitHub 主页。"
+    },
+    "document:.claude/CLAUDE.md": {
+      "name": "CLAUDE.md",
+      "type": "document",
+      "summary": "Claude Code 仓库级指令文档，规定在任何代码改动前必须进入对应的 Project Intelligence 工作流，并列出全部斜杠技能与 project-intel CLI 回退命令。"
+    },
+    "document:.claude/skills/gitnexus/gitnexus-cli/SKILL.md": {
+      "name": "SKILL.md",
+      "type": "document",
+      "summary": "GitNexus CLI 命令参考，覆盖 analyze、status、clean、wiki、list 五个子命令及其 flag，说明项目本地 runner 的回退选择与常见排错。"
+    },
+    "document:.claude/skills/gitnexus/gitnexus-debugging/SKILL.md": {
+      "name": "SKILL.md",
+      "type": "document",
+      "summary": "GitNexus 调试技能文档，给出从症状到根因的工作流、checklist、症状对照表，以及 query/context/cypher/trace 工具的用法示例。"
+    },
+    "document:.claude/skills/gitnexus/gitnexus-exploring/SKILL.md": {
+      "name": "SKILL.md",
+      "type": "document",
+      "summary": "GitNexus 代码探索技能文档，说明如何用 query/context 与 process/clusters 资源理解陌生代码库的架构与执行流。"
+    },
+    "document:.claude/skills/gitnexus/gitnexus-guide/SKILL.md": {
+      "name": "SKILL.md",
+      "type": "document",
+      "summary": "GitNexus 总览参考，集中列出全部 MCP 工具、轻量资源、图谱 schema，以及 list_repos 分页、explain 污点、pdg_query 依赖、trace 最短路径等高级用法。"
+    },
+    "document:.claude/skills/gitnexus/gitnexus-impact-analysis/SKILL.md": {
+      "name": "SKILL.md",
+      "type": "document",
+      "summary": "GitNexus 影响分析技能文档，定义 impact 按深度分级 (d=1 必坏/d=2 可能/d=3 需测) 的风险评估表与 detect_changes 提交前检查流程。"
+    },
+    "document:.claude/skills/gitnexus/gitnexus-refactoring/SKILL.md": {
+      "name": "SKILL.md",
+      "type": "document",
+      "summary": "GitNexus 重构技能文档，提供 rename、extract、split 三类重构的 checklist，结合 rename 多文件改名与 detect_changes 验证作用域，并列出风险缓解规则。"
+    },
+    "file:.npmignore": {
+      "name": ".npmignore",
+      "type": "file",
+      "summary": "npm 发布忽略清单，排除 __pycache__、.pyc 缓存、plugins/project-intelligence/tests 测试目录与 .DS_Store，避免将 Python 缓存与测试打进发布包。"
+    },
+    "config:.project-intel/config.json": {
+      "name": "config.json",
+      "type": "config",
+      "summary": "Project Intelligence 工具配置，定义扫描 include/exclude 范围、quality 测试命令、backend 入口识别规则，以及后端分层、API、配置、权限、事务、远程调用等 inferred 级规则。"
+    },
+    "config:.project-intel/graph/project-graph.json": {
+      "name": "project-graph.json",
+      "type": "config",
+      "summary": "Project Intelligence 合并图谱摘要，记录 GitNexus 与 Understand-Anything 两个图谱源的状态、统计与角色，汇总组件/API/服务数量与项目领域分布。"
+    },
+    "config:.project-intel/manifest.json": {
+      "name": "manifest.json",
+      "type": "config",
+      "summary": "Project Intelligence 项目清单，记录 schema/tool 版本、git 提交与分支、框架、包名、文件与后缀计数、图谱源状态与工具链 (node/gitnexus/understandAnything) 可用性。"
+    },
+    "file:.ua/.understandignore": {
+      "name": ".understandignore",
+      "type": "file",
+      "summary": "Understand-Anything 分析忽略清单，使用 gitignore 语法排除 OS/编辑器噪声、Python 与 Node 构建产物、VCS 与工具数据目录、测试夹具与锁文件，并保留 evals/skill-behavior-scenarios.json。"
+    },
+    "config:.ua/config.json": {
+      "name": "config.json",
+      "type": "config",
+      "summary": "Understand-Anything 工具配置，设置 outputLanguage 为 zh，使生成的图谱文本内容输出为中文。"
+    },
+    "file:bin/project-intel.mjs": {
+      "name": "project-intel.mjs",
+      "type": "file",
+      "summary": "Node CLI 入口 shim，定位包内 plugins/project-intelligence/scripts/project_intel.py，按平台候选 python3/python/py 依次 spawnSync 调用并透传参数与退出码，缺失或无 Python 时报错退出。"
+    },
+    "file:plugins/project-intelligence/scripts/project_intel_lib/quality.py": {
+      "name": "quality.py",
+      "type": "file",
+      "summary": "项目质量命令探测库：解析 package.json/workspaces 依赖识别前端框架，并根据 lock 文件与构建标记为 npm/pnpm/yarn、Maven/Gradle、Python、Go、Rust 等技术栈生成对应的 lint/type/test/verify 命令。"
+    },
+    "file:plugins/project-intelligence/scripts/project_intel_lib/standards.py": {
+      "name": "standards.py",
+      "type": "file",
+      "summary": "项目规范领域候选提取库：从前端/后端文件路径与知识图谱摘要中聚合目录名与符号，统计频次并返回按出现次数排序的领域候选列表。"
+    },
+    "file:plugins/project-intelligence/scripts/project_intel.py": {
+      "name": "project_intel.py",
+      "type": "file",
+      "summary": "Project Intelligence CLI 的向后兼容门面入口：通过 exec() 在自身命名空间加载并执行 project_intel_lib/application.py，保留历史直接导入与 monkey-patch 行为。"
+    },
+    "file:plugins/project-intelligence/scripts/project-intel": {
+      "name": "project-intel",
+      "type": "file",
+      "summary": "project-intel CLI 的 shell 启动垫片：定位脚本目录后以 python3 执行同目录下的 project_intel.py 并透传全部参数。"
+    },
+    "file:plugins/project-intelligence/skills/project-design/scripts/validate_design_doc.py": {
+      "name": "validate_design_doc.py",
+      "type": "file",
+      "summary": "project-design 技能自带的设计文档校验器启动脚本：将插件 scripts 目录注入 sys.path 后调用 project_intel_lib.design_documents.main 执行结构校验。"
+    },
+    "config:plugins/project-intelligence/skills/project-design/agents/openai.yaml": {
+      "name": "openai.yaml",
+      "type": "config",
+      "summary": "project-design 技能的 OpenAI/Claude agent 接口配置，定义展示名称、简短描述与默认提示语，用于把本地工单与仓库分析转化为已校验的开发设计文档。"
+    },
+    "document:plugins/project-intelligence/skills/project-brainstorm/SKILL.md": {
+      "name": "SKILL.md",
+      "type": "document",
+      "summary": "project-brainstorm 技能说明：在编码前基于项目事实塑造需求、澄清范围、对比实现方向并产出 2-3 个可行方案与推荐，方向稳定后再进入 project-intake 与 project-spec。"
+    },
+    "document:plugins/project-intelligence/skills/project-debug/SKILL.md": {
+      "name": "SKILL.md",
+      "type": "document",
+      "summary": "project-debug 技能说明：基于项目事实系统排查 Bug、错误与回归并证明根因，在 Bug 生命周期中位于 project-spec 之后、project-design 之前，持久化证据支撑的 diagnose 结果。"
+    },
+    "document:plugins/project-intelligence/skills/project-design/references/bug-design-template.md": {
+      "name": "bug-design-template.md",
+      "type": "document",
+      "summary": "Bug 开发设计文档精简模板：五段式结构（现象/原因/修复/影响/验证），正文控制在 120 行内，禁用需求型元数据、源码证据表与 AC 列表。"
+    },
+    "document:plugins/project-intelligence/skills/project-design/references/requirement-design-template.md": {
+      "name": "requirement-design-template.md",
+      "type": "document",
+      "summary": "Requirement 开发设计文档模板：CRM 风格中文业务设计结构，含场景分析、实现方案、字段流转与相对路径#符号依据，要求最多 3 个关键代码块与必要的 Mermaid 图。"
+    },
+    "document:plugins/project-intelligence/skills/project-design/SKILL.md": {
+      "name": "SKILL.md",
+      "type": "document",
+      "summary": "project-design 技能说明：把本地 Bug/需求工单结合仓库证据转为源码支撑的技术开发设计并校验，区分 standalone 与 lifecycle 两种模式，依赖 project-spec 与 project-debug 前置产物并运行自带校验器。"
+    },
+    "document:plugins/project-intelligence/skills/project-finish/SKILL.md": {
+      "name": "SKILL.md",
+      "type": "document",
+      "summary": "project-finish 技能说明：在实现证据与评审修复之后校验发布就绪，确认 diff、测试证据、范围与高风险类别，证据缺失时回到 project-test，完成后转交 project-maintain。"
+    },
+    "document:plugins/project-intelligence/skills/project-init/SKILL.md": {
+      "name": "SKILL.md",
+      "type": "document",
+      "summary": "project-init 技能说明：首次为仓库初始化 .project-intel 事实层，生成规范、知识、图谱摘要与质量配置，并在非交互 shell 中以中文选择式提示引导 GitNexus/Understand-Anything 图谱工具安装。"
+    },
+    "document:plugins/project-intelligence/skills/project-intake/SKILL.md": {
+      "name": "SKILL.md",
+      "type": "document",
+      "summary": "project-intake 技能说明：在实现意图开始时注册并分流 Bug/需求，判定 quick/standard/complex 轨道与 readiness，持久化 workflowSelections 后按 spec→debug→design 顺序路由到后续技能。"
+    },
+    "document:plugins/project-intelligence/skills/project-knowledge/SKILL.md": {
+      "name": "SKILL.md",
+      "type": "document",
+      "summary": "project-knowledge 技能说明：以 .project-intel 事实层为优先来源回答只读的项目结构、组件、Hook、API、服务、规范与业务流问题，实现意图请求须回到 project-test 与 project-task。"
+    },
+    "document:plugins/project-intelligence/skills/project-maintain/SKILL.md": {
+      "name": "SKILL.md",
+      "type": "document",
+      "summary": "project-maintain 技能说明：仅在 project-finish 成功且状态为 finished 后运行，刷新项目事实、记录变更文件并关闭需求；提交变更则回到 project-test/project-review/project-finish。"
+    },
+    "document:plugins/project-intelligence/skills/project-orchestrate/SKILL.md": {
+      "name": "SKILL.md",
+      "type": "document",
+      "summary": "project-orchestrate 技能说明：为含可分离子任务的实现计划提供 subagent 编排，覆盖 inline/sequential/parallel/worktree 执行模式、任务交接契约、逐任务评审循环与最终 whole-diff 评审 gate。"
+    },
+    "document:plugins/project-intelligence/skills/project-plan/SKILL.md": {
+      "name": "SKILL.md",
+      "type": "document",
+      "summary": "project-plan 技能说明：在 project-design 之后为复杂需求或显式请求产出可执行实施计划，拆分文件级任务、接口约束与验证命令，并以 requirement ready 作为编码前 gate。"
+    },
+    "document:plugins/project-intelligence/skills/project-quality/SKILL.md": {
+      "name": "SKILL.md",
+      "type": "document",
+      "summary": "project-quality 技能说明：运行与解读前后端质量检查（ESLint/Stylelint/Prettier/tsc 等），解释 hard/preferred/inferred/candidate 规则级别，任务完成证据须路由到 project-test。"
+    },
+    "document:plugins/project-intelligence/skills/project-refresh/SKILL.md": {
+      "name": "SKILL.md",
+      "type": "document",
+      "summary": "project-refresh 技能说明：在工作区变更、git 合并或图谱分析完成后刷新既有 .project-intel 事实层，区分 fact-only refresh 与显式 --adapters/install 适配器维护，并处理 Understand-Anything 各安装态。"
+    },
+    "document:plugins/project-intelligence/skills/project-review/SKILL.md": {
+      "name": "SKILL.md",
+      "type": "document",
+      "summary": "project-review 技能说明：评审代码改动、PR、实现质量、安全与工作流缺口，结合 GitNexus/Understand-Anything 上下文按严重度排序，修复后经 project-test 重新记录评审轮次并转 finish/maintain。"
+    },
+    "document:plugins/project-intelligence/skills/project-spec/SKILL.md": {
+      "name": "SKILL.md",
+      "type": "document",
+      "summary": "project-spec 技能说明：在 project-intake 之后、project-debug/project-design 之前创建或注册 requirement.md 并持久化编号一致的验收标准，处理 generate/register existing/later 三种动作。"
+    },
+    "document:plugins/project-intelligence/skills/project-standards/SKILL.md": {
+      "name": "SKILL.md",
+      "type": "document",
+      "summary": "project-standards 技能说明：查询、解释、确认、提升或降级项目规范及 hard/preferred/inferred/candidate 规则级别，禁止未经人工确认将 candidate 冗余或入口发现提升为 hard。"
+    },
+    "document:plugins/project-intelligence/skills/project-task/SKILL.md": {
+      "name": "SKILL.md",
+      "type": "document",
+      "summary": "project-task 技能说明：生命周期 ready 之后开始或继续业务代码实现，requirement begin 后执行影响/复用分析、选择执行模式，实现后串联 check/test/review/finish/maintain 完整闭环。"
+    },
+    "document:plugins/project-intelligence/skills/project-test/SKILL.md": {
+      "name": "SKILL.md",
+      "type": "document",
+      "summary": "project-test 技能说明：在 requirement ready 后选择测试类型与报告动作，requirement begin 后执行或记录 RED/GREEN/regression/manual 证据，finish 需任务匹配且文件作用域的新鲜通过证据。"
+    },
+    "file:plugins/project-intelligence/tests/test_project_intel.py": {
+      "name": "test_project_intel.py",
+      "type": "file",
+      "summary": "项目智能插件的主测试套件，通过 importlib 动态加载 scripts/project_intel.py，覆盖文件发现、工具初始化、图谱工具检测、agent 入口安装、生命周期产物、安全配置、硬规则质量、钩子、Skill 路径、CLI 发布契约、标准推断以及打包稳定性等 15 个测试类。"
+    },
+    "file:plugins/project-intelligence/tests/test_testing_security.py": {
+      "name": "test_testing_security.py",
+      "type": "file",
+      "summary": "测试 project_intel_lib/testing.py 的敏感信息脱敏与安全 Markdown 渲染能力，覆盖 Authorization 头、URL userinfo、手机号/身份证/partyId、原始 provider token 以及不可信字段的转义与安全围栏。"
+    },
+    "file:scripts/check-package.mjs": {
+      "name": "check-package.mjs",
+      "type": "file",
+      "summary": "发布前校验脚本：在临时目录运行 npm pack --dry-run，断言产物不含 __pycache__/.pyc/tests 等开发残留且包含 bin、marketplace、project_intel_lib 等关键文件，再实际安装 tarball 并执行 bin/project-intel.mjs --version 与 --help 做烟雾测试。"
+    },
+    "file:scripts/check-release.mjs": {
+      "name": "check-release.mjs",
+      "type": "file",
+      "summary": "发布一致性校验脚本：读取 package.json、Claude/Codex 的 plugin.json 以及 Python 源码中的 VERSION 常量，断言四处版本号完全一致，否则抛错阻止发布。"
+    },
+    "file:scripts/npm-pack-dry-run.mjs": {
+      "name": "npm-pack-dry-run.mjs",
+      "type": "file",
+      "summary": "轻量脚本：在隔离的临时 npm cache 下运行 npm pack --dry-run，预览将要打入 tarball 的文件清单，供本地快速核查包内容。"
+    },
+    "file:scripts/run-tests.mjs": {
+      "name": "run-tests.mjs",
+      "type": "file",
+      "summary": "统一测试入口：在 Windows/Unix 上探测可用 Python 解释器，运行 unittest discover 对 plugins/project-intelligence/tests 下 test_*.py 全量执行，随后调用 scripts/validate-skill-evals.mjs 校验 Skill 契约。"
+    },
+    "file:scripts/validate_bundle.py": {
+      "name": "validate_bundle.py",
+      "type": "file",
+      "summary": "仓库本地校验脚本：加载 Codex/Claude 的 plugin.json 与 marketplace.json，校验插件名、skills 声明、marketplace 条目，并遍历 skills/*/SKILL.md 断言 frontmatter 的 name/description 字段与目录名一致。"
+    },
+    "config:plugins/project-intelligence/.claude-plugin/plugin.json": {
+      "name": "plugin.json",
+      "type": "config",
+      "summary": "Claude Code 插件清单，声明 project-intelligence 插件的名称、版本、描述与作者，供 .claude-plugin/marketplace.json 引用与安装。"
+    },
+    "config:plugins/project-intelligence/.codex-plugin/plugin.json": {
+      "name": "plugin.json",
+      "type": "config",
+      "summary": "Codex CLI 插件清单，声明 project-intelligence 插件的名称、版本、描述、作者，并指向 skills 目录与 OpenAI/Claude agent 接口配置，供 .agents/plugins/marketplace.json 引用与安装。"
+    }
+  },
+  "totalNodes": 104,
+  "totalEdges": 133
+}

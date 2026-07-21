@@ -1,0 +1,13 @@
+{
+  "projectRoot": "/Users/xumeng/Desktop/code/project-intelligence",
+  "batchFiles": [
+    {"path": "plugins/project-intelligence/tests/test_project_intel.py", "language": "python", "sizeLines": 2339, "fileCategory": "code"},
+    {"path": "plugins/project-intelligence/tests/test_testing_security.py", "language": "python", "sizeLines": 166, "fileCategory": "code"},
+    {"path": "scripts/check-package.mjs", "language": "javascript", "sizeLines": 93, "fileCategory": "code"},
+    {"path": "scripts/check-release.mjs", "language": "javascript", "sizeLines": 22, "fileCategory": "code"},
+    {"path": "scripts/npm-pack-dry-run.mjs", "language": "javascript", "sizeLines": 11, "fileCategory": "code"},
+    {"path": "scripts/run-tests.mjs", "language": "javascript", "sizeLines": 43, "fileCategory": "code"},
+    {"path": "scripts/validate_bundle.py", "language": "python", "sizeLines": 57, "fileCategory": "code"}
+  ],
+  "batchImportData": {}
+}

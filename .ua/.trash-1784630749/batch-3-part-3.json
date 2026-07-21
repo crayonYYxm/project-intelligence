@@ -1,0 +1,1022 @@
+{
+  "nodes": [
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:_resolve_blockers",
+      "type": "function",
+      "name": "_resolve_blockers",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "lineRange": [
+        1857,
+        1861
+      ],
+      "summary": "解析指定产物类型的阻断项，返回需解决的待办列表。",
+      "tags": [
+        "阻断项",
+        "解析",
+        "utility"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:record_later",
+      "type": "function",
+      "name": "record_later",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "lineRange": [
+        1864,
+        1901
+      ],
+      "summary": "将指定产物标记为稍后处理，记录状态并跳过当前门禁。",
+      "tags": [
+        "稍后处理",
+        "manifest",
+        "lifecycle"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:_assert_readiness_inputs",
+      "type": "function",
+      "name": "_assert_readiness_inputs",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "lineRange": [
+        1904,
+        1930
+      ],
+      "summary": "断言需求进入 ready 状态前的输入完备性，校验文档与测试契约齐备。",
+      "tags": [
+        "就绪校验",
+        "断言",
+        "门禁"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:ready_requirement",
+      "type": "function",
+      "name": "ready_requirement",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "lineRange": [
+        1933,
+        1948
+      ],
+      "summary": "将需求从 designed 转为 ready 状态，校验就绪输入并记录状态变更。",
+      "tags": [
+        "就绪",
+        "状态转换",
+        "门禁",
+        "lifecycle"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:begin_requirement",
+      "type": "function",
+      "name": "begin_requirement",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "lineRange": [
+        1951,
+        1960
+      ],
+      "summary": "将需求从 ready 转为 implementing 状态，开始实现阶段。",
+      "tags": [
+        "开始实现",
+        "状态转换",
+        "lifecycle"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:_git",
+      "type": "function",
+      "name": "_git",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "lineRange": [
+        1963,
+        1970
+      ],
+      "summary": "在项目根目录执行 git 命令并返回输出，用于范围快照与提交基线获取。",
+      "tags": [
+        "git",
+        "子进程",
+        "utility"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:_committed_scope_entries",
+      "type": "function",
+      "name": "_committed_scope_entries",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "lineRange": [
+        1978,
+        2022
+      ],
+      "summary": "通过 git diff 获取基线与当前提交间的变更文件列表，支持排除路径过滤。",
+      "tags": [
+        "git",
+        "范围快照",
+        "变更检测"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:capture_scope_snapshot",
+      "type": "function",
+      "name": "capture_scope_snapshot",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "lineRange": [
+        2025,
+        2078
+      ],
+      "summary": "捕获范围快照，记录当前提交基线、变更文件与排除路径，返回快照对象。",
+      "tags": [
+        "范围快照",
+        "git",
+        "manifest"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:capture_requirement_scope",
+      "type": "function",
+      "name": "capture_requirement_scope",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "lineRange": [
+        2081,
+        2149
+      ],
+      "summary": "捕获需求专属范围快照，结合 manifest 与 git 变更生成需求级范围记录。",
+      "tags": [
+        "范围快照",
+        "需求",
+        "git"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:_normalize_scope_files",
+      "type": "function",
+      "name": "_normalize_scope_files",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "lineRange": [
+        2166,
+        2181
+      ],
+      "summary": "规范化范围文件列表，解析路径并去重，返回标准相对路径集合。",
+      "tags": [
+        "范围快照",
+        "规范化",
+        "utility"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:validate_scope_selection",
+      "type": "function",
+      "name": "validate_scope_selection",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "lineRange": [
+        2184,
+        2193
+      ],
+      "summary": "校验用户选择的范围文件是否与快照一致，记录不一致项。",
+      "tags": [
+        "范围快照",
+        "校验",
+        "validation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:_manual_valid",
+      "type": "function",
+      "name": "_manual_valid",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "lineRange": [
+        2196,
+        2212
+      ],
+      "summary": "校验人工测试证据的必填字段与类别合法性，确保人工证据记录完整。",
+      "tags": [
+        "人工测试",
+        "校验",
+        "validation"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:_current_test_evidence",
+      "type": "function",
+      "name": "_current_test_evidence",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "lineRange": [
+        2221,
+        2233
+      ],
+      "summary": "从 manifest 提取当前测试证据记录，按证据哈希匹配。",
+      "tags": [
+        "测试证据",
+        "manifest",
+        "utility"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:_test_channels",
+      "type": "function",
+      "name": "_test_channels",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "lineRange": [
+        2236,
+        2240
+      ],
+      "summary": "根据测试类型返回对应的测试渠道集合，区分 unit/service/manual。",
+      "tags": [
+        "测试类型",
+        "渠道",
+        "utility"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:_test_gate_for_records",
+      "type": "function",
+      "name": "_test_gate_for_records",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "lineRange": [
+        2243,
+        2273
+      ],
+      "summary": "根据测试记录评估各测试渠道的门禁满足情况，返回未通过的渠道列表。",
+      "tags": [
+        "测试门禁",
+        "评估",
+        "manifest"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:record_test_result",
+      "type": "function",
+      "name": "record_test_result",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "lineRange": [
+        2280,
+        2472
+      ],
+      "summary": "记录测试结果到 manifest，校验报告文件、规范化测试报告、更新证据记录并评估测试门禁满足情况。",
+      "tags": [
+        "测试结果",
+        "manifest",
+        "测试门禁",
+        "lifecycle"
+      ],
+      "complexity": "complex",
+      "languageNotes": "是测试证据生命周期的核心函数，集中处理报告解析、规范化、范围比对与门禁评估。"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:append_test_report_execution",
+      "type": "function",
+      "name": "append_test_report_execution",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "lineRange": [
+        2475,
+        2545
+      ],
+      "summary": "追加一次测试报告执行记录到 manifest，记录命令、详情、阶段与执行用例数。",
+      "tags": [
+        "测试报告",
+        "追加",
+        "manifest"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:record_review",
+      "type": "function",
+      "name": "record_review",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "lineRange": [
+        2548,
+        2609
+      ],
+      "summary": "记录评审结果到 manifest，保存结论、摘要、发现项与关联文件，并评估评审门禁。",
+      "tags": [
+        "评审",
+        "manifest",
+        "lifecycle"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:resolve_review_findings",
+      "type": "function",
+      "name": "resolve_review_findings",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "lineRange": [
+        2612,
+        2658
+      ],
+      "summary": "标记评审发现项为已解决，记录解决人与解决方式，并更新门禁状态。",
+      "tags": [
+        "评审",
+        "发现项",
+        "解决",
+        "manifest"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:_artifact_is_current",
+      "type": "function",
+      "name": "_artifact_is_current",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "lineRange": [
+        2661,
+        2666
+      ],
+      "summary": "判断产物文件是否为最新，比对当前哈希与记录哈希。",
+      "tags": [
+        "产物",
+        "新鲜度",
+        "utility"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:_current_test_artifact",
+      "type": "function",
+      "name": "_current_test_artifact",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "lineRange": [
+        2669,
+        2683
+      ],
+      "summary": "从 manifest 获取当前测试产物记录，按报告路径匹配。",
+      "tags": [
+        "测试产物",
+        "manifest",
+        "utility"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:_validated_passing_test_evidence",
+      "type": "function",
+      "name": "_validated_passing_test_evidence",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "lineRange": [
+        2686,
+        2726
+      ],
+      "summary": "校验通过的测试证据记录，确认报告文件存在且结果为通过。",
+      "tags": [
+        "测试证据",
+        "校验",
+        "validation"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:_test_gate_with_current_reports",
+      "type": "function",
+      "name": "_test_gate_with_current_reports",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "lineRange": [
+        2729,
+        2742
+      ],
+      "summary": "结合当前报告评估测试门禁满足情况，返回未通过渠道。",
+      "tags": [
+        "测试门禁",
+        "评估",
+        "manifest"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:requirement_validation_status",
+      "type": "function",
+      "name": "requirement_validation_status",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "lineRange": [
+        2745,
+        2783
+      ],
+      "summary": "返回需求文档的校验状态，校验需求文档是否存在且有效。",
+      "tags": [
+        "校验状态",
+        "需求文档",
+        "status"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:design_validation_status",
+      "type": "function",
+      "name": "design_validation_status",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "lineRange": [
+        2790,
+        2828
+      ],
+      "summary": "返回设计文档的校验状态，校验设计文档是否存在且有效。",
+      "tags": [
+        "校验状态",
+        "设计文档",
+        "status"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:plan_validation_status",
+      "type": "function",
+      "name": "plan_validation_status",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "lineRange": [
+        2835,
+        2875
+      ],
+      "summary": "返回实施计划文档的校验状态，校验计划文档是否存在且有效。",
+      "tags": [
+        "校验状态",
+        "实施计划",
+        "status"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:_best_document_state",
+      "type": "function",
+      "name": "_best_document_state",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "lineRange": [
+        2878,
+        2886
+      ],
+      "summary": "返回文档的最佳状态，综合有效、稍后处理与缺失情况。",
+      "tags": [
+        "文档状态",
+        "utility"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:finish_requirement",
+      "type": "function",
+      "name": "finish_requirement",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "lineRange": [
+        2889,
+        2972
+      ],
+      "summary": "将需求转为 finished 状态，校验文档、测试与评审门禁全部满足并记录范围快照。",
+      "tags": [
+        "收尾",
+        "状态转换",
+        "门禁",
+        "lifecycle"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:_validate_finished_invariants",
+      "type": "function",
+      "name": "_validate_finished_invariants",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "lineRange": [
+        2975,
+        3030
+      ],
+      "summary": "校验 finished 状态的不变量，确认文档、测试证据与评审记录均满足门禁要求。",
+      "tags": [
+        "收尾校验",
+        "不变量",
+        "门禁"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:validate_finished_freshness",
+      "type": "function",
+      "name": "validate_finished_freshness",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "lineRange": [
+        3033,
+        3046
+      ],
+      "summary": "校验 finished 需求的新鲜度，确认产物自收尾后未被篡改。",
+      "tags": [
+        "新鲜度",
+        "收尾校验",
+        "validation"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:close_requirement",
+      "type": "function",
+      "name": "close_requirement",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "lineRange": [
+        3049,
+        3072
+      ],
+      "summary": "将需求从 finished 转为 closed 状态，可选校验收尾检查是否成功。",
+      "tags": [
+        "关闭",
+        "状态转换",
+        "lifecycle"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:reopen_requirement",
+      "type": "function",
+      "name": "reopen_requirement",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "lineRange": [
+        3075,
+        3130
+      ],
+      "summary": "将已关闭需求重新打开，记录重开原因并回退状态。",
+      "tags": [
+        "重开",
+        "状态转换",
+        "lifecycle"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:status_payload",
+      "type": "function",
+      "name": "status_payload",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "lineRange": [
+        3133,
+        3177
+      ],
+      "summary": "聚合需求状态信息，返回包含状态、文档校验、测试门禁与评审的完整状态 payload。",
+      "tags": [
+        "状态",
+        "payload",
+        "status"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:record_changed_files",
+      "type": "function",
+      "name": "record_changed_files",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "lineRange": [
+        3180,
+        3203
+      ],
+      "summary": "记录需求的变更文件列表到 manifest，结合范围快照更新变更记录。",
+      "tags": [
+        "变更文件",
+        "manifest",
+        "范围快照"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:_requirement_manifest_files",
+      "type": "function",
+      "name": "_requirement_manifest_files",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "lineRange": [
+        3206,
+        3230
+      ],
+      "summary": "枚举项目中所有需求的 manifest 文件路径，支持新旧两种布局。",
+      "tags": [
+        "manifest",
+        "枚举",
+        "utility"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:query_requirements",
+      "type": "function",
+      "name": "query_requirements",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "lineRange": [
+        3233,
+        3275
+      ],
+      "summary": "查询需求列表，支持按文件路径与状态过滤，返回需求状态摘要集合。",
+      "tags": [
+        "查询",
+        "需求",
+        "filter"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:migrate_layout",
+      "type": "function",
+      "name": "migrate_layout",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "lineRange": [
+        3278,
+        3422
+      ],
+      "summary": "将旧版布局的需求 manifest 迁移到新布局，支持 dry_run 预览，处理目录与 schema 版本升级。",
+      "tags": [
+        "迁移",
+        "布局",
+        "schema",
+        "lifecycle"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:plugins/project-intelligence/scripts/project_intel_lib/testing.py",
+      "type": "file",
+      "name": "testing.py",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/testing.py",
+      "summary": "测试证据的持久化与渲染模块，负责脱敏处理、文件哈希计算、RED/GREEN/regression 阶段判定与 Markdown/JSON 证据报告生成。",
+      "tags": [
+        "测试证据",
+        "脱敏",
+        "哈希",
+        "证据渲染",
+        "testing"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "通过正则识别凭据、URL userinfo 与头部敏感值并执行脱敏，确保测试输出在落盘前不泄露密钥。"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/testing.py:load_test_evidence",
+      "type": "function",
+      "name": "load_test_evidence",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/testing.py",
+      "lineRange": [
+        26,
+        34
+      ],
+      "summary": "从 .project-intel 目录加载测试证据 JSON，文件缺失或损坏时返回空字典。",
+      "tags": [
+        "测试证据",
+        "加载",
+        "utility"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/testing.py:manual_evidence_valid",
+      "type": "function",
+      "name": "manual_evidence_valid",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/testing.py",
+      "lineRange": [
+        37,
+        47
+      ],
+      "summary": "校验人工测试证据文本的有效性，检查长度并排除通用无意义描述。",
+      "tags": [
+        "人工测试",
+        "校验",
+        "validation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/testing.py:_find_unescaped",
+      "type": "function",
+      "name": "_find_unescaped",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/testing.py",
+      "lineRange": [
+        87,
+        100
+      ],
+      "summary": "查找文本中未转义的特殊字符位置，供 Markdown 转义使用。",
+      "tags": [
+        "转义",
+        "markdown",
+        "utility"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/testing.py:_redact_header_values",
+      "type": "function",
+      "name": "_redact_header_values",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/testing.py",
+      "lineRange": [
+        103,
+        128
+      ],
+      "summary": "脱敏 HTTP 头部值，识别并遮蔽 Authorization、Cookie 等敏感头部。",
+      "tags": [
+        "脱敏",
+        "http头",
+        "security"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/testing.py:_redact_url_userinfo",
+      "type": "function",
+      "name": "_redact_url_userinfo",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/testing.py",
+      "lineRange": [
+        131,
+        136
+      ],
+      "summary": "脱敏 URL 中的用户信息部分，遮蔽 user:password@ 凭据段。",
+      "tags": [
+        "脱敏",
+        "url",
+        "security"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/testing.py:sanitize_text",
+      "type": "function",
+      "name": "sanitize_text",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/testing.py",
+      "lineRange": [
+        139,
+        169
+      ],
+      "summary": "脱敏文本中的敏感信息，包括凭据、密钥、URL userinfo 与 HTTP 头部，返回安全文本。",
+      "tags": [
+        "脱敏",
+        "敏感信息",
+        "security"
+      ],
+      "complexity": "complex",
+      "languageNotes": "通过组合多个正则模式识别并遮蔽不同类型的敏感值，是测试证据落盘前的安全关口。"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/testing.py:executed_test_count",
+      "type": "function",
+      "name": "executed_test_count",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/testing.py",
+      "lineRange": [
+        172,
+        190
+      ],
+      "summary": "从测试结果 payload 中提取已执行测试用例总数。",
+      "tags": [
+        "测试结果",
+        "用例数",
+        "utility"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/testing.py:_hash_files",
+      "type": "function",
+      "name": "_hash_files",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/testing.py",
+      "lineRange": [
+        212,
+        224
+      ],
+      "summary": "计算文件列表的聚合哈希，用于测试证据完整性校验。",
+      "tags": [
+        "哈希",
+        "完整性",
+        "utility"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/testing.py:phase_passed",
+      "type": "function",
+      "name": "phase_passed",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/testing.py",
+      "lineRange": [
+        227,
+        246
+      ],
+      "summary": "判断指定测试阶段是否通过，结合结果、人工证据与预期失败情况综合评估。",
+      "tags": [
+        "测试阶段",
+        "评估",
+        "utility"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/testing.py:render_test_evidence",
+      "type": "function",
+      "name": "render_test_evidence",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/testing.py",
+      "lineRange": [
+        249,
+        301
+      ],
+      "summary": "将测试证据 payload 渲染为 Markdown 文本，包含阶段、结果与文件列表等章节。",
+      "tags": [
+        "测试证据",
+        "渲染",
+        "markdown"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/testing.py:record_test_evidence",
+      "type": "function",
+      "name": "record_test_evidence",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/testing.py",
+      "lineRange": [
+        304,
+        353
+      ],
+      "summary": "记录测试证据到 .project-intel 目录，脱敏后写入 JSON 与 Markdown 报告并更新 payload。",
+      "tags": [
+        "测试证据",
+        "记录",
+        "持久化"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/testing.py:evaluate_test_evidence",
+      "type": "function",
+      "name": "evaluate_test_evidence",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/testing.py",
+      "lineRange": [
+        363,
+        406
+      ],
+      "summary": "评估测试证据的整体状态，综合各阶段结果判断是否通过测试门禁。",
+      "tags": [
+        "测试证据",
+        "评估",
+        "门禁"
+      ],
+      "complexity": "complex"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/testing.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/testing.py:load_test_evidence",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/testing.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/testing.py:manual_evidence_valid",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/testing.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/testing.py:_find_unescaped",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/testing.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/testing.py:_redact_header_values",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/testing.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/testing.py:_redact_url_userinfo",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/testing.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/testing.py:sanitize_text",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/testing.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/testing.py:executed_test_count",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/testing.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/testing.py:_hash_files",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/testing.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/testing.py:phase_passed",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/testing.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/testing.py:render_test_evidence",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/testing.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/testing.py:record_test_evidence",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/testing.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/testing.py:evaluate_test_evidence",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/testing.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/testing.py:load_test_evidence",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/testing.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/testing.py:manual_evidence_valid",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/testing.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/testing.py:sanitize_text",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/testing.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/testing.py:executed_test_count",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/testing.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/testing.py:phase_passed",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/testing.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/testing.py:render_test_evidence",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/testing.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/testing.py:record_test_evidence",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/testing.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/testing.py:evaluate_test_evidence",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:record_test_result",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/testing.py:sanitize_text",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:requirement_validation_status",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirement_documents.py:validate",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:design_validation_status",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py:validate",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+{
+  "nodes": [
+    {
+      "id": "document:AGENTS.md",
+      "type": "document",
+      "name": "AGENTS.md",
+      "filePath": "AGENTS.md",
+      "summary": "面向 Codex/通用 Agent 的项目级指令文件，汇总 Project Intelligence 与 GitNexus 的工作守则、资源清单、CLI 用法及技能调用规则，供 Agent 在仓库内自动加载遵循。",
+      "tags": ["documentation", "agent-instructions", "entry-point", "configuration"],
+      "complexity": "moderate",
+      "languageNotes": "AGENTS.md 是 Codex CLI 约定自动加载的仓库级 Agent 指令文件，结构与 CLAUDE.md 高度一致以兼容多 Agent 运行时。"
+    },
+    {
+      "id": "document:CHANGELOG.md",
+      "type": "document",
+      "name": "CHANGELOG.md",
+      "filePath": "CHANGELOG.md",
+      "summary": "Project Intelligence 的版本发布日志，按版本号倒序记录从 0.1.13 到 0.6.1 的功能新增、修复与变更，是项目演进历史的单一事实来源。",
+      "tags": ["documentation", "changelog", "release-history", "versioning"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "document:CLAUDE.md",
+      "type": "document",
+      "name": "CLAUDE.md",
+      "filePath": "CLAUDE.md",
+      "summary": "面向 Claude Code 的项目级指令文件，提供与 AGENTS.md 一致的工作守则、GitNexus 资源、CLI 用法及 Project Intelligence 技能调用规则，确保不同 Agent 行为统一。",
+      "tags": ["documentation", "agent-instructions", "entry-point", "configuration"],
+      "complexity": "moderate",
+      "languageNotes": "CLAUDE.md 是 Claude Code 约定自动加载的仓库级 Agent 指令文件，与 AGENTS.md 内容同步以保持多 Agent 一致性。"
+    },
+    {
+      "id": "document:README.md",
+      "type": "document",
+      "name": "README.md",
+      "filePath": "README.md",
+      "summary": "Project Intelligence 项目主入口文档，以中文介绍安装方式（npm/Claude Code/Codex CLI）、CLI 命令、可用 Skills、执行纪律与 Skill 行为评测，是新用户上手的首要入口。",
+      "tags": ["documentation", "entry-point", "overview", "getting-started"],
+      "complexity": "moderate",
+      "languageNotes": "README 以中文撰写，采用 npm 优先的安装引导并覆盖多 Agent 运行时（Claude Code、Codex CLI）的接入说明。"
+    },
+    {
+      "id": "config:package.json",
+      "type": "config",
+      "name": "package.json",
+      "filePath": "package.json",
+      "summary": "Project Intelligence 的 npm 包清单，声明包名、版本、ESM 模块类型、CLI bin 入口、发布文件列表、Node 引擎要求及构建/发布脚本，是包发布与本地开发的核心配置。",
+      "tags": ["configuration", "npm", "build-system", "package-manifest"],
+      "complexity": "simple",
+      "languageNotes": "设置 \"type\": \"module\" 启用 ESM，通过 bin 字段暴露 CLI 入口，files 字段精确控制发布产物范围。"
+    }
+  ],
+  "edges": [
+    {
+      "source": "document:AGENTS.md",
+      "target": "document:CLAUDE.md",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    }
+  ]
+}

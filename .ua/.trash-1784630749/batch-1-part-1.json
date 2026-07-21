@@ -1,0 +1,3423 @@
+{
+  "nodes": [
+    {
+      "id": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "type": "file",
+      "name": "application.py",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "summary": "project-intel CLI 的应用服务层与命令派发核心，承载 init/status/intake/spec/plan/test/finish/maintain/check 等全部子命令实现、项目扫描装配、工具探测、规范渲染与 adapter 注入。",
+      "tags": [
+        "entry-point",
+        "cli",
+        "application-core",
+        "dispatch",
+        "lifecycle"
+      ],
+      "complexity": "complex",
+      "languageNotes": "单文件 5696 行聚合了 CLI 解析、命令派发与生命周期服务；通过 module-level 别名把 scanner/graph 子模块的函数暴露为公共 facade。"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:run",
+      "type": "function",
+      "name": "run",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        161,
+        172
+      ],
+      "summary": "在指定工作目录执行命令并以超时控制捕获 stdout/stderr。",
+      "tags": [
+        "subprocess",
+        "runner",
+        "io"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:run_shell",
+      "type": "function",
+      "name": "run_shell",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        175,
+        187
+      ],
+      "summary": "通过 shell 解析执行命令字符串，复用 run 的超时与捕获逻辑。",
+      "tags": [
+        "subprocess",
+        "runner",
+        "shell"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:package_manager",
+      "type": "function",
+      "name": "package_manager",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        201,
+        206
+      ],
+      "summary": "application 服务函数 package_manager。",
+      "tags": [
+        "application-core",
+        "cli",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:slugify",
+      "type": "function",
+      "name": "slugify",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        209,
+        215
+      ],
+      "summary": "application 服务函数 slugify。",
+      "tags": [
+        "application-core",
+        "cli",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:read_text",
+      "type": "function",
+      "name": "read_text",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        229,
+        249
+      ],
+      "summary": "安全读取文件前若干字节文本，自动跳过二进制与超大文件。",
+      "tags": [
+        "io",
+        "reader",
+        "safe"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:write_text",
+      "type": "function",
+      "name": "write_text",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        256,
+        273
+      ],
+      "summary": "原子写入文本到文件，必要时创建父目录并截断已有内容。",
+      "tags": [
+        "io",
+        "writer",
+        "atomic"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:_assert_safe_managed_path",
+      "type": "function",
+      "name": "_assert_safe_managed_path",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        276,
+        287
+      ],
+      "summary": "断言 managed block 的相对路径落在 root 之内，阻止越界写入。",
+      "tags": [
+        "application-core",
+        "cli",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:_assert_safe_adapter_path",
+      "type": "function",
+      "name": "_assert_safe_adapter_path",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        297,
+        303
+      ],
+      "summary": "application 服务函数 _assert_safe_adapter_path。",
+      "tags": [
+        "application-core",
+        "cli",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:_read_adapter_text",
+      "type": "function",
+      "name": "_read_adapter_text",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        306,
+        313
+      ],
+      "summary": "application 服务函数 _read_adapter_text。",
+      "tags": [
+        "application-core",
+        "cli",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:_replace_single_managed_block",
+      "type": "function",
+      "name": "_replace_single_managed_block",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        321,
+        342
+      ],
+      "summary": "在一段文本中按起止标记替换单个 managed block，缺失时可选追加。",
+      "tags": [
+        "application-core",
+        "cli",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:upsert_adapter_managed_block",
+      "type": "function",
+      "name": "upsert_adapter_managed_block",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        345,
+        366
+      ],
+      "summary": "在 adapter 文件中按标记插入或替换 managed block，支持 dry-run。",
+      "tags": [
+        "application-core",
+        "cli",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:remove_adapter_managed_block",
+      "type": "function",
+      "name": "remove_adapter_managed_block",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        369,
+        390
+      ],
+      "summary": "从 adapter 文件中移除指定标记区间的 managed block，支持 dry-run。",
+      "tags": [
+        "application-core",
+        "cli",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:upsert_managed_block_with_markers",
+      "type": "function",
+      "name": "upsert_managed_block_with_markers",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        393,
+        408
+      ],
+      "summary": "以自定义起止标记在任意文件中插入或替换 managed block。",
+      "tags": [
+        "application-core",
+        "cli",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:remove_managed_block_with_markers",
+      "type": "function",
+      "name": "remove_managed_block_with_markers",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        415,
+        425
+      ],
+      "summary": "按自定义起止标记从文件中移除 managed block。",
+      "tags": [
+        "application-core",
+        "cli",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:cleanup_legacy_local_skills",
+      "type": "function",
+      "name": "cleanup_legacy_local_skills",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        428,
+        460
+      ],
+      "summary": "清理 v0.1.7 及更早版本遗留到目标项目的 local skill 副本。",
+      "tags": [
+        "application-core",
+        "cli",
+        "service"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:plugins/project-intelligence/scripts/project_intel_lib/application.py:JsonArgumentParser",
+      "type": "class",
+      "name": "JsonArgumentParser",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        475,
+        478
+      ],
+      "summary": "argparse.ArgumentParser 子类，覆写 error() 以在 --json 模式下输出结构化错误而非退出到 stderr。",
+      "tags": [
+        "cli",
+        "argparse",
+        "error-handling"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:load_json_strict",
+      "type": "function",
+      "name": "load_json_strict",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        481,
+        490
+      ],
+      "summary": "严格读取并解析 JSON 文件，解析失败时报错带标签。",
+      "tags": [
+        "application-core",
+        "cli",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:path_matches_pattern",
+      "type": "function",
+      "name": "path_matches_pattern",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        511,
+        546
+      ],
+      "summary": "按 gitignore 风格 glob 匹配相对路径，支持目录与文件通配。",
+      "tags": [
+        "application-core",
+        "cli",
+        "service"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:scan_settings",
+      "type": "function",
+      "name": "scan_settings",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        553,
+        558
+      ],
+      "summary": "application 服务函数 scan_settings。",
+      "tags": [
+        "application-core",
+        "cli",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:is_excluded",
+      "type": "function",
+      "name": "is_excluded",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        561,
+        572
+      ],
+      "summary": "判断路径是否被项目配置或内置排除目录命中。",
+      "tags": [
+        "application-core",
+        "cli",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:iter_project_files",
+      "type": "function",
+      "name": "iter_project_files",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        575,
+        600
+      ],
+      "summary": "遍历项目文件并按配置过滤，text_only 模式仅保留可读文本后缀。",
+      "tags": [
+        "scan",
+        "file-walker",
+        "filter"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:git_info",
+      "type": "function",
+      "name": "git_info",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        607,
+        615
+      ],
+      "summary": "通过 git 命令收集当前分支、HEAD 提交与 remote 等仓库元信息。",
+      "tags": [
+        "application-core",
+        "cli",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:detect_package",
+      "type": "function",
+      "name": "detect_package",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        618,
+        654
+      ],
+      "summary": "探测项目包管理器、构建框架与 monorepo 结构，输出 package 摘要。",
+      "tags": [
+        "package",
+        "detection",
+        "scan"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:detect_quality_commands",
+      "type": "function",
+      "name": "detect_quality_commands",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        657,
+        687
+      ],
+      "summary": "结合项目类型推断 lint/format/test/类型检查等质量工具命令。",
+      "tags": [
+        "tooling",
+        "quality",
+        "detection"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:understand_plugin_roots",
+      "type": "function",
+      "name": "understand_plugin_roots",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        696,
+        724
+      ],
+      "summary": "枚举 Understand-Anything 插件在各 agent 平台的安装根目录。",
+      "tags": [
+        "application-core",
+        "cli",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:current_agent_platform",
+      "type": "function",
+      "name": "current_agent_platform",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        727,
+        740
+      ],
+      "summary": "识别当前运行的 agent 平台（claude / codex / 其他）。",
+      "tags": [
+        "application-core",
+        "cli",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:claude_understand_installs",
+      "type": "function",
+      "name": "claude_understand_installs",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        743,
+        764
+      ],
+      "summary": "枚举 Claude 侧 Understand-Anything 插件的已知安装位置与状态。",
+      "tags": [
+        "application-core",
+        "cli",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:claude_plugin_list_statuses",
+      "type": "function",
+      "name": "claude_plugin_list_statuses",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        767,
+        787
+      ],
+      "summary": "调用 claude plugin list 并解析插件启用/安装状态。",
+      "tags": [
+        "application-core",
+        "cli",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:claude_understand_install_is_ready",
+      "type": "function",
+      "name": "claude_understand_install_is_ready",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        790,
+        798
+      ],
+      "summary": "application 服务函数 claude_understand_install_is_ready。",
+      "tags": [
+        "application-core",
+        "cli",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:claude_understand_install_is_repairable",
+      "type": "function",
+      "name": "claude_understand_install_is_repairable",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        801,
+        808
+      ],
+      "summary": "application 服务函数 claude_understand_install_is_repairable。",
+      "tags": [
+        "application-core",
+        "cli",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:understand_installed_platforms",
+      "type": "function",
+      "name": "understand_installed_platforms",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        811,
+        825
+      ],
+      "summary": "汇总 Understand-Anything 在各 agent 平台的已安装情况。",
+      "tags": [
+        "application-core",
+        "cli",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:understand_install_options",
+      "type": "function",
+      "name": "understand_install_options",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        828,
+        896
+      ],
+      "summary": "为各平台生成 Understand-Anything 的安装/启用命令候选项。",
+      "tags": [
+        "understand-anything",
+        "installer",
+        "options"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:default_understand_install_command",
+      "type": "function",
+      "name": "default_understand_install_command",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        904,
+        910
+      ],
+      "summary": "application 服务函数 default_understand_install_command。",
+      "tags": [
+        "application-core",
+        "cli",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:understand_analyze_command",
+      "type": "function",
+      "name": "understand_analyze_command",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        913,
+        919
+      ],
+      "summary": "application 服务函数 understand_analyze_command。",
+      "tags": [
+        "application-core",
+        "cli",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:detect_graph_actions",
+      "type": "function",
+      "name": "detect_graph_actions",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        922,
+        998
+      ],
+      "summary": "检测项目可执行的图谱分析动作（analyze/refresh）及其命令来源。",
+      "tags": [
+        "application-core",
+        "cli",
+        "service"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:detect_quality_tool_status",
+      "type": "function",
+      "name": "detect_quality_tool_status",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        1001,
+        1033
+      ],
+      "summary": "检查质量工具（eslint/prettier/tsc 等）在项目中的可用状态。",
+      "tags": [
+        "tooling",
+        "quality",
+        "detection"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:detect_tooling",
+      "type": "function",
+      "name": "detect_tooling",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        1036,
+        1127
+      ],
+      "summary": "综合探测 git/node/包管理器/质量工具/图谱工具，生成完整 tooling 摘要。",
+      "tags": [
+        "tooling",
+        "detection",
+        "scan"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:print_tooling_summary",
+      "type": "function",
+      "name": "print_tooling_summary",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "lineRange": [
+        1134,
+        1156
+      ],
+      "summary": "以人类可读表格输出工具探测结果，标红缺失项。",
+      "tags": [
+        "application-core",
+        "cli",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:plugins/project-intelligence/scripts/project_intel_lib/__init__.py",
+      "type": "file",
+      "name": "__init__.py",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/__init__.py",
+      "summary": "project_intel_lib 包入口，re-export core 模块的 IncrementalScanCache、file_signature、sanitize_tooling 三个公共符号。",
+      "tags": [
+        "entry-point",
+        "barrel",
+        "package-init"
+      ],
+      "complexity": "simple",
+      "languageNotes": "Python 包 barrel：通过 __all__ 显式约束 re-export 范围。"
+    },
+    {
+      "id": "file:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py",
+      "type": "file",
+      "name": "backend.py",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py",
+      "summary": "后端扫描器：用 Python AST 与正则从 Java/Kotlin/Python/Go/TS 源码中提取框架、端点、方法、字段、仓储、SQL、配置键与权限/事务/远程调用/消息/错误码等结构信号。",
+      "tags": [
+        "scanner",
+        "backend",
+        "ast",
+        "static-analysis"
+      ],
+      "complexity": "complex",
+      "languageNotes": "python_ast_facts 用 ast 模块解析 Python 源码提取函数/类/import 事实；mask_comments_and_strings 先剥离注释与字符串再做正则匹配以降低误报。"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py:unique_limited",
+      "type": "function",
+      "name": "unique_limited",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py",
+      "lineRange": [
+        16,
+        27
+      ],
+      "summary": "对任意项列表去重并截断到上限，dict/list 用 JSON 序列化作为去重键。",
+      "tags": [
+        "utility",
+        "dedup"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py:flatten_regex_hits",
+      "type": "function",
+      "name": "flatten_regex_hits",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py",
+      "lineRange": [
+        30,
+        37
+      ],
+      "summary": "把正则 match 元组结果展平为去重后的字符串列表。",
+      "tags": [
+        "utility",
+        "regex"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py:annotation_values",
+      "type": "function",
+      "name": "annotation_values",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py",
+      "lineRange": [
+        40,
+        48
+      ],
+      "summary": "从文本中提取指定注解名后的字符串/列表参数值。",
+      "tags": [
+        "extraction",
+        "annotation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py:mask_comments_and_strings",
+      "type": "function",
+      "name": "mask_comments_and_strings",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py",
+      "lineRange": [
+        51,
+        112
+      ],
+      "summary": "用状态机剥离源码中的注释与字符串字面量，便于后续正则匹配降低误报。",
+      "tags": [
+        "parsing",
+        "sanitizer",
+        "static-analysis"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py:annotation_values_in_code",
+      "type": "function",
+      "name": "annotation_values_in_code",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py",
+      "lineRange": [
+        115,
+        120
+      ],
+      "summary": "在已 mask 的代码文本上提取注解参数值，避免命中字符串/注释。",
+      "tags": [
+        "extraction",
+        "annotation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py:quoted_literal_at",
+      "type": "function",
+      "name": "quoted_literal_at",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py",
+      "lineRange": [
+        123,
+        141
+      ],
+      "summary": "从给定的引号位置解析出完整的字符串字面量内容。",
+      "tags": [
+        "parsing",
+        "literal"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py:python_ast_facts",
+      "type": "function",
+      "name": "python_ast_facts",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py",
+      "lineRange": [
+        144,
+        222
+      ],
+      "summary": "用 ast 模块解析 Python 源码，提取函数/类/导入/赋值等事实供后续信号提取使用。",
+      "tags": [
+        "ast",
+        "python",
+        "static-analysis"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py:detect_backend_framework",
+      "type": "function",
+      "name": "detect_backend_framework",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py",
+      "lineRange": [
+        225,
+        239
+      ],
+      "summary": "结合路径、文本与 AST 事实判断后端框架（Spring/Django/FastAPI/Gin 等）。",
+      "tags": [
+        "detection",
+        "framework",
+        "backend"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py:extract_backend_endpoints",
+      "type": "function",
+      "name": "extract_backend_endpoints",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py",
+      "lineRange": [
+        242,
+        259
+      ],
+      "summary": "从后端源码中提取 HTTP 路由/端点注解与方法级路径。",
+      "tags": [
+        "extraction",
+        "endpoint",
+        "backend"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py:extract_backend_methods",
+      "type": "function",
+      "name": "extract_backend_methods",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py",
+      "lineRange": [
+        262,
+        274
+      ],
+      "summary": "提取后端 service/controller 的公开方法名列表。",
+      "tags": [
+        "extraction",
+        "method",
+        "backend"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py:extract_backend_fields",
+      "type": "function",
+      "name": "extract_backend_fields",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py",
+      "lineRange": [
+        277,
+        287
+      ],
+      "summary": "从模型/DTO 中提取字段定义列表。",
+      "tags": [
+        "extraction",
+        "field",
+        "backend"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py:extract_repository_methods",
+      "type": "function",
+      "name": "extract_repository_methods",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py",
+      "lineRange": [
+        290,
+        295
+      ],
+      "summary": "识别仓储类并提取其数据访问方法。",
+      "tags": [
+        "extraction",
+        "repository",
+        "backend"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py:extract_config_keys",
+      "type": "function",
+      "name": "extract_config_keys",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py",
+      "lineRange": [
+        302,
+        313
+      ],
+      "summary": "从配置文件/代码中提取配置键名。",
+      "tags": [
+        "extraction",
+        "config",
+        "backend"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py:extract_permission_signals",
+      "type": "function",
+      "name": "extract_permission_signals",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py",
+      "lineRange": [
+        323,
+        328
+      ],
+      "summary": "提取鉴权/权限相关信号（@PreAuthorize、permission 等）。",
+      "tags": [
+        "extraction",
+        "security",
+        "backend"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py:extract_transaction_signals",
+      "type": "function",
+      "name": "extract_transaction_signals",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py",
+      "lineRange": [
+        331,
+        336
+      ],
+      "summary": "提取事务边界信号（@Transactional 等）。",
+      "tags": [
+        "extraction",
+        "transaction",
+        "backend"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py:extract_remote_call_signals",
+      "type": "function",
+      "name": "extract_remote_call_signals",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py",
+      "lineRange": [
+        339,
+        345
+      ],
+      "summary": "提取远程调用信号（HTTP/RPC/Feign 客户端等）。",
+      "tags": [
+        "extraction",
+        "remote-call",
+        "backend"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py:extract_error_code_signals",
+      "type": "function",
+      "name": "extract_error_code_signals",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py",
+      "lineRange": [
+        355,
+        362
+      ],
+      "summary": "提取错误码定义与抛出信号。",
+      "tags": [
+        "extraction",
+        "error-code",
+        "backend"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py:scan_backend_file",
+      "type": "function",
+      "name": "scan_backend_file",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py",
+      "lineRange": [
+        371,
+        449
+      ],
+      "summary": "对单个后端文件执行全套信号提取，产出结构化扫描结果。",
+      "tags": [
+        "scanner",
+        "backend",
+        "orchestration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py:scan_backend",
+      "type": "function",
+      "name": "scan_backend",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py",
+      "lineRange": [
+        452,
+        491
+      ],
+      "summary": "遍历后端文件集合，结合增量缓存执行批量扫描并汇总结果。",
+      "tags": [
+        "scanner",
+        "backend",
+        "orchestration"
+      ],
+      "complexity": "moderate"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py:unique_limited",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py:flatten_regex_hits",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py:annotation_values",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py:mask_comments_and_strings",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py:annotation_values_in_code",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py:quoted_literal_at",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py:python_ast_facts",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py:detect_backend_framework",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py:extract_backend_endpoints",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py:extract_backend_methods",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py:extract_backend_fields",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py:extract_repository_methods",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py:extract_config_keys",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py:extract_permission_signals",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py:extract_transaction_signals",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py:extract_remote_call_signals",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py:extract_error_code_signals",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py:scan_backend_file",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py:scan_backend",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "class:plugins/project-intelligence/scripts/project_intel_lib/application.py:JsonArgumentParser",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:run",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:run_shell",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:package_manager",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:slugify",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:read_text",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:write_text",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:_assert_safe_managed_path",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:_assert_safe_adapter_path",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:_read_adapter_text",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:_replace_single_managed_block",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:upsert_adapter_managed_block",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:remove_adapter_managed_block",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:upsert_managed_block_with_markers",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:remove_managed_block_with_markers",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:cleanup_legacy_local_skills",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:load_json_strict",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:path_matches_pattern",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:scan_settings",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:is_excluded",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:iter_project_files",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:git_info",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:detect_package",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:detect_quality_commands",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:understand_plugin_roots",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:current_agent_platform",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:claude_understand_installs",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:claude_plugin_list_statuses",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:claude_understand_install_is_ready",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:claude_understand_install_is_repairable",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:understand_installed_platforms",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:understand_install_options",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:default_understand_install_command",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:understand_analyze_command",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:detect_graph_actions",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:detect_quality_tool_status",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:detect_tooling",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:print_tooling_summary",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:print_graph_tools_report",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:graph_timeout_seconds",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:run_graph_command",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:command_uses_external_path",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:graph_command_authorized",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:install_options_for_action",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:choose_install_option",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:run_install_option",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:verify_understand_claude_install",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:setup_graph_tools",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:handle_tooling_setup",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:scan_frontend",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:scan_backend",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:file_index",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:build_manifest",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:default_config",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:validate_string_list",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:validate_project_config",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:merge_quality_commands",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:prepare_project_config",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:read_project_config",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:dominant_parent",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:infer_standards",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:render_components_standard",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:render_api_standard",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:render_router_standard",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:render_domain_flows_standard",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:render_backend_api_standard",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:render_backend_services_standard",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:render_backend_models_standard",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:render_backend_repository_standard",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:render_backend_config_standard",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:render_backend_security_standard",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:render_backend_transaction_standard",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:render_backend_remote_calls_standard",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:render_backend_async_standard",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:render_backend_errors_standard",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:render_backend_utilities_standard",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:standards_docs",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:table",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:collect_project_state",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:preview_init",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:init_project",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:ensure_project_intel_gitignore",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:ensure_gitignore",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:build_init_report",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:build_project_status",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:build_redundancy_report",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:build_tooling_report",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:load_project_snapshot",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:collect_reuse_candidates",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:standard_paths",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:infer_affected_areas",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:analyze_task_intake",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:build_intake_doc",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:write_intake",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:build_spec_doc",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:write_spec",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:build_plan_doc",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:write_plan",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:build_task_impact_doc",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:lifecycle_payload",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:write_lifecycle",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:build_debug_doc",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:write_debug_context",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:normalize_project_file",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:should_track_requirement_file",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:changed_requirement_files",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:requirement_doc_path",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:build_file_requirement_doc",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:resolve_requirement_files",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:write_file_requirement_docs",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:update_file_requirement_docs",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:build_maintenance_report",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:maintain_project",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:finish_changed_files",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:normalize_test_files",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:configured_test_commands",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:run_project_test",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:git_diff_summary",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:build_finish_report",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:finish_project",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:hook_script_body",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:write_hook_templates",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:git_hooks_path",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:activate_git_hooks",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:agent_project_intelligence_priority_rules",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:project_agent_rules",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:claude_project_agent_rules",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:codex_adapter_rules",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:claude_adapter_rules",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:_adapter_targets",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:adapters_status",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:adapters_apply",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:adapters_remove",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:install_claude",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:selected_hard_rule_files",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:run_hard_rule_checks",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:markdown_command_output",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:run_check",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:build_quality_report",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:query_project",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:marketplace_bundle_root",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:agent_install_commands",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:install_agent_plugin",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:doctor_report",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:build_parser",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:parse_review_findings",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:parse_acceptance_values",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:dispatch_command",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:main",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py:unique_limited",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py:flatten_regex_hits",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py:annotation_values",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py:mask_comments_and_strings",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py:annotation_values_in_code",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py:quoted_literal_at",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py:python_ast_facts",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py:detect_backend_framework",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py:extract_backend_endpoints",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py:extract_backend_methods",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py:extract_backend_fields",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py:extract_repository_methods",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py:extract_config_keys",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py:extract_permission_signals",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py:extract_transaction_signals",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py:extract_remote_call_signals",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py:extract_error_code_signals",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py:scan_backend_file",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py:scan_backend",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:run",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:run_shell",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:package_manager",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:slugify",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:read_text",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:write_text",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:_assert_safe_managed_path",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:_assert_safe_adapter_path",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:_read_adapter_text",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:_replace_single_managed_block",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:upsert_adapter_managed_block",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:remove_adapter_managed_block",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:upsert_managed_block_with_markers",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:remove_managed_block_with_markers",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:cleanup_legacy_local_skills",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "class:plugins/project-intelligence/scripts/project_intel_lib/application.py:JsonArgumentParser",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:load_json_strict",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:path_matches_pattern",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:scan_settings",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:is_excluded",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:iter_project_files",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:git_info",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:detect_package",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:detect_quality_commands",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:understand_plugin_roots",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:current_agent_platform",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:claude_understand_installs",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:claude_plugin_list_statuses",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:claude_understand_install_is_ready",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:claude_understand_install_is_repairable",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:understand_installed_platforms",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:understand_install_options",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:default_understand_install_command",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:understand_analyze_command",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:detect_graph_actions",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:detect_quality_tool_status",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:detect_tooling",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:print_tooling_summary",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:print_graph_tools_report",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:graph_timeout_seconds",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:run_graph_command",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:command_uses_external_path",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:graph_command_authorized",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:install_options_for_action",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:choose_install_option",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:run_install_option",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:verify_understand_claude_install",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:setup_graph_tools",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:handle_tooling_setup",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:scan_frontend",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:scan_backend",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:file_index",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:build_manifest",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:default_config",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:validate_string_list",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:validate_project_config",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:merge_quality_commands",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:prepare_project_config",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:read_project_config",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:dominant_parent",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:infer_standards",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:render_components_standard",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:render_api_standard",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:render_router_standard",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:render_domain_flows_standard",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:render_backend_api_standard",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:render_backend_services_standard",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:render_backend_models_standard",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:render_backend_repository_standard",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:render_backend_config_standard",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:render_backend_security_standard",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:render_backend_transaction_standard",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:render_backend_remote_calls_standard",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:render_backend_async_standard",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:render_backend_errors_standard",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:render_backend_utilities_standard",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:standards_docs",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:table",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:collect_project_state",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:preview_init",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:init_project",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:ensure_project_intel_gitignore",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:ensure_gitignore",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:build_init_report",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:build_project_status",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:build_redundancy_report",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:build_tooling_report",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:load_project_snapshot",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:collect_reuse_candidates",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:standard_paths",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:infer_affected_areas",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:analyze_task_intake",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:build_intake_doc",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:write_intake",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:build_spec_doc",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:write_spec",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:build_plan_doc",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:write_plan",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:build_task_impact_doc",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:lifecycle_payload",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:write_lifecycle",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:build_debug_doc",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:write_debug_context",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:normalize_project_file",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:should_track_requirement_file",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:changed_requirement_files",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:requirement_doc_path",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:build_file_requirement_doc",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:resolve_requirement_files",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:write_file_requirement_docs",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:update_file_requirement_docs",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:build_maintenance_report",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:maintain_project",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:finish_changed_files",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:normalize_test_files",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:configured_test_commands",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:run_project_test",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:git_diff_summary",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:build_finish_report",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:finish_project",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:hook_script_body",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:write_hook_templates",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:git_hooks_path",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:activate_git_hooks",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:agent_project_intelligence_priority_rules",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:project_agent_rules",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:claude_project_agent_rules",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:codex_adapter_rules",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:claude_adapter_rules",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:_adapter_targets",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:adapters_status",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:adapters_apply",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:adapters_remove",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:install_claude",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:selected_hard_rule_files",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:run_hard_rule_checks",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:markdown_command_output",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:run_check",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:build_quality_report",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:query_project",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:marketplace_bundle_root",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:agent_install_commands",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:install_agent_plugin",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:doctor_report",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:build_parser",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:parse_review_findings",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:parse_acceptance_values",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:dispatch_command",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/application.py:main",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/__init__.py",
+      "target": "file:plugins/project-intelligence/scripts/project_intel_lib/core.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "file:plugins/project-intelligence/scripts/project_intel_lib/__init__.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "file:plugins/project-intelligence/scripts/project_intel_lib/cli.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "file:plugins/project-intelligence/scripts/project_intel_lib/scanner/__init__.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py",
+      "target": "file:plugins/project-intelligence/scripts/project_intel_lib/core.py",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "class:plugins/project-intelligence/scripts/project_intel_lib/core.py:IncrementalScanCache",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py:scan_backend",
+      "target": "class:plugins/project-intelligence/scripts/project_intel_lib/core.py:IncrementalScanCache",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "function:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py:scan_backend",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/core.py:file_signature",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    }
+  ]
+}

@@ -1,0 +1,158 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 3,
+  "filesSkipped": [],
+  "results": [
+    {
+      "path": ".project-intel/knowledge/backend.json",
+      "language": "json",
+      "fileCategory": "config",
+      "totalLines": 506,
+      "nonEmptyLines": 506,
+      "sections": [
+        {
+          "heading": "apis",
+          "level": 1,
+          "line": 2
+        },
+        {
+          "heading": "services",
+          "level": 1,
+          "line": 123
+        },
+        {
+          "heading": "dataTypes",
+          "level": 1,
+          "line": 235
+        },
+        {
+          "heading": "repositories",
+          "level": 1,
+          "line": 236
+        },
+        {
+          "heading": "configs",
+          "level": 1,
+          "line": 277
+        },
+        {
+          "heading": "permissionChecks",
+          "level": 1,
+          "line": 289
+        },
+        {
+          "heading": "transactions",
+          "level": 1,
+          "line": 155
+        },
+        {
+          "heading": "remoteCalls",
+          "level": 1,
+          "line": 162
+        },
+        {
+          "heading": "messagesJobs",
+          "level": 1,
+          "line": 441
+        },
+        {
+          "heading": "errorCodes",
+          "level": 1,
+          "line": 473
+        },
+        {
+          "heading": "utilities",
+          "level": 1,
+          "line": 500
+        },
+        {
+          "heading": "candidateEntrypoints",
+          "level": 1,
+          "line": 501
+        },
+        {
+          "heading": "scanModes",
+          "level": 1,
+          "line": 502
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 13
+      }
+    },
+    {
+      "path": ".project-intel/knowledge/files.json",
+      "language": "json",
+      "fileCategory": "config",
+      "totalLines": 320,
+      "nonEmptyLines": 320,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 0
+      }
+    },
+    {
+      "path": ".project-intel/knowledge/frontend.json",
+      "language": "json",
+      "fileCategory": "config",
+      "totalLines": 10,
+      "nonEmptyLines": 10,
+      "sections": [
+        {
+          "heading": "components",
+          "level": 1,
+          "line": 2
+        },
+        {
+          "heading": "hooks",
+          "level": 1,
+          "line": 3
+        },
+        {
+          "heading": "routes",
+          "level": 1,
+          "line": 4
+        },
+        {
+          "heading": "apiModules",
+          "level": 1,
+          "line": 5
+        },
+        {
+          "heading": "stores",
+          "level": 1,
+          "line": 6
+        },
+        {
+          "heading": "styles",
+          "level": 1,
+          "line": 7
+        },
+        {
+          "heading": "redundancyCandidates",
+          "level": 1,
+          "line": 8
+        },
+        {
+          "heading": "scanMode",
+          "level": 1,
+          "line": 9
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 8
+      }
+    }
+  ]
+}

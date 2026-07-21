@@ -1,0 +1,116 @@
+{
+  "schemaVersion": 2,
+  "scan": {
+    "include": [
+      "**/*"
+    ],
+    "exclude": [
+      ".cache",
+      ".claude",
+      ".git",
+      ".idea",
+      ".next",
+      ".nuxt",
+      ".project-intel",
+      ".project-intel/cache",
+      ".project-intel/local",
+      ".project-intel/tmp",
+      ".turbo",
+      ".vscode",
+      "build",
+      "coverage",
+      "dist",
+      "node_modules",
+      "target"
+    ],
+    "excludeHidden": true
+  },
+  "quality": {
+    "commands": [
+      {
+        "kind": "test",
+        "command": "npm run test",
+        "source": "package.json"
+      }
+    ]
+  },
+  "backend": {
+    "entrypointRules": [
+      {
+        "type": "annotation",
+        "pattern": "@RestController|@Controller|@RequestMapping|@GetMapping|@PostMapping|@MessageListener|@Scheduled"
+      },
+      {
+        "type": "call",
+        "pattern": "router\\.(get|post|put|delete|use)|app\\.(get|post|put|delete|use)"
+      },
+      {
+        "type": "path",
+        "pattern": "**/{controller,handler,endpoint,facade,adapter}/**/*"
+      }
+    ]
+  },
+  "rules": {
+    "hard": [],
+    "preferred": [],
+    "inferred": [
+      {
+        "scope": "backend",
+        "category": "backend-layering",
+        "rule": "后端遵循 Controller→Service→Repository 分层，新接口按此分层组织，不要跨层直接访问数据",
+        "evidence": "3 个入口、2 个服务、1 个仓库层文件",
+        "level": "inferred"
+      },
+      {
+        "scope": "backend",
+        "category": "backend-api",
+        "rule": "后端入口主要使用 Spring 风格，新增 API 应跟随同框架入口声明方式",
+        "evidence": "3/3 个入口匹配",
+        "level": "inferred"
+      },
+      {
+        "scope": "backend",
+        "category": "config",
+        "rule": "配置项应集中在已有配置文件或配置类中维护，新增配置需同步默认值和环境差异",
+        "evidence": "1 个配置文件/类，4 个配置键候选",
+        "level": "inferred"
+      },
+      {
+        "scope": "backend",
+        "category": "permission",
+        "rule": "已有权限/认证信号需要作为接口改动前置检查，新增入口不能绕过认证边界",
+        "evidence": "11 个文件包含权限或认证信号",
+        "level": "inferred"
+      },
+      {
+        "scope": "backend",
+        "category": "transaction",
+        "rule": "涉及写操作、订单、支付或跨表修改时复用已有事务边界，避免把事务拆散到调用方",
+        "evidence": "2 个文件包含事务信号",
+        "level": "inferred"
+      },
+      {
+        "scope": "backend",
+        "category": "remote-call",
+        "rule": "远程调用应复用已有客户端/适配器，变更前需要检查超时、重试、错误映射和调用链影响",
+        "evidence": "4 个文件包含远程调用信号",
+        "level": "inferred"
+      },
+      {
+        "scope": "backend",
+        "category": "message-job",
+        "rule": "消息消费者和定时任务属于异步入口，修改时需要检查幂等、重试和调度配置",
+        "evidence": "3 个文件包含消息或任务信号",
+        "level": "inferred"
+      },
+      {
+        "scope": "backend",
+        "category": "error-code",
+        "rule": "业务异常和错误码应复用既有错误码体系，新增错误需同步前端/调用方可识别的语义",
+        "evidence": "3 个文件包含错误码或异常信号",
+        "level": "inferred"
+      }
+    ],
+    "candidate": []
+  }
+}

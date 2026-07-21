@@ -1,0 +1,25 @@
+{
+  "projectRoot": "/Users/xumeng/Desktop/code/project-intelligence",
+  "batchFiles": [
+    {"path": ".project-intel/standards/api.md", "language": "markdown", "sizeLines": 24, "fileCategory": "docs"},
+    {"path": ".project-intel/standards/backend-api.md", "language": "markdown", "sizeLines": 40, "fileCategory": "docs"},
+    {"path": ".project-intel/standards/backend-async.md", "language": "markdown", "sizeLines": 32, "fileCategory": "docs"},
+    {"path": ".project-intel/standards/backend-config.md", "language": "markdown", "sizeLines": 23, "fileCategory": "docs"},
+    {"path": ".project-intel/standards/backend-errors.md", "language": "markdown", "sizeLines": 25, "fileCategory": "docs"},
+    {"path": ".project-intel/standards/backend-models.md", "language": "markdown", "sizeLines": 24, "fileCategory": "docs"},
+    {"path": ".project-intel/standards/backend-remote-calls.md", "language": "markdown", "sizeLines": 32, "fileCategory": "docs"},
+    {"path": ".project-intel/standards/backend-repository.md", "language": "markdown", "sizeLines": 30, "fileCategory": "docs"},
+    {"path": ".project-intel/standards/backend-security.md", "language": "markdown", "sizeLines": 38, "fileCategory": "docs"},
+    {"path": ".project-intel/standards/backend-services.md", "language": "markdown", "sizeLines": 32, "fileCategory": "docs"},
+    {"path": ".project-intel/standards/backend-transactions.md", "language": "markdown", "sizeLines": 25, "fileCategory": "docs"},
+    {"path": ".project-intel/standards/backend-utilities.md", "language": "markdown", "sizeLines": 16, "fileCategory": "docs"},
+    {"path": ".project-intel/standards/backend.md", "language": "markdown", "sizeLines": 50, "fileCategory": "docs"},
+    {"path": ".project-intel/standards/components.md", "language": "markdown", "sizeLines": 34, "fileCategory": "docs"},
+    {"path": ".project-intel/standards/domain-flows.md", "language": "markdown", "sizeLines": 21, "fileCategory": "docs"},
+    {"path": ".project-intel/standards/frontend.md", "language": "markdown", "sizeLines": 30, "fileCategory": "docs"},
+    {"path": ".project-intel/standards/quality.md", "language": "markdown", "sizeLines": 22, "fileCategory": "docs"},
+    {"path": ".project-intel/standards/reuse.md", "language": "markdown", "sizeLines": 7, "fileCategory": "docs"},
+    {"path": ".project-intel/standards/router.md", "language": "markdown", "sizeLines": 16, "fileCategory": "docs"}
+  ],
+  "batchImportData": {}
+}

@@ -1,0 +1,320 @@
+[
+  {
+    "path": "CHANGELOG.md",
+    "size": 12119,
+    "mtime": 1784616627,
+    "suffix": ".md"
+  },
+  {
+    "path": "README.md",
+    "size": 16973,
+    "mtime": 1784599844,
+    "suffix": ".md"
+  },
+  {
+    "path": "docs/node-typescript-migration-requirement.md",
+    "size": 15393,
+    "mtime": 1784616495,
+    "suffix": ".md"
+  },
+  {
+    "path": "docs/project-intelligence-guide.md",
+    "size": 25441,
+    "mtime": 1784599844,
+    "suffix": ".md"
+  },
+  {
+    "path": "evals/skill-behavior-scenarios.json",
+    "size": 10721,
+    "mtime": 1784522859,
+    "suffix": ".json"
+  },
+  {
+    "path": "package.json",
+    "size": 1675,
+    "mtime": 1784616627,
+    "suffix": ".json"
+  },
+  {
+    "path": "plugins/project-intelligence/scripts/project_intel.py",
+    "size": 584,
+    "mtime": 1784176362,
+    "suffix": ".py"
+  },
+  {
+    "path": "plugins/project-intelligence/scripts/project_intel_lib/__init__.py",
+    "size": 205,
+    "mtime": 1783700809,
+    "suffix": ".py"
+  },
+  {
+    "path": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+    "size": 269174,
+    "mtime": 1784616627,
+    "suffix": ".py"
+  },
+  {
+    "path": "plugins/project-intelligence/scripts/project_intel_lib/cli.py",
+    "size": 1799,
+    "mtime": 1784272890,
+    "suffix": ".py"
+  },
+  {
+    "path": "plugins/project-intelligence/scripts/project_intel_lib/core.py",
+    "size": 4512,
+    "mtime": 1783700809,
+    "suffix": ".py"
+  },
+  {
+    "path": "plugins/project-intelligence/scripts/project_intel_lib/design_documents.py",
+    "size": 30568,
+    "mtime": 1784522596,
+    "suffix": ".py"
+  },
+  {
+    "path": "plugins/project-intelligence/scripts/project_intel_lib/graph.py",
+    "size": 7168,
+    "mtime": 1783701232,
+    "suffix": ".py"
+  },
+  {
+    "path": "plugins/project-intelligence/scripts/project_intel_lib/lifecycle.py",
+    "size": 1887,
+    "mtime": 1784257335,
+    "suffix": ".py"
+  },
+  {
+    "path": "plugins/project-intelligence/scripts/project_intel_lib/quality.py",
+    "size": 9275,
+    "mtime": 1783701129,
+    "suffix": ".py"
+  },
+  {
+    "path": "plugins/project-intelligence/scripts/project_intel_lib/requirement_documents.py",
+    "size": 10654,
+    "mtime": 1784265181,
+    "suffix": ".py"
+  },
+  {
+    "path": "plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+    "size": 153659,
+    "mtime": 1784599844,
+    "suffix": ".py"
+  },
+  {
+    "path": "plugins/project-intelligence/scripts/project_intel_lib/scanner/__init__.py",
+    "size": 187,
+    "mtime": 1783700809,
+    "suffix": ".py"
+  },
+  {
+    "path": "plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py",
+    "size": 23266,
+    "mtime": 1784190313,
+    "suffix": ".py"
+  },
+  {
+    "path": "plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py",
+    "size": 12199,
+    "mtime": 1783704103,
+    "suffix": ".py"
+  },
+  {
+    "path": "plugins/project-intelligence/scripts/project_intel_lib/standards.py",
+    "size": 1755,
+    "mtime": 1783701271,
+    "suffix": ".py"
+  },
+  {
+    "path": "plugins/project-intelligence/scripts/project_intel_lib/testing.py",
+    "size": 15653,
+    "mtime": 1784522059,
+    "suffix": ".py"
+  },
+  {
+    "path": "plugins/project-intelligence/skills/project-brainstorm/SKILL.md",
+    "size": 1452,
+    "mtime": 1784262545,
+    "suffix": ".md"
+  },
+  {
+    "path": "plugins/project-intelligence/skills/project-debug/SKILL.md",
+    "size": 3389,
+    "mtime": 1784262775,
+    "suffix": ".md"
+  },
+  {
+    "path": "plugins/project-intelligence/skills/project-design/SKILL.md",
+    "size": 6660,
+    "mtime": 1784522755,
+    "suffix": ".md"
+  },
+  {
+    "path": "plugins/project-intelligence/skills/project-design/agents/openai.yaml",
+    "size": 286,
+    "mtime": 1784198369,
+    "suffix": ".yaml"
+  },
+  {
+    "path": "plugins/project-intelligence/skills/project-design/references/bug-design-template.md",
+    "size": 2032,
+    "mtime": 1784198369,
+    "suffix": ".md"
+  },
+  {
+    "path": "plugins/project-intelligence/skills/project-design/references/requirement-design-template.md",
+    "size": 5156,
+    "mtime": 1784522695,
+    "suffix": ".md"
+  },
+  {
+    "path": "plugins/project-intelligence/skills/project-design/scripts/validate_design_doc.py",
+    "size": 383,
+    "mtime": 1784198369,
+    "suffix": ".py"
+  },
+  {
+    "path": "plugins/project-intelligence/skills/project-finish/SKILL.md",
+    "size": 3229,
+    "mtime": 1784262010,
+    "suffix": ".md"
+  },
+  {
+    "path": "plugins/project-intelligence/skills/project-init/SKILL.md",
+    "size": 7120,
+    "mtime": 1784599844,
+    "suffix": ".md"
+  },
+  {
+    "path": "plugins/project-intelligence/skills/project-intake/SKILL.md",
+    "size": 4743,
+    "mtime": 1784522233,
+    "suffix": ".md"
+  },
+  {
+    "path": "plugins/project-intelligence/skills/project-knowledge/SKILL.md",
+    "size": 1724,
+    "mtime": 1784257728,
+    "suffix": ".md"
+  },
+  {
+    "path": "plugins/project-intelligence/skills/project-maintain/SKILL.md",
+    "size": 2510,
+    "mtime": 1784261746,
+    "suffix": ".md"
+  },
+  {
+    "path": "plugins/project-intelligence/skills/project-orchestrate/SKILL.md",
+    "size": 4528,
+    "mtime": 1784257728,
+    "suffix": ".md"
+  },
+  {
+    "path": "plugins/project-intelligence/skills/project-plan/SKILL.md",
+    "size": 3272,
+    "mtime": 1784262010,
+    "suffix": ".md"
+  },
+  {
+    "path": "plugins/project-intelligence/skills/project-quality/SKILL.md",
+    "size": 1834,
+    "mtime": 1784262804,
+    "suffix": ".md"
+  },
+  {
+    "path": "plugins/project-intelligence/skills/project-refresh/SKILL.md",
+    "size": 6528,
+    "mtime": 1784261746,
+    "suffix": ".md"
+  },
+  {
+    "path": "plugins/project-intelligence/skills/project-review/SKILL.md",
+    "size": 3414,
+    "mtime": 1784261745,
+    "suffix": ".md"
+  },
+  {
+    "path": "plugins/project-intelligence/skills/project-spec/SKILL.md",
+    "size": 4257,
+    "mtime": 1784266759,
+    "suffix": ".md"
+  },
+  {
+    "path": "plugins/project-intelligence/skills/project-standards/SKILL.md",
+    "size": 902,
+    "mtime": 1783702556,
+    "suffix": ".md"
+  },
+  {
+    "path": "plugins/project-intelligence/skills/project-task/SKILL.md",
+    "size": 6475,
+    "mtime": 1784522132,
+    "suffix": ".md"
+  },
+  {
+    "path": "plugins/project-intelligence/skills/project-test/SKILL.md",
+    "size": 6300,
+    "mtime": 1784522132,
+    "suffix": ".md"
+  },
+  {
+    "path": "plugins/project-intelligence/tests/design_fixtures.py",
+    "size": 5312,
+    "mtime": 1784522695,
+    "suffix": ".py"
+  },
+  {
+    "path": "plugins/project-intelligence/tests/test_document_truth_validation.py",
+    "size": 9374,
+    "mtime": 1784599844,
+    "suffix": ".py"
+  },
+  {
+    "path": "plugins/project-intelligence/tests/test_project_design.py",
+    "size": 9113,
+    "mtime": 1784522715,
+    "suffix": ".py"
+  },
+  {
+    "path": "plugins/project-intelligence/tests/test_project_intel.py",
+    "size": 118095,
+    "mtime": 1784616627,
+    "suffix": ".py"
+  },
+  {
+    "path": "plugins/project-intelligence/tests/test_project_test.py",
+    "size": 22347,
+    "mtime": 1784522485,
+    "suffix": ".py"
+  },
+  {
+    "path": "plugins/project-intelligence/tests/test_requirement_hardening.py",
+    "size": 34451,
+    "mtime": 1784599844,
+    "suffix": ".py"
+  },
+  {
+    "path": "plugins/project-intelligence/tests/test_requirement_layout_v2.py",
+    "size": 23672,
+    "mtime": 1784522402,
+    "suffix": ".py"
+  },
+  {
+    "path": "plugins/project-intelligence/tests/test_requirement_workflow.py",
+    "size": 66542,
+    "mtime": 1784522402,
+    "suffix": ".py"
+  },
+  {
+    "path": "plugins/project-intelligence/tests/test_testing_security.py",
+    "size": 5951,
+    "mtime": 1784527710,
+    "suffix": ".py"
+  },
+  {
+    "path": "scripts/validate_bundle.py",
+    "size": 2446,
+    "mtime": 1783702676,
+    "suffix": ".py"
+  }
+]

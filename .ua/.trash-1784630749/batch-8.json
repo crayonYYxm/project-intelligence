@@ -1,0 +1,289 @@
+{
+  "nodes": [
+    {
+      "id": "document:.project-intel/standards/api.md",
+      "type": "document",
+      "name": "api.md",
+      "filePath": ".project-intel/standards/api.md",
+      "summary": "前端 API 与请求规范，约定接口放置位置、请求封装复用、服务前缀与接口路径热点，禁止页面/组件直接调用 uni.request、axios 或裸 fetch。",
+      "tags": ["documentation", "api", "frontend", "request", "standards"],
+      "complexity": "simple",
+      "languageNotes": "包含请求封装、服务前缀、接口路径热点、API 模块清单与约定五个二级章节。"
+    },
+    {
+      "id": "document:.project-intel/standards/backend-api.md",
+      "type": "document",
+      "name": "backend-api.md",
+      "filePath": ".project-intel/standards/backend-api.md",
+      "summary": "后端 API 与入口规范，记录框架入口分布、API/入口清单、路径热点与非标准入口候选，指导新增 API 的入口声明方式。",
+      "tags": ["documentation", "backend", "api", "entry-point", "standards"],
+      "complexity": "simple",
+      "languageNotes": "覆盖框架入口分布、API 清单、路径热点、非标准入口候选与约定六个二级章节。"
+    },
+    {
+      "id": "document:.project-intel/standards/backend-async.md",
+      "type": "document",
+      "name": "backend-async.md",
+      "filePath": ".project-intel/standards/backend-async.md",
+      "summary": "后端消息与任务规范，提取消息/任务信号与信号热点，要求异步入口修改时检查幂等、重试与调度配置。",
+      "tags": ["documentation", "backend", "async", "messaging", "standards"],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:.project-intel/standards/backend-config.md",
+      "type": "document",
+      "name": "backend-config.md",
+      "filePath": ".project-intel/standards/backend-config.md",
+      "summary": "后端配置规范，汇总配置文件/配置类分布与配置前缀热点，约定新增配置需同步默认值与环境差异。",
+      "tags": ["documentation", "backend", "config", "standards"],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:.project-intel/standards/backend-errors.md",
+      "type": "document",
+      "name": "backend-errors.md",
+      "filePath": ".project-intel/standards/backend-errors.md",
+      "summary": "后端错误码与异常规范，提取错误码/异常信号与信号热点，要求复用既有错误码体系并同步前端/调用方语义。",
+      "tags": ["documentation", "backend", "errors", "exception", "standards"],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:.project-intel/standards/backend-models.md",
+      "type": "document",
+      "name": "backend-models.md",
+      "filePath": ".project-intel/standards/backend-models.md",
+      "summary": "后端 DTO/VO/Entity 规范，记录类型分布、数据类型清单、字段热点与注解热点，指导数据模型的字段与注解约定。",
+      "tags": ["documentation", "backend", "data-model", "dto", "standards"],
+      "complexity": "simple",
+      "languageNotes": "包含类型分布、数据类型清单、字段热点、注解热点与约定六个二级章节。"
+    },
+    {
+      "id": "document:.project-intel/standards/backend-remote-calls.md",
+      "type": "document",
+      "name": "backend-remote-calls.md",
+      "filePath": ".project-intel/standards/backend-remote-calls.md",
+      "summary": "后端远程调用规范，提取远程调用信号与信号热点，要求复用已有客户端/适配器并检查超时、重试、错误映射与调用链影响。",
+      "tags": ["documentation", "backend", "remote-call", "rpc", "standards"],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:.project-intel/standards/backend-repository.md",
+      "type": "document",
+      "name": "backend-repository.md",
+      "filePath": ".project-intel/standards/backend-repository.md",
+      "summary": "后端 Repository/Mapper 规范，汇总仓库层分布、Repository/Mapper 清单与 SQL 操作热点，约束数据访问层的边界与写操作。",
+      "tags": ["documentation", "backend", "repository", "mapper", "standards"],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:.project-intel/standards/backend-security.md",
+      "type": "document",
+      "name": "backend-security.md",
+      "filePath": ".project-intel/standards/backend-security.md",
+      "summary": "后端权限与认证规范，提取权限/认证信号与信号热点，要求新增入口不能绕过认证边界并作为接口改动前置检查。",
+      "tags": ["documentation", "backend", "security", "auth", "standards"],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:.project-intel/standards/backend-services.md",
+      "type": "document",
+      "name": "backend-services.md",
+      "filePath": ".project-intel/standards/backend-services.md",
+      "summary": "后端 Service 与业务编排规范，汇总 Service 清单与方法命名前缀热点，约束业务编排层的方法命名与职责边界。",
+      "tags": ["documentation", "backend", "service", "business-logic", "standards"],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:.project-intel/standards/backend-transactions.md",
+      "type": "document",
+      "name": "backend-transactions.md",
+      "filePath": ".project-intel/standards/backend-transactions.md",
+      "summary": "后端事务边界规范，提取事务信号与信号热点，要求写操作、订单、支付或跨表修改复用已有事务边界。",
+      "tags": ["documentation", "backend", "transaction", "standards"],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:.project-intel/standards/backend-utilities.md",
+      "type": "document",
+      "name": "backend-utilities.md",
+      "filePath": ".project-intel/standards/backend-utilities.md",
+      "summary": "后端公共工具规范，汇总工具类/公共函数分布与工具目录热点，约束公共工具的复用与抽取边界。",
+      "tags": ["documentation", "backend", "utility", "standards"],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:.project-intel/standards/backend.md",
+      "type": "document",
+      "name": "backend.md",
+      "filePath": ".project-intel/standards/backend.md",
+      "summary": "后端规范总览，汇总已提取的事实、11 项细分规范、由扫描器推断的 Controller→Service→Repository 分层等约定与默认规则，作为后端所有子规范的入口文档。",
+      "tags": ["documentation", "backend", "standards", "overview", "index"],
+      "complexity": "moderate",
+      "languageNotes": "通过细分规范章节显式链接 11 个后端子标准，并按 inferred 等级列出扫描器从代码推断的项目约定。"
+    },
+    {
+      "id": "document:.project-intel/standards/components.md",
+      "type": "document",
+      "name": "components.md",
+      "filePath": ".project-intel/standards/components.md",
+      "summary": "组件与复用规范，汇总组件分布、公共组件清单、页面局部组件热点、重名/相似组件候选与常见 Props/Emits，指导前端组件的复用与抽取。",
+      "tags": ["documentation", "frontend", "component", "reuse", "standards"],
+      "complexity": "simple",
+      "languageNotes": "包含组件分布、公共组件清单、页面局部组件热点、重名/相似组件候选、常见 Props/Emits 与约定七个二级章节。"
+    },
+    {
+      "id": "document:.project-intel/standards/domain-flows.md",
+      "type": "document",
+      "name": "domain-flows.md",
+      "filePath": ".project-intel/standards/domain-flows.md",
+      "summary": "业务流与图谱规范，汇总业务域候选、关键模块摘要与图谱路径热点，指导业务流的抽象与知识图谱构建。",
+      "tags": ["documentation", "domain", "business-flow", "knowledge-graph", "standards"],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:.project-intel/standards/frontend.md",
+      "type": "document",
+      "name": "frontend.md",
+      "filePath": ".project-intel/standards/frontend.md",
+      "summary": "前端规范总览，汇总已提取的事实、细分规范、推断规范与默认规则，作为前端 components/api/router/domain-flows 子规范的入口文档。",
+      "tags": ["documentation", "frontend", "standards", "overview", "index"],
+      "complexity": "simple",
+      "languageNotes": "通过细分规范章节显式链接 4 个前端子标准（components.md、api.md、router.md、domain-flows.md）。"
+    },
+    {
+      "id": "document:.project-intel/standards/quality.md",
+      "type": "document",
+      "name": "quality.md",
+      "filePath": ".project-intel/standards/quality.md",
+      "summary": "质量检查规范，定义 hard/preferred/inferred/candidate 规则等级语义，记录检测到的 test 命令与质量策略，约定优先复用项目 package scripts。",
+      "tags": ["documentation", "quality", "lint", "rules", "standards"],
+      "complexity": "simple",
+      "languageNotes": "定义了规则等级体系（hard/preferred/inferred/candidate）并区分纯文本 hard 规则的 manual-review 处理方式。"
+    },
+    {
+      "id": "document:.project-intel/standards/reuse.md",
+      "type": "document",
+      "name": "reuse.md",
+      "filePath": ".project-intel/standards/reuse.md",
+      "summary": "复用与冗余规范，要求实现组件/Hook/API 客户端/服务/工具函数前先搜索 .project-intel/knowledge，并将重复模式默认标记为 candidate 发现。",
+      "tags": ["documentation", "reuse", "redundancy", "standards"],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:.project-intel/standards/router.md",
+      "type": "document",
+      "name": "router.md",
+      "filePath": ".project-intel/standards/router.md",
+      "summary": "路由与分包规范，汇总路由模块分布与页面标题热点，约束前端路由的组织与分包方式。",
+      "tags": ["documentation", "frontend", "router", "standards"],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "document:.project-intel/standards/backend.md",
+      "target": "document:.project-intel/standards/backend-api.md",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:.project-intel/standards/backend.md",
+      "target": "document:.project-intel/standards/backend-services.md",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:.project-intel/standards/backend.md",
+      "target": "document:.project-intel/standards/backend-models.md",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:.project-intel/standards/backend.md",
+      "target": "document:.project-intel/standards/backend-repository.md",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:.project-intel/standards/backend.md",
+      "target": "document:.project-intel/standards/backend-config.md",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:.project-intel/standards/backend.md",
+      "target": "document:.project-intel/standards/backend-security.md",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:.project-intel/standards/backend.md",
+      "target": "document:.project-intel/standards/backend-transactions.md",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:.project-intel/standards/backend.md",
+      "target": "document:.project-intel/standards/backend-remote-calls.md",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:.project-intel/standards/backend.md",
+      "target": "document:.project-intel/standards/backend-async.md",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:.project-intel/standards/backend.md",
+      "target": "document:.project-intel/standards/backend-errors.md",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:.project-intel/standards/backend.md",
+      "target": "document:.project-intel/standards/backend-utilities.md",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:.project-intel/standards/frontend.md",
+      "target": "document:.project-intel/standards/components.md",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:.project-intel/standards/frontend.md",
+      "target": "document:.project-intel/standards/api.md",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:.project-intel/standards/frontend.md",
+      "target": "document:.project-intel/standards/router.md",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:.project-intel/standards/frontend.md",
+      "target": "document:.project-intel/standards/domain-flows.md",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    }
+  ]
+}

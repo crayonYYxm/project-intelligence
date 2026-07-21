@@ -1,0 +1,264 @@
+{
+  "nodes": [
+    {
+      "id": "config:.agents/plugins/marketplace.json",
+      "type": "config",
+      "name": "marketplace.json",
+      "filePath": ".agents/plugins/marketplace.json",
+      "summary": "Codex 代理插件市场清单，声明 project-intelligence 插件并指向本地 ./plugins/project-intelligence 目录，设置安装与认证策略。",
+      "tags": ["configuration", "plugin-manifest", "marketplace", "codex"],
+      "complexity": "simple",
+      "languageNotes": "使用 source.local 方式引用本地插件目录，并设置 installation=AVAILABLE / authentication=ON_INSTALL 策略。"
+    },
+    {
+      "id": "config:.claude-plugin/marketplace.json",
+      "type": "config",
+      "name": "marketplace.json",
+      "filePath": ".claude-plugin/marketplace.json",
+      "summary": "Claude Code 插件市场清单，引用 Anthropic marketplace schema，声明 project-intelligence 插件的名称、描述、分类与 GitHub 主页。",
+      "tags": ["configuration", "plugin-manifest", "marketplace", "claude-code"],
+      "complexity": "simple",
+      "languageNotes": "通过 $schema 指向 anthropic.com/claude-code/marketplace.schema.json，owner 与 plugins 字段符合 Claude Code marketplace 规范。"
+    },
+    {
+      "id": "document:.claude/CLAUDE.md",
+      "type": "document",
+      "name": "CLAUDE.md",
+      "filePath": ".claude/CLAUDE.md",
+      "summary": "Claude Code 仓库级指令文档，规定在任何代码改动前必须进入对应的 Project Intelligence 工作流，并列出全部斜杠技能与 project-intel CLI 回退命令。",
+      "tags": ["documentation", "workflow", "agent-instructions", "project-intelligence", "entry-point"],
+      "complexity": "moderate",
+      "languageNotes": "以 project-intelligence:start/end 注释包裹的受控指令块，明确区分执行工具与工作流层，并要求 finish/maintain 的 --task 参数使用中文。"
+    },
+    {
+      "id": "document:.claude/skills/gitnexus/gitnexus-cli/SKILL.md",
+      "type": "document",
+      "name": "SKILL.md",
+      "filePath": ".claude/skills/gitnexus/gitnexus-cli/SKILL.md",
+      "summary": "GitNexus CLI 命令参考，覆盖 analyze、status、clean、wiki、list 五个子命令及其 flag，说明项目本地 runner 的回退选择与常见排错。",
+      "tags": ["documentation", "gitnexus", "cli-reference", "skill", "indexing"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "document:.claude/skills/gitnexus/gitnexus-debugging/SKILL.md",
+      "type": "document",
+      "name": "SKILL.md",
+      "filePath": ".claude/skills/gitnexus/gitnexus-debugging/SKILL.md",
+      "summary": "GitNexus 调试技能文档，给出从症状到根因的工作流、checklist、症状对照表，以及 query/context/cypher/trace 工具的用法示例。",
+      "tags": ["documentation", "gitnexus", "debugging", "skill", "workflow"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "document:.claude/skills/gitnexus/gitnexus-exploring/SKILL.md",
+      "type": "document",
+      "name": "SKILL.md",
+      "filePath": ".claude/skills/gitnexus/gitnexus-exploring/SKILL.md",
+      "summary": "GitNexus 代码探索技能文档，说明如何用 query/context 与 process/clusters 资源理解陌生代码库的架构与执行流。",
+      "tags": ["documentation", "gitnexus", "exploring", "skill", "workflow"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "document:.claude/skills/gitnexus/gitnexus-guide/SKILL.md",
+      "type": "document",
+      "name": "SKILL.md",
+      "filePath": ".claude/skills/gitnexus/gitnexus-guide/SKILL.md",
+      "summary": "GitNexus 总览参考，集中列出全部 MCP 工具、轻量资源、图谱 schema，以及 list_repos 分页、explain 污点、pdg_query 依赖、trace 最短路径等高级用法。",
+      "tags": ["documentation", "gitnexus", "reference", "skill", "knowledge-graph"],
+      "complexity": "complex",
+      "languageNotes": "包含 PDG (CDG/REACHING_DEF/TAINTED) 层与跨仓库 ContractLink 追踪的说明，并给出 Cypher 查询范例。"
+    },
+    {
+      "id": "document:.claude/skills/gitnexus/gitnexus-impact-analysis/SKILL.md",
+      "type": "document",
+      "name": "SKILL.md",
+      "filePath": ".claude/skills/gitnexus/gitnexus-impact-analysis/SKILL.md",
+      "summary": "GitNexus 影响分析技能文档，定义 impact 按深度分级 (d=1 必坏/d=2 可能/d=3 需测) 的风险评估表与 detect_changes 提交前检查流程。",
+      "tags": ["documentation", "gitnexus", "impact-analysis", "skill", "risk-assessment"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "document:.claude/skills/gitnexus/gitnexus-refactoring/SKILL.md",
+      "type": "document",
+      "name": "SKILL.md",
+      "filePath": ".claude/skills/gitnexus/gitnexus-refactoring/SKILL.md",
+      "summary": "GitNexus 重构技能文档，提供 rename、extract、split 三类重构的 checklist，结合 rename 多文件改名与 detect_changes 验证作用域，并列出风险缓解规则。",
+      "tags": ["documentation", "gitnexus", "refactoring", "skill", "workflow"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:.npmignore",
+      "type": "file",
+      "name": ".npmignore",
+      "filePath": ".npmignore",
+      "summary": "npm 发布忽略清单，排除 __pycache__、.pyc 缓存、plugins/project-intelligence/tests 测试目录与 .DS_Store，避免将 Python 缓存与测试打进发布包。",
+      "tags": ["configuration", "build-system", "npm", "ignore-patterns"],
+      "complexity": "simple"
+    },
+    {
+      "id": "config:.project-intel/config.json",
+      "type": "config",
+      "name": "config.json",
+      "filePath": ".project-intel/config.json",
+      "summary": "Project Intelligence 工具配置，定义扫描 include/exclude 范围、quality 测试命令、backend 入口识别规则，以及后端分层、API、配置、权限、事务、远程调用等 inferred 级规则。",
+      "tags": ["configuration", "project-intelligence", "scan-config", "quality-rules", "standards"],
+      "complexity": "complex",
+      "languageNotes": "rules.inferred 以中文描述后端 Controller→Service→Repository 分层、权限/事务/远程调用/错误码等约定，并附带 evidence 证据计数。"
+    },
+    {
+      "id": "config:.project-intel/graph/project-graph.json",
+      "type": "config",
+      "name": "project-graph.json",
+      "filePath": ".project-intel/graph/project-graph.json",
+      "summary": "Project Intelligence 合并图谱摘要，记录 GitNexus 与 Understand-Anything 两个图谱源的状态、统计与角色，汇总组件/API/服务数量与项目领域分布。",
+      "tags": ["configuration", "project-intelligence", "graph-summary", "data-source", "metadata"],
+      "complexity": "moderate",
+      "languageNotes": "schemaVersion 2，GitNexus 源标记 present 而 Understand-Anything 标记 missing，projectDomains 给出 scanner、tests 两个项目派生领域及代表文件。"
+    },
+    {
+      "id": "config:.project-intel/manifest.json",
+      "type": "config",
+      "name": "manifest.json",
+      "filePath": ".project-intel/manifest.json",
+      "summary": "Project Intelligence 项目清单，记录 schema/tool 版本、git 提交与分支、框架、包名、文件与后缀计数、图谱源状态与工具链 (node/gitnexus/understandAnything) 可用性。",
+      "tags": ["configuration", "project-intelligence", "manifest", "metadata", "project-context"],
+      "complexity": "moderate",
+      "languageNotes": "包含 git.dirty 标志、suffixCounts 后缀分布统计与 graphSources 双图谱源声明，notes 用中文提示优先使用图谱来源。"
+    },
+    {
+      "id": "file:.ua/.understandignore",
+      "type": "file",
+      "name": ".understandignore",
+      "filePath": ".ua/.understandignore",
+      "summary": "Understand-Anything 分析忽略清单，使用 gitignore 语法排除 OS/编辑器噪声、Python 与 Node 构建产物、VCS 与工具数据目录、测试夹具与锁文件，并保留 evals/skill-behavior-scenarios.json。",
+      "tags": ["configuration", "ignore-patterns", "tooling", "understand-anything"],
+      "complexity": "simple",
+      "languageNotes": "支持 ! 取反强制包含，优先级高于内置默认；显式排除 .ua/、.gitnexus/、.project-intel/cache 等工具自身数据目录。"
+    },
+    {
+      "id": "config:.ua/config.json",
+      "type": "config",
+      "name": "config.json",
+      "filePath": ".ua/config.json",
+      "summary": "Understand-Anything 工具配置，设置 outputLanguage 为 zh，使生成的图谱文本内容输出为中文。",
+      "tags": ["configuration", "understand-anything", "localization", "tooling"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:bin/project-intel.mjs",
+      "type": "file",
+      "name": "project-intel.mjs",
+      "filePath": "bin/project-intel.mjs",
+      "summary": "Node CLI 入口 shim，定位包内 plugins/project-intelligence/scripts/project_intel.py，按平台候选 python3/python/py 依次 spawnSync 调用并透传参数与退出码，缺失或无 Python 时报错退出。",
+      "tags": ["entry-point", "cli", "shim", "node", "launcher"],
+      "complexity": "simple",
+      "languageNotes": "纯顶层命令式脚本无函数声明，使用 spawnSync 同步调用 Python 实现，Windows 下优先尝试 py -3。"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:bin/project-intel.mjs",
+      "target": "file:plugins/project-intelligence/scripts/project_intel.py",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "config:.agents/plugins/marketplace.json",
+      "target": "file:bin/project-intel.mjs",
+      "type": "configures",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "config:.claude-plugin/marketplace.json",
+      "target": "file:bin/project-intel.mjs",
+      "type": "configures",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "document:.claude/CLAUDE.md",
+      "target": "config:.project-intel/manifest.json",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:.claude/CLAUDE.md",
+      "target": "file:bin/project-intel.mjs",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:.claude/CLAUDE.md",
+      "target": "document:.claude/skills/gitnexus/gitnexus-guide/SKILL.md",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:.claude/skills/gitnexus/gitnexus-guide/SKILL.md",
+      "target": "document:.claude/skills/gitnexus/gitnexus-exploring/SKILL.md",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:.claude/skills/gitnexus/gitnexus-guide/SKILL.md",
+      "target": "document:.claude/skills/gitnexus/gitnexus-debugging/SKILL.md",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:.claude/skills/gitnexus/gitnexus-guide/SKILL.md",
+      "target": "document:.claude/skills/gitnexus/gitnexus-impact-analysis/SKILL.md",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:.claude/skills/gitnexus/gitnexus-guide/SKILL.md",
+      "target": "document:.claude/skills/gitnexus/gitnexus-refactoring/SKILL.md",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:.claude/skills/gitnexus/gitnexus-guide/SKILL.md",
+      "target": "document:.claude/skills/gitnexus/gitnexus-cli/SKILL.md",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "config:.project-intel/graph/project-graph.json",
+      "target": "config:.project-intel/manifest.json",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "config:.project-intel/graph/project-graph.json",
+      "target": "config:.project-intel/config.json",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "config:.project-intel/manifest.json",
+      "target": "config:.project-intel/config.json",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "config:.ua/config.json",
+      "target": "file:.ua/.understandignore",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    }
+  ]
+}

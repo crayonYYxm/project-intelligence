@@ -1,0 +1,46 @@
+# .understandignore — patterns excluded from Understand-Anything analysis.
+# Gitignore syntax. Negate with ! to force-include. Highest priority over built-in defaults.
+
+# --- OS / editor noise ---
+.DS_Store
+Thumbs.db
+
+# --- Python build / cache ---
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# --- Node / build output ---
+node_modules/
+dist/
+build/
+out/
+.next/
+.turbo/
+.parcel-cache/
+
+# --- VCS / tooling data dirs ---
+.git/
+.gitnexus/
+.understand-anything/
+.ua/
+.project-intel/cache/
+.project-intel/tmp/
+.project-intel/local/
+.cache/
+
+# --- Test fixtures and generated skill eval artifacts ---
+evals/**/*.json
+!evals/skill-behavior-scenarios.json
+
+# --- Lock files / generated docs ---
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+CHANGELOG.md

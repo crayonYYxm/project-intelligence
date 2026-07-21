@@ -1,0 +1,21 @@
+{
+  "projectRoot": "/Users/xumeng/Desktop/code/project-intelligence",
+  "batchFiles": [
+    {"path": "plugins/project-intelligence/tests/design_fixtures.py", "language": "python", "sizeLines": 210, "fileCategory": "code"},
+    {"path": "plugins/project-intelligence/tests/test_document_truth_validation.py", "language": "python", "sizeLines": 211, "fileCategory": "code"},
+    {"path": "plugins/project-intelligence/tests/test_project_design.py", "language": "python", "sizeLines": 196, "fileCategory": "code"},
+    {"path": "plugins/project-intelligence/tests/test_project_test.py", "language": "python", "sizeLines": 456, "fileCategory": "code"},
+    {"path": "plugins/project-intelligence/tests/test_requirement_hardening.py", "language": "python", "sizeLines": 738, "fileCategory": "code"},
+    {"path": "plugins/project-intelligence/tests/test_requirement_layout_v2.py", "language": "python", "sizeLines": 476, "fileCategory": "code"},
+    {"path": "plugins/project-intelligence/tests/test_requirement_workflow.py", "language": "python", "sizeLines": 1257, "fileCategory": "code"}
+  ],
+  "batchImportData": {
+    "plugins/project-intelligence/tests/design_fixtures.py": [],
+    "plugins/project-intelligence/tests/test_document_truth_validation.py": ["plugins/project-intelligence/tests/design_fixtures.py"],
+    "plugins/project-intelligence/tests/test_project_design.py": ["plugins/project-intelligence/tests/design_fixtures.py"],
+    "plugins/project-intelligence/tests/test_project_test.py": ["plugins/project-intelligence/tests/design_fixtures.py"],
+    "plugins/project-intelligence/tests/test_requirement_hardening.py": ["plugins/project-intelligence/tests/design_fixtures.py"],
+    "plugins/project-intelligence/tests/test_requirement_layout_v2.py": ["plugins/project-intelligence/tests/design_fixtures.py"],
+    "plugins/project-intelligence/tests/test_requirement_workflow.py": ["plugins/project-intelligence/tests/design_fixtures.py"]
+  }
+}

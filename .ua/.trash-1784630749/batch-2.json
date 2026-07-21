@@ -1,0 +1,484 @@
+{
+  "nodes": [
+    {
+      "id": "file:plugins/project-intelligence/tests/design_fixtures.py",
+      "type": "file",
+      "name": "design_fixtures.py",
+      "filePath": "plugins/project-intelligence/tests/design_fixtures.py",
+      "summary": "为需求/Bug 测试用例提供统一的文档与设计脚手架文本生成器，是 tests 目录下多个 unittest 模块共享的 fixture 工厂。",
+      "tags": ["test", "fixture", "utility", "factory", "test-fixture"],
+      "complexity": "moderate",
+      "languageNotes": "使用 __future__ annotations 提供惰性类型求值，函数通过 kind 参数复用 requirement/bug 两种模板。"
+    },
+    {
+      "id": "function:plugins/project-intelligence/tests/design_fixtures.py:requirement_document",
+      "type": "function",
+      "name": "requirement_document",
+      "filePath": "plugins/project-intelligence/tests/design_fixtures.py",
+      "lineRange": [4, 64],
+      "summary": "生成符合规范的需求文档模板文本，支持 requirement 与 bug 两种 kind，包含验收标准与外部接口影响章节。",
+      "tags": ["test-fixture", "factory", "documentation", "template"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/tests/design_fixtures.py:requirement_design",
+      "type": "function",
+      "name": "requirement_design",
+      "filePath": "plugins/project-intelligence/tests/design_fixtures.py",
+      "lineRange": [67, 171],
+      "summary": "生成完整的需求开发设计文档文本，覆盖来源单据、技术方案、验收映射与测试证据等章节，供设计校验测试使用。",
+      "tags": ["test-fixture", "factory", "documentation", "template", "design"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:plugins/project-intelligence/tests/design_fixtures.py:bug_design",
+      "type": "function",
+      "name": "bug_design",
+      "filePath": "plugins/project-intelligence/tests/design_fixtures.py",
+      "lineRange": [174, 210],
+      "summary": "生成 Bug 单的诊断与修复设计文档文本，包含复现条件、当前行为与预期行为章节，供 Bug 生命周期测试使用。",
+      "tags": ["test-fixture", "factory", "documentation", "template", "bug"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:plugins/project-intelligence/tests/test_document_truth_validation.py",
+      "type": "file",
+      "name": "test_document_truth_validation.py",
+      "filePath": "plugins/project-intelligence/tests/test_document_truth_validation.py",
+      "summary": "针对设计文档与需求清单的来源真相校验逻辑进行 unittest 覆盖，确保文档中声明的代码路径与符号真实存在且无法通过符号链接逃逸仓库边界。",
+      "tags": ["test", "unittest", "validation", "source-truth", "security"],
+      "complexity": "moderate",
+      "languageNotes": "使用 unittest TestCase 分组，通过 sys.path 注入 scripts 目录以导入 project_intel_lib 模块。"
+    },
+    {
+      "id": "function:plugins/project-intelligence/tests/test_document_truth_validation.py:symlink_or_skip",
+      "type": "function",
+      "name": "symlink_or_skip",
+      "filePath": "plugins/project-intelligence/tests/test_document_truth_validation.py",
+      "lineRange": [21, 27],
+      "summary": "在 Windows 等不支持符号链接的环境跳过相关测试用例，保证来源真相校验测试跨平台可移植。",
+      "tags": ["test-fixture", "utility", "cross-platform", "skip-guard"],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:plugins/project-intelligence/tests/test_document_truth_validation.py:DesignSourceTruthTests",
+      "type": "class",
+      "name": "DesignSourceTruthTests",
+      "filePath": "plugins/project-intelligence/tests/test_document_truth_validation.py",
+      "lineRange": [30, 130],
+      "summary": "验证设计文档来源真相门禁：仓库路径必须存在、声明符号必须在声明文件内、外部来源不可用视为显式阻断、符号链接不得逃逸仓库。",
+      "tags": ["test", "unittest", "validation", "source-truth", "security"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:plugins/project-intelligence/tests/test_document_truth_validation.py:RequirementManifestTruthTests",
+      "type": "class",
+      "name": "RequirementManifestTruthTests",
+      "filePath": "plugins/project-intelligence/tests/test_document_truth_validation.py",
+      "lineRange": [133, 207],
+      "summary": "验证需求清单与文档信息字段、验收描述、外部接口影响陈述必须严格一致，待办项作为结构化就绪阻断项处理。",
+      "tags": ["test", "unittest", "validation", "manifest", "consistency"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:plugins/project-intelligence/tests/test_project_design.py",
+      "type": "file",
+      "name": "test_project_design.py",
+      "filePath": "plugins/project-intelligence/tests/test_project_design.py",
+      "summary": "针对项目设计文档校验器与打包 CLI 的退出码进行 unittest 覆盖，校验需求模板合规性、Bug 模板与标题匹配、空章节与敏感值等异常路径。",
+      "tags": ["test", "unittest", "validation", "cli", "design"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:plugins/project-intelligence/tests/test_project_design.py:ProjectDesignValidationTests",
+      "type": "class",
+      "name": "ProjectDesignValidationTests",
+      "filePath": "plugins/project-intelligence/tests/test_project_design.py",
+      "lineRange": [17, 192],
+      "summary": "覆盖设计文档校验器的关键路径与失败路径：模板通过、验收标题冲突、代码过重场景、源符号在注释/字符串中不算证据、Bug 模板校验、文件名匹配标题、空章节与路径逃逸、CLI 退出码。",
+      "tags": ["test", "unittest", "validation", "cli", "design"],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:plugins/project-intelligence/tests/test_project_test.py",
+      "type": "file",
+      "name": "test_project_test.py",
+      "filePath": "plugins/project-intelligence/tests/test_project_test.py",
+      "summary": "对项目测试证据登记与 finish 门禁进行端到端 unittest 覆盖，校验 RED/GREEN 阶段、手动证据、测试计数、git 变更范围与敏感信息脱敏等行为。",
+      "tags": ["test", "unittest", "test-evidence", "lifecycle", "security"],
+      "complexity": "complex",
+      "languageNotes": "通过 importlib 从 scripts/project_intel.py 动态加载模块 facade，再以 main() 调用 CLI 逻辑，避免重复启动子进程。"
+    },
+    {
+      "id": "class:plugins/project-intelligence/tests/test_project_test.py:ProjectTestEvidenceTests",
+      "type": "class",
+      "name": "ProjectTestEvidenceTests",
+      "filePath": "plugins/project-intelligence/tests/test_project_test.py",
+      "lineRange": [20, 452],
+      "summary": "覆盖测试证据生命周期与 finish 门禁：RED 阶段必须失败、GREEN 证据须任务/文件作用域且新鲜、零退出码但无测试计数不算通过、finish 拒绝无证据或范围不符的变更、手动证据须可复现、持久化证据须脱敏 JSON/cookie/环境变量等敏感信息。",
+      "tags": ["test", "unittest", "test-evidence", "lifecycle", "security"],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:plugins/project-intelligence/tests/test_requirement_hardening.py",
+      "type": "file",
+      "name": "test_requirement_hardening.py",
+      "filePath": "plugins/project-intelligence/tests/test_requirement_hardening.py",
+      "summary": "对需求生命周期加固逻辑进行 unittest 覆盖，校验符号链接逃逸、零测试报告、手动报告冒充服务测试、契约双方证据、脏文件归属、注册失败回滚、外部 API 当前服务证据、并发报告可读性等加固约束。",
+      "tags": ["test", "unittest", "hardening", "lifecycle", "concurrency"],
+      "complexity": "complex",
+      "languageNotes": "使用 concurrent.futures.ThreadPoolExecutor 验证并发注册报告的可读一致性。"
+    },
+    {
+      "id": "function:plugins/project-intelligence/tests/test_requirement_hardening.py:symlink_or_skip",
+      "type": "function",
+      "name": "symlink_or_skip",
+      "filePath": "plugins/project-intelligence/tests/test_requirement_hardening.py",
+      "lineRange": [21, 27],
+      "summary": "在不支持符号链接的平台跳过符号链接相关加固用例，保证跨平台可移植性。",
+      "tags": ["test-fixture", "utility", "cross-platform", "skip-guard"],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:plugins/project-intelligence/tests/test_requirement_hardening.py:RequirementHardeningTests",
+      "type": "class",
+      "name": "RequirementHardeningTests",
+      "filePath": "plugins/project-intelligence/tests/test_requirement_hardening.py",
+      "lineRange": [30, 734],
+      "summary": "覆盖需求生命周期的加固约束：符号链接不得写出仓库、零测试报告被拒、手动报告不得冒充服务测试、both 契约需双证据、脏文件不被新需求认领、注册失败回滚设计、外部 API 需当前服务证据、归档报告篡改失效、Bug ready 需诊断、maintain 关闭前重校验文档与测试报告、并发报告均可达可读摘要、清单目录符号链接被忽略。",
+      "tags": ["test", "unittest", "hardening", "lifecycle", "concurrency"],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:plugins/project-intelligence/tests/test_requirement_layout_v2.py",
+      "type": "file",
+      "name": "test_requirement_layout_v2.py",
+      "filePath": "plugins/project-intelligence/tests/test_requirement_layout_v2.py",
+      "summary": "对需求 v2 目录布局与迁移逻辑进行 unittest 覆盖，校验四份规范文档直接落位、外部文档复制、plan 可选生成、ready 双门禁、测试证据归属、文件历史派生以及 v1→v2 迁移 dry-run/apply/回滚行为。",
+      "tags": ["test", "unittest", "layout", "migration", "lifecycle"],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:plugins/project-intelligence/tests/test_requirement_layout_v2.py:requirement_text",
+      "type": "function",
+      "name": "requirement_text",
+      "filePath": "plugins/project-intelligence/tests/test_requirement_layout_v2.py",
+      "lineRange": [20, 65],
+      "summary": "按传入标识、名称与验收项生成需求文档文本，供 v2 布局与迁移测试构造输入。",
+      "tags": ["test-fixture", "factory", "documentation", "template"],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:plugins/project-intelligence/tests/test_requirement_layout_v2.py:RequirementLayoutV2Tests",
+      "type": "class",
+      "name": "RequirementLayoutV2Tests",
+      "filePath": "plugins/project-intelligence/tests/test_requirement_layout_v2.py",
+      "lineRange": [68, 472],
+      "summary": "覆盖需求 v2 布局：目录直接含四份规范文档、init 写入唯一项目状态、外部文档复制、plan 可选、ready 双门禁与清单重校验、测试证据不写入共享目录、注册报告复制与归档、文件历史派生、迁移 dry-run 非变更、v1 留旧目录、迁移 apply 移动清单并重写内部路径、preflight 全部清单、迁移失败全目录回滚。",
+      "tags": ["test", "unittest", "layout", "migration", "lifecycle"],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:plugins/project-intelligence/tests/test_requirement_workflow.py",
+      "type": "file",
+      "name": "test_requirement_workflow.py",
+      "filePath": "plugins/project-intelligence/tests/test_requirement_workflow.py",
+      "summary": "对需求完整生命周期工作流进行大规模 unittest 覆盖，校验状态机、外部 API 服务测试门禁、后续动作阻断、证据失效、review 阻断、人工例外、测试报告结构校验、close 门禁、CLI 全流程与 intake/amend 等边界行为。",
+      "tags": ["test", "unittest", "workflow", "lifecycle", "state-machine"],
+      "complexity": "complex",
+      "languageNotes": "单文件 1257 行，覆盖 40+ 测试方法，是本批次最大、覆盖最广的端到端工作流测试。"
+    },
+    {
+      "id": "class:plugins/project-intelligence/tests/test_requirement_workflow.py:RequirementWorkflowTests",
+      "type": "class",
+      "name": "RequirementWorkflowTests",
+      "filePath": "plugins/project-intelligence/tests/test_requirement_workflow.py",
+      "lineRange": [31, 1253],
+      "summary": "覆盖需求工作流端到端：完整状态机、外部 API 服务测试、后续动作阻断就绪、artifact 路径非空且在仓库内、reopen 失效下游证据、review 后代码变更致 finish 失效、git 不可用时证据闭环失败、finish 拒绝缺失报告、清单修订递增且 JSON 合法、设计脚手架不可绕过校验、本地 ID 格式与并发更新无丢失、review 阻断与不可自动解决、范围选择不得遗漏未跟踪或已修改文件、人工例外需允许类别与证据、注册报告需显式范围、失败报告不得声明通过、业务源文件不可登记为 artifact、close 拒绝 finish 后源变更、注册关闭需完整结构、设计 artifact 不强制测试覆盖、review 文本脱敏与按 ID 解决、生成报告为活文档、CLI 全生命周期、设计与验收独立就绪门禁、数字票号规范化、材质 amend 失效设计、v1 设计可读至重注册、amend 需 v1 重注册、验收集拒非法/重复 ID、JSON 门禁失败返回机器可读错误、重复 intake 冲突需 amend、intake 文档动作跨状态持久化与路径校验、选定后续动作不可生成、defer 需持久化后续动作。",
+      "tags": ["test", "unittest", "workflow", "lifecycle", "state-machine"],
+      "complexity": "complex"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:plugins/project-intelligence/tests/design_fixtures.py",
+      "target": "function:plugins/project-intelligence/tests/design_fixtures.py:requirement_document",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/tests/design_fixtures.py",
+      "target": "function:plugins/project-intelligence/tests/design_fixtures.py:requirement_design",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/tests/design_fixtures.py",
+      "target": "function:plugins/project-intelligence/tests/design_fixtures.py:bug_design",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/tests/design_fixtures.py",
+      "target": "function:plugins/project-intelligence/tests/design_fixtures.py:requirement_document",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/tests/design_fixtures.py",
+      "target": "function:plugins/project-intelligence/tests/design_fixtures.py:requirement_design",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/tests/design_fixtures.py",
+      "target": "function:plugins/project-intelligence/tests/design_fixtures.py:bug_design",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/tests/test_document_truth_validation.py",
+      "target": "file:plugins/project-intelligence/tests/design_fixtures.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:plugins/project-intelligence/tests/test_document_truth_validation.py",
+      "target": "function:plugins/project-intelligence/tests/test_document_truth_validation.py:symlink_or_skip",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/tests/test_document_truth_validation.py",
+      "target": "function:plugins/project-intelligence/tests/test_document_truth_validation.py:symlink_or_skip",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/tests/test_document_truth_validation.py",
+      "target": "class:plugins/project-intelligence/tests/test_document_truth_validation.py:DesignSourceTruthTests",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/tests/test_document_truth_validation.py",
+      "target": "class:plugins/project-intelligence/tests/test_document_truth_validation.py:DesignSourceTruthTests",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/tests/test_document_truth_validation.py",
+      "target": "class:plugins/project-intelligence/tests/test_document_truth_validation.py:RequirementManifestTruthTests",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/tests/test_document_truth_validation.py",
+      "target": "class:plugins/project-intelligence/tests/test_document_truth_validation.py:RequirementManifestTruthTests",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/tests/test_project_design.py",
+      "target": "file:plugins/project-intelligence/tests/design_fixtures.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:plugins/project-intelligence/tests/test_project_design.py",
+      "target": "class:plugins/project-intelligence/tests/test_project_design.py:ProjectDesignValidationTests",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/tests/test_project_design.py",
+      "target": "class:plugins/project-intelligence/tests/test_project_design.py:ProjectDesignValidationTests",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/tests/test_project_test.py",
+      "target": "file:plugins/project-intelligence/tests/design_fixtures.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:plugins/project-intelligence/tests/test_project_test.py",
+      "target": "class:plugins/project-intelligence/tests/test_project_test.py:ProjectTestEvidenceTests",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/tests/test_project_test.py",
+      "target": "class:plugins/project-intelligence/tests/test_project_test.py:ProjectTestEvidenceTests",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/tests/test_requirement_hardening.py",
+      "target": "file:plugins/project-intelligence/tests/design_fixtures.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:plugins/project-intelligence/tests/test_requirement_hardening.py",
+      "target": "function:plugins/project-intelligence/tests/test_requirement_hardening.py:symlink_or_skip",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/tests/test_requirement_hardening.py",
+      "target": "function:plugins/project-intelligence/tests/test_requirement_hardening.py:symlink_or_skip",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/tests/test_requirement_hardening.py",
+      "target": "class:plugins/project-intelligence/tests/test_requirement_hardening.py:RequirementHardeningTests",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/tests/test_requirement_hardening.py",
+      "target": "class:plugins/project-intelligence/tests/test_requirement_hardening.py:RequirementHardeningTests",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/tests/test_requirement_layout_v2.py",
+      "target": "file:plugins/project-intelligence/tests/design_fixtures.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:plugins/project-intelligence/tests/test_requirement_layout_v2.py",
+      "target": "function:plugins/project-intelligence/tests/test_requirement_layout_v2.py:requirement_text",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/tests/test_requirement_layout_v2.py",
+      "target": "function:plugins/project-intelligence/tests/test_requirement_layout_v2.py:requirement_text",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/tests/test_requirement_layout_v2.py",
+      "target": "class:plugins/project-intelligence/tests/test_requirement_layout_v2.py:RequirementLayoutV2Tests",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/tests/test_requirement_layout_v2.py",
+      "target": "class:plugins/project-intelligence/tests/test_requirement_layout_v2.py:RequirementLayoutV2Tests",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/tests/test_requirement_workflow.py",
+      "target": "file:plugins/project-intelligence/tests/design_fixtures.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:plugins/project-intelligence/tests/test_requirement_workflow.py",
+      "target": "class:plugins/project-intelligence/tests/test_requirement_workflow.py:RequirementWorkflowTests",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/tests/test_requirement_workflow.py",
+      "target": "class:plugins/project-intelligence/tests/test_requirement_workflow.py:RequirementWorkflowTests",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py",
+      "target": "file:plugins/project-intelligence/tests/test_document_truth_validation.py",
+      "type": "tested_by",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py",
+      "target": "file:plugins/project-intelligence/tests/test_project_design.py",
+      "type": "tested_by",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirement_documents.py",
+      "target": "file:plugins/project-intelligence/tests/test_document_truth_validation.py",
+      "type": "tested_by",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel.py",
+      "target": "file:plugins/project-intelligence/tests/test_project_test.py",
+      "type": "tested_by",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "file:plugins/project-intelligence/tests/test_requirement_hardening.py",
+      "type": "tested_by",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "file:plugins/project-intelligence/tests/test_requirement_layout_v2.py",
+      "type": "tested_by",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "file:plugins/project-intelligence/tests/test_requirement_workflow.py",
+      "type": "tested_by",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "target": "file:plugins/project-intelligence/tests/test_requirement_layout_v2.py",
+      "type": "tested_by",
+      "direction": "forward",
+      "weight": 0.5
+    }
+  ]
+}

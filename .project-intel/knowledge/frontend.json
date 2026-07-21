@@ -1,0 +1,10 @@
+{
+  "components": [],
+  "hooks": [],
+  "routes": [],
+  "apiModules": [],
+  "stores": [],
+  "styles": [],
+  "redundancyCandidates": [],
+  "scanMode": "regex-fallback"
+}

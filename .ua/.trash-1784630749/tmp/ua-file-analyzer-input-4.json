@@ -1,0 +1,13 @@
+{
+  "projectRoot": "/Users/xumeng/Desktop/code/project-intelligence",
+  "batchFiles": [
+    {"path": "scripts/run-skill-evals.mjs", "language": "javascript", "sizeLines": 128, "fileCategory": "code"},
+    {"path": "scripts/skill-eval-events.mjs", "language": "javascript", "sizeLines": 42, "fileCategory": "code"},
+    {"path": "scripts/validate-skill-evals.mjs", "language": "javascript", "sizeLines": 192, "fileCategory": "code"}
+  ],
+  "batchImportData": {
+    "scripts/run-skill-evals.mjs": ["scripts/skill-eval-events.mjs"],
+    "scripts/skill-eval-events.mjs": [],
+    "scripts/validate-skill-evals.mjs": ["scripts/skill-eval-events.mjs"]
+  }
+}

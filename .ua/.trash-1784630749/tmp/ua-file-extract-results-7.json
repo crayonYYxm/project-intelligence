@@ -1,0 +1,176 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 4,
+  "filesSkipped": [],
+  "results": [
+    {
+      "path": ".project-intel/reports/frontend-quality.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 22,
+      "nonEmptyLines": 12,
+      "sections": [
+        {
+          "heading": "质量报告",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "Hard 规范",
+          "level": 2,
+          "line": 3
+        },
+        {
+          "heading": "命令",
+          "level": 2,
+          "line": 9
+        },
+        {
+          "heading": "命令输出",
+          "level": 2,
+          "line": 13
+        },
+        {
+          "heading": "冗余",
+          "level": 2,
+          "line": 17
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 5
+      }
+    },
+    {
+      "path": ".project-intel/reports/init-report.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 43,
+      "nonEmptyLines": 29,
+      "sections": [
+        {
+          "heading": "项目智能报告",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "图谱来源",
+          "level": 2,
+          "line": 7
+        },
+        {
+          "heading": "前端概况",
+          "level": 2,
+          "line": 14
+        },
+        {
+          "heading": "后端概况",
+          "level": 2,
+          "line": 21
+        },
+        {
+          "heading": "质量命令",
+          "level": 2,
+          "line": 29
+        },
+        {
+          "heading": "推荐的工具操作",
+          "level": 2,
+          "line": 35
+        },
+        {
+          "heading": "后续 Agent 步骤",
+          "level": 2,
+          "line": 39
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 7
+      }
+    },
+    {
+      "path": ".project-intel/reports/redundancy-report.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 5,
+      "nonEmptyLines": 3,
+      "sections": [
+        {
+          "heading": "冗余候选",
+          "level": 1,
+          "line": 1
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 1
+      }
+    },
+    {
+      "path": ".project-intel/reports/tooling-report.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 50,
+      "nonEmptyLines": 34,
+      "sections": [
+        {
+          "heading": "工具报告",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "必需工具",
+          "level": 2,
+          "line": 5
+        },
+        {
+          "heading": "可选运行时",
+          "level": 2,
+          "line": 12
+        },
+        {
+          "heading": "包管理器",
+          "level": 2,
+          "line": 19
+        },
+        {
+          "heading": "质量命令",
+          "level": 2,
+          "line": 27
+        },
+        {
+          "heading": "推荐操作",
+          "level": 2,
+          "line": 33
+        },
+        {
+          "heading": "后续 Agent 步骤",
+          "level": 2,
+          "line": 37
+        },
+        {
+          "heading": "安装结果",
+          "level": 2,
+          "line": 43
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 8
+      }
+    }
+  ]
+}

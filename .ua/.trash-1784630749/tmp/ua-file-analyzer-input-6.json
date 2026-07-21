@@ -1,0 +1,9 @@
+{
+  "projectRoot": "/Users/xumeng/Desktop/code/project-intelligence",
+  "batchFiles": [
+    {"path": ".project-intel/knowledge/backend.json", "language": "json", "sizeLines": 506, "fileCategory": "config"},
+    {"path": ".project-intel/knowledge/files.json", "language": "json", "sizeLines": 320, "fileCategory": "config"},
+    {"path": ".project-intel/knowledge/frontend.json", "language": "json", "sizeLines": 10, "fileCategory": "config"}
+  ],
+  "batchImportData": {}
+}

@@ -1,0 +1,1469 @@
+{
+  "nodes": [
+    {
+      "id": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "type": "file",
+      "name": "requirements.py",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "summary": "需求生命周期的核心状态机模块，管理草稿到关闭全流程的门禁、文档产物、测试证据、评审记录、范围快照与布局迁移。",
+      "tags": [
+        "需求生命周期",
+        "状态机",
+        "门禁",
+        "测试证据",
+        "lifecycle"
+      ],
+      "complexity": "complex",
+      "languageNotes": "通过 _RequirementLock 上下文管理器配合原子写入实现 manifest 的并发安全更新；使用 schema 版本号区分新旧布局。"
+    },
+    {
+      "id": "class:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:RequirementError",
+      "type": "class",
+      "name": "RequirementError",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "lineRange": [
+        119,
+        120
+      ],
+      "summary": "需求工作流门禁在校验失败时抛出的运行时异常，表示当前状态不允许执行该操作。",
+      "tags": [
+        "异常",
+        "门禁",
+        "error",
+        "lifecycle"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:normalize_requirement_id",
+      "type": "function",
+      "name": "normalize_requirement_id",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "lineRange": [
+        132,
+        140
+      ],
+      "summary": "规范化需求 ID 格式，处理大小写、分隔符与前后缀，返回标准需求标识。",
+      "tags": [
+        "规范化",
+        "需求id",
+        "utility"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:canonicalize_ticket_id",
+      "type": "function",
+      "name": "canonicalize_ticket_id",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "lineRange": [
+        143,
+        151
+      ],
+      "summary": "根据单据类型规范化外部工单 ID，统一不同来源的工单编号格式。",
+      "tags": [
+        "规范化",
+        "工单id",
+        "utility"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:_assert_safe_internal_path",
+      "type": "function",
+      "name": "_assert_safe_internal_path",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "lineRange": [
+        154,
+        173
+      ],
+      "summary": "断言给定路径位于项目根目录内且无路径穿越，防止越界访问。",
+      "tags": [
+        "路径安全",
+        "校验",
+        "security"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:_atomic_write",
+      "type": "function",
+      "name": "_atomic_write",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "lineRange": [
+        218,
+        231
+      ],
+      "summary": "通过临时文件与原子替换实现文件的原子写入，避免并发写导致数据损坏。",
+      "tags": [
+        "原子写入",
+        "文件io",
+        "并发安全",
+        "utility"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:_RequirementLock",
+      "type": "class",
+      "name": "_RequirementLock",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "lineRange": [
+        234,
+        274
+      ],
+      "summary": "基于文件锁的需求 manifest 上下文管理器，进入时获取独占锁、退出时释放，保证并发写操作的安全。",
+      "tags": [
+        "上下文管理器",
+        "文件锁",
+        "并发安全",
+        "manifest"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "实现 __enter__/__exit__ 协议，配合 _atomic_write 实现原子化的 manifest 更新。"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:load_requirement",
+      "type": "function",
+      "name": "load_requirement",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "lineRange": [
+        281,
+        298
+      ],
+      "summary": "从 manifest 路径加载需求元数据，处理缺失与损坏文件并返回需求对象。",
+      "tags": [
+        "加载",
+        "manifest",
+        "需求",
+        "utility"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:_prepare_document_selection",
+      "type": "function",
+      "name": "_prepare_document_selection",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "lineRange": [
+        320,
+        346
+      ],
+      "summary": "解析并准备文档选择参数，校验 generate/register/later 动作与路径合法性。",
+      "tags": [
+        "文档选择",
+        "校验",
+        "manifest"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:_assert_document_selection",
+      "type": "function",
+      "name": "_assert_document_selection",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "lineRange": [
+        356,
+        376
+      ],
+      "summary": "断言 manifest 中文档选择状态与当前操作一致，记录状态冲突错误。",
+      "tags": [
+        "文档选择",
+        "断言",
+        "manifest"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:_mark_document_selection",
+      "type": "function",
+      "name": "_mark_document_selection",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "lineRange": [
+        379,
+        399
+      ],
+      "summary": "在 manifest 中标记文档选择结果，记录动作、状态与产物路径。",
+      "tags": [
+        "文档选择",
+        "manifest",
+        "更新"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:create_requirement",
+      "type": "function",
+      "name": "create_requirement",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "lineRange": [
+        402,
+        504
+      ],
+      "summary": "创建新需求，初始化 manifest、目录结构与文档选择，生成需求/设计文档脚手架并写入初稿状态。",
+      "tags": [
+        "创建需求",
+        "manifest",
+        "初始化",
+        "lifecycle"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:amend_requirement",
+      "type": "function",
+      "name": "amend_requirement",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "lineRange": [
+        507,
+        643
+      ],
+      "summary": "修订已有需求的元数据与文档选择，支持更新名称、轨道、外部 API 与文档动作，并记录修订原因。",
+      "tags": [
+        "修订需求",
+        "manifest",
+        "更新",
+        "lifecycle"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:_resolve_repo_file",
+      "type": "function",
+      "name": "_resolve_repo_file",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "lineRange": [
+        646,
+        673
+      ],
+      "summary": "解析仓库文件引用值，校验路径合法性并返回规范化相对路径。",
+      "tags": [
+        "解析",
+        "仓库文件",
+        "validation"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:_delivery_document_artifact_path_valid",
+      "type": "function",
+      "name": "_delivery_document_artifact_path_valid",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "lineRange": [
+        691,
+        703
+      ],
+      "summary": "校验交付文档产物路径合法性，根据产物类型校验后缀与路径标记。",
+      "tags": [
+        "交付文档",
+        "路径校验",
+        "validation"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:_json_report_result",
+      "type": "function",
+      "name": "_json_report_result",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "lineRange": [
+        715,
+        744
+      ],
+      "summary": "从 JSON 测试报告解析执行结果，提取通过/失败数与测试用例详情。",
+      "tags": [
+        "测试报告",
+        "json",
+        "解析"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:_xml_report_result",
+      "type": "function",
+      "name": "_xml_report_result",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "lineRange": [
+        747,
+        775
+      ],
+      "summary": "从 JUnit XML 测试报告解析执行结果，提取测试用例数与失败详情。",
+      "tags": [
+        "测试报告",
+        "xml",
+        "解析",
+        "junit"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:_text_report_result",
+      "type": "function",
+      "name": "_text_report_result",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "lineRange": [
+        778,
+        799
+      ],
+      "summary": "从纯文本测试报告解析执行结果，按通用格式提取通过/失败计数。",
+      "tags": [
+        "测试报告",
+        "文本",
+        "解析"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:_report_execution_count",
+      "type": "function",
+      "name": "_report_execution_count",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "lineRange": [
+        802,
+        842
+      ],
+      "summary": "根据报告文件格式分发解析并返回测试执行总数，支持 JSON/XML/文本格式。",
+      "tags": [
+        "测试报告",
+        "执行数",
+        "解析"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:_declared_test_kinds",
+      "type": "function",
+      "name": "_declared_test_kinds",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "lineRange": [
+        845,
+        854
+      ],
+      "summary": "从测试契约中提取声明的测试类型集合（unit/service/manual）。",
+      "tags": [
+        "测试契约",
+        "测试类型",
+        "utility"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:_validate_test_report_file",
+      "type": "function",
+      "name": "_validate_test_report_file",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "lineRange": [
+        857,
+        899
+      ],
+      "summary": "校验测试报告文件的存在性、格式与预期结果一致性，记录各类报告问题。",
+      "tags": [
+        "测试报告",
+        "校验",
+        "validation"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:_canonicalize_test_report",
+      "type": "function",
+      "name": "_canonicalize_test_report",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "lineRange": [
+        902,
+        970
+      ],
+      "summary": "规范化测试报告，解析执行结果、用例数与验收范围，生成标准化的测试证据记录。",
+      "tags": [
+        "测试报告",
+        "规范化",
+        "canonicalize"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:_validate_closure_file",
+      "type": "function",
+      "name": "_validate_closure_file",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "lineRange": [
+        973,
+        1012
+      ],
+      "summary": "校验收尾文档的必填章节存在性与内容完整性，记录缺失章节错误。",
+      "tags": [
+        "收尾文档",
+        "校验",
+        "validation"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:_validate_plan_file",
+      "type": "function",
+      "name": "_validate_plan_file",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "lineRange": [
+        1015,
+        1061
+      ],
+      "summary": "校验实施计划文档的必填章节与内容完整性，确保计划符合规范。",
+      "tags": [
+        "实施计划",
+        "校验",
+        "validation"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:file_sha256",
+      "type": "function",
+      "name": "file_sha256",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "lineRange": [
+        1064,
+        1072
+      ],
+      "summary": "计算文件的 SHA256 哈希值，用于产物完整性校验与变更检测。",
+      "tags": [
+        "哈希",
+        "sha256",
+        "完整性",
+        "utility"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:set_acceptance_criteria",
+      "type": "function",
+      "name": "set_acceptance_criteria",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "lineRange": [
+        1075,
+        1100
+      ],
+      "summary": "设置需求的验收标准列表，更新 manifest 并校验编号唯一性与格式。",
+      "tags": [
+        "验收标准",
+        "manifest",
+        "更新",
+        "lifecycle"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:set_test_contract",
+      "type": "function",
+      "name": "set_test_contract",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "lineRange": [
+        1103,
+        1158
+      ],
+      "summary": "设置需求的测试契约，声明测试类型、报告动作与关联验收标准，更新 manifest。",
+      "tags": [
+        "测试契约",
+        "manifest",
+        "更新",
+        "lifecycle"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:record_diagnosis",
+      "type": "function",
+      "name": "record_diagnosis",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "lineRange": [
+        1161,
+        1214
+      ],
+      "summary": "记录 Bug 的根因诊断与证据，更新 manifest 诊断字段并校验证据路径合法性。",
+      "tags": [
+        "诊断",
+        "bug",
+        "manifest",
+        "lifecycle"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:_upsert_artifact",
+      "type": "function",
+      "name": "_upsert_artifact",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "lineRange": [
+        1217,
+        1264
+      ],
+      "summary": "在 manifest 中插入或更新产物记录，记录类型、路径、哈希、状态与验收范围等元数据。",
+      "tags": [
+        "产物",
+        "manifest",
+        "upsert",
+        "utility"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:_test_report_text",
+      "type": "function",
+      "name": "_test_report_text",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "lineRange": [
+        1267,
+        1281
+      ],
+      "summary": "从 manifest 中提取当前测试报告的文本摘要，供收尾文档生成使用。",
+      "tags": [
+        "测试报告",
+        "摘要",
+        "utility"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:_closure_text",
+      "type": "function",
+      "name": "_closure_text",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "lineRange": [
+        1284,
+        1394
+      ],
+      "summary": "根据 manifest 生成收尾文档全文，汇总需求结果、变更范围、验收标准结果与测试证据等章节。",
+      "tags": [
+        "收尾文档",
+        "生成",
+        "manifest"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:_refresh_closure_artifact",
+      "type": "function",
+      "name": "_refresh_closure_artifact",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "lineRange": [
+        1397,
+        1433
+      ],
+      "summary": "刷新收尾文档产物，重新生成收尾全文并更新产物哈希与状态。",
+      "tags": [
+        "收尾文档",
+        "刷新",
+        "manifest"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:_assert_artifact_state",
+      "type": "function",
+      "name": "_assert_artifact_state",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "lineRange": [
+        1444,
+        1468
+      ],
+      "summary": "断言 manifest 中指定产物类型的状态符合操作要求，记录状态冲突错误。",
+      "tags": [
+        "产物",
+        "断言",
+        "manifest"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:_plan_text",
+      "type": "function",
+      "name": "_plan_text",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "lineRange": [
+        1471,
+        1514
+      ],
+      "summary": "根据 manifest 生成实施计划文档全文，包含实施范围、文件级变更与步骤等章节。",
+      "tags": [
+        "实施计划",
+        "生成",
+        "manifest"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:generate_artifact",
+      "type": "function",
+      "name": "generate_artifact",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "lineRange": [
+        1517,
+        1616
+      ],
+      "summary": "生成需求产物文档（收尾、计划等），校验状态后调用对应文本生成器并写入产物文件。",
+      "tags": [
+        "产物生成",
+        "manifest",
+        "lifecycle"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:_validate_delivery_document",
+      "type": "function",
+      "name": "_validate_delivery_document",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "lineRange": [
+        1619,
+        1665
+      ],
+      "summary": "校验交付文档的存在性、后缀与路径标记合法性，记录各类交付问题。",
+      "tags": [
+        "交付文档",
+        "校验",
+        "validation"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:_register_delivery_document",
+      "type": "function",
+      "name": "_register_delivery_document",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "lineRange": [
+        1668,
+        1755
+      ],
+      "summary": "注册交付文档到 manifest，计算哈希、校验路径并更新产物记录。",
+      "tags": [
+        "交付文档",
+        "注册",
+        "manifest"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:register_artifact",
+      "type": "function",
+      "name": "register_artifact",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "lineRange": [
+        1758,
+        1854
+      ],
+      "summary": "注册产物到 manifest，处理测试报告、交付文档与人工证据等不同类型，校验并记录产物状态。",
+      "tags": [
+        "产物注册",
+        "manifest",
+        "lifecycle"
+      ],
+      "complexity": "complex"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:normalize_requirement_id",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:canonicalize_ticket_id",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:_assert_safe_internal_path",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:_atomic_write",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:load_requirement",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:_prepare_document_selection",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:_assert_document_selection",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:_mark_document_selection",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:create_requirement",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:amend_requirement",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:_resolve_repo_file",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:_delivery_document_artifact_path_valid",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:_json_report_result",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:_xml_report_result",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:_text_report_result",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:_report_execution_count",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:_declared_test_kinds",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:_validate_test_report_file",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:_canonicalize_test_report",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:_validate_closure_file",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:_validate_plan_file",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:file_sha256",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:set_acceptance_criteria",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:set_test_contract",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:record_diagnosis",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:_upsert_artifact",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:_test_report_text",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:_closure_text",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:_refresh_closure_artifact",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:_assert_artifact_state",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:_plan_text",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:generate_artifact",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:_validate_delivery_document",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:_register_delivery_document",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:register_artifact",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:_resolve_blockers",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:record_later",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:_assert_readiness_inputs",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:ready_requirement",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:begin_requirement",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:_git",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:_committed_scope_entries",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:capture_scope_snapshot",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:capture_requirement_scope",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:_normalize_scope_files",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:validate_scope_selection",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:_manual_valid",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:_current_test_evidence",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:_test_channels",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:_test_gate_for_records",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:record_test_result",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:append_test_report_execution",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:record_review",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:resolve_review_findings",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:_artifact_is_current",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:_current_test_artifact",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:_validated_passing_test_evidence",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:_test_gate_with_current_reports",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:requirement_validation_status",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:design_validation_status",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:plan_validation_status",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:_best_document_state",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:finish_requirement",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:_validate_finished_invariants",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:validate_finished_freshness",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:close_requirement",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:reopen_requirement",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:status_payload",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:record_changed_files",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:_requirement_manifest_files",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:query_requirements",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:migrate_layout",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "class:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:RequirementError",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "class:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:_RequirementLock",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:normalize_requirement_id",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:canonicalize_ticket_id",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:load_requirement",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:create_requirement",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:amend_requirement",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:file_sha256",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:set_acceptance_criteria",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:set_test_contract",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:record_diagnosis",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:generate_artifact",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:register_artifact",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:record_later",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:ready_requirement",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:begin_requirement",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:capture_scope_snapshot",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:capture_requirement_scope",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:validate_scope_selection",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:record_test_result",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:append_test_report_execution",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:record_review",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:resolve_review_findings",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:requirement_validation_status",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:design_validation_status",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:plan_validation_status",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:finish_requirement",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:validate_finished_freshness",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:close_requirement",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:reopen_requirement",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:status_payload",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:record_changed_files",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:query_requirements",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:migrate_layout",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "class:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:RequirementError",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "file:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "file:plugins/project-intelligence/scripts/project_intel_lib/requirement_documents.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "target": "file:plugins/project-intelligence/scripts/project_intel_lib/testing.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:create_requirement",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py:requirement_scaffold",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:create_requirement",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirement_documents.py:scaffold_text",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:amend_requirement",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py:design_filename",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:generate_artifact",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:_closure_text",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:generate_artifact",
+      "target": "function:plugins/project-intelligence/scripts/project_intel_lib/requirements.py:_plan_text",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    }
+  ]
+}

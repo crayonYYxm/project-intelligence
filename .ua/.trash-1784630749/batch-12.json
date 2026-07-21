@@ -1,0 +1,671 @@
+{
+  "nodes": [
+    {
+      "id": "file:plugins/project-intelligence/tests/test_project_intel.py",
+      "type": "file",
+      "name": "test_project_intel.py",
+      "filePath": "plugins/project-intelligence/tests/test_project_intel.py",
+      "summary": "项目智能插件的主测试套件，通过 importlib 动态加载 scripts/project_intel.py，覆盖文件发现、工具初始化、图谱工具检测、agent 入口安装、生命周期产物、安全配置、硬规则质量、钩子、Skill 路径、CLI 发布契约、标准推断以及打包稳定性等 15 个测试类。",
+      "tags": ["test", "cli", "lifecycle", "packaging", "standards"],
+      "complexity": "complex",
+      "languageNotes": "使用 importlib.util.spec_from_file_location 动态加载 CLI 模块以绕过包安装，配合 unittest.mock.patch 对 print_tooling_summary、run_shell 等做隔离测试。"
+    },
+    {
+      "id": "file:plugins/project-intelligence/tests/test_testing_security.py",
+      "type": "file",
+      "name": "test_testing_security.py",
+      "filePath": "plugins/project-intelligence/tests/test_testing_security.py",
+      "summary": "测试 project_intel_lib/testing.py 的敏感信息脱敏与安全 Markdown 渲染能力，覆盖 Authorization 头、URL userinfo、手机号/身份证/partyId、原始 provider token 以及不可信字段的转义与安全围栏。",
+      "tags": ["test", "security", "redaction", "markdown", "sanitization"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:scripts/check-package.mjs",
+      "type": "file",
+      "name": "check-package.mjs",
+      "filePath": "scripts/check-package.mjs",
+      "summary": "发布前校验脚本：在临时目录运行 npm pack --dry-run，断言产物不含 __pycache__/.pyc/tests 等开发残留且包含 bin、marketplace、project_intel_lib 等关键文件，再实际安装 tarball 并执行 bin/project-intel.mjs --version 与 --help 做烟雾测试。",
+      "tags": ["build-system", "validation", "packaging", "npm", "smoke-test"],
+      "complexity": "moderate",
+      "languageNotes": "跨平台 npm 调用：非 Windows 直接 execFileSync('npm')，Windows 下经 ComSpec/cmd.exe 并对含空格特殊字符的参数做 quoteCmdArgument 转义。"
+    },
+    {
+      "id": "file:scripts/check-release.mjs",
+      "type": "file",
+      "name": "check-release.mjs",
+      "filePath": "scripts/check-release.mjs",
+      "summary": "发布一致性校验脚本：读取 package.json、Claude/Codex 的 plugin.json 以及 Python 源码中的 VERSION 常量，断言四处版本号完全一致，否则抛错阻止发布。",
+      "tags": ["build-system", "validation", "release", "versioning"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:scripts/npm-pack-dry-run.mjs",
+      "type": "file",
+      "name": "npm-pack-dry-run.mjs",
+      "filePath": "scripts/npm-pack-dry-run.mjs",
+      "summary": "轻量脚本：在隔离的临时 npm cache 下运行 npm pack --dry-run，预览将要打入 tarball 的文件清单，供本地快速核查包内容。",
+      "tags": ["build-system", "packaging", "npm", "dry-run"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:scripts/run-tests.mjs",
+      "type": "file",
+      "name": "run-tests.mjs",
+      "filePath": "scripts/run-tests.mjs",
+      "summary": "统一测试入口：在 Windows/Unix 上探测可用 Python 解释器，运行 unittest discover 对 plugins/project-intelligence/tests 下 test_*.py 全量执行，随后调用 scripts/validate-skill-evals.mjs 校验 Skill 契约。",
+      "tags": ["test", "test-runner", "python", "ci-cd"],
+      "complexity": "simple",
+      "languageNotes": "跨平台解释器探测：Windows 优先 py -3，回退 python/python3；遇到 ENOENT 或 9009 时继续尝试下一个候选。"
+    },
+    {
+      "id": "file:scripts/validate_bundle.py",
+      "type": "file",
+      "name": "validate_bundle.py",
+      "filePath": "scripts/validate_bundle.py",
+      "summary": "仓库本地校验脚本：加载 Codex/Claude 的 plugin.json 与 marketplace.json，校验插件名、skills 声明、marketplace 条目，并遍历 skills/*/SKILL.md 断言 frontmatter 的 name/description 字段与目录名一致。",
+      "tags": ["validation", "build-system", "plugin-manifest", "skills"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/tests/test_project_intel.py:symlink_or_skip",
+      "type": "function",
+      "name": "symlink_or_skip",
+      "filePath": "plugins/project-intelligence/tests/test_project_intel.py",
+      "lineRange": [20, 26],
+      "summary": "测试辅助函数：创建符号链接，若在 Windows 且缺少开发者模式/提权（winerror 1314）则跳过该用例而非报错失败。",
+      "tags": ["test-helper", "symlink", "cross-platform"],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:plugins/project-intelligence/tests/test_project_intel.py:FileDiscoveryTests",
+      "type": "class",
+      "name": "FileDiscoveryTests",
+      "filePath": "plugins/project-intelligence/tests/test_project_intel.py",
+      "lineRange": [29, 41],
+      "summary": "验证 project_intel.iter_files 在扫描时排除 .hidden 等隐藏路径的文件发现行为。",
+      "tags": ["test", "file-discovery", "scanner"],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:plugins/project-intelligence/tests/test_project_intel.py:HandleToolingSetupTests",
+      "type": "class",
+      "name": "HandleToolingSetupTests",
+      "filePath": "plugins/project-intelligence/tests/test_project_intel.py",
+      "lineRange": [44, 373],
+      "summary": "覆盖 init 流程中图谱工具（GitNexus/Understand）的安装、交互确认、非交互降级、外部绝对路径命令授权等 16 个初始化场景。",
+      "tags": ["test", "tooling-setup", "graph-tools", "init"],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:plugins/project-intelligence/tests/test_project_intel.py:GraphToolsReportTests",
+      "type": "class",
+      "name": "GraphToolsReportTests",
+      "filePath": "plugins/project-intelligence/tests/test_project_intel.py",
+      "lineRange": [376, 417],
+      "summary": "校验 report-graph-tools 在 JSON 与文本两种输出模式下的正确性，并断言文本模式为中文。",
+      "tags": ["test", "graph-tools", "report", "i18n"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:plugins/project-intelligence/tests/test_project_intel.py:GraphToolCommandTests",
+      "type": "class",
+      "name": "GraphToolCommandTests",
+      "filePath": "plugins/project-intelligence/tests/test_project_intel.py",
+      "lineRange": [420, 611],
+      "summary": "覆盖默认 understand 安装命令的 agent 偏好与 env 覆盖、GitNexus/Understand 的 detect_graph_actions 状态判定（download-and-run/agent-installed/installable/partially-installed）等 9 个用例。",
+      "tags": ["test", "graph-tools", "detection", "install"],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:plugins/project-intelligence/tests/test_project_intel.py:UnderstandSetupFlowTests",
+      "type": "class",
+      "name": "UnderstandSetupFlowTests",
+      "filePath": "plugins/project-intelligence/tests/test_project_intel.py",
+      "lineRange": [614, 730],
+      "summary": "验证 Understand 工具在 agent 已安装、可安装、部分安装以及 Claude 本地安装失败四种状态下的安装流程与 detail 返回。",
+      "tags": ["test", "understand", "setup-flow", "install"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:plugins/project-intelligence/tests/test_project_intel.py:AgentEntrypointInstallTests",
+      "type": "class",
+      "name": "AgentEntrypointInstallTests",
+      "filePath": "plugins/project-intelligence/tests/test_project_intel.py",
+      "lineRange": [733, 880],
+      "summary": "覆盖 agent 入口文件的安装与迁移：拒绝符号链接目录、写入根级 AGENTS 入口而不覆盖既有内容、迁移纯遗留嵌套 adapter 到 managed block、预览非变异与 apply 写入、拒绝符号链接/超大/重复 marker 文件等 8 个用例。",
+      "tags": ["test", "agent-entrypoint", "install", "migration"],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:plugins/project-intelligence/tests/test_project_intel.py:LifecycleArtifactTests",
+      "type": "class",
+      "name": "LifecycleArtifactTests",
+      "filePath": "plugins/project-intelligence/tests/test_project_intel.py",
+      "lineRange": [883, 1067],
+      "summary": "验证 intake/spec/plan/finish/maintain 等生命周期命令的默认打印、按需写入、门禁集成、文件级需求单（每源文件一个 Markdown、要求中文摘要）及 maintain 归档行为。",
+      "tags": ["test", "lifecycle", "artifacts", "requirements"],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:plugins/project-intelligence/tests/test_project_intel.py:SafetyAndConfigTests",
+      "type": "class",
+      "name": "SafetyAndConfigTests",
+      "filePath": "plugins/project-intelligence/tests/test_project_intel.py",
+      "lineRange": [1070, 1172],
+      "summary": "覆盖安全性校验：需求路径拒绝父级穿越与外部符号链接、无效配置阻断 init、原子写替换、scan 配置的 include/exclude/hidden、自定义 backend 入口规则、非法硬规则正则拒绝、refresh 保留手动质量命令。",
+      "tags": ["test", "security", "config", "validation"],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:plugins/project-intelligence/tests/test_project_intel.py:HardRuleAndQualityTests",
+      "type": "class",
+      "name": "HardRuleAndQualityTests",
+      "filePath": "plugins/project-intelligence/tests/test_project_intel.py",
+      "lineRange": [1175, 1261],
+      "summary": "验证硬规则检查的失败/通过/人工 review 标记、手动硬规则不触发失败、必需/禁止路径检查、质量报告包含命令输出以及 check 需先初始化。",
+      "tags": ["test", "hard-rules", "quality", "check"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:plugins/project-intelligence/tests/test_project_intel.py:HookTests",
+      "type": "class",
+      "name": "HookTests",
+      "filePath": "plugins/project-intelligence/tests/test_project_intel.py",
+      "lineRange": [1264, 1300],
+      "summary": "校验钩子激活的幂等性（不重复运行 maintain）、既有自定义钩子被保留、git hook 路径使用 git rev-parse 结果。",
+      "tags": ["test", "hooks", "git", "idempotent"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:plugins/project-intelligence/tests/test_project_intel.py:SkillCommandPathTests",
+      "type": "class",
+      "name": "SkillCommandPathTests",
+      "filePath": "plugins/project-intelligence/tests/test_project_intel.py",
+      "lineRange": [1303, 1375],
+      "summary": "校验 Skill 文件使用全局 project-intel 命令、生成的 task impact 文档使用全局 CLI 且不捏造测试契约、复用选中测试契约、agent 规则要求 Bug 诊断后才可 ready、生成钩子脚本使用运行时脚本路径。",
+      "tags": ["test", "skills", "cli", "codegen"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:plugins/project-intelligence/tests/test_project_intel.py:CliAndReleaseContractTests",
+      "type": "class",
+      "name": "CliAndReleaseContractTests",
+      "filePath": "plugins/project-intelligence/tests/test_project_intel.py",
+      "lineRange": [1378, 1605],
+      "summary": "覆盖 CLI 与发布契约：init 默认检查图谱、JSON 解析与运行时失败可机读、生命周期需求契约并拒绝外部 API 单元、refresh 仅显式请求时跑图谱、CLI 冒烟、版本/提示/publisher 一致、project-orchestrate 与 project-design Skill 打包且自包含。",
+      "tags": ["test", "cli", "release-contract", "packaging"],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:plugins/project-intelligence/tests/test_project_intel.py:InferStandardsTests",
+      "type": "class",
+      "name": "InferStandardsTests",
+      "filePath": "plugins/project-intelligence/tests/test_project_intel.py",
+      "lineRange": [1608, 2095],
+      "summary": "验证标准推断：命名/目录风格/请求模式/后端规则、extract 不把 prop 默认值当事件、Vue 仅读顶层运行时 props、前端扫描提取 mini app api 路由/store/组件作用域、前后端标准文档包含详细文件列表等 16 个用例。",
+      "tags": ["test", "standards", "inference", "frontend", "backend"],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:plugins/project-intelligence/tests/test_project_intel.py:StabilityAndPackagingTests",
+      "type": "class",
+      "name": "StabilityAndPackagingTests",
+      "filePath": "plugins/project-intelligence/tests/test_project_intel.py",
+      "lineRange": [2098, 2286],
+      "summary": "覆盖稳定性与打包：plugin-intro 描述当前需求归档、init 保持 team facts 可移植且 tooling 本地化、追加 .gitignore 不改写既有内容、空/无效图谱不满足严格 init、变更需求文件包含未跟踪源、query 含图谱并打印匹配上下文、生成的 agent 入口被排除出扫描。",
+      "tags": ["test", "stability", "packaging", "gitignore"],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:plugins/project-intelligence/tests/test_project_intel.py:LegacyLocalSkillCleanupTests",
+      "type": "class",
+      "name": "LegacyLocalSkillCleanupTests",
+      "filePath": "plugins/project-intelligence/tests/test_project_intel.py",
+      "lineRange": [2289, 2335],
+      "summary": "验证遗留本地 Skill 清理：保留未标记的同名 Skill、移除已标记的遗留副本、对干净项目为 no-op、install claude 时运行遗留清理。",
+      "tags": ["test", "legacy-cleanup", "skills", "migration"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:plugins/project-intelligence/tests/test_testing_security.py:TestingSecurityTests",
+      "type": "class",
+      "name": "TestingSecurityTests",
+      "filePath": "plugins/project-intelligence/tests/test_testing_security.py",
+      "lineRange": [14, 162],
+      "summary": "测试 testing.sanitize_text 对 Authorization/URL userinfo/手机号/身份证/partyId/原始 provider token 的脱敏，以及 render_test_evidence 对不可信字段的转义与安全围栏，断言脱敏幂等且保留非敏感标识与目标地址。",
+      "tags": ["test", "security", "redaction", "markdown", "pii"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:scripts/check-package.mjs:runNpm",
+      "type": "function",
+      "name": "runNpm",
+      "filePath": "scripts/check-package.mjs",
+      "lineRange": [18, 24],
+      "summary": "跨平台 npm 调用封装：非 Windows 直接 execFileSync('npm')，Windows 经 ComSpec/cmd.exe 拼接命令并对参数做引号转义后执行。",
+      "tags": ["utility", "cross-platform", "npm", "shell"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:scripts/validate_bundle.py:load",
+      "type": "function",
+      "name": "load",
+      "filePath": "scripts/validate_bundle.py",
+      "lineRange": [15, 22],
+      "summary": "读取并解析 JSON 文件，遇 OSError/JSONDecodeError 或根非对象时抛 SystemExit 并附带路径信息。",
+      "tags": ["utility", "json", "validation"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:scripts/validate_bundle.py:main",
+      "type": "function",
+      "name": "main",
+      "filePath": "scripts/validate_bundle.py",
+      "lineRange": [30, 53],
+      "summary": "校验入口：加载 Codex/Claude 的 plugin.json 与两个 marketplace.json，断言插件名/skills 声明/marketplace 条目，遍历 skills/*/SKILL.md 校验 frontmatter 的 name 与 description，通过后打印校验通过的 Skill 数量。",
+      "tags": ["validation", "plugin-manifest", "skills", "entry-point"],
+      "complexity": "moderate"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:plugins/project-intelligence/tests/test_project_intel.py",
+      "target": "function:plugins/project-intelligence/tests/test_project_intel.py:symlink_or_skip",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/tests/test_project_intel.py",
+      "target": "class:plugins/project-intelligence/tests/test_project_intel.py:FileDiscoveryTests",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/tests/test_project_intel.py",
+      "target": "class:plugins/project-intelligence/tests/test_project_intel.py:HandleToolingSetupTests",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/tests/test_project_intel.py",
+      "target": "class:plugins/project-intelligence/tests/test_project_intel.py:GraphToolsReportTests",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/tests/test_project_intel.py",
+      "target": "class:plugins/project-intelligence/tests/test_project_intel.py:GraphToolCommandTests",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/tests/test_project_intel.py",
+      "target": "class:plugins/project-intelligence/tests/test_project_intel.py:UnderstandSetupFlowTests",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/tests/test_project_intel.py",
+      "target": "class:plugins/project-intelligence/tests/test_project_intel.py:AgentEntrypointInstallTests",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/tests/test_project_intel.py",
+      "target": "class:plugins/project-intelligence/tests/test_project_intel.py:LifecycleArtifactTests",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/tests/test_project_intel.py",
+      "target": "class:plugins/project-intelligence/tests/test_project_intel.py:SafetyAndConfigTests",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/tests/test_project_intel.py",
+      "target": "class:plugins/project-intelligence/tests/test_project_intel.py:HardRuleAndQualityTests",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/tests/test_project_intel.py",
+      "target": "class:plugins/project-intelligence/tests/test_project_intel.py:HookTests",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/tests/test_project_intel.py",
+      "target": "class:plugins/project-intelligence/tests/test_project_intel.py:SkillCommandPathTests",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/tests/test_project_intel.py",
+      "target": "class:plugins/project-intelligence/tests/test_project_intel.py:CliAndReleaseContractTests",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/tests/test_project_intel.py",
+      "target": "class:plugins/project-intelligence/tests/test_project_intel.py:InferStandardsTests",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/tests/test_project_intel.py",
+      "target": "class:plugins/project-intelligence/tests/test_project_intel.py:StabilityAndPackagingTests",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/tests/test_project_intel.py",
+      "target": "class:plugins/project-intelligence/tests/test_project_intel.py:LegacyLocalSkillCleanupTests",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/tests/test_project_intel.py",
+      "target": "function:plugins/project-intelligence/tests/test_project_intel.py:symlink_or_skip",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/tests/test_project_intel.py",
+      "target": "class:plugins/project-intelligence/tests/test_project_intel.py:FileDiscoveryTests",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/tests/test_project_intel.py",
+      "target": "class:plugins/project-intelligence/tests/test_project_intel.py:HandleToolingSetupTests",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/tests/test_project_intel.py",
+      "target": "class:plugins/project-intelligence/tests/test_project_intel.py:GraphToolsReportTests",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/tests/test_project_intel.py",
+      "target": "class:plugins/project-intelligence/tests/test_project_intel.py:GraphToolCommandTests",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/tests/test_project_intel.py",
+      "target": "class:plugins/project-intelligence/tests/test_project_intel.py:UnderstandSetupFlowTests",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/tests/test_project_intel.py",
+      "target": "class:plugins/project-intelligence/tests/test_project_intel.py:AgentEntrypointInstallTests",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/tests/test_project_intel.py",
+      "target": "class:plugins/project-intelligence/tests/test_project_intel.py:LifecycleArtifactTests",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/tests/test_project_intel.py",
+      "target": "class:plugins/project-intelligence/tests/test_project_intel.py:SafetyAndConfigTests",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/tests/test_project_intel.py",
+      "target": "class:plugins/project-intelligence/tests/test_project_intel.py:HardRuleAndQualityTests",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/tests/test_project_intel.py",
+      "target": "class:plugins/project-intelligence/tests/test_project_intel.py:HookTests",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/tests/test_project_intel.py",
+      "target": "class:plugins/project-intelligence/tests/test_project_intel.py:SkillCommandPathTests",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/tests/test_project_intel.py",
+      "target": "class:plugins/project-intelligence/tests/test_project_intel.py:CliAndReleaseContractTests",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/tests/test_project_intel.py",
+      "target": "class:plugins/project-intelligence/tests/test_project_intel.py:InferStandardsTests",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/tests/test_project_intel.py",
+      "target": "class:plugins/project-intelligence/tests/test_project_intel.py:StabilityAndPackagingTests",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/tests/test_project_intel.py",
+      "target": "class:plugins/project-intelligence/tests/test_project_intel.py:LegacyLocalSkillCleanupTests",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/tests/test_testing_security.py",
+      "target": "class:plugins/project-intelligence/tests/test_testing_security.py:TestingSecurityTests",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:plugins/project-intelligence/tests/test_testing_security.py",
+      "target": "class:plugins/project-intelligence/tests/test_testing_security.py:TestingSecurityTests",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:scripts/check-package.mjs",
+      "target": "function:scripts/check-package.mjs:runNpm",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:scripts/validate_bundle.py",
+      "target": "function:scripts/validate_bundle.py:load",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:scripts/validate_bundle.py",
+      "target": "function:scripts/validate_bundle.py:main",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:scripts/validate_bundle.py",
+      "target": "function:scripts/validate_bundle.py:load",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:scripts/validate_bundle.py",
+      "target": "function:scripts/validate_bundle.py:main",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel.py",
+      "target": "file:plugins/project-intelligence/tests/test_project_intel.py",
+      "type": "tested_by",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "file:plugins/project-intelligence/scripts/project_intel_lib/testing.py",
+      "target": "file:plugins/project-intelligence/tests/test_testing_security.py",
+      "type": "tested_by",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "file:scripts/run-tests.mjs",
+      "target": "file:plugins/project-intelligence/tests/test_project_intel.py",
+      "type": "triggers",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "file:scripts/run-tests.mjs",
+      "target": "file:plugins/project-intelligence/tests/test_testing_security.py",
+      "type": "triggers",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "file:scripts/run-tests.mjs",
+      "target": "file:scripts/validate-skill-evals.mjs",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "file:scripts/check-release.mjs",
+      "target": "file:package.json",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "file:scripts/check-release.mjs",
+      "target": "file:plugins/project-intelligence/.claude-plugin/plugin.json",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "file:scripts/check-release.mjs",
+      "target": "file:plugins/project-intelligence/.codex-plugin/plugin.json",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "file:scripts/check-release.mjs",
+      "target": "file:plugins/project-intelligence/scripts/project_intel.py",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "file:scripts/check-release.mjs",
+      "target": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "file:scripts/check-package.mjs",
+      "target": "file:bin/project-intel.mjs",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "file:scripts/check-package.mjs",
+      "target": "file:plugins/project-intelligence/scripts/project_intel.py",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "file:scripts/check-package.mjs",
+      "target": "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "file:scripts/check-package.mjs",
+      "target": "file:bin/project-intel.mjs",
+      "type": "triggers",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "file:scripts/validate_bundle.py",
+      "target": "file:plugins/project-intelligence/.codex-plugin/plugin.json",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "file:scripts/validate_bundle.py",
+      "target": "file:plugins/project-intelligence/.claude-plugin/plugin.json",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "file:scripts/validate_bundle.py",
+      "target": "file:.agents/plugins/marketplace.json",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "file:scripts/validate_bundle.py",
+      "target": "file:.claude-plugin/marketplace.json",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    }
+  ]
+}

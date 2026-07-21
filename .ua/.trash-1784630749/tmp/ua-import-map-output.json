@@ -1,0 +1,156 @@
+{
+  "scriptCompleted": true,
+  "stats": {
+    "filesScanned": 111,
+    "filesWithImports": 15,
+    "totalEdges": 20
+  },
+  "importMap": {
+    ".agents/plugins/marketplace.json": [],
+    ".claude-plugin/marketplace.json": [],
+    ".claude/CLAUDE.md": [],
+    ".claude/skills/gitnexus/gitnexus-cli/SKILL.md": [],
+    ".claude/skills/gitnexus/gitnexus-debugging/SKILL.md": [],
+    ".claude/skills/gitnexus/gitnexus-exploring/SKILL.md": [],
+    ".claude/skills/gitnexus/gitnexus-guide/SKILL.md": [],
+    ".claude/skills/gitnexus/gitnexus-impact-analysis/SKILL.md": [],
+    ".claude/skills/gitnexus/gitnexus-refactoring/SKILL.md": [],
+    ".github/workflows/live-skill-evals.yml": [],
+    ".github/workflows/validate.yml": [],
+    ".npmignore": [],
+    ".project-intel/config.json": [],
+    ".project-intel/graph/project-graph.json": [],
+    ".project-intel/knowledge/backend.json": [],
+    ".project-intel/knowledge/files.json": [],
+    ".project-intel/knowledge/frontend.json": [],
+    ".project-intel/manifest.json": [],
+    ".project-intel/reports/frontend-quality.md": [],
+    ".project-intel/reports/init-report.md": [],
+    ".project-intel/reports/redundancy-report.md": [],
+    ".project-intel/reports/tooling-report.md": [],
+    ".project-intel/standards/api.md": [],
+    ".project-intel/standards/backend-api.md": [],
+    ".project-intel/standards/backend-async.md": [],
+    ".project-intel/standards/backend-config.md": [],
+    ".project-intel/standards/backend-errors.md": [],
+    ".project-intel/standards/backend-models.md": [],
+    ".project-intel/standards/backend-remote-calls.md": [],
+    ".project-intel/standards/backend-repository.md": [],
+    ".project-intel/standards/backend-security.md": [],
+    ".project-intel/standards/backend-services.md": [],
+    ".project-intel/standards/backend-transactions.md": [],
+    ".project-intel/standards/backend-utilities.md": [],
+    ".project-intel/standards/backend.md": [],
+    ".project-intel/standards/components.md": [],
+    ".project-intel/standards/domain-flows.md": [],
+    ".project-intel/standards/frontend.md": [],
+    ".project-intel/standards/quality.md": [],
+    ".project-intel/standards/reuse.md": [],
+    ".project-intel/standards/router.md": [],
+    ".ua/.understandignore": [],
+    ".ua/config.json": [],
+    "AGENTS.md": [],
+    "bin/project-intel.mjs": [],
+    "CHANGELOG.md": [],
+    "CLAUDE.md": [],
+    "docs/node-typescript-migration-requirement.md": [],
+    "docs/project-intelligence-guide.md": [],
+    "evals/skill-behavior-scenarios.json": [],
+    "package.json": [],
+    "plugins/project-intelligence/.claude-plugin/plugin.json": [],
+    "plugins/project-intelligence/.codex-plugin/plugin.json": [],
+    "plugins/project-intelligence/assets/plugin-intro.html": [],
+    "plugins/project-intelligence/scripts/.npmignore": [],
+    "plugins/project-intelligence/scripts/project_intel_lib/__init__.py": [
+      "plugins/project-intelligence/scripts/project_intel_lib/core.py"
+    ],
+    "plugins/project-intelligence/scripts/project_intel_lib/application.py": [
+      "plugins/project-intelligence/scripts/project_intel_lib/__init__.py",
+      "plugins/project-intelligence/scripts/project_intel_lib/cli.py",
+      "plugins/project-intelligence/scripts/project_intel_lib/scanner/__init__.py"
+    ],
+    "plugins/project-intelligence/scripts/project_intel_lib/cli.py": [],
+    "plugins/project-intelligence/scripts/project_intel_lib/core.py": [],
+    "plugins/project-intelligence/scripts/project_intel_lib/design_documents.py": [],
+    "plugins/project-intelligence/scripts/project_intel_lib/graph.py": [],
+    "plugins/project-intelligence/scripts/project_intel_lib/lifecycle.py": [],
+    "plugins/project-intelligence/scripts/project_intel_lib/quality.py": [],
+    "plugins/project-intelligence/scripts/project_intel_lib/requirement_documents.py": [
+      "plugins/project-intelligence/scripts/project_intel_lib/design_documents.py"
+    ],
+    "plugins/project-intelligence/scripts/project_intel_lib/requirements.py": [
+      "plugins/project-intelligence/scripts/project_intel_lib/design_documents.py",
+      "plugins/project-intelligence/scripts/project_intel_lib/requirement_documents.py",
+      "plugins/project-intelligence/scripts/project_intel_lib/testing.py"
+    ],
+    "plugins/project-intelligence/scripts/project_intel_lib/scanner/__init__.py": [
+      "plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py",
+      "plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py"
+    ],
+    "plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py": [
+      "plugins/project-intelligence/scripts/project_intel_lib/core.py"
+    ],
+    "plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py": [
+      "plugins/project-intelligence/scripts/project_intel_lib/core.py"
+    ],
+    "plugins/project-intelligence/scripts/project_intel_lib/standards.py": [],
+    "plugins/project-intelligence/scripts/project_intel_lib/testing.py": [],
+    "plugins/project-intelligence/scripts/project_intel.py": [],
+    "plugins/project-intelligence/scripts/project-intel": [],
+    "plugins/project-intelligence/skills/project-brainstorm/SKILL.md": [],
+    "plugins/project-intelligence/skills/project-debug/SKILL.md": [],
+    "plugins/project-intelligence/skills/project-design/agents/openai.yaml": [],
+    "plugins/project-intelligence/skills/project-design/references/bug-design-template.md": [],
+    "plugins/project-intelligence/skills/project-design/references/requirement-design-template.md": [],
+    "plugins/project-intelligence/skills/project-design/scripts/validate_design_doc.py": [],
+    "plugins/project-intelligence/skills/project-design/SKILL.md": [],
+    "plugins/project-intelligence/skills/project-finish/SKILL.md": [],
+    "plugins/project-intelligence/skills/project-init/SKILL.md": [],
+    "plugins/project-intelligence/skills/project-intake/SKILL.md": [],
+    "plugins/project-intelligence/skills/project-knowledge/SKILL.md": [],
+    "plugins/project-intelligence/skills/project-maintain/SKILL.md": [],
+    "plugins/project-intelligence/skills/project-orchestrate/SKILL.md": [],
+    "plugins/project-intelligence/skills/project-plan/SKILL.md": [],
+    "plugins/project-intelligence/skills/project-quality/SKILL.md": [],
+    "plugins/project-intelligence/skills/project-refresh/SKILL.md": [],
+    "plugins/project-intelligence/skills/project-review/SKILL.md": [],
+    "plugins/project-intelligence/skills/project-spec/SKILL.md": [],
+    "plugins/project-intelligence/skills/project-standards/SKILL.md": [],
+    "plugins/project-intelligence/skills/project-task/SKILL.md": [],
+    "plugins/project-intelligence/skills/project-test/SKILL.md": [],
+    "plugins/project-intelligence/tests/design_fixtures.py": [],
+    "plugins/project-intelligence/tests/test_document_truth_validation.py": [
+      "plugins/project-intelligence/tests/design_fixtures.py"
+    ],
+    "plugins/project-intelligence/tests/test_project_design.py": [
+      "plugins/project-intelligence/tests/design_fixtures.py"
+    ],
+    "plugins/project-intelligence/tests/test_project_intel.py": [],
+    "plugins/project-intelligence/tests/test_project_test.py": [
+      "plugins/project-intelligence/tests/design_fixtures.py"
+    ],
+    "plugins/project-intelligence/tests/test_requirement_hardening.py": [
+      "plugins/project-intelligence/tests/design_fixtures.py"
+    ],
+    "plugins/project-intelligence/tests/test_requirement_layout_v2.py": [
+      "plugins/project-intelligence/tests/design_fixtures.py"
+    ],
+    "plugins/project-intelligence/tests/test_requirement_workflow.py": [
+      "plugins/project-intelligence/tests/design_fixtures.py"
+    ],
+    "plugins/project-intelligence/tests/test_testing_security.py": [],
+    "README.md": [],
+    "scripts/check-package.mjs": [],
+    "scripts/check-release.mjs": [],
+    "scripts/npm-pack-dry-run.mjs": [],
+    "scripts/run-skill-evals.mjs": [
+      "scripts/skill-eval-events.mjs"
+    ],
+    "scripts/run-tests.mjs": [],
+    "scripts/skill-eval-events.mjs": [],
+    "scripts/validate_bundle.py": [],
+    "scripts/validate-skill-evals.mjs": [
+      "scripts/skill-eval-events.mjs"
+    ]
+  }
+}

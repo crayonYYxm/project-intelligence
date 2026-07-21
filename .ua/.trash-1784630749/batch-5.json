@@ -1,0 +1,68 @@
+{
+  "nodes": [
+    {
+      "id": "pipeline:.github/workflows/live-skill-evals.yml",
+      "type": "pipeline",
+      "name": "live-skill-evals.yml",
+      "filePath": ".github/workflows/live-skill-evals.yml",
+      "summary": "GitHub Actions 定时工作流，每周一 02:30 UTC 或手动触发，分别针对 Claude 与 Codex 两个 agent 运行隔离的 skill 评测，缺少对应 API Key 时安全跳过。",
+      "tags": ["ci-cd", "deployment", "github-actions", "scheduled", "skill-eval"],
+      "complexity": "simple",
+      "languageNotes": "使用 workflow_dispatch 与 cron 双触发，并借助 secrets 注入 ANTHROPIC_API_KEY / OPENAI_API_KEY；两个 job 结构对称，仅在安装的 CLI 与传入的 --agent 参数上不同。"
+    },
+    {
+      "id": "pipeline:.github/workflows/validate.yml",
+      "type": "pipeline",
+      "name": "validate.yml",
+      "filePath": ".github/workflows/validate.yml",
+      "summary": "GitHub Actions 校验工作流，在 push 与 pull_request 时触发；test job 矩阵跑 Python 3.9/3.10/3.12 的单元测试与多脚本校验，cli-smoke job 在 ubuntu/macos/windows 三平台执行冒烟测试。",
+      "tags": ["ci-cd", "github-actions", "testing", "cross-platform", "validation"],
+      "complexity": "moderate",
+      "languageNotes": "采用 matrix strategy 同时做 Python 版本矩阵与 OS 矩阵；混合 Python（compileall、unittest）与 Node（validate-skill-evals、check-release、check-package）两套工具链进行校验。"
+    }
+  ],
+  "edges": [
+    {
+      "source": "pipeline:.github/workflows/live-skill-evals.yml",
+      "target": "file:scripts/run-skill-evals.mjs",
+      "type": "triggers",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "pipeline:.github/workflows/validate.yml",
+      "target": "file:scripts/validate_bundle.py",
+      "type": "triggers",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "pipeline:.github/workflows/validate.yml",
+      "target": "file:scripts/validate-skill-evals.mjs",
+      "type": "triggers",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "pipeline:.github/workflows/validate.yml",
+      "target": "file:scripts/check-release.mjs",
+      "type": "triggers",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "pipeline:.github/workflows/validate.yml",
+      "target": "file:scripts/check-package.mjs",
+      "type": "triggers",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "pipeline:.github/workflows/validate.yml",
+      "target": "file:bin/project-intel.mjs",
+      "type": "triggers",
+      "direction": "forward",
+      "weight": 0.6
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+# API 与请求规范
+
+## 请求封装
+
+_None detected._
+
+## 服务前缀
+
+_None detected._
+
+## 接口路径热点
+
+_None detected._
+
+## API 模块清单
+
+_None detected._
+
+## 约定
+
+- 新增接口优先放在 `src/api/<domain>/index.ts` 或既有同域 API 模块中。
+- 页面和组件不要直接调用 `uni.request`、`axios` 或裸 `fetch`；优先复用项目请求封装和已有 API 方法。
+- 接口参数包装方式应跟随同域模块，例如是否使用数组包裹参数、是否传入 headerInfo、是否关闭缓存。
+- 涉及登录态、错误上报、订阅消息、支付链路的接口变更，需要同步检查 `src/api/request.ts` 的拦截、错误处理和缓存逻辑。

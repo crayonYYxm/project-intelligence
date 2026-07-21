@@ -1,0 +1,19 @@
+{
+  "projectRoot": "/Users/xumeng/Desktop/code/project-intelligence",
+  "batchFiles": [
+    {"path": "plugins/project-intelligence/scripts/project_intel_lib/design_documents.py", "language": "python", "sizeLines": 832, "fileCategory": "code"},
+    {"path": "plugins/project-intelligence/scripts/project_intel_lib/requirement_documents.py", "language": "python", "sizeLines": 296, "fileCategory": "code"},
+    {"path": "plugins/project-intelligence/scripts/project_intel_lib/requirements.py", "language": "python", "sizeLines": 3422, "fileCategory": "code"},
+    {"path": "plugins/project-intelligence/scripts/project_intel_lib/testing.py", "language": "python", "sizeLines": 406, "fileCategory": "code"}
+  ],
+  "batchImportData": {
+    "plugins/project-intelligence/scripts/project_intel_lib/design_documents.py": [],
+    "plugins/project-intelligence/scripts/project_intel_lib/requirement_documents.py": [],
+    "plugins/project-intelligence/scripts/project_intel_lib/requirements.py": [
+      "plugins/project-intelligence/scripts/project_intel_lib/design_documents.py",
+      "plugins/project-intelligence/scripts/project_intel_lib/requirement_documents.py",
+      "plugins/project-intelligence/scripts/project_intel_lib/testing.py"
+    ],
+    "plugins/project-intelligence/scripts/project_intel_lib/testing.py": []
+  }
+}

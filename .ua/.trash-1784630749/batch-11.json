@@ -1,0 +1,383 @@
+{
+  "nodes": [
+    {
+      "id": "file:plugins/project-intelligence/scripts/project_intel_lib/quality.py",
+      "type": "file",
+      "name": "quality.py",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/quality.py",
+      "summary": "项目质量命令探测库：解析 package.json/workspaces 依赖识别前端框架，并根据 lock 文件与构建标记为 npm/pnpm/yarn、Maven/Gradle、Python、Go、Rust 等技术栈生成对应的 lint/type/test/verify 命令。",
+      "tags": ["utility", "quality", "detection", "cli-library", "build-system"],
+      "complexity": "complex",
+      "languageNotes": "通过文件存在性与 package.json deps 多分支判定技术栈，detect_quality_commands 是核心调度函数，调用 append_unique 做命令去重。"
+    },
+    {
+      "id": "file:plugins/project-intelligence/scripts/project_intel_lib/standards.py",
+      "type": "file",
+      "name": "standards.py",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/standards.py",
+      "summary": "项目规范领域候选提取库：从前端/后端文件路径与知识图谱摘要中聚合目录名与符号，统计频次并返回按出现次数排序的领域候选列表。",
+      "tags": ["utility", "standards", "domain-analysis", "cli-library"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:plugins/project-intelligence/scripts/project_intel.py",
+      "type": "file",
+      "name": "project_intel.py",
+      "filePath": "plugins/project-intelligence/scripts/project_intel.py",
+      "summary": "Project Intelligence CLI 的向后兼容门面入口：通过 exec() 在自身命名空间加载并执行 project_intel_lib/application.py，保留历史直接导入与 monkey-patch 行为。",
+      "tags": ["entry-point", "cli", "shim", "facade"],
+      "complexity": "simple",
+      "languageNotes": "使用 exec(compile(...)) 动态加载 application.py，使该入口文件仅承担加载与分发职责。"
+    },
+    {
+      "id": "file:plugins/project-intelligence/scripts/project-intel",
+      "type": "file",
+      "name": "project-intel",
+      "filePath": "plugins/project-intelligence/scripts/project-intel",
+      "summary": "project-intel CLI 的 shell 启动垫片：定位脚本目录后以 python3 执行同目录下的 project_intel.py 并透传全部参数。",
+      "tags": ["entry-point", "cli", "shim", "shell-script"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:plugins/project-intelligence/skills/project-design/scripts/validate_design_doc.py",
+      "type": "file",
+      "name": "validate_design_doc.py",
+      "filePath": "plugins/project-intelligence/skills/project-design/scripts/validate_design_doc.py",
+      "summary": "project-design 技能自带的设计文档校验器启动脚本：将插件 scripts 目录注入 sys.path 后调用 project_intel_lib.design_documents.main 执行结构校验。",
+      "tags": ["entry-point", "validation", "cli", "design-doc"],
+      "complexity": "simple",
+      "languageNotes": "通过 parents[3] 解析插件根并插入 sys.path，复用库内 design_documents.main 而不复制实现。"
+    },
+    {
+      "id": "config:plugins/project-intelligence/skills/project-design/agents/openai.yaml",
+      "type": "config",
+      "name": "openai.yaml",
+      "filePath": "plugins/project-intelligence/skills/project-design/agents/openai.yaml",
+      "summary": "project-design 技能的 OpenAI/Claude agent 接口配置，定义展示名称、简短描述与默认提示语，用于把本地工单与仓库分析转化为已校验的开发设计文档。",
+      "tags": ["configuration", "agent-interface", "skill-config"],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:plugins/project-intelligence/skills/project-brainstorm/SKILL.md",
+      "type": "document",
+      "name": "SKILL.md",
+      "filePath": "plugins/project-intelligence/skills/project-brainstorm/SKILL.md",
+      "summary": "project-brainstorm 技能说明：在编码前基于项目事实塑造需求、澄清范围、对比实现方向并产出 2-3 个可行方案与推荐，方向稳定后再进入 project-intake 与 project-spec。",
+      "tags": ["documentation", "skill", "brainstorm", "lifecycle"],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:plugins/project-intelligence/skills/project-debug/SKILL.md",
+      "type": "document",
+      "name": "SKILL.md",
+      "filePath": "plugins/project-intelligence/skills/project-debug/SKILL.md",
+      "summary": "project-debug 技能说明：基于项目事实系统排查 Bug、错误与回归并证明根因，在 Bug 生命周期中位于 project-spec 之后、project-design 之前，持久化证据支撑的 diagnose 结果。",
+      "tags": ["documentation", "skill", "debugging", "lifecycle", "root-cause"],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:plugins/project-intelligence/skills/project-design/references/bug-design-template.md",
+      "type": "document",
+      "name": "bug-design-template.md",
+      "filePath": "plugins/project-intelligence/skills/project-design/references/bug-design-template.md",
+      "summary": "Bug 开发设计文档精简模板：五段式结构（现象/原因/修复/影响/验证），正文控制在 120 行内，禁用需求型元数据、源码证据表与 AC 列表。",
+      "tags": ["documentation", "template", "design-doc", "bug"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "document:plugins/project-intelligence/skills/project-design/references/requirement-design-template.md",
+      "type": "document",
+      "name": "requirement-design-template.md",
+      "filePath": "plugins/project-intelligence/skills/project-design/references/requirement-design-template.md",
+      "summary": "Requirement 开发设计文档模板：CRM 风格中文业务设计结构，含场景分析、实现方案、字段流转与相对路径#符号依据，要求最多 3 个关键代码块与必要的 Mermaid 图。",
+      "tags": ["documentation", "template", "design-doc", "requirement"],
+      "complexity": "complex"
+    },
+    {
+      "id": "document:plugins/project-intelligence/skills/project-design/SKILL.md",
+      "type": "document",
+      "name": "SKILL.md",
+      "filePath": "plugins/project-intelligence/skills/project-design/SKILL.md",
+      "summary": "project-design 技能说明：把本地 Bug/需求工单结合仓库证据转为源码支撑的技术开发设计并校验，区分 standalone 与 lifecycle 两种模式，依赖 project-spec 与 project-debug 前置产物并运行自带校验器。",
+      "tags": ["documentation", "skill", "design-doc", "lifecycle", "validation"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "document:plugins/project-intelligence/skills/project-finish/SKILL.md",
+      "type": "document",
+      "name": "SKILL.md",
+      "filePath": "plugins/project-intelligence/skills/project-finish/SKILL.md",
+      "summary": "project-finish 技能说明：在实现证据与评审修复之后校验发布就绪，确认 diff、测试证据、范围与高风险类别，证据缺失时回到 project-test，完成后转交 project-maintain。",
+      "tags": ["documentation", "skill", "finish", "lifecycle", "release-gate"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "document:plugins/project-intelligence/skills/project-init/SKILL.md",
+      "type": "document",
+      "name": "SKILL.md",
+      "filePath": "plugins/project-intelligence/skills/project-init/SKILL.md",
+      "summary": "project-init 技能说明：首次为仓库初始化 .project-intel 事实层，生成规范、知识、图谱摘要与质量配置，并在非交互 shell 中以中文选择式提示引导 GitNexus/Understand-Anything 图谱工具安装。",
+      "tags": ["documentation", "skill", "init", "lifecycle", "graph-tools"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "document:plugins/project-intelligence/skills/project-intake/SKILL.md",
+      "type": "document",
+      "name": "SKILL.md",
+      "filePath": "plugins/project-intelligence/skills/project-intake/SKILL.md",
+      "summary": "project-intake 技能说明：在实现意图开始时注册并分流 Bug/需求，判定 quick/standard/complex 轨道与 readiness，持久化 workflowSelections 后按 spec→debug→design 顺序路由到后续技能。",
+      "tags": ["documentation", "skill", "intake", "lifecycle", "routing"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "document:plugins/project-intelligence/skills/project-knowledge/SKILL.md",
+      "type": "document",
+      "name": "SKILL.md",
+      "filePath": "plugins/project-intelligence/skills/project-knowledge/SKILL.md",
+      "summary": "project-knowledge 技能说明：以 .project-intel 事实层为优先来源回答只读的项目结构、组件、Hook、API、服务、规范与业务流问题，实现意图请求须回到 project-test 与 project-task。",
+      "tags": ["documentation", "skill", "knowledge", "read-only"],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:plugins/project-intelligence/skills/project-maintain/SKILL.md",
+      "type": "document",
+      "name": "SKILL.md",
+      "filePath": "plugins/project-intelligence/skills/project-maintain/SKILL.md",
+      "summary": "project-maintain 技能说明：仅在 project-finish 成功且状态为 finished 后运行，刷新项目事实、记录变更文件并关闭需求；提交变更则回到 project-test/project-review/project-finish。",
+      "tags": ["documentation", "skill", "maintain", "lifecycle", "close-gate"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "document:plugins/project-intelligence/skills/project-orchestrate/SKILL.md",
+      "type": "document",
+      "name": "SKILL.md",
+      "filePath": "plugins/project-intelligence/skills/project-orchestrate/SKILL.md",
+      "summary": "project-orchestrate 技能说明：为含可分离子任务的实现计划提供 subagent 编排，覆盖 inline/sequential/parallel/worktree 执行模式、任务交接契约、逐任务评审循环与最终 whole-diff 评审 gate。",
+      "tags": ["documentation", "skill", "orchestration", "subagent", "lifecycle"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "document:plugins/project-intelligence/skills/project-plan/SKILL.md",
+      "type": "document",
+      "name": "SKILL.md",
+      "filePath": "plugins/project-intelligence/skills/project-plan/SKILL.md",
+      "summary": "project-plan 技能说明：在 project-design 之后为复杂需求或显式请求产出可执行实施计划，拆分文件级任务、接口约束与验证命令，并以 requirement ready 作为编码前 gate。",
+      "tags": ["documentation", "skill", "plan", "lifecycle", "task-breakdown"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "document:plugins/project-intelligence/skills/project-quality/SKILL.md",
+      "type": "document",
+      "name": "SKILL.md",
+      "filePath": "plugins/project-intelligence/skills/project-quality/SKILL.md",
+      "summary": "project-quality 技能说明：运行与解读前后端质量检查（ESLint/Stylelint/Prettier/tsc 等），解释 hard/preferred/inferred/candidate 规则级别，任务完成证据须路由到 project-test。",
+      "tags": ["documentation", "skill", "quality", "lint", "checks"],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:plugins/project-intelligence/skills/project-refresh/SKILL.md",
+      "type": "document",
+      "name": "SKILL.md",
+      "filePath": "plugins/project-intelligence/skills/project-refresh/SKILL.md",
+      "summary": "project-refresh 技能说明：在工作区变更、git 合并或图谱分析完成后刷新既有 .project-intel 事实层，区分 fact-only refresh 与显式 --adapters/install 适配器维护，并处理 Understand-Anything 各安装态。",
+      "tags": ["documentation", "skill", "refresh", "lifecycle", "graph-tools"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "document:plugins/project-intelligence/skills/project-review/SKILL.md",
+      "type": "document",
+      "name": "SKILL.md",
+      "filePath": "plugins/project-intelligence/skills/project-review/SKILL.md",
+      "summary": "project-review 技能说明：评审代码改动、PR、实现质量、安全与工作流缺口，结合 GitNexus/Understand-Anything 上下文按严重度排序，修复后经 project-test 重新记录评审轮次并转 finish/maintain。",
+      "tags": ["documentation", "skill", "review", "lifecycle", "code-review"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "document:plugins/project-intelligence/skills/project-spec/SKILL.md",
+      "type": "document",
+      "name": "SKILL.md",
+      "filePath": "plugins/project-intelligence/skills/project-spec/SKILL.md",
+      "summary": "project-spec 技能说明：在 project-intake 之后、project-debug/project-design 之前创建或注册 requirement.md 并持久化编号一致的验收标准，处理 generate/register existing/later 三种动作。",
+      "tags": ["documentation", "skill", "spec", "lifecycle", "acceptance-criteria"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "document:plugins/project-intelligence/skills/project-standards/SKILL.md",
+      "type": "document",
+      "name": "SKILL.md",
+      "filePath": "plugins/project-intelligence/skills/project-standards/SKILL.md",
+      "summary": "project-standards 技能说明：查询、解释、确认、提升或降级项目规范及 hard/preferred/inferred/candidate 规则级别，禁止未经人工确认将 candidate 冗余或入口发现提升为 hard。",
+      "tags": ["documentation", "skill", "standards", "rules", "read-only"],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:plugins/project-intelligence/skills/project-task/SKILL.md",
+      "type": "document",
+      "name": "SKILL.md",
+      "filePath": "plugins/project-intelligence/skills/project-task/SKILL.md",
+      "summary": "project-task 技能说明：生命周期 ready 之后开始或继续业务代码实现，requirement begin 后执行影响/复用分析、选择执行模式，实现后串联 check/test/review/finish/maintain 完整闭环。",
+      "tags": ["documentation", "skill", "task", "lifecycle", "implementation"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "document:plugins/project-intelligence/skills/project-test/SKILL.md",
+      "type": "document",
+      "name": "SKILL.md",
+      "filePath": "plugins/project-intelligence/skills/project-test/SKILL.md",
+      "summary": "project-test 技能说明：在 requirement ready 后选择测试类型与报告动作，requirement begin 后执行或记录 RED/GREEN/regression/manual 证据，finish 需任务匹配且文件作用域的新鲜通过证据。",
+      "tags": ["documentation", "skill", "test", "lifecycle", "evidence"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/quality.py:load_json",
+      "type": "function",
+      "name": "load_json",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/quality.py",
+      "lineRange": [11, 16],
+      "summary": "读取并解析 JSON 文件，返回字典；解析失败时回退返回空字典以保证调用方健壮。",
+      "tags": ["utility", "json", "parsing"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/quality.py:workspace_package_files",
+      "type": "function",
+      "name": "workspace_package_files",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/quality.py",
+      "lineRange": [19, 41],
+      "summary": "从根 package.json 的 workspaces 配置展开 glob 模式，收集工作区内所有 package.json 候选文件并返回去重后的路径列表。",
+      "tags": ["utility", "workspaces", "monorepo", "detection"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/quality.py:package_frameworks",
+      "type": "function",
+      "name": "package_frameworks",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/quality.py",
+      "lineRange": [44, 62],
+      "summary": "依据依赖列表匹配 Vue/React/Vite/NestJS/Express/Koa/Fastify/TypeScript/Element Plus/Pinia/Redux 等框架特征包，返回识别到的框架名集合。",
+      "tags": ["utility", "framework-detection", "deps"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/quality.py:detect_package",
+      "type": "function",
+      "name": "detect_package",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/quality.py",
+      "lineRange": [65, 100],
+      "summary": "检测根及工作区包：聚合各 package.json 依赖、调用 package_frameworks 识别前端框架，并按 pom.xml/build.gradle/go.mod/Cargo.toml 等标记补充 Java/Spring、Python、Go、Rust 技术栈。",
+      "tags": ["utility", "detection", "package", "tech-stack"],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/quality.py:package_manager",
+      "type": "function",
+      "name": "package_manager",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/quality.py",
+      "lineRange": [103, 108],
+      "summary": "根据 pnpm-lock.yaml/yarn.lock 的存在性判定包管理器，默认返回 npm。",
+      "tags": ["utility", "detection", "package-manager"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/quality.py:package_script_command",
+      "type": "function",
+      "name": "package_script_command",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/quality.py",
+      "lineRange": [111, 118],
+      "summary": "根据包管理器与目录构造执行 package.json script 的命令字符串（如 pnpm --dir <dir> run <script>）。",
+      "tags": ["utility", "command-builder", "package-manager"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/quality.py:append_unique",
+      "type": "function",
+      "name": "append_unique",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/quality.py",
+      "lineRange": [121, 123],
+      "summary": "按 command 字段去重地将命令项追加到命令列表，避免重复探测到同一条质量命令。",
+      "tags": ["utility", "dedup", "helper"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/quality.py:detect_quality_commands",
+      "type": "function",
+      "name": "detect_quality_commands",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/quality.py",
+      "lineRange": [126, 186],
+      "summary": "核心调度函数：综合包管理器、package.json scripts 别名与各语言构建标记，生成去重后的 lint/type-check/build/test/verify 质量命令列表，覆盖 JS/TS、Maven/Gradle、Python、Go、Rust 技术栈。",
+      "tags": ["utility", "quality", "detection", "command-builder", "orchestration"],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:plugins/project-intelligence/scripts/project_intel_lib/standards.py:project_domain_candidates",
+      "type": "function",
+      "name": "project_domain_candidates",
+      "filePath": "plugins/project-intelligence/scripts/project_intel_lib/standards.py",
+      "lineRange": [14, 39],
+      "summary": "从前端/后端文件路径与图谱 understandSummary 节点中聚合目录名与符号位置，用 Counter 统计频次并返回按出现次数去重排序的领域候选列表。",
+      "tags": ["utility", "domain-analysis", "standards", "aggregation"],
+      "complexity": "moderate"
+    }
+  ],
+  "edges": [
+    {"source": "file:plugins/project-intelligence/scripts/project_intel_lib/quality.py", "target": "function:plugins/project-intelligence/scripts/project_intel_lib/quality.py:load_json", "type": "contains", "direction": "forward", "weight": 1.0},
+    {"source": "file:plugins/project-intelligence/scripts/project_intel_lib/quality.py", "target": "function:plugins/project-intelligence/scripts/project_intel_lib/quality.py:workspace_package_files", "type": "contains", "direction": "forward", "weight": 1.0},
+    {"source": "file:plugins/project-intelligence/scripts/project_intel_lib/quality.py", "target": "function:plugins/project-intelligence/scripts/project_intel_lib/quality.py:package_frameworks", "type": "contains", "direction": "forward", "weight": 1.0},
+    {"source": "file:plugins/project-intelligence/scripts/project_intel_lib/quality.py", "target": "function:plugins/project-intelligence/scripts/project_intel_lib/quality.py:detect_package", "type": "contains", "direction": "forward", "weight": 1.0},
+    {"source": "file:plugins/project-intelligence/scripts/project_intel_lib/quality.py", "target": "function:plugins/project-intelligence/scripts/project_intel_lib/quality.py:package_manager", "type": "contains", "direction": "forward", "weight": 1.0},
+    {"source": "file:plugins/project-intelligence/scripts/project_intel_lib/quality.py", "target": "function:plugins/project-intelligence/scripts/project_intel_lib/quality.py:package_script_command", "type": "contains", "direction": "forward", "weight": 1.0},
+    {"source": "file:plugins/project-intelligence/scripts/project_intel_lib/quality.py", "target": "function:plugins/project-intelligence/scripts/project_intel_lib/quality.py:append_unique", "type": "contains", "direction": "forward", "weight": 1.0},
+    {"source": "file:plugins/project-intelligence/scripts/project_intel_lib/quality.py", "target": "function:plugins/project-intelligence/scripts/project_intel_lib/quality.py:detect_quality_commands", "type": "contains", "direction": "forward", "weight": 1.0},
+    {"source": "file:plugins/project-intelligence/scripts/project_intel_lib/standards.py", "target": "function:plugins/project-intelligence/scripts/project_intel_lib/standards.py:project_domain_candidates", "type": "contains", "direction": "forward", "weight": 1.0},
+    {"source": "file:plugins/project-intelligence/scripts/project_intel_lib/quality.py", "target": "function:plugins/project-intelligence/scripts/project_intel_lib/quality.py:load_json", "type": "exports", "direction": "forward", "weight": 0.8},
+    {"source": "file:plugins/project-intelligence/scripts/project_intel_lib/quality.py", "target": "function:plugins/project-intelligence/scripts/project_intel_lib/quality.py:workspace_package_files", "type": "exports", "direction": "forward", "weight": 0.8},
+    {"source": "file:plugins/project-intelligence/scripts/project_intel_lib/quality.py", "target": "function:plugins/project-intelligence/scripts/project_intel_lib/quality.py:package_frameworks", "type": "exports", "direction": "forward", "weight": 0.8},
+    {"source": "file:plugins/project-intelligence/scripts/project_intel_lib/quality.py", "target": "function:plugins/project-intelligence/scripts/project_intel_lib/quality.py:detect_package", "type": "exports", "direction": "forward", "weight": 0.8},
+    {"source": "file:plugins/project-intelligence/scripts/project_intel_lib/quality.py", "target": "function:plugins/project-intelligence/scripts/project_intel_lib/quality.py:package_manager", "type": "exports", "direction": "forward", "weight": 0.8},
+    {"source": "file:plugins/project-intelligence/scripts/project_intel_lib/quality.py", "target": "function:plugins/project-intelligence/scripts/project_intel_lib/quality.py:package_script_command", "type": "exports", "direction": "forward", "weight": 0.8},
+    {"source": "file:plugins/project-intelligence/scripts/project_intel_lib/quality.py", "target": "function:plugins/project-intelligence/scripts/project_intel_lib/quality.py:append_unique", "type": "exports", "direction": "forward", "weight": 0.8},
+    {"source": "file:plugins/project-intelligence/scripts/project_intel_lib/quality.py", "target": "function:plugins/project-intelligence/scripts/project_intel_lib/quality.py:detect_quality_commands", "type": "exports", "direction": "forward", "weight": 0.8},
+    {"source": "file:plugins/project-intelligence/scripts/project_intel_lib/standards.py", "target": "function:plugins/project-intelligence/scripts/project_intel_lib/standards.py:project_domain_candidates", "type": "exports", "direction": "forward", "weight": 0.8},
+    {"source": "file:plugins/project-intelligence/scripts/project-intel", "target": "file:plugins/project-intelligence/scripts/project_intel.py", "type": "depends_on", "direction": "forward", "weight": 0.6},
+    {"source": "document:plugins/project-intelligence/skills/project-design/SKILL.md", "target": "file:plugins/project-intelligence/skills/project-design/scripts/validate_design_doc.py", "type": "depends_on", "direction": "forward", "weight": 0.6},
+    {"source": "document:plugins/project-intelligence/skills/project-design/SKILL.md", "target": "document:plugins/project-intelligence/skills/project-design/references/bug-design-template.md", "type": "related", "direction": "forward", "weight": 0.5},
+    {"source": "document:plugins/project-intelligence/skills/project-design/SKILL.md", "target": "document:plugins/project-intelligence/skills/project-design/references/requirement-design-template.md", "type": "related", "direction": "forward", "weight": 0.5},
+    {"source": "config:plugins/project-intelligence/skills/project-design/agents/openai.yaml", "target": "document:plugins/project-intelligence/skills/project-design/SKILL.md", "type": "configures", "direction": "forward", "weight": 0.6},
+    {"source": "document:plugins/project-intelligence/skills/project-design/SKILL.md", "target": "document:plugins/project-intelligence/skills/project-spec/SKILL.md", "type": "related", "direction": "forward", "weight": 0.5},
+    {"source": "document:plugins/project-intelligence/skills/project-design/SKILL.md", "target": "document:plugins/project-intelligence/skills/project-debug/SKILL.md", "type": "related", "direction": "forward", "weight": 0.5},
+    {"source": "document:plugins/project-intelligence/skills/project-finish/SKILL.md", "target": "document:plugins/project-intelligence/skills/project-test/SKILL.md", "type": "related", "direction": "forward", "weight": 0.5},
+    {"source": "document:plugins/project-intelligence/skills/project-finish/SKILL.md", "target": "document:plugins/project-intelligence/skills/project-maintain/SKILL.md", "type": "related", "direction": "forward", "weight": 0.5},
+    {"source": "document:plugins/project-intelligence/skills/project-maintain/SKILL.md", "target": "document:plugins/project-intelligence/skills/project-finish/SKILL.md", "type": "related", "direction": "forward", "weight": 0.5},
+    {"source": "document:plugins/project-intelligence/skills/project-maintain/SKILL.md", "target": "document:plugins/project-intelligence/skills/project-test/SKILL.md", "type": "related", "direction": "forward", "weight": 0.5},
+    {"source": "document:plugins/project-intelligence/skills/project-maintain/SKILL.md", "target": "document:plugins/project-intelligence/skills/project-review/SKILL.md", "type": "related", "direction": "forward", "weight": 0.5},
+    {"source": "document:plugins/project-intelligence/skills/project-review/SKILL.md", "target": "document:plugins/project-intelligence/skills/project-test/SKILL.md", "type": "related", "direction": "forward", "weight": 0.5},
+    {"source": "document:plugins/project-intelligence/skills/project-review/SKILL.md", "target": "document:plugins/project-intelligence/skills/project-finish/SKILL.md", "type": "related", "direction": "forward", "weight": 0.5},
+    {"source": "document:plugins/project-intelligence/skills/project-review/SKILL.md", "target": "document:plugins/project-intelligence/skills/project-maintain/SKILL.md", "type": "related", "direction": "forward", "weight": 0.5},
+    {"source": "document:plugins/project-intelligence/skills/project-review/SKILL.md", "target": "document:plugins/project-intelligence/skills/project-debug/SKILL.md", "type": "related", "direction": "forward", "weight": 0.5},
+    {"source": "document:plugins/project-intelligence/skills/project-spec/SKILL.md", "target": "document:plugins/project-intelligence/skills/project-intake/SKILL.md", "type": "related", "direction": "forward", "weight": 0.5},
+    {"source": "document:plugins/project-intelligence/skills/project-spec/SKILL.md", "target": "document:plugins/project-intelligence/skills/project-debug/SKILL.md", "type": "related", "direction": "forward", "weight": 0.5},
+    {"source": "document:plugins/project-intelligence/skills/project-spec/SKILL.md", "target": "document:plugins/project-intelligence/skills/project-design/SKILL.md", "type": "related", "direction": "forward", "weight": 0.5},
+    {"source": "document:plugins/project-intelligence/skills/project-debug/SKILL.md", "target": "document:plugins/project-intelligence/skills/project-spec/SKILL.md", "type": "related", "direction": "forward", "weight": 0.5},
+    {"source": "document:plugins/project-intelligence/skills/project-debug/SKILL.md", "target": "document:plugins/project-intelligence/skills/project-design/SKILL.md", "type": "related", "direction": "forward", "weight": 0.5},
+    {"source": "document:plugins/project-intelligence/skills/project-debug/SKILL.md", "target": "document:plugins/project-intelligence/skills/project-test/SKILL.md", "type": "related", "direction": "forward", "weight": 0.5},
+    {"source": "document:plugins/project-intelligence/skills/project-intake/SKILL.md", "target": "document:plugins/project-intelligence/skills/project-spec/SKILL.md", "type": "related", "direction": "forward", "weight": 0.5},
+    {"source": "document:plugins/project-intelligence/skills/project-intake/SKILL.md", "target": "document:plugins/project-intelligence/skills/project-debug/SKILL.md", "type": "related", "direction": "forward", "weight": 0.5},
+    {"source": "document:plugins/project-intelligence/skills/project-intake/SKILL.md", "target": "document:plugins/project-intelligence/skills/project-design/SKILL.md", "type": "related", "direction": "forward", "weight": 0.5},
+    {"source": "document:plugins/project-intelligence/skills/project-orchestrate/SKILL.md", "target": "document:plugins/project-intelligence/skills/project-task/SKILL.md", "type": "related", "direction": "forward", "weight": 0.5},
+    {"source": "document:plugins/project-intelligence/skills/project-orchestrate/SKILL.md", "target": "document:plugins/project-intelligence/skills/project-test/SKILL.md", "type": "related", "direction": "forward", "weight": 0.5},
+    {"source": "document:plugins/project-intelligence/skills/project-task/SKILL.md", "target": "document:plugins/project-intelligence/skills/project-orchestrate/SKILL.md", "type": "related", "direction": "forward", "weight": 0.5},
+    {"source": "document:plugins/project-intelligence/skills/project-task/SKILL.md", "target": "document:plugins/project-intelligence/skills/project-debug/SKILL.md", "type": "related", "direction": "forward", "weight": 0.5},
+    {"source": "document:plugins/project-intelligence/skills/project-test/SKILL.md", "target": "document:plugins/project-intelligence/skills/project-task/SKILL.md", "type": "related", "direction": "forward", "weight": 0.5},
+    {"source": "document:plugins/project-intelligence/skills/project-test/SKILL.md", "target": "document:plugins/project-intelligence/skills/project-debug/SKILL.md", "type": "related", "direction": "forward", "weight": 0.5},
+    {"source": "document:plugins/project-intelligence/skills/project-test/SKILL.md", "target": "document:plugins/project-intelligence/skills/project-finish/SKILL.md", "type": "related", "direction": "forward", "weight": 0.5},
+    {"source": "document:plugins/project-intelligence/skills/project-plan/SKILL.md", "target": "document:plugins/project-intelligence/skills/project-design/SKILL.md", "type": "related", "direction": "forward", "weight": 0.5},
+    {"source": "document:plugins/project-intelligence/skills/project-plan/SKILL.md", "target": "document:plugins/project-intelligence/skills/project-test/SKILL.md", "type": "related", "direction": "forward", "weight": 0.5},
+    {"source": "document:plugins/project-intelligence/skills/project-brainstorm/SKILL.md", "target": "document:plugins/project-intelligence/skills/project-intake/SKILL.md", "type": "related", "direction": "forward", "weight": 0.5},
+    {"source": "document:plugins/project-intelligence/skills/project-brainstorm/SKILL.md", "target": "document:plugins/project-intelligence/skills/project-spec/SKILL.md", "type": "related", "direction": "forward", "weight": 0.5},
+    {"source": "document:plugins/project-intelligence/skills/project-init/SKILL.md", "target": "document:plugins/project-intelligence/skills/project-refresh/SKILL.md", "type": "related", "direction": "forward", "weight": 0.5},
+    {"source": "document:plugins/project-intelligence/skills/project-refresh/SKILL.md", "target": "document:plugins/project-intelligence/skills/project-init/SKILL.md", "type": "related", "direction": "forward", "weight": 0.5},
+    {"source": "document:plugins/project-intelligence/skills/project-quality/SKILL.md", "target": "document:plugins/project-intelligence/skills/project-test/SKILL.md", "type": "related", "direction": "forward", "weight": 0.5},
+    {"source": "document:plugins/project-intelligence/skills/project-knowledge/SKILL.md", "target": "document:plugins/project-intelligence/skills/project-task/SKILL.md", "type": "related", "direction": "forward", "weight": 0.5},
+    {"source": "document:plugins/project-intelligence/skills/project-knowledge/SKILL.md", "target": "document:plugins/project-intelligence/skills/project-test/SKILL.md", "type": "related", "direction": "forward", "weight": 0.5}
+  ]
+}

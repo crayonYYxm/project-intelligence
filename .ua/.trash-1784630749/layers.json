@@ -1,0 +1,162 @@
+[
+  {
+    "id": "layer:cli-entry",
+    "name": "CLI 入口与启动垫片",
+    "description": "project-intel CLI 的多平台启动入口与向后兼容门面，含 Node 垫片、shell 垫片、Python 门面与设计文档校验器启动脚本。",
+    "nodeIds": [
+      "file:bin/project-intel.mjs",
+      "file:plugins/project-intelligence/scripts/project_intel.py",
+      "file:plugins/project-intelligence/scripts/project-intel",
+      "file:plugins/project-intelligence/skills/project-design/scripts/validate_design_doc.py"
+    ]
+  },
+  {
+    "id": "layer:application-core",
+    "name": "应用核心层 (project_intel_lib)",
+    "description": "Project Intelligence 的 Python 应用核心，承载 CLI 子命令派发、需求生命周期状态机、设计/需求文档校验、测试证据、质量探测、规范提取与前后端扫描器。",
+    "nodeIds": [
+      "file:plugins/project-intelligence/scripts/project_intel_lib/scanner/__init__.py",
+      "file:plugins/project-intelligence/scripts/project_intel_lib/cli.py",
+      "file:plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py",
+      "file:plugins/project-intelligence/scripts/project_intel_lib/core.py",
+      "file:plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "file:plugins/project-intelligence/scripts/project_intel_lib/__init__.py",
+      "file:plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py",
+      "file:plugins/project-intelligence/scripts/project_intel_lib/design_documents.py",
+      "file:plugins/project-intelligence/scripts/project_intel_lib/requirement_documents.py",
+      "file:plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "file:plugins/project-intelligence/scripts/project_intel_lib/testing.py",
+      "file:plugins/project-intelligence/scripts/project_intel_lib/quality.py",
+      "file:plugins/project-intelligence/scripts/project_intel_lib/standards.py"
+    ]
+  },
+  {
+    "id": "layer:skills",
+    "name": "工作流技能层 (Skills)",
+    "description": "plugins/project-intelligence/skills 下全部生命周期技能的 SKILL.md 工作流文档、设计文档模板、引用与 agent 接口配置。",
+    "nodeIds": [
+      "config:plugins/project-intelligence/skills/project-design/agents/openai.yaml",
+      "document:plugins/project-intelligence/skills/project-brainstorm/SKILL.md",
+      "document:plugins/project-intelligence/skills/project-debug/SKILL.md",
+      "document:plugins/project-intelligence/skills/project-design/references/bug-design-template.md",
+      "document:plugins/project-intelligence/skills/project-design/references/requirement-design-template.md",
+      "document:plugins/project-intelligence/skills/project-design/SKILL.md",
+      "document:plugins/project-intelligence/skills/project-finish/SKILL.md",
+      "document:plugins/project-intelligence/skills/project-init/SKILL.md",
+      "document:plugins/project-intelligence/skills/project-intake/SKILL.md",
+      "document:plugins/project-intelligence/skills/project-knowledge/SKILL.md",
+      "document:plugins/project-intelligence/skills/project-maintain/SKILL.md",
+      "document:plugins/project-intelligence/skills/project-orchestrate/SKILL.md",
+      "document:plugins/project-intelligence/skills/project-plan/SKILL.md",
+      "document:plugins/project-intelligence/skills/project-quality/SKILL.md",
+      "document:plugins/project-intelligence/skills/project-refresh/SKILL.md",
+      "document:plugins/project-intelligence/skills/project-review/SKILL.md",
+      "document:plugins/project-intelligence/skills/project-spec/SKILL.md",
+      "document:plugins/project-intelligence/skills/project-standards/SKILL.md",
+      "document:plugins/project-intelligence/skills/project-task/SKILL.md",
+      "document:plugins/project-intelligence/skills/project-test/SKILL.md"
+    ]
+  },
+  {
+    "id": "layer:tests",
+    "name": "测试套件",
+    "description": "plugins/project-intelligence/tests 下的 unittest 模块与共享 fixture 工厂，覆盖需求生命周期、设计文档校验、测试证据安全与 CLI 发布契约。",
+    "nodeIds": [
+      "file:plugins/project-intelligence/tests/design_fixtures.py",
+      "file:plugins/project-intelligence/tests/test_document_truth_validation.py",
+      "file:plugins/project-intelligence/tests/test_project_design.py",
+      "file:plugins/project-intelligence/tests/test_project_test.py",
+      "file:plugins/project-intelligence/tests/test_requirement_hardening.py",
+      "file:plugins/project-intelligence/tests/test_requirement_layout_v2.py",
+      "file:plugins/project-intelligence/tests/test_requirement_workflow.py",
+      "file:plugins/project-intelligence/tests/test_project_intel.py",
+      "file:plugins/project-intelligence/tests/test_testing_security.py"
+    ]
+  },
+  {
+    "id": "layer:build-and-release",
+    "name": "构建与发布流水线",
+    "description": "scripts 下的构建/发布/skill 评测脚本与 .github/workflows 下的 GitHub Actions CI 工作流，负责打包校验、版本一致性、测试与定时 skill 评测。",
+    "nodeIds": [
+      "file:scripts/run-skill-evals.mjs",
+      "file:scripts/skill-eval-events.mjs",
+      "file:scripts/validate-skill-evals.mjs",
+      "pipeline:.github/workflows/live-skill-evals.yml",
+      "pipeline:.github/workflows/validate.yml",
+      "file:scripts/check-package.mjs",
+      "file:scripts/check-release.mjs",
+      "file:scripts/npm-pack-dry-run.mjs",
+      "file:scripts/run-tests.mjs",
+      "file:scripts/validate_bundle.py"
+    ]
+  },
+  {
+    "id": "layer:plugin-manifests",
+    "name": "插件清单与发布配置",
+    "description": "npm 包清单、Claude Code/Codex 双端 marketplace 与 plugin.json 清单及 .npmignore 发布忽略规则，声明插件元数据与发布产物边界。",
+    "nodeIds": [
+      "config:package.json",
+      "config:.agents/plugins/marketplace.json",
+      "config:.claude-plugin/marketplace.json",
+      "file:.npmignore",
+      "config:plugins/project-intelligence/.claude-plugin/plugin.json",
+      "config:plugins/project-intelligence/.codex-plugin/plugin.json"
+    ]
+  },
+  {
+    "id": "layer:project-intel-facts",
+    "name": "项目智能本地事实层 (.project-intel)",
+    "description": ".project-intel 下由扫描器生成的规范、知识快照、质量报告、合并图谱摘要与 manifest/config，作为只读事实来源供技能与 CLI 复用。",
+    "nodeIds": [
+      "config:.project-intel/knowledge/backend.json",
+      "config:.project-intel/knowledge/files.json",
+      "config:.project-intel/knowledge/frontend.json",
+      "document:.project-intel/reports/frontend-quality.md",
+      "document:.project-intel/reports/init-report.md",
+      "document:.project-intel/reports/redundancy-report.md",
+      "document:.project-intel/reports/tooling-report.md",
+      "document:.project-intel/standards/api.md",
+      "document:.project-intel/standards/backend-api.md",
+      "document:.project-intel/standards/backend-async.md",
+      "document:.project-intel/standards/backend-config.md",
+      "document:.project-intel/standards/backend-errors.md",
+      "document:.project-intel/standards/backend-models.md",
+      "document:.project-intel/standards/backend-remote-calls.md",
+      "document:.project-intel/standards/backend-repository.md",
+      "document:.project-intel/standards/backend-security.md",
+      "document:.project-intel/standards/backend-services.md",
+      "document:.project-intel/standards/backend-transactions.md",
+      "document:.project-intel/standards/backend-utilities.md",
+      "document:.project-intel/standards/backend.md",
+      "document:.project-intel/standards/components.md",
+      "document:.project-intel/standards/domain-flows.md",
+      "document:.project-intel/standards/frontend.md",
+      "document:.project-intel/standards/quality.md",
+      "document:.project-intel/standards/reuse.md",
+      "document:.project-intel/standards/router.md",
+      "config:.project-intel/config.json",
+      "config:.project-intel/graph/project-graph.json",
+      "config:.project-intel/manifest.json"
+    ]
+  },
+  {
+    "id": "layer:project-docs",
+    "name": "项目文档与 Agent 集成",
+    "description": "README、CHANGELOG、docs 指南、AGENTS.md/CLAUDE.md/.claude 仓库级 Agent 指令、GitNexus 技能文档以及 .ua 本地工具配置，覆盖用户与 Agent 双视角。",
+    "nodeIds": [
+      "document:AGENTS.md",
+      "document:CHANGELOG.md",
+      "document:CLAUDE.md",
+      "document:README.md",
+      "document:.claude/CLAUDE.md",
+      "document:.claude/skills/gitnexus/gitnexus-cli/SKILL.md",
+      "document:.claude/skills/gitnexus/gitnexus-debugging/SKILL.md",
+      "document:.claude/skills/gitnexus/gitnexus-exploring/SKILL.md",
+      "document:.claude/skills/gitnexus/gitnexus-guide/SKILL.md",
+      "document:.claude/skills/gitnexus/gitnexus-impact-analysis/SKILL.md",
+      "document:.claude/skills/gitnexus/gitnexus-refactoring/SKILL.md",
+      "file:.ua/.understandignore",
+      "config:.ua/config.json"
+    ]
+  }
+]

@@ -1,0 +1,38 @@
+{
+  "issues": [],
+  "warnings": [
+    "Node 'document:.project-intel/standards/quality.md' has no edges (orphan)",
+    "Node 'document:.project-intel/standards/reuse.md' has no edges (orphan)",
+    "Node 'document:CHANGELOG.md' has no edges (orphan)",
+    "Node 'document:README.md' has no edges (orphan)",
+    "Node 'file:.npmignore' has no edges (orphan)",
+    "Node 'document:plugins/project-intelligence/skills/project-standards/SKILL.md' has no edges (orphan)",
+    "Node 'file:scripts/npm-pack-dry-run.mjs' has no edges (orphan)"
+  ],
+  "stats": {
+    "totalNodes": 455,
+    "totalEdges": 793,
+    "totalLayers": 8,
+    "tourSteps": 10,
+    "nodeTypes": {
+      "function": 323,
+      "file": 36,
+      "class": 28,
+      "pipeline": 2,
+      "config": 13,
+      "document": 53
+    },
+    "edgeTypes": {
+      "calls": 13,
+      "contains": 351,
+      "exports": 290,
+      "depends_on": 26,
+      "imports": 20,
+      "tested_by": 10,
+      "triggers": 9,
+      "related": 68,
+      "configures": 3,
+      "documents": 3
+    }
+  }
+}

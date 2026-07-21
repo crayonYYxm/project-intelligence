@@ -1,0 +1,74 @@
+{
+  "nodes": [
+    {
+      "id": "document:.project-intel/reports/frontend-quality.md",
+      "type": "document",
+      "name": "frontend-quality.md",
+      "filePath": ".project-intel/reports/frontend-quality.md",
+      "summary": "前端质量报告，记录 Hard 规范检测、质量命令、命令输出与冗余候选情况；本次检测中各项目均为空或未执行。",
+      "tags": ["documentation", "quality-report", "linting", "frontend", "project-intel"],
+      "complexity": "simple",
+      "languageNotes": "Markdown 报告含 5 个章节，使用 `_None detected._` 等占位文本表达空结果，`failed`/`manual-review` 标注规范等级语义。"
+    },
+    {
+      "id": "document:.project-intel/reports/init-report.md",
+      "type": "document",
+      "name": "init-report.md",
+      "filePath": ".project-intel/reports/init-report.md",
+      "summary": "Project Intelligence 初始化生成的总览报告，汇总图谱来源、前后端概况、质量命令与后续 Agent 步骤，并指引用户补全 Understand-Anything 图谱。",
+      "tags": ["documentation", "project-overview", "initialization", "report", "project-intel"],
+      "complexity": "moderate",
+      "languageNotes": "Markdown 报告含 7 个章节与多张表格，记录 GitNexus/Understand-Anything 图谱来源状态及前端/后端组件计数。"
+    },
+    {
+      "id": "document:.project-intel/reports/redundancy-report.md",
+      "type": "document",
+      "name": "redundancy-report.md",
+      "filePath": ".project-intel/reports/redundancy-report.md",
+      "summary": "冗余候选报告，列出默认为 candidate 级别、不阻塞开发的冗余发现；本次未检测到任何冗余候选。",
+      "tags": ["documentation", "redundancy", "report", "project-intel"],
+      "complexity": "simple",
+      "languageNotes": "极简 Markdown 报告，仅 1 个一级标题与一行占位说明，强调 candidate 级别不阻塞开发。"
+    },
+    {
+      "id": "document:.project-intel/reports/tooling-report.md",
+      "type": "document",
+      "name": "tooling-report.md",
+      "filePath": ".project-intel/reports/tooling-report.md",
+      "summary": "工具环境报告，记录必需工具、可选运行时、包管理器、质量命令及安装结果，并给出 Understand-Anything 图谱补全的后续 Agent 步骤。",
+      "tags": ["documentation", "tooling", "environment", "report", "project-intel"],
+      "complexity": "moderate",
+      "languageNotes": "Markdown 报告含 8 个章节与多张状态表格，覆盖 python3/Git/Node/GitNexus 等工具的 present/missing 检测结果与安装命令。"
+    }
+  ],
+  "edges": [
+    {
+      "source": "document:.project-intel/reports/init-report.md",
+      "target": "document:.project-intel/reports/frontend-quality.md",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:.project-intel/reports/init-report.md",
+      "target": "document:.project-intel/reports/redundancy-report.md",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:.project-intel/reports/init-report.md",
+      "target": "document:.project-intel/reports/tooling-report.md",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:.project-intel/reports/frontend-quality.md",
+      "target": "document:.project-intel/reports/redundancy-report.md",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "projectRoot": "/Users/xumeng/Desktop/code/project-intelligence",
+  "batchFiles": [
+    {"path": ".project-intel/reports/frontend-quality.md", "language": "markdown", "sizeLines": 22, "fileCategory": "docs"},
+    {"path": ".project-intel/reports/init-report.md", "language": "markdown", "sizeLines": 43, "fileCategory": "docs"},
+    {"path": ".project-intel/reports/redundancy-report.md", "language": "markdown", "sizeLines": 5, "fileCategory": "docs"},
+    {"path": ".project-intel/reports/tooling-report.md", "language": "markdown", "sizeLines": 50, "fileCategory": "docs"}
+  ],
+  "batchImportData": {}
+}
