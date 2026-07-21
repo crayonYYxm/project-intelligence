@@ -261,10 +261,89 @@ class HandleToolingSetupTests(unittest.TestCase):
         self.assertIn("--allow-external-path", result[0]["detail"])
         run_shell.assert_not_called()
 
+    def test_external_path_in_graph_option_requires_separate_authorization(self):
+        tooling = {
+            "graphActions": [{
+                "tool": "Understand-Anything",
+                "state": "installed",
+                "analyzeCommand": "understand --config=/opt/project-tools/config.json .",
+                "analyzeCommandSource": "environment",
+            }]
+        }
+        with patch.object(project_intel, "run_shell") as run_shell:
+            result = project_intel.handle_tooling_setup(
+                Path("."), tooling, interactive=False, setup_missing=False, with_graph=True,
+                allow_env_command=True,
+            )
+        self.assertEqual(result[0]["status"], "skipped")
+        self.assertIn("--allow-external-path", result[0]["detail"])
+        run_shell.assert_not_called()
+
+    def test_external_path_in_graph_environment_assignment_requires_separate_authorization(self):
+        tooling = {
+            "graphActions": [{
+                "tool": "Understand-Anything",
+                "state": "installed",
+                "analyzeCommand": "CONFIG=/opt/project-tools/config.json understand .",
+                "analyzeCommandSource": "environment",
+            }]
+        }
+        with patch.object(project_intel, "run_shell") as run_shell:
+            result = project_intel.handle_tooling_setup(
+                Path("."), tooling, interactive=False, setup_missing=False, with_graph=True,
+                allow_env_command=True,
+            )
+        self.assertEqual(result[0]["status"], "skipped")
+        self.assertIn("--allow-external-path", result[0]["detail"])
+        run_shell.assert_not_called()
+
+    def test_shell_expansion_in_graph_command_requires_separate_authorization(self):
+        tooling = {
+            "graphActions": [{
+                "tool": "Understand-Anything",
+                "state": "installed",
+                "analyzeCommand": 'understand "$HOME/.config/understand" .',
+                "analyzeCommandSource": "environment",
+            }]
+        }
+        with patch.object(project_intel, "run_shell") as run_shell:
+            result = project_intel.handle_tooling_setup(
+                Path("."), tooling, interactive=False, setup_missing=False, with_graph=True,
+                allow_env_command=True,
+            )
+        self.assertEqual(result[0]["status"], "skipped")
+        self.assertIn("--allow-external-path", result[0]["detail"])
+        run_shell.assert_not_called()
+
+    def test_windows_shell_expansion_in_graph_command_requires_separate_authorization(self):
+        tooling = {
+            "graphActions": [{
+                "tool": "Understand-Anything",
+                "state": "installed",
+                "analyzeCommand": 'understand "%USERPROFILE%\\.config\\understand" .',
+                "analyzeCommandSource": "environment",
+            }]
+        }
+        with patch.object(project_intel, "run_shell") as run_shell:
+            result = project_intel.handle_tooling_setup(
+                Path("."), tooling, interactive=False, setup_missing=False, with_graph=True,
+                allow_env_command=True,
+            )
+        self.assertEqual(result[0]["status"], "skipped")
+        self.assertIn("--allow-external-path", result[0]["detail"])
+        run_shell.assert_not_called()
+
     def test_unquoted_windows_absolute_graph_command_is_external(self):
         self.assertTrue(
             project_intel.command_uses_external_path(Path.cwd(), r"C:\Tools\understand.exe .")
         )
+
+    def test_project_internal_posix_path_is_not_external(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            command = f'"{root / "tools with spaces" / "understand"}" .'
+
+            self.assertFalse(project_intel.command_uses_external_path(root, command))
 
     def test_graph_timeout_is_configurable(self):
         with patch.dict(project_intel.os.environ, {"PROJECT_INTEL_GRAPH_TIMEOUT_SECONDS": "45"}), patch.object(
