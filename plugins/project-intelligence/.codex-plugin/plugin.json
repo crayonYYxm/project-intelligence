@@ -1,6 +1,6 @@
 {
   "name": "project-intelligence",
-  "version": "0.6.0+codex.20260720000000",
+  "version": "0.6.1+codex.20260721000000",
   "description": "Source-backed development design plus requirement-level intake, plans, standards, test reports, review gates, finish, maintenance, debugging, and orchestration.",
   "author": {
     "name": "crayonYYxm"

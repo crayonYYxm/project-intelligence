@@ -1522,7 +1522,7 @@ class CliAndReleaseContractTests(unittest.TestCase):
         codex = json.loads((plugin_root / ".codex-plugin" / "plugin.json").read_text(encoding="utf-8"))
         npm = json.loads((repo_root / "package.json").read_text(encoding="utf-8"))
 
-        self.assertEqual(project_intel.VERSION, "0.6.0")
+        self.assertEqual(project_intel.VERSION, "0.6.1")
         self.assertEqual(claude["version"], project_intel.VERSION)
         self.assertEqual(codex["version"].split("+")[0], project_intel.VERSION)
         self.assertEqual(npm["version"], project_intel.VERSION)

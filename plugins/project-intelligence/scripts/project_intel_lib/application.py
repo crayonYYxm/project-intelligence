@@ -46,7 +46,7 @@ from project_intel_lib.scanner import backend as backend_scanner
 from project_intel_lib.scanner import frontend as frontend_scanner
 
 
-VERSION = "0.6.0"
+VERSION = "0.6.1"
 TRACK_CHOICES = ("auto", "quick", "standard", "complex")
 UNDERSTAND_AGENT_COMMAND = "/understand . --language zh"
 UNDERSTAND_REPO = "Egonex-AI/Understand-Anything"
