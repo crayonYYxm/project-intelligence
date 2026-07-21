@@ -46,7 +46,7 @@ from project_intel_lib.scanner import backend as backend_scanner
 from project_intel_lib.scanner import frontend as frontend_scanner
 
 
-VERSION = "0.6.0"
+VERSION = "0.6.1"
 TRACK_CHOICES = ("auto", "quick", "standard", "complex")
 UNDERSTAND_AGENT_COMMAND = "/understand . --language zh"
 UNDERSTAND_REPO = "Egonex-AI/Understand-Anything"
@@ -1220,12 +1220,17 @@ def run_graph_command(root: Path, action: dict[str, Any], command: str) -> dict[
 
 def command_uses_external_path(root: Path, command: str) -> bool:
     try:
-        values = shlex.split(command, posix=os.name != "nt")
+        # Preserve backslashes before checking both POSIX and Windows paths.
+        # POSIX parsing would otherwise consume the separators in `C:\\Tools\\...`.
+        values = shlex.split(command, posix=False)
     except ValueError:
         values = command.split()
     root_resolved = root.resolve()
     for value in values:
         cleaned = value.strip("\"'")
+        option, separator, option_value = cleaned.partition("=")
+        if separator and (option.startswith("-") or re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", option)):
+            cleaned = option_value.strip("\"'")
         try:
             candidate = Path(cleaned).expanduser()
         except RuntimeError:
@@ -1243,6 +1248,10 @@ def command_uses_external_path(root: Path, command: str) -> bool:
     return False
 
 
+def command_has_shell_expansion(command: str) -> bool:
+    return bool(re.search(r"(?<!\\)(?:\$(?:\{|\(|[A-Za-z_])|%[^%\r\n]+%|`|[<>]\()", command))
+
+
 def graph_command_authorized(
     root: Path,
     command: str,
@@ -1256,6 +1265,8 @@ def graph_command_authorized(
         return False, "仓库内 runner 需要显式使用 --allow-repo-runner。"
     if source == "environment" and not allow_env_command:
         return False, "环境变量提供的命令需要显式使用 --allow-env-command。"
+    if source != "builtin" and command_has_shell_expansion(command) and not allow_external_path:
+        return False, "命令包含运行时 shell 展开，需要显式使用 --allow-external-path。"
     if command_uses_external_path(root, command) and not allow_external_path:
         return False, "命令引用项目外绝对路径，需要显式使用 --allow-external-path。"
     return True, ""

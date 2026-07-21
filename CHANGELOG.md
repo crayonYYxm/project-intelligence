@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.6.1 - 2026-07-21
+
+- Preserve Windows absolute paths while parsing graph commands on macOS and Linux, so external paths consistently require `--allow-external-path`.
+- Reject graph-command external paths supplied through option or environment assignments, and require explicit external-path authorization for runtime shell expansions.
+
 ## 0.6.0 - 2026-07-20
 
 - Keep the CRM Requirement document structure while enforcing Chinese business scenarios, field/data-flow explanations, and tightly bounded key snippets.
