@@ -437,12 +437,14 @@ class GraphToolCommandTests(unittest.TestCase):
         self.assertEqual(command, "custom install")
 
     def test_detect_graph_actions_marks_gitnexus_as_download_and_run(self):
-        with patch.object(project_intel, "command_exists", side_effect=lambda name: name == "npx"), patch.object(
+        with tempfile.TemporaryDirectory() as tmp, patch.object(
+            project_intel, "command_exists", side_effect=lambda name: name == "npx"
+        ), patch.object(
             project_intel, "understand_plugin_roots", return_value=[]
         ), patch.object(project_intel, "understand_analyze_command", return_value=None), patch.object(
             project_intel, "default_understand_install_command", return_value=None
         ):
-            actions = project_intel.detect_graph_actions(Path("."))
+            actions = project_intel.detect_graph_actions(Path(tmp))
 
         gitnexus = next(action for action in actions if action["tool"] == "GitNexus")
         self.assertEqual(gitnexus["state"], "installable")
@@ -2096,6 +2098,22 @@ class InferStandardsTests(unittest.TestCase):
 
 
 class StabilityAndPackagingTests(unittest.TestCase):
+    def test_understand_graph_uses_windows_portable_directory(self):
+        repo_root = MODULE_PATH.parents[3]
+        graph_root = repo_root / ".understand-anything"
+
+        self.assertTrue(graph_root.is_dir())
+        self.assertFalse(graph_root.is_symlink())
+        self.assertFalse((repo_root / ".ua").exists())
+
+        understand = next(
+            source
+            for source in project_intel.detect_graph_sources(repo_root)
+            if source["name"] == "Understand-Anything"
+        )
+        self.assertEqual(understand["status"], "present")
+        self.assertEqual(understand["path"], ".understand-anything/knowledge-graph.json")
+
     def test_plugin_intro_describes_current_requirement_archive(self):
         intro = (MODULE_PATH.parents[1] / "assets" / "plugin-intro.html").read_text(encoding="utf-8")
         self.assertIn(".project-intel/requirements/&lt;id&gt;/", intro)
