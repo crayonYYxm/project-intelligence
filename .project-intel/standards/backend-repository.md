@@ -10,7 +10,7 @@
 
 | 名称 | 类型 | 路径 | 方法/SQL id 样例 | SQL 操作 |
 | --- | --- | --- | --- | --- |
-| backend | Mapper | plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py | unique_limited, flatten_regex_hits, annotation_values, mask_comments_and_strings, annotation_values_in_code, quoted_literal_at, python_ast_facts, detect_backend_framework, extract_backend_endpoints, extract_backend_methods, extract_backend_fields, extract_repository_methods | DELETE, SELECT, INSERT, UPDATE, MERGE |
+| backend | Mapper | src/scanner/backend.ts | scanner, Set, stringify, String, add, push, flattenRegexHits, uniqueLimited, allMatches, RegExp, annotationValues, annotationValuesInCode | DELETE, SELECT, INSERT, UPDATE, MERGE |
 
 ## SQL 操作热点
 

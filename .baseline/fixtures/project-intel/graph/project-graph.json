@@ -1,0 +1,54 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-01-01T00:00:00.000000+00:00",
+  "sources": [
+    {
+      "name": "GitNexus",
+      "path": ".gitnexus",
+      "role": "符号调用、影响、变更风险",
+      "status": "missing",
+      "reason": "未找到索引目录"
+    },
+    {
+      "name": "Understand-Anything",
+      "path": ".understand-anything/knowledge-graph.json",
+      "role": "架构、模块、领域流、入职",
+      "status": "missing",
+      "reason": "未找到知识图谱"
+    }
+  ],
+  "summary": {
+    "components": 1,
+    "hooks": 0,
+    "apis": 1,
+    "services": 1,
+    "candidateEntrypoints": 0
+  },
+  "gitnexusSummary": {
+    "name": "GitNexus",
+    "path": ".gitnexus",
+    "role": "符号调用、影响、变更风险",
+    "status": "missing",
+    "reason": "未找到索引目录"
+  },
+  "understandSummary": {
+    "status": "missing",
+    "reason": "未找到知识图谱",
+    "nodes": 0,
+    "edges": 0,
+    "domains": [],
+    "keyModules": [],
+    "topPathPrefixes": []
+  },
+  "projectDomains": [
+    {
+      "name": "backend",
+      "count": 2,
+      "paths": [
+        "backend/api.py",
+        "backend/service.py"
+      ],
+      "source": "project-derived"
+    }
+  ]
+}

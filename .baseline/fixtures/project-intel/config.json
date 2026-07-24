@@ -1,0 +1,72 @@
+{
+  "schemaVersion": 2,
+  "scan": {
+    "include": [
+      "**/*"
+    ],
+    "exclude": [
+      ".cache",
+      ".claude",
+      ".git",
+      ".idea",
+      ".next",
+      ".nuxt",
+      ".project-intel",
+      ".project-intel/cache",
+      ".project-intel/local",
+      ".project-intel/tmp",
+      ".turbo",
+      ".vscode",
+      "build",
+      "coverage",
+      "dist",
+      "node_modules",
+      "target"
+    ],
+    "excludeHidden": true
+  },
+  "quality": {
+    "commands": [
+      {
+        "kind": "lint",
+        "command": "npm run lint",
+        "source": "package.json"
+      },
+      {
+        "kind": "test",
+        "command": "npm run test",
+        "source": "package.json"
+      }
+    ]
+  },
+  "backend": {
+    "entrypointRules": [
+      {
+        "type": "annotation",
+        "pattern": "@RestController|@Controller|@RequestMapping|@GetMapping|@PostMapping|@MessageListener|@Scheduled"
+      },
+      {
+        "type": "call",
+        "pattern": "router\\.(get|post|put|delete|use)|app\\.(get|post|put|delete|use)"
+      },
+      {
+        "type": "path",
+        "pattern": "**/{controller,handler,endpoint,facade,adapter}/**/*"
+      }
+    ]
+  },
+  "rules": {
+    "hard": [],
+    "preferred": [],
+    "inferred": [
+      {
+        "scope": "backend",
+        "category": "backend-api",
+        "rule": "后端入口主要使用 FastAPI/Flask 风格，新增 API 应跟随同框架入口声明方式",
+        "evidence": "1/1 个入口匹配",
+        "level": "inferred"
+      }
+    ],
+    "candidate": []
+  }
+}

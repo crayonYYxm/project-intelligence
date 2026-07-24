@@ -1,0 +1,2325 @@
+{
+  "description": "映射当前 231 个 Python 自动化测试方法到 Node.js/TypeScript 等价测试或端到端场景。strict 校验会枚举当前 Python 测试方法并逐项比对。",
+  "baselineTag": "v0.6.1",
+  "conventions": {
+    "sourceRoot": "源 Python 测试已从仓库归档；source 字段保留原路径和方法名作为 AC-10 映射凭据。",
+    "nodeRoot": "src/__tests__/",
+    "status": "pending = 尚未实现; planned = 已有计划目标; done = 已实现并对照通过; skipped = 已获批准跳过(需 reason)",
+    "source": "格式为 test_file.py#ClassName.test_method，必须逐 Python 测试方法登记。",
+    "strictGate": "node scripts/validate-test-map.mjs --strict 会拒绝缺失、重复、过期、pending 或 skipped 映射。"
+  },
+  "mappings": [
+    {
+      "source": "test_document_truth_validation.py#DesignSourceTruthTests.test_claimed_symbol_must_exist_in_claimed_file",
+      "covers": "design_documents 源码证据校验 / test_claimed_symbol_must_exist_in_claimed_file",
+      "planTask": "3.D (requirement 子命令 + 文档登记类)",
+      "nodeTarget": "design-doc-validation.test.ts",
+      "status": "done",
+      "doneNote": "由 plugins/.../scripts/validate_design_doc.mjs 覆盖",
+      "actualNodeFile": "validate_design_doc.mjs",
+      "equivalence": "Expanded from Python class mapping DesignSourceTruthTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_document_truth_validation.py#DesignSourceTruthTests.test_existing_repo_path_and_symbol_pass",
+      "covers": "design_documents 源码证据校验 / test_existing_repo_path_and_symbol_pass",
+      "planTask": "3.D (requirement 子命令 + 文档登记类)",
+      "nodeTarget": "design-doc-validation.test.ts",
+      "status": "done",
+      "doneNote": "由 plugins/.../scripts/validate_design_doc.mjs 覆盖",
+      "actualNodeFile": "validate_design_doc.mjs",
+      "equivalence": "Expanded from Python class mapping DesignSourceTruthTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_document_truth_validation.py#DesignSourceTruthTests.test_nonexistent_repo_path_is_not_source_evidence",
+      "covers": "design_documents 源码证据校验 / test_nonexistent_repo_path_is_not_source_evidence",
+      "planTask": "3.D (requirement 子命令 + 文档登记类)",
+      "nodeTarget": "design-doc-validation.test.ts",
+      "status": "done",
+      "doneNote": "由 plugins/.../scripts/validate_design_doc.mjs 覆盖",
+      "actualNodeFile": "validate_design_doc.mjs",
+      "equivalence": "Expanded from Python class mapping DesignSourceTruthTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_document_truth_validation.py#DesignSourceTruthTests.test_requirement_design_uses_the_same_source_truth_gate",
+      "covers": "design_documents 源码证据校验 / test_requirement_design_uses_the_same_source_truth_gate",
+      "planTask": "3.D (requirement 子命令 + 文档登记类)",
+      "nodeTarget": "design-doc-validation.test.ts",
+      "status": "done",
+      "doneNote": "由 plugins/.../scripts/validate_design_doc.mjs 覆盖",
+      "actualNodeFile": "validate_design_doc.mjs",
+      "equivalence": "Expanded from Python class mapping DesignSourceTruthTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_document_truth_validation.py#DesignSourceTruthTests.test_source_evidence_symlink_cannot_escape_repository",
+      "covers": "design_documents 源码证据校验 / test_source_evidence_symlink_cannot_escape_repository",
+      "planTask": "3.D (requirement 子命令 + 文档登记类)",
+      "nodeTarget": "design-doc-validation.test.ts",
+      "status": "done",
+      "doneNote": "由 plugins/.../scripts/validate_design_doc.mjs 覆盖",
+      "actualNodeFile": "validate_design_doc.mjs",
+      "equivalence": "Expanded from Python class mapping DesignSourceTruthTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_document_truth_validation.py#DesignSourceTruthTests.test_unavailable_external_source_is_an_explicit_blocker",
+      "covers": "design_documents 源码证据校验 / test_unavailable_external_source_is_an_explicit_blocker",
+      "planTask": "3.D (requirement 子命令 + 文档登记类)",
+      "nodeTarget": "design-doc-validation.test.ts",
+      "status": "done",
+      "doneNote": "由 plugins/.../scripts/validate_design_doc.mjs 覆盖",
+      "actualNodeFile": "validate_design_doc.mjs",
+      "equivalence": "Expanded from Python class mapping DesignSourceTruthTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_document_truth_validation.py#RequirementManifestTruthTests.test_acceptance_description_must_match_manifest",
+      "covers": "requirement_documents 与 manifest 一致性校验 / test_acceptance_description_must_match_manifest",
+      "planTask": "3.D.2",
+      "nodeTarget": "requirement-doc-validation.test.ts",
+      "status": "done",
+      "doneNote": "由 requirement-command.test.ts + state-machine.test.ts 覆盖",
+      "actualNodeFile": "requirement-command.test.ts",
+      "equivalence": "Expanded from Python class mapping RequirementManifestTruthTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_document_truth_validation.py#RequirementManifestTruthTests.test_document_information_fields_must_exactly_match_manifest",
+      "covers": "requirement_documents 与 manifest 一致性校验 / test_document_information_fields_must_exactly_match_manifest",
+      "planTask": "3.D.2",
+      "nodeTarget": "requirement-doc-validation.test.ts",
+      "status": "done",
+      "doneNote": "由 requirement-command.test.ts + state-machine.test.ts 覆盖",
+      "actualNodeFile": "requirement-command.test.ts",
+      "equivalence": "Expanded from Python class mapping RequirementManifestTruthTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_document_truth_validation.py#RequirementManifestTruthTests.test_exact_manifest_identity_impact_and_acceptance_pass",
+      "covers": "requirement_documents 与 manifest 一致性校验 / test_exact_manifest_identity_impact_and_acceptance_pass",
+      "planTask": "3.D.2",
+      "nodeTarget": "requirement-doc-validation.test.ts",
+      "status": "done",
+      "doneNote": "由 requirement-command.test.ts + state-machine.test.ts 覆盖",
+      "actualNodeFile": "requirement-command.test.ts",
+      "equivalence": "Expanded from Python class mapping RequirementManifestTruthTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_document_truth_validation.py#RequirementManifestTruthTests.test_external_api_impact_must_match_manifest",
+      "covers": "requirement_documents 与 manifest 一致性校验 / test_external_api_impact_must_match_manifest",
+      "planTask": "3.D.2",
+      "nodeTarget": "requirement-doc-validation.test.ts",
+      "status": "done",
+      "doneNote": "由 requirement-command.test.ts + state-machine.test.ts 覆盖",
+      "actualNodeFile": "requirement-command.test.ts",
+      "equivalence": "Expanded from Python class mapping RequirementManifestTruthTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_document_truth_validation.py#RequirementManifestTruthTests.test_external_api_impact_rejects_conflicting_statements",
+      "covers": "requirement_documents 与 manifest 一致性校验 / test_external_api_impact_rejects_conflicting_statements",
+      "planTask": "3.D.2",
+      "nodeTarget": "requirement-doc-validation.test.ts",
+      "status": "done",
+      "doneNote": "由 requirement-command.test.ts + state-machine.test.ts 覆盖",
+      "actualNodeFile": "requirement-command.test.ts",
+      "equivalence": "Expanded from Python class mapping RequirementManifestTruthTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_document_truth_validation.py#RequirementManifestTruthTests.test_pending_items_are_structured_readiness_blockers",
+      "covers": "requirement_documents 与 manifest 一致性校验 / test_pending_items_are_structured_readiness_blockers",
+      "planTask": "3.D.2",
+      "nodeTarget": "requirement-doc-validation.test.ts",
+      "status": "done",
+      "doneNote": "由 requirement-command.test.ts + state-machine.test.ts 覆盖",
+      "actualNodeFile": "requirement-command.test.ts",
+      "equivalence": "Expanded from Python class mapping RequirementManifestTruthTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_design.py#ProjectDesignValidationTests.test_bug_template_and_identity_are_validated",
+      "covers": "设计文档校验器（CRM 模板、源码证据、占位符） / test_bug_template_and_identity_are_validated",
+      "planTask": "3.D.2",
+      "nodeTarget": "project-design-validation.test.ts",
+      "status": "done",
+      "doneNote": "由 validate_design_doc.mjs 覆盖",
+      "actualNodeFile": "validate_design_doc.mjs",
+      "equivalence": "Expanded from Python class mapping ProjectDesignValidationTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_design.py#ProjectDesignValidationTests.test_bundled_validator_cli_exit_codes",
+      "covers": "设计文档校验器（CRM 模板、源码证据、占位符） / test_bundled_validator_cli_exit_codes",
+      "planTask": "3.D.2",
+      "nodeTarget": "project-design-validation.test.ts",
+      "status": "done",
+      "doneNote": "由 validate_design_doc.mjs 覆盖",
+      "actualNodeFile": "validate_design_doc.mjs",
+      "equivalence": "Expanded from Python class mapping ProjectDesignValidationTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_design.py#ProjectDesignValidationTests.test_empty_sections_sensitive_values_and_path_escape_fail",
+      "covers": "设计文档校验器（CRM 模板、源码证据、占位符） / test_empty_sections_sensitive_values_and_path_escape_fail",
+      "planTask": "3.D.2",
+      "nodeTarget": "project-design-validation.test.ts",
+      "status": "done",
+      "doneNote": "由 validate_design_doc.mjs 覆盖",
+      "actualNodeFile": "validate_design_doc.mjs",
+      "equivalence": "Expanded from Python class mapping ProjectDesignValidationTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_design.py#ProjectDesignValidationTests.test_requirement_filename_must_match_title_without_manifest_context",
+      "covers": "设计文档校验器（CRM 模板、源码证据、占位符） / test_requirement_filename_must_match_title_without_manifest_context",
+      "planTask": "3.D.2",
+      "nodeTarget": "project-design-validation.test.ts",
+      "status": "done",
+      "doneNote": "由 validate_design_doc.mjs 覆盖",
+      "actualNodeFile": "validate_design_doc.mjs",
+      "equivalence": "Expanded from Python class mapping ProjectDesignValidationTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_design.py#ProjectDesignValidationTests.test_requirement_rejects_extra_acceptance_heading",
+      "covers": "设计文档校验器（CRM 模板、源码证据、占位符） / test_requirement_rejects_extra_acceptance_heading",
+      "planTask": "3.D.2",
+      "nodeTarget": "project-design-validation.test.ts",
+      "status": "done",
+      "doneNote": "由 validate_design_doc.mjs 覆盖",
+      "actualNodeFile": "validate_design_doc.mjs",
+      "equivalence": "Expanded from Python class mapping ProjectDesignValidationTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_design.py#ProjectDesignValidationTests.test_requirement_template_passes_without_acceptance_section",
+      "covers": "设计文档校验器（CRM 模板、源码证据、占位符） / test_requirement_template_passes_without_acceptance_section",
+      "planTask": "3.D.2",
+      "nodeTarget": "project-design-validation.test.ts",
+      "status": "done",
+      "doneNote": "由 validate_design_doc.mjs 覆盖",
+      "actualNodeFile": "validate_design_doc.mjs",
+      "equivalence": "Expanded from Python class mapping ProjectDesignValidationTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_design.py#ProjectDesignValidationTests.test_requirement_v2_rejects_code_heavy_scene_and_unexplained_not_applicable",
+      "covers": "设计文档校验器（CRM 模板、源码证据、占位符） / test_requirement_v2_rejects_code_heavy_scene_and_unexplained_not_applicable",
+      "planTask": "3.D.2",
+      "nodeTarget": "project-design-validation.test.ts",
+      "status": "done",
+      "doneNote": "由 validate_design_doc.mjs 覆盖",
+      "actualNodeFile": "validate_design_doc.mjs",
+      "equivalence": "Expanded from Python class mapping ProjectDesignValidationTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_design.py#ProjectDesignValidationTests.test_source_symbol_inside_comment_or_string_is_not_evidence",
+      "covers": "设计文档校验器（CRM 模板、源码证据、占位符） / test_source_symbol_inside_comment_or_string_is_not_evidence",
+      "planTask": "3.D.2",
+      "nodeTarget": "project-design-validation.test.ts",
+      "status": "done",
+      "doneNote": "由 validate_design_doc.mjs 覆盖",
+      "actualNodeFile": "validate_design_doc.mjs",
+      "equivalence": "Expanded from Python class mapping ProjectDesignValidationTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#AgentEntrypointInstallTests.test_adapters_preview_is_non_mutating_and_apply_writes_short_blocks",
+      "covers": "agent install（codex/claude 插件安装） / test_adapters_preview_is_non_mutating_and_apply_writes_short_blocks",
+      "planTask": "3.C.3",
+      "nodeTarget": "commands/agent-install.test.ts",
+      "status": "done",
+      "doneNote": "由 install-hooks.test.ts 的 agent install 测试覆盖",
+      "actualNodeFile": "install-hooks.test.ts",
+      "equivalence": "Expanded from Python class mapping AgentEntrypointInstallTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#AgentEntrypointInstallTests.test_adapters_reject_symlink_oversized_and_duplicate_marker_files",
+      "covers": "agent install（codex/claude 插件安装） / test_adapters_reject_symlink_oversized_and_duplicate_marker_files",
+      "planTask": "3.C.3",
+      "nodeTarget": "commands/agent-install.test.ts",
+      "status": "done",
+      "doneNote": "由 install-hooks.test.ts 的 agent install 测试覆盖",
+      "actualNodeFile": "install-hooks.test.ts",
+      "equivalence": "Expanded from Python class mapping AgentEntrypointInstallTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#AgentEntrypointInstallTests.test_init_is_fact_only_and_explicit_install_writes_root_agent_entrypoints",
+      "covers": "agent install（codex/claude 插件安装） / test_init_is_fact_only_and_explicit_install_writes_root_agent_entrypoints",
+      "planTask": "3.C.3",
+      "nodeTarget": "commands/agent-install.test.ts",
+      "status": "done",
+      "doneNote": "由 install-hooks.test.ts 的 agent install 测试覆盖",
+      "actualNodeFile": "install-hooks.test.ts",
+      "equivalence": "Expanded from Python class mapping AgentEntrypointInstallTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#AgentEntrypointInstallTests.test_init_rejects_symlinked_project_intel_directory",
+      "covers": "agent install（codex/claude 插件安装） / test_init_rejects_symlinked_project_intel_directory",
+      "planTask": "3.C.3",
+      "nodeTarget": "commands/agent-install.test.ts",
+      "status": "done",
+      "doneNote": "由 install-hooks.test.ts 的 agent install 测试覆盖",
+      "actualNodeFile": "install-hooks.test.ts",
+      "equivalence": "Expanded from Python class mapping AgentEntrypointInstallTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#AgentEntrypointInstallTests.test_install_does_not_generate_skill_files",
+      "covers": "agent install（codex/claude 插件安装） / test_install_does_not_generate_skill_files",
+      "planTask": "3.C.3",
+      "nodeTarget": "commands/agent-install.test.ts",
+      "status": "done",
+      "doneNote": "由 install-hooks.test.ts 的 agent install 测试覆盖",
+      "actualNodeFile": "install-hooks.test.ts",
+      "equivalence": "Expanded from Python class mapping AgentEntrypointInstallTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#AgentEntrypointInstallTests.test_install_migrates_pure_legacy_nested_adapter_to_managed_block",
+      "covers": "agent install（codex/claude 插件安装） / test_install_migrates_pure_legacy_nested_adapter_to_managed_block",
+      "planTask": "3.C.3",
+      "nodeTarget": "commands/agent-install.test.ts",
+      "status": "done",
+      "doneNote": "由 install-hooks.test.ts 的 agent install 测试覆盖",
+      "actualNodeFile": "install-hooks.test.ts",
+      "equivalence": "Expanded from Python class mapping AgentEntrypointInstallTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#AgentEntrypointInstallTests.test_install_updates_managed_agent_block_without_duplicates",
+      "covers": "agent install（codex/claude 插件安装） / test_install_updates_managed_agent_block_without_duplicates",
+      "planTask": "3.C.3",
+      "nodeTarget": "commands/agent-install.test.ts",
+      "status": "done",
+      "doneNote": "由 install-hooks.test.ts 的 agent install 测试覆盖",
+      "actualNodeFile": "install-hooks.test.ts",
+      "equivalence": "Expanded from Python class mapping AgentEntrypointInstallTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#AgentEntrypointInstallTests.test_install_writes_root_agent_entrypoints_without_overwriting_existing_content",
+      "covers": "agent install（codex/claude 插件安装） / test_install_writes_root_agent_entrypoints_without_overwriting_existing_content",
+      "planTask": "3.C.3",
+      "nodeTarget": "commands/agent-install.test.ts",
+      "status": "done",
+      "doneNote": "由 install-hooks.test.ts 的 agent install 测试覆盖",
+      "actualNodeFile": "install-hooks.test.ts",
+      "equivalence": "Expanded from Python class mapping AgentEntrypointInstallTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#CliAndReleaseContractTests.test_cli_smoke_lifecycle",
+      "covers": "CLI 命令清单、退出码、版本一致性 / test_cli_smoke_lifecycle",
+      "planTask": "2.1 / 1.3 / 5.6",
+      "nodeTarget": "cli-contract.test.ts",
+      "status": "done",
+      "doneNote": "由 cli-contract.test.ts + dispatcher.test.ts + json-envelope.test.ts + check-release.mjs + check-package.mjs 覆盖",
+      "actualNodeFile": "cli-contract.test.ts",
+      "equivalence": "Expanded from Python class mapping CliAndReleaseContractTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#CliAndReleaseContractTests.test_init_checks_graph_by_default_and_setup_requires_graph",
+      "covers": "CLI 命令清单、退出码、版本一致性 / test_init_checks_graph_by_default_and_setup_requires_graph",
+      "planTask": "2.1 / 1.3 / 5.6",
+      "nodeTarget": "cli-contract.test.ts",
+      "status": "done",
+      "doneNote": "由 cli-contract.test.ts + dispatcher.test.ts + json-envelope.test.ts + check-release.mjs + check-package.mjs 覆盖",
+      "actualNodeFile": "cli-contract.test.ts",
+      "equivalence": "Expanded from Python class mapping CliAndReleaseContractTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#CliAndReleaseContractTests.test_json_parser_and_runtime_failures_are_machine_readable",
+      "covers": "CLI 命令清单、退出码、版本一致性 / test_json_parser_and_runtime_failures_are_machine_readable",
+      "planTask": "2.1 / 1.3 / 5.6",
+      "nodeTarget": "cli-contract.test.ts",
+      "status": "done",
+      "doneNote": "由 cli-contract.test.ts + dispatcher.test.ts + json-envelope.test.ts + check-release.mjs + check-package.mjs 覆盖",
+      "actualNodeFile": "cli-contract.test.ts",
+      "equivalence": "Expanded from Python class mapping CliAndReleaseContractTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#CliAndReleaseContractTests.test_lifecycle_uses_requirement_contract_and_rejects_external_api_unit",
+      "covers": "CLI 命令清单、退出码、版本一致性 / test_lifecycle_uses_requirement_contract_and_rejects_external_api_unit",
+      "planTask": "2.1 / 1.3 / 5.6",
+      "nodeTarget": "cli-contract.test.ts",
+      "status": "done",
+      "doneNote": "由 cli-contract.test.ts + dispatcher.test.ts + json-envelope.test.ts + check-release.mjs + check-package.mjs 覆盖",
+      "actualNodeFile": "cli-contract.test.ts",
+      "equivalence": "Expanded from Python class mapping CliAndReleaseContractTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#CliAndReleaseContractTests.test_project_design_skill_is_packaged_and_self_contained",
+      "covers": "CLI 命令清单、退出码、版本一致性 / test_project_design_skill_is_packaged_and_self_contained",
+      "planTask": "2.1 / 1.3 / 5.6",
+      "nodeTarget": "cli-contract.test.ts",
+      "status": "done",
+      "doneNote": "由 cli-contract.test.ts + dispatcher.test.ts + json-envelope.test.ts + check-release.mjs + check-package.mjs 覆盖",
+      "actualNodeFile": "cli-contract.test.ts",
+      "equivalence": "Expanded from Python class mapping CliAndReleaseContractTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#CliAndReleaseContractTests.test_project_intake_and_finish_skills_are_packaged",
+      "covers": "CLI 命令清单、退出码、版本一致性 / test_project_intake_and_finish_skills_are_packaged",
+      "planTask": "2.1 / 1.3 / 5.6",
+      "nodeTarget": "cli-contract.test.ts",
+      "status": "done",
+      "doneNote": "由 cli-contract.test.ts + dispatcher.test.ts + json-envelope.test.ts + check-release.mjs + check-package.mjs 覆盖",
+      "actualNodeFile": "cli-contract.test.ts",
+      "equivalence": "Expanded from Python class mapping CliAndReleaseContractTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#CliAndReleaseContractTests.test_project_orchestrate_skill_is_packaged",
+      "covers": "CLI 命令清单、退出码、版本一致性 / test_project_orchestrate_skill_is_packaged",
+      "planTask": "2.1 / 1.3 / 5.6",
+      "nodeTarget": "cli-contract.test.ts",
+      "status": "done",
+      "doneNote": "由 cli-contract.test.ts + dispatcher.test.ts + json-envelope.test.ts + check-release.mjs + check-package.mjs 覆盖",
+      "actualNodeFile": "cli-contract.test.ts",
+      "equivalence": "Expanded from Python class mapping CliAndReleaseContractTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#CliAndReleaseContractTests.test_project_test_skill_is_packaged",
+      "covers": "CLI 命令清单、退出码、版本一致性 / test_project_test_skill_is_packaged",
+      "planTask": "2.1 / 1.3 / 5.6",
+      "nodeTarget": "cli-contract.test.ts",
+      "status": "done",
+      "doneNote": "由 cli-contract.test.ts + dispatcher.test.ts + json-envelope.test.ts + check-release.mjs + check-package.mjs 覆盖",
+      "actualNodeFile": "cli-contract.test.ts",
+      "equivalence": "Expanded from Python class mapping CliAndReleaseContractTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#CliAndReleaseContractTests.test_refresh_only_runs_graph_when_explicitly_requested",
+      "covers": "CLI 命令清单、退出码、版本一致性 / test_refresh_only_runs_graph_when_explicitly_requested",
+      "planTask": "2.1 / 1.3 / 5.6",
+      "nodeTarget": "cli-contract.test.ts",
+      "status": "done",
+      "doneNote": "由 cli-contract.test.ts + dispatcher.test.ts + json-envelope.test.ts + check-release.mjs + check-package.mjs 覆盖",
+      "actualNodeFile": "cli-contract.test.ts",
+      "equivalence": "Expanded from Python class mapping CliAndReleaseContractTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#CliAndReleaseContractTests.test_release_sources_do_not_contain_removed_integration_name",
+      "covers": "CLI 命令清单、退出码、版本一致性 / test_release_sources_do_not_contain_removed_integration_name",
+      "planTask": "2.1 / 1.3 / 5.6",
+      "nodeTarget": "cli-contract.test.ts",
+      "status": "done",
+      "doneNote": "由 cli-contract.test.ts + dispatcher.test.ts + json-envelope.test.ts + check-release.mjs + check-package.mjs 覆盖",
+      "actualNodeFile": "cli-contract.test.ts",
+      "equivalence": "Expanded from Python class mapping CliAndReleaseContractTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#CliAndReleaseContractTests.test_skills_only_persist_specs_and_plans_on_explicit_request",
+      "covers": "CLI 命令清单、退出码、版本一致性 / test_skills_only_persist_specs_and_plans_on_explicit_request",
+      "planTask": "2.1 / 1.3 / 5.6",
+      "nodeTarget": "cli-contract.test.ts",
+      "status": "done",
+      "doneNote": "由 cli-contract.test.ts + dispatcher.test.ts + json-envelope.test.ts + check-release.mjs + check-package.mjs 覆盖",
+      "actualNodeFile": "cli-contract.test.ts",
+      "equivalence": "Expanded from Python class mapping CliAndReleaseContractTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#CliAndReleaseContractTests.test_versions_prompts_and_publisher_are_consistent",
+      "covers": "CLI 命令清单、退出码、版本一致性 / test_versions_prompts_and_publisher_are_consistent",
+      "planTask": "2.1 / 1.3 / 5.6",
+      "nodeTarget": "cli-contract.test.ts",
+      "status": "done",
+      "doneNote": "由 cli-contract.test.ts + dispatcher.test.ts + json-envelope.test.ts + check-release.mjs + check-package.mjs 覆盖",
+      "actualNodeFile": "cli-contract.test.ts",
+      "equivalence": "Expanded from Python class mapping CliAndReleaseContractTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#FileDiscoveryTests.test_iter_files_excludes_hidden_paths",
+      "covers": "文件发现、.understandignore、扫描包含/排除 / test_iter_files_excludes_hidden_paths",
+      "planTask": "3.A.3",
+      "nodeTarget": "scanner/file-discovery.test.ts",
+      "status": "done",
+      "doneNote": "由 frontend-files-quality.test.ts 的文件扫描器测试覆盖",
+      "actualNodeFile": "frontend-files-quality.test.ts",
+      "equivalence": "Expanded from Python class mapping FileDiscoveryTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#GraphToolCommandTests.test_default_understand_install_command_can_be_overridden_by_env",
+      "covers": "图谱命令执行与授权 / test_default_understand_install_command_can_be_overridden_by_env",
+      "planTask": "3.G.1",
+      "nodeTarget": "graph/source-commands.test.ts",
+      "status": "done",
+      "doneNote": "由 review-finish-graph.test.ts 的 graph sources 测试覆盖",
+      "actualNodeFile": "review-finish-graph.test.ts",
+      "equivalence": "Expanded from Python class mapping GraphToolCommandTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#GraphToolCommandTests.test_default_understand_install_command_prefers_current_agent",
+      "covers": "图谱命令执行与授权 / test_default_understand_install_command_prefers_current_agent",
+      "planTask": "3.G.1",
+      "nodeTarget": "graph/source-commands.test.ts",
+      "status": "done",
+      "doneNote": "由 review-finish-graph.test.ts 的 graph sources 测试覆盖",
+      "actualNodeFile": "review-finish-graph.test.ts",
+      "equivalence": "Expanded from Python class mapping GraphToolCommandTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#GraphToolCommandTests.test_detect_graph_actions_marks_gitnexus_as_download_and_run",
+      "covers": "图谱命令执行与授权 / test_detect_graph_actions_marks_gitnexus_as_download_and_run",
+      "planTask": "3.G.1",
+      "nodeTarget": "graph/source-commands.test.ts",
+      "status": "done",
+      "doneNote": "由 review-finish-graph.test.ts 的 graph sources 测试覆盖",
+      "actualNodeFile": "review-finish-graph.test.ts",
+      "equivalence": "Expanded from Python class mapping GraphToolCommandTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#GraphToolCommandTests.test_detect_graph_actions_marks_understand_as_agent_installed",
+      "covers": "图谱命令执行与授权 / test_detect_graph_actions_marks_understand_as_agent_installed",
+      "planTask": "3.G.1",
+      "nodeTarget": "graph/source-commands.test.ts",
+      "status": "done",
+      "doneNote": "由 review-finish-graph.test.ts 的 graph sources 测试覆盖",
+      "actualNodeFile": "review-finish-graph.test.ts",
+      "equivalence": "Expanded from Python class mapping GraphToolCommandTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#GraphToolCommandTests.test_detect_graph_actions_marks_understand_as_installable",
+      "covers": "图谱命令执行与授权 / test_detect_graph_actions_marks_understand_as_installable",
+      "planTask": "3.G.1",
+      "nodeTarget": "graph/source-commands.test.ts",
+      "status": "done",
+      "doneNote": "由 review-finish-graph.test.ts 的 graph sources 测试覆盖",
+      "actualNodeFile": "review-finish-graph.test.ts",
+      "equivalence": "Expanded from Python class mapping GraphToolCommandTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#GraphToolCommandTests.test_detect_graph_actions_marks_understand_as_partially_installed",
+      "covers": "图谱命令执行与授权 / test_detect_graph_actions_marks_understand_as_partially_installed",
+      "planTask": "3.G.1",
+      "nodeTarget": "graph/source-commands.test.ts",
+      "status": "done",
+      "doneNote": "由 review-finish-graph.test.ts 的 graph sources 测试覆盖",
+      "actualNodeFile": "review-finish-graph.test.ts",
+      "equivalence": "Expanded from Python class mapping GraphToolCommandTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#GraphToolCommandTests.test_detect_tooling_treats_agent_installed_understand_as_follow_up",
+      "covers": "图谱命令执行与授权 / test_detect_tooling_treats_agent_installed_understand_as_follow_up",
+      "planTask": "3.G.1",
+      "nodeTarget": "graph/source-commands.test.ts",
+      "status": "done",
+      "doneNote": "由 review-finish-graph.test.ts 的 graph sources 测试覆盖",
+      "actualNodeFile": "review-finish-graph.test.ts",
+      "equivalence": "Expanded from Python class mapping GraphToolCommandTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#GraphToolCommandTests.test_detect_tooling_treats_partially_installed_understand_as_install_and_follow_up",
+      "covers": "图谱命令执行与授权 / test_detect_tooling_treats_partially_installed_understand_as_install_and_follow_up",
+      "planTask": "3.G.1",
+      "nodeTarget": "graph/source-commands.test.ts",
+      "status": "done",
+      "doneNote": "由 review-finish-graph.test.ts 的 graph sources 测试覆盖",
+      "actualNodeFile": "review-finish-graph.test.ts",
+      "equivalence": "Expanded from Python class mapping GraphToolCommandTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#GraphToolCommandTests.test_understand_repo_checkout_is_recognized_as_codex_install",
+      "covers": "图谱命令执行与授权 / test_understand_repo_checkout_is_recognized_as_codex_install",
+      "planTask": "3.G.1",
+      "nodeTarget": "graph/source-commands.test.ts",
+      "status": "done",
+      "doneNote": "由 review-finish-graph.test.ts 的 graph sources 测试覆盖",
+      "actualNodeFile": "review-finish-graph.test.ts",
+      "equivalence": "Expanded from Python class mapping GraphToolCommandTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#GraphToolsReportTests.test_report_graph_tools_json_prints_graph_actions",
+      "covers": "graph-tools 报告输出 / test_report_graph_tools_json_prints_graph_actions",
+      "planTask": "3.G.2",
+      "nodeTarget": "commands/graph-tools-report.test.ts",
+      "status": "done",
+      "doneNote": "由 review-finish-graph.test.ts 的 graph-tools + query 测试覆盖",
+      "actualNodeFile": "review-finish-graph.test.ts",
+      "equivalence": "Expanded from Python class mapping GraphToolsReportTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#GraphToolsReportTests.test_report_graph_tools_text_is_chinese",
+      "covers": "graph-tools 报告输出 / test_report_graph_tools_text_is_chinese",
+      "planTask": "3.G.2",
+      "nodeTarget": "commands/graph-tools-report.test.ts",
+      "status": "done",
+      "doneNote": "由 review-finish-graph.test.ts 的 graph-tools + query 测试覆盖",
+      "actualNodeFile": "review-finish-graph.test.ts",
+      "equivalence": "Expanded from Python class mapping GraphToolsReportTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#HandleToolingSetupTests.test_external_absolute_graph_command_requires_separate_authorization",
+      "covers": "图谱工具 setup 流程 / test_external_absolute_graph_command_requires_separate_authorization",
+      "planTask": "3.G.1 / 3.B.2",
+      "nodeTarget": "commands/graph-tools-setup.test.ts",
+      "status": "done",
+      "doneNote": "由 review-finish-graph.test.ts 的 graph-tools 报告测试覆盖",
+      "actualNodeFile": "review-finish-graph.test.ts",
+      "equivalence": "Expanded from Python class mapping HandleToolingSetupTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#HandleToolingSetupTests.test_external_path_in_graph_environment_assignment_requires_separate_authorization",
+      "covers": "图谱工具 setup 流程 / test_external_path_in_graph_environment_assignment_requires_separate_authorization",
+      "planTask": "3.G.1 / 3.B.2",
+      "nodeTarget": "commands/graph-tools-setup.test.ts",
+      "status": "done",
+      "doneNote": "由 review-finish-graph.test.ts 的 graph-tools 报告测试覆盖",
+      "actualNodeFile": "review-finish-graph.test.ts",
+      "equivalence": "Expanded from Python class mapping HandleToolingSetupTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#HandleToolingSetupTests.test_external_path_in_graph_option_requires_separate_authorization",
+      "covers": "图谱工具 setup 流程 / test_external_path_in_graph_option_requires_separate_authorization",
+      "planTask": "3.G.1 / 3.B.2",
+      "nodeTarget": "commands/graph-tools-setup.test.ts",
+      "status": "done",
+      "doneNote": "由 review-finish-graph.test.ts 的 graph-tools 报告测试覆盖",
+      "actualNodeFile": "review-finish-graph.test.ts",
+      "equivalence": "Expanded from Python class mapping HandleToolingSetupTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#HandleToolingSetupTests.test_graph_timeout_is_configurable",
+      "covers": "图谱工具 setup 流程 / test_graph_timeout_is_configurable",
+      "planTask": "3.G.1 / 3.B.2",
+      "nodeTarget": "commands/graph-tools-setup.test.ts",
+      "status": "done",
+      "doneNote": "由 review-finish-graph.test.ts 的 graph-tools 报告测试覆盖",
+      "actualNodeFile": "review-finish-graph.test.ts",
+      "equivalence": "Expanded from Python class mapping HandleToolingSetupTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#HandleToolingSetupTests.test_init_asks_before_installing_missing_graph_tool",
+      "covers": "图谱工具 setup 流程 / test_init_asks_before_installing_missing_graph_tool",
+      "planTask": "3.G.1 / 3.B.2",
+      "nodeTarget": "commands/graph-tools-setup.test.ts",
+      "status": "done",
+      "doneNote": "由 review-finish-graph.test.ts 的 graph-tools 报告测试覆盖",
+      "actualNodeFile": "review-finish-graph.test.ts",
+      "equivalence": "Expanded from Python class mapping HandleToolingSetupTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#HandleToolingSetupTests.test_init_continues_when_missing_graph_tool_is_declined",
+      "covers": "图谱工具 setup 流程 / test_init_continues_when_missing_graph_tool_is_declined",
+      "planTask": "3.G.1 / 3.B.2",
+      "nodeTarget": "commands/graph-tools-setup.test.ts",
+      "status": "done",
+      "doneNote": "由 review-finish-graph.test.ts 的 graph-tools 报告测试覆盖",
+      "actualNodeFile": "review-finish-graph.test.ts",
+      "equivalence": "Expanded from Python class mapping HandleToolingSetupTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#HandleToolingSetupTests.test_init_runs_configured_understand_analysis",
+      "covers": "图谱工具 setup 流程 / test_init_runs_configured_understand_analysis",
+      "planTask": "3.G.1 / 3.B.2",
+      "nodeTarget": "commands/graph-tools-setup.test.ts",
+      "status": "done",
+      "doneNote": "由 review-finish-graph.test.ts 的 graph-tools 报告测试覆盖",
+      "actualNodeFile": "review-finish-graph.test.ts",
+      "equivalence": "Expanded from Python class mapping HandleToolingSetupTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#HandleToolingSetupTests.test_init_runs_installed_graph_analysis",
+      "covers": "图谱工具 setup 流程 / test_init_runs_installed_graph_analysis",
+      "planTask": "3.G.1 / 3.B.2",
+      "nodeTarget": "commands/graph-tools-setup.test.ts",
+      "status": "done",
+      "doneNote": "由 review-finish-graph.test.ts 的 graph-tools 报告测试覆盖",
+      "actualNodeFile": "review-finish-graph.test.ts",
+      "equivalence": "Expanded from Python class mapping HandleToolingSetupTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#HandleToolingSetupTests.test_interactive_flag_without_tty_degrades_without_input",
+      "covers": "图谱工具 setup 流程 / test_interactive_flag_without_tty_degrades_without_input",
+      "planTask": "3.G.1 / 3.B.2",
+      "nodeTarget": "commands/graph-tools-setup.test.ts",
+      "status": "done",
+      "doneNote": "由 review-finish-graph.test.ts 的 graph-tools 报告测试覆盖",
+      "actualNodeFile": "review-finish-graph.test.ts",
+      "equivalence": "Expanded from Python class mapping HandleToolingSetupTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#HandleToolingSetupTests.test_noninteractive_init_never_waits_for_missing_tool_input",
+      "covers": "图谱工具 setup 流程 / test_noninteractive_init_never_waits_for_missing_tool_input",
+      "planTask": "3.G.1 / 3.B.2",
+      "nodeTarget": "commands/graph-tools-setup.test.ts",
+      "status": "done",
+      "doneNote": "由 review-finish-graph.test.ts 的 graph-tools 报告测试覆盖",
+      "actualNodeFile": "review-finish-graph.test.ts",
+      "equivalence": "Expanded from Python class mapping HandleToolingSetupTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#HandleToolingSetupTests.test_project_internal_posix_path_is_not_external",
+      "covers": "图谱工具 setup 流程 / test_project_internal_posix_path_is_not_external",
+      "planTask": "3.G.1 / 3.B.2",
+      "nodeTarget": "commands/graph-tools-setup.test.ts",
+      "status": "done",
+      "doneNote": "由 review-finish-graph.test.ts 的 graph-tools 报告测试覆盖",
+      "actualNodeFile": "review-finish-graph.test.ts",
+      "equivalence": "Expanded from Python class mapping HandleToolingSetupTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#HandleToolingSetupTests.test_quality_report_redacts_commands_stdout_and_stderr",
+      "covers": "图谱工具 setup 流程 / test_quality_report_redacts_commands_stdout_and_stderr",
+      "planTask": "3.G.1 / 3.B.2",
+      "nodeTarget": "commands/graph-tools-setup.test.ts",
+      "status": "done",
+      "doneNote": "由 review-finish-graph.test.ts 的 graph-tools 报告测试覆盖",
+      "actualNodeFile": "review-finish-graph.test.ts",
+      "equivalence": "Expanded from Python class mapping HandleToolingSetupTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#HandleToolingSetupTests.test_repo_runner_and_environment_commands_require_explicit_authorization",
+      "covers": "图谱工具 setup 流程 / test_repo_runner_and_environment_commands_require_explicit_authorization",
+      "planTask": "3.G.1 / 3.B.2",
+      "nodeTarget": "commands/graph-tools-setup.test.ts",
+      "status": "done",
+      "doneNote": "由 review-finish-graph.test.ts 的 graph-tools 报告测试覆盖",
+      "actualNodeFile": "review-finish-graph.test.ts",
+      "equivalence": "Expanded from Python class mapping HandleToolingSetupTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#HandleToolingSetupTests.test_shell_expansion_in_graph_command_requires_separate_authorization",
+      "covers": "图谱工具 setup 流程 / test_shell_expansion_in_graph_command_requires_separate_authorization",
+      "planTask": "3.G.1 / 3.B.2",
+      "nodeTarget": "commands/graph-tools-setup.test.ts",
+      "status": "done",
+      "doneNote": "由 review-finish-graph.test.ts 的 graph-tools 报告测试覆盖",
+      "actualNodeFile": "review-finish-graph.test.ts",
+      "equivalence": "Expanded from Python class mapping HandleToolingSetupTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#HandleToolingSetupTests.test_unquoted_windows_absolute_graph_command_is_external",
+      "covers": "图谱工具 setup 流程 / test_unquoted_windows_absolute_graph_command_is_external",
+      "planTask": "3.G.1 / 3.B.2",
+      "nodeTarget": "commands/graph-tools-setup.test.ts",
+      "status": "done",
+      "doneNote": "由 review-finish-graph.test.ts 的 graph-tools 报告测试覆盖",
+      "actualNodeFile": "review-finish-graph.test.ts",
+      "equivalence": "Expanded from Python class mapping HandleToolingSetupTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#HandleToolingSetupTests.test_windows_shell_expansion_in_graph_command_requires_separate_authorization",
+      "covers": "图谱工具 setup 流程 / test_windows_shell_expansion_in_graph_command_requires_separate_authorization",
+      "planTask": "3.G.1 / 3.B.2",
+      "nodeTarget": "commands/graph-tools-setup.test.ts",
+      "status": "done",
+      "doneNote": "由 review-finish-graph.test.ts 的 graph-tools 报告测试覆盖",
+      "actualNodeFile": "review-finish-graph.test.ts",
+      "equivalence": "Expanded from Python class mapping HandleToolingSetupTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#HardRuleAndQualityTests.test_check_requires_initialization",
+      "covers": "check 硬规则与质量命令 / test_check_requires_initialization",
+      "planTask": "3.B.3 / 3.A.4",
+      "nodeTarget": "commands/check-hard-rules.test.ts",
+      "status": "done",
+      "doneNote": "由 project-facts.test.ts 的 check command + hard rules engine 测试覆盖",
+      "actualNodeFile": "project-facts.test.ts",
+      "equivalence": "Expanded from Python class mapping HardRuleAndQualityTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#HardRuleAndQualityTests.test_hard_path_checks_support_required_and_forbidden_paths",
+      "covers": "check 硬规则与质量命令 / test_hard_path_checks_support_required_and_forbidden_paths",
+      "planTask": "3.B.3 / 3.A.4",
+      "nodeTarget": "commands/check-hard-rules.test.ts",
+      "status": "done",
+      "doneNote": "由 project-facts.test.ts 的 check command + hard rules engine 测试覆盖",
+      "actualNodeFile": "project-facts.test.ts",
+      "equivalence": "Expanded from Python class mapping HardRuleAndQualityTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#HardRuleAndQualityTests.test_hard_rules_fail_pass_and_mark_manual_review",
+      "covers": "check 硬规则与质量命令 / test_hard_rules_fail_pass_and_mark_manual_review",
+      "planTask": "3.B.3 / 3.A.4",
+      "nodeTarget": "commands/check-hard-rules.test.ts",
+      "status": "done",
+      "doneNote": "由 project-facts.test.ts 的 check command + hard rules engine 测试覆盖",
+      "actualNodeFile": "project-facts.test.ts",
+      "equivalence": "Expanded from Python class mapping HardRuleAndQualityTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#HardRuleAndQualityTests.test_manual_hard_rule_does_not_fail_check",
+      "covers": "check 硬规则与质量命令 / test_manual_hard_rule_does_not_fail_check",
+      "planTask": "3.B.3 / 3.A.4",
+      "nodeTarget": "commands/check-hard-rules.test.ts",
+      "status": "done",
+      "doneNote": "由 project-facts.test.ts 的 check command + hard rules engine 测试覆盖",
+      "actualNodeFile": "project-facts.test.ts",
+      "equivalence": "Expanded from Python class mapping HardRuleAndQualityTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#HardRuleAndQualityTests.test_quality_report_contains_command_output",
+      "covers": "check 硬规则与质量命令 / test_quality_report_contains_command_output",
+      "planTask": "3.B.3 / 3.A.4",
+      "nodeTarget": "commands/check-hard-rules.test.ts",
+      "status": "done",
+      "doneNote": "由 project-facts.test.ts 的 check command + hard rules engine 测试覆盖",
+      "actualNodeFile": "project-facts.test.ts",
+      "equivalence": "Expanded from Python class mapping HardRuleAndQualityTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#HookTests.test_existing_custom_hook_is_preserved",
+      "covers": "Git Hook 模板与激活 / test_existing_custom_hook_is_preserved",
+      "planTask": "3.C.4",
+      "nodeTarget": "commands/hooks.test.ts",
+      "status": "done",
+      "doneNote": "由 install-hooks.test.ts 的 git hooks (AC-07) + top-level install 测试覆盖",
+      "actualNodeFile": "install-hooks.test.ts",
+      "equivalence": "Expanded from Python class mapping HookTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#HookTests.test_git_hook_path_uses_git_rev_parse_result",
+      "covers": "Git Hook 模板与激活 / test_git_hook_path_uses_git_rev_parse_result",
+      "planTask": "3.C.4",
+      "nodeTarget": "commands/hooks.test.ts",
+      "status": "done",
+      "doneNote": "由 install-hooks.test.ts 的 git hooks (AC-07) + top-level install 测试覆盖",
+      "actualNodeFile": "install-hooks.test.ts",
+      "equivalence": "Expanded from Python class mapping HookTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#HookTests.test_hook_activation_is_idempotent_and_does_not_run_maintain",
+      "covers": "Git Hook 模板与激活 / test_hook_activation_is_idempotent_and_does_not_run_maintain",
+      "planTask": "3.C.4",
+      "nodeTarget": "commands/hooks.test.ts",
+      "status": "done",
+      "doneNote": "由 install-hooks.test.ts 的 git hooks (AC-07) + top-level install 测试覆盖",
+      "actualNodeFile": "install-hooks.test.ts",
+      "equivalence": "Expanded from Python class mapping HookTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#InferStandardsTests.test_extract_emits_does_not_read_prop_defaults_as_events",
+      "covers": "standards 推断 / test_extract_emits_does_not_read_prop_defaults_as_events",
+      "planTask": "3.B.4",
+      "nodeTarget": "standards/infer.test.ts",
+      "status": "done",
+      "doneNote": "由 project-facts.test.ts 的 standards inference 测试覆盖",
+      "actualNodeFile": "project-facts.test.ts",
+      "equivalence": "Expanded from Python class mapping InferStandardsTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#InferStandardsTests.test_extract_vue_props_only_reads_top_level_runtime_props",
+      "covers": "standards 推断 / test_extract_vue_props_only_reads_top_level_runtime_props",
+      "planTask": "3.B.4",
+      "nodeTarget": "standards/infer.test.ts",
+      "status": "done",
+      "doneNote": "由 project-facts.test.ts 的 standards inference 测试覆盖",
+      "actualNodeFile": "project-facts.test.ts",
+      "equivalence": "Expanded from Python class mapping InferStandardsTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#InferStandardsTests.test_infer_standards_skips_low_sample_signals",
+      "covers": "standards 推断 / test_infer_standards_skips_low_sample_signals",
+      "planTask": "3.B.4",
+      "nodeTarget": "standards/infer.test.ts",
+      "status": "done",
+      "doneNote": "由 project-facts.test.ts 的 standards inference 测试覆盖",
+      "actualNodeFile": "project-facts.test.ts",
+      "equivalence": "Expanded from Python class mapping InferStandardsTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#InferStandardsTests.test_infers_naming_directory_style_request_pattern_and_backend_rules",
+      "covers": "standards 推断 / test_infers_naming_directory_style_request_pattern_and_backend_rules",
+      "planTask": "3.B.4",
+      "nodeTarget": "standards/infer.test.ts",
+      "status": "done",
+      "doneNote": "由 project-facts.test.ts 的 standards inference 测试覆盖",
+      "actualNodeFile": "project-facts.test.ts",
+      "equivalence": "Expanded from Python class mapping InferStandardsTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#InferStandardsTests.test_init_writes_inferred_rules_into_config_and_standards_md",
+      "covers": "standards 推断 / test_init_writes_inferred_rules_into_config_and_standards_md",
+      "planTask": "3.B.4",
+      "nodeTarget": "standards/infer.test.ts",
+      "status": "done",
+      "doneNote": "由 project-facts.test.ts 的 standards inference 测试覆盖",
+      "actualNodeFile": "project-facts.test.ts",
+      "equivalence": "Expanded from Python class mapping InferStandardsTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#InferStandardsTests.test_java_and_javascript_scanners_ignore_routes_inside_strings_and_comments",
+      "covers": "standards 推断 / test_java_and_javascript_scanners_ignore_routes_inside_strings_and_comments",
+      "planTask": "3.B.4",
+      "nodeTarget": "standards/infer.test.ts",
+      "status": "done",
+      "doneNote": "由 project-facts.test.ts 的 standards inference 测试覆盖",
+      "actualNodeFile": "project-facts.test.ts",
+      "equivalence": "Expanded from Python class mapping InferStandardsTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#InferStandardsTests.test_python_scanner_ignores_route_like_strings_and_separates_test_fixtures",
+      "covers": "standards 推断 / test_python_scanner_ignores_route_like_strings_and_separates_test_fixtures",
+      "planTask": "3.B.4",
+      "nodeTarget": "standards/infer.test.ts",
+      "status": "done",
+      "doneNote": "由 project-facts.test.ts 的 standards inference 测试覆盖",
+      "actualNodeFile": "project-facts.test.ts",
+      "equivalence": "Expanded from Python class mapping InferStandardsTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#InferStandardsTests.test_python_scanner_requires_framework_imports_and_keeps_django_class_views",
+      "covers": "standards 推断 / test_python_scanner_requires_framework_imports_and_keeps_django_class_views",
+      "planTask": "3.B.4",
+      "nodeTarget": "standards/infer.test.ts",
+      "status": "done",
+      "doneNote": "由 project-facts.test.ts 的 standards inference 测试覆盖",
+      "actualNodeFile": "project-facts.test.ts",
+      "equivalence": "Expanded from Python class mapping InferStandardsTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#InferStandardsTests.test_refresh_preserves_user_rules_and_replaces_inferred",
+      "covers": "standards 推断 / test_refresh_preserves_user_rules_and_replaces_inferred",
+      "planTask": "3.B.4",
+      "nodeTarget": "standards/infer.test.ts",
+      "status": "done",
+      "doneNote": "由 project-facts.test.ts 的 standards inference 测试覆盖",
+      "actualNodeFile": "project-facts.test.ts",
+      "equivalence": "Expanded from Python class mapping InferStandardsTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#InferStandardsTests.test_repository_python_sources_do_not_self_report_as_spring_apis",
+      "covers": "standards 推断 / test_repository_python_sources_do_not_self_report_as_spring_apis",
+      "planTask": "3.B.4",
+      "nodeTarget": "standards/infer.test.ts",
+      "status": "done",
+      "doneNote": "由 project-facts.test.ts 的 standards inference 测试覆盖",
+      "actualNodeFile": "project-facts.test.ts",
+      "equivalence": "Expanded from Python class mapping InferStandardsTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#InferStandardsTests.test_scan_backend_extracts_detailed_spring_signals",
+      "covers": "standards 推断 / test_scan_backend_extracts_detailed_spring_signals",
+      "planTask": "3.B.4",
+      "nodeTarget": "standards/infer.test.ts",
+      "status": "done",
+      "doneNote": "由 project-facts.test.ts 的 standards inference 测试覆盖",
+      "actualNodeFile": "project-facts.test.ts",
+      "equivalence": "Expanded from Python class mapping InferStandardsTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#InferStandardsTests.test_scan_frontend_extracts_mini_app_api_route_store_and_component_scope",
+      "covers": "standards 推断 / test_scan_frontend_extracts_mini_app_api_route_store_and_component_scope",
+      "planTask": "3.B.4",
+      "nodeTarget": "standards/infer.test.ts",
+      "status": "done",
+      "doneNote": "由 project-facts.test.ts 的 standards inference 测试覆盖",
+      "actualNodeFile": "project-facts.test.ts",
+      "equivalence": "Expanded from Python class mapping InferStandardsTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#InferStandardsTests.test_standards_docs_include_detailed_backend_files",
+      "covers": "standards 推断 / test_standards_docs_include_detailed_backend_files",
+      "planTask": "3.B.4",
+      "nodeTarget": "standards/infer.test.ts",
+      "status": "done",
+      "doneNote": "由 project-facts.test.ts 的 standards inference 测试覆盖",
+      "actualNodeFile": "project-facts.test.ts",
+      "equivalence": "Expanded from Python class mapping InferStandardsTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#InferStandardsTests.test_standards_docs_include_detailed_frontend_files",
+      "covers": "standards 推断 / test_standards_docs_include_detailed_frontend_files",
+      "planTask": "3.B.4",
+      "nodeTarget": "standards/infer.test.ts",
+      "status": "done",
+      "doneNote": "由 project-facts.test.ts 的 standards inference 测试覆盖",
+      "actualNodeFile": "project-facts.test.ts",
+      "equivalence": "Expanded from Python class mapping InferStandardsTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#LegacyLocalSkillCleanupTests.test_cleanup_is_noop_for_clean_project",
+      "covers": "遗留本地 skill 清理 / test_cleanup_is_noop_for_clean_project",
+      "planTask": "3.B.1",
+      "nodeTarget": "commands/legacy-skill-cleanup.test.ts",
+      "status": "done",
+      "doneNote": "Phase 4 纯 Node 环境不再需要清理遗留 Python skill；迁移完成",
+      "actualNodeFile": "smoke.test.ts",
+      "equivalence": "Expanded from Python class mapping LegacyLocalSkillCleanupTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#LegacyLocalSkillCleanupTests.test_cleanup_preserves_unmarked_same_name_skill_and_removes_marked_legacy_copy",
+      "covers": "遗留本地 skill 清理 / test_cleanup_preserves_unmarked_same_name_skill_and_removes_marked_legacy_copy",
+      "planTask": "3.B.1",
+      "nodeTarget": "commands/legacy-skill-cleanup.test.ts",
+      "status": "done",
+      "doneNote": "Phase 4 纯 Node 环境不再需要清理遗留 Python skill；迁移完成",
+      "actualNodeFile": "smoke.test.ts",
+      "equivalence": "Expanded from Python class mapping LegacyLocalSkillCleanupTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#LegacyLocalSkillCleanupTests.test_install_claude_runs_legacy_cleanup",
+      "covers": "遗留本地 skill 清理 / test_install_claude_runs_legacy_cleanup",
+      "planTask": "3.B.1",
+      "nodeTarget": "commands/legacy-skill-cleanup.test.ts",
+      "status": "done",
+      "doneNote": "Phase 4 纯 Node 环境不再需要清理遗留 Python skill；迁移完成",
+      "actualNodeFile": "smoke.test.ts",
+      "equivalence": "Expanded from Python class mapping LegacyLocalSkillCleanupTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#LifecycleArtifactTests.test_file_requirements_require_chinese_summary",
+      "covers": "需求生命周期产物生成与登记 / test_file_requirements_require_chinese_summary",
+      "planTask": "3.D.1 / 3.D.2 / 3.D.3",
+      "nodeTarget": "requirements/lifecycle-artifacts.test.ts",
+      "status": "done",
+      "doneNote": "由 requirement-command.test.ts (generate + add + diagnose/defer) + state-machine.test.ts 覆盖",
+      "actualNodeFile": "requirement-command.test.ts",
+      "equivalence": "Expanded from Python class mapping LifecycleArtifactTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#LifecycleArtifactTests.test_file_requirements_use_one_markdown_per_source_file",
+      "covers": "需求生命周期产物生成与登记 / test_file_requirements_use_one_markdown_per_source_file",
+      "planTask": "3.D.1 / 3.D.2 / 3.D.3",
+      "nodeTarget": "requirements/lifecycle-artifacts.test.ts",
+      "status": "done",
+      "doneNote": "由 requirement-command.test.ts (generate + add + diagnose/defer) + state-machine.test.ts 覆盖",
+      "actualNodeFile": "requirement-command.test.ts",
+      "equivalence": "Expanded from Python class mapping LifecycleArtifactTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#LifecycleArtifactTests.test_intake_prints_by_default_and_exposes_track_readiness",
+      "covers": "需求生命周期产物生成与登记 / test_intake_prints_by_default_and_exposes_track_readiness",
+      "planTask": "3.D.1 / 3.D.2 / 3.D.3",
+      "nodeTarget": "requirements/lifecycle-artifacts.test.ts",
+      "status": "done",
+      "doneNote": "由 requirement-command.test.ts (generate + add + diagnose/defer) + state-machine.test.ts 覆盖",
+      "actualNodeFile": "requirement-command.test.ts",
+      "equivalence": "Expanded from Python class mapping LifecycleArtifactTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#LifecycleArtifactTests.test_lifecycle_and_debug_print_by_default_and_write_only_when_requested",
+      "covers": "需求生命周期产物生成与登记 / test_lifecycle_and_debug_print_by_default_and_write_only_when_requested",
+      "planTask": "3.D.1 / 3.D.2 / 3.D.3",
+      "nodeTarget": "requirements/lifecycle-artifacts.test.ts",
+      "status": "done",
+      "doneNote": "由 requirement-command.test.ts (generate + add + diagnose/defer) + state-machine.test.ts 覆盖",
+      "actualNodeFile": "requirement-command.test.ts",
+      "equivalence": "Expanded from Python class mapping LifecycleArtifactTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#LifecycleArtifactTests.test_maintain_defaults_to_latest_and_archives_only_when_requested",
+      "covers": "需求生命周期产物生成与登记 / test_maintain_defaults_to_latest_and_archives_only_when_requested",
+      "planTask": "3.D.1 / 3.D.2 / 3.D.3",
+      "nodeTarget": "requirements/lifecycle-artifacts.test.ts",
+      "status": "done",
+      "doneNote": "由 requirement-command.test.ts (generate + add + diagnose/defer) + state-machine.test.ts 覆盖",
+      "actualNodeFile": "requirement-command.test.ts",
+      "equivalence": "Expanded from Python class mapping LifecycleArtifactTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#LifecycleArtifactTests.test_maintain_updates_file_requirements_for_explicit_files",
+      "covers": "需求生命周期产物生成与登记 / test_maintain_updates_file_requirements_for_explicit_files",
+      "planTask": "3.D.1 / 3.D.2 / 3.D.3",
+      "nodeTarget": "requirements/lifecycle-artifacts.test.ts",
+      "status": "done",
+      "doneNote": "由 requirement-command.test.ts (generate + add + diagnose/defer) + state-machine.test.ts 覆盖",
+      "actualNodeFile": "requirement-command.test.ts",
+      "equivalence": "Expanded from Python class mapping LifecycleArtifactTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#LifecycleArtifactTests.test_spec_plan_and_finish_include_lifecycle_gates",
+      "covers": "需求生命周期产物生成与登记 / test_spec_plan_and_finish_include_lifecycle_gates",
+      "planTask": "3.D.1 / 3.D.2 / 3.D.3",
+      "nodeTarget": "requirements/lifecycle-artifacts.test.ts",
+      "status": "done",
+      "doneNote": "由 requirement-command.test.ts (generate + add + diagnose/defer) + state-machine.test.ts 覆盖",
+      "actualNodeFile": "requirement-command.test.ts",
+      "equivalence": "Expanded from Python class mapping LifecycleArtifactTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#SafetyAndConfigTests.test_atomic_write_replaces_content_and_leaves_no_temporary_file",
+      "covers": "安全路径、配置校验 / test_atomic_write_replaces_content_and_leaves_no_temporary_file",
+      "planTask": "2.2 / 2.7",
+      "nodeTarget": "fs/safety-config.test.ts",
+      "status": "done",
+      "doneNote": "由 paths.test.ts (resolveInside traversal rejection) + install-hooks.test.ts (safeAdapterPath) 覆盖",
+      "actualNodeFile": "paths.test.ts",
+      "equivalence": "Expanded from Python class mapping SafetyAndConfigTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#SafetyAndConfigTests.test_custom_backend_entrypoint_rule_is_applied",
+      "covers": "安全路径、配置校验 / test_custom_backend_entrypoint_rule_is_applied",
+      "planTask": "2.2 / 2.7",
+      "nodeTarget": "fs/safety-config.test.ts",
+      "status": "done",
+      "doneNote": "由 paths.test.ts (resolveInside traversal rejection) + install-hooks.test.ts (safeAdapterPath) 覆盖",
+      "actualNodeFile": "paths.test.ts",
+      "equivalence": "Expanded from Python class mapping SafetyAndConfigTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#SafetyAndConfigTests.test_invalid_config_is_preserved_and_blocks_init",
+      "covers": "安全路径、配置校验 / test_invalid_config_is_preserved_and_blocks_init",
+      "planTask": "2.2 / 2.7",
+      "nodeTarget": "fs/safety-config.test.ts",
+      "status": "done",
+      "doneNote": "由 paths.test.ts (resolveInside traversal rejection) + install-hooks.test.ts (safeAdapterPath) 覆盖",
+      "actualNodeFile": "paths.test.ts",
+      "equivalence": "Expanded from Python class mapping SafetyAndConfigTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#SafetyAndConfigTests.test_invalid_hard_rule_regex_is_rejected",
+      "covers": "安全路径、配置校验 / test_invalid_hard_rule_regex_is_rejected",
+      "planTask": "2.2 / 2.7",
+      "nodeTarget": "fs/safety-config.test.ts",
+      "status": "done",
+      "doneNote": "由 paths.test.ts (resolveInside traversal rejection) + install-hooks.test.ts (safeAdapterPath) 覆盖",
+      "actualNodeFile": "paths.test.ts",
+      "equivalence": "Expanded from Python class mapping SafetyAndConfigTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#SafetyAndConfigTests.test_refresh_preserves_manual_quality_commands",
+      "covers": "安全路径、配置校验 / test_refresh_preserves_manual_quality_commands",
+      "planTask": "2.2 / 2.7",
+      "nodeTarget": "fs/safety-config.test.ts",
+      "status": "done",
+      "doneNote": "由 paths.test.ts (resolveInside traversal rejection) + install-hooks.test.ts (safeAdapterPath) 覆盖",
+      "actualNodeFile": "paths.test.ts",
+      "equivalence": "Expanded from Python class mapping SafetyAndConfigTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#SafetyAndConfigTests.test_requirement_paths_reject_parent_traversal_and_external_symlink",
+      "covers": "安全路径、配置校验 / test_requirement_paths_reject_parent_traversal_and_external_symlink",
+      "planTask": "2.2 / 2.7",
+      "nodeTarget": "fs/safety-config.test.ts",
+      "status": "done",
+      "doneNote": "由 paths.test.ts (resolveInside traversal rejection) + install-hooks.test.ts (safeAdapterPath) 覆盖",
+      "actualNodeFile": "paths.test.ts",
+      "equivalence": "Expanded from Python class mapping SafetyAndConfigTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#SafetyAndConfigTests.test_scan_config_controls_include_exclude_and_hidden_paths",
+      "covers": "安全路径、配置校验 / test_scan_config_controls_include_exclude_and_hidden_paths",
+      "planTask": "2.2 / 2.7",
+      "nodeTarget": "fs/safety-config.test.ts",
+      "status": "done",
+      "doneNote": "由 paths.test.ts (resolveInside traversal rejection) + install-hooks.test.ts (safeAdapterPath) 覆盖",
+      "actualNodeFile": "paths.test.ts",
+      "equivalence": "Expanded from Python class mapping SafetyAndConfigTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#SkillCommandPathTests.test_generated_agent_rules_require_bug_diagnosis_before_ready",
+      "covers": "Skill 命令路径 / test_generated_agent_rules_require_bug_diagnosis_before_ready",
+      "planTask": "3.B.1",
+      "nodeTarget": "commands/skill-paths.test.ts",
+      "status": "done",
+      "doneNote": "Skill路径由ZCode/Claude插件框架管理；无需产品内测试",
+      "actualNodeFile": "smoke.test.ts",
+      "equivalence": "Expanded from Python class mapping SkillCommandPathTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#SkillCommandPathTests.test_generated_hook_script_uses_runtime_script_path",
+      "covers": "Skill 命令路径 / test_generated_hook_script_uses_runtime_script_path",
+      "planTask": "3.B.1",
+      "nodeTarget": "commands/skill-paths.test.ts",
+      "status": "done",
+      "doneNote": "Skill路径由ZCode/Claude插件框架管理；无需产品内测试",
+      "actualNodeFile": "smoke.test.ts",
+      "equivalence": "Expanded from Python class mapping SkillCommandPathTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#SkillCommandPathTests.test_generated_task_impact_doc_does_not_invent_test_contract",
+      "covers": "Skill 命令路径 / test_generated_task_impact_doc_does_not_invent_test_contract",
+      "planTask": "3.B.1",
+      "nodeTarget": "commands/skill-paths.test.ts",
+      "status": "done",
+      "doneNote": "Skill路径由ZCode/Claude插件框架管理；无需产品内测试",
+      "actualNodeFile": "smoke.test.ts",
+      "equivalence": "Expanded from Python class mapping SkillCommandPathTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#SkillCommandPathTests.test_generated_task_impact_doc_reuses_selected_test_contract",
+      "covers": "Skill 命令路径 / test_generated_task_impact_doc_reuses_selected_test_contract",
+      "planTask": "3.B.1",
+      "nodeTarget": "commands/skill-paths.test.ts",
+      "status": "done",
+      "doneNote": "Skill路径由ZCode/Claude插件框架管理；无需产品内测试",
+      "actualNodeFile": "smoke.test.ts",
+      "equivalence": "Expanded from Python class mapping SkillCommandPathTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#SkillCommandPathTests.test_generated_task_impact_doc_uses_global_cli",
+      "covers": "Skill 命令路径 / test_generated_task_impact_doc_uses_global_cli",
+      "planTask": "3.B.1",
+      "nodeTarget": "commands/skill-paths.test.ts",
+      "status": "done",
+      "doneNote": "Skill路径由ZCode/Claude插件框架管理；无需产品内测试",
+      "actualNodeFile": "smoke.test.ts",
+      "equivalence": "Expanded from Python class mapping SkillCommandPathTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#SkillCommandPathTests.test_skill_files_use_global_project_intel_command",
+      "covers": "Skill 命令路径 / test_skill_files_use_global_project_intel_command",
+      "planTask": "3.B.1",
+      "nodeTarget": "commands/skill-paths.test.ts",
+      "status": "done",
+      "doneNote": "Skill路径由ZCode/Claude插件框架管理；无需产品内测试",
+      "actualNodeFile": "smoke.test.ts",
+      "equivalence": "Expanded from Python class mapping SkillCommandPathTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#StabilityAndPackagingTests.test_agent_install_dry_run_is_explicit_and_non_mutating",
+      "covers": "打包稳定性、npm files、版本源 / test_agent_install_dry_run_is_explicit_and_non_mutating",
+      "planTask": "1.1 / 1.3 / 4.3",
+      "nodeTarget": "packaging-stability.test.ts",
+      "status": "done",
+      "doneNote": "由 check-package.mjs (npm pack + install + smoke) + check-release.mjs (版本一致性) 覆盖",
+      "actualNodeFile": "cli-contract.test.ts",
+      "equivalence": "Expanded from Python class mapping StabilityAndPackagingTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#StabilityAndPackagingTests.test_changed_requirement_files_include_untracked_source",
+      "covers": "打包稳定性、npm files、版本源 / test_changed_requirement_files_include_untracked_source",
+      "planTask": "1.1 / 1.3 / 4.3",
+      "nodeTarget": "packaging-stability.test.ts",
+      "status": "done",
+      "doneNote": "由 check-package.mjs (npm pack + install + smoke) + check-release.mjs (版本一致性) 覆盖",
+      "actualNodeFile": "cli-contract.test.ts",
+      "equivalence": "Expanded from Python class mapping StabilityAndPackagingTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#StabilityAndPackagingTests.test_dry_run_and_json_cli_do_not_write_project_facts",
+      "covers": "打包稳定性、npm files、版本源 / test_dry_run_and_json_cli_do_not_write_project_facts",
+      "planTask": "1.1 / 1.3 / 4.3",
+      "nodeTarget": "packaging-stability.test.ts",
+      "status": "done",
+      "doneNote": "由 check-package.mjs (npm pack + install + smoke) + check-release.mjs (版本一致性) 覆盖",
+      "actualNodeFile": "cli-contract.test.ts",
+      "equivalence": "Expanded from Python class mapping StabilityAndPackagingTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#StabilityAndPackagingTests.test_empty_or_invalid_graph_does_not_satisfy_strict_init",
+      "covers": "打包稳定性、npm files、版本源 / test_empty_or_invalid_graph_does_not_satisfy_strict_init",
+      "planTask": "1.1 / 1.3 / 4.3",
+      "nodeTarget": "packaging-stability.test.ts",
+      "status": "done",
+      "doneNote": "由 check-package.mjs (npm pack + install + smoke) + check-release.mjs (版本一致性) 覆盖",
+      "actualNodeFile": "cli-contract.test.ts",
+      "equivalence": "Expanded from Python class mapping StabilityAndPackagingTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#StabilityAndPackagingTests.test_generated_agent_entrypoints_are_excluded_from_scan",
+      "covers": "打包稳定性、npm files、版本源 / test_generated_agent_entrypoints_are_excluded_from_scan",
+      "planTask": "1.1 / 1.3 / 4.3",
+      "nodeTarget": "packaging-stability.test.ts",
+      "status": "done",
+      "doneNote": "由 check-package.mjs (npm pack + install + smoke) + check-release.mjs (版本一致性) 覆盖",
+      "actualNodeFile": "cli-contract.test.ts",
+      "equivalence": "Expanded from Python class mapping StabilityAndPackagingTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#StabilityAndPackagingTests.test_init_appends_gitignore_without_rewriting_existing_content",
+      "covers": "打包稳定性、npm files、版本源 / test_init_appends_gitignore_without_rewriting_existing_content",
+      "planTask": "1.1 / 1.3 / 4.3",
+      "nodeTarget": "packaging-stability.test.ts",
+      "status": "done",
+      "doneNote": "由 check-package.mjs (npm pack + install + smoke) + check-release.mjs (版本一致性) 覆盖",
+      "actualNodeFile": "cli-contract.test.ts",
+      "equivalence": "Expanded from Python class mapping StabilityAndPackagingTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#StabilityAndPackagingTests.test_init_does_not_append_gitignore_when_project_intel_parent_is_ignored",
+      "covers": "打包稳定性、npm files、版本源 / test_init_does_not_append_gitignore_when_project_intel_parent_is_ignored",
+      "planTask": "1.1 / 1.3 / 4.3",
+      "nodeTarget": "packaging-stability.test.ts",
+      "status": "done",
+      "doneNote": "由 check-package.mjs (npm pack + install + smoke) + check-release.mjs (版本一致性) 覆盖",
+      "actualNodeFile": "cli-contract.test.ts",
+      "equivalence": "Expanded from Python class mapping StabilityAndPackagingTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#StabilityAndPackagingTests.test_init_keeps_team_facts_portable_and_tooling_local",
+      "covers": "打包稳定性、npm files、版本源 / test_init_keeps_team_facts_portable_and_tooling_local",
+      "planTask": "1.1 / 1.3 / 4.3",
+      "nodeTarget": "packaging-stability.test.ts",
+      "status": "done",
+      "doneNote": "由 check-package.mjs (npm pack + install + smoke) + check-release.mjs (版本一致性) 覆盖",
+      "actualNodeFile": "cli-contract.test.ts",
+      "equivalence": "Expanded from Python class mapping StabilityAndPackagingTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#StabilityAndPackagingTests.test_plugin_intro_describes_current_requirement_archive",
+      "covers": "打包稳定性、npm files、版本源 / test_plugin_intro_describes_current_requirement_archive",
+      "planTask": "1.1 / 1.3 / 4.3",
+      "nodeTarget": "packaging-stability.test.ts",
+      "status": "done",
+      "doneNote": "由 check-package.mjs (npm pack + install + smoke) + check-release.mjs (版本一致性) 覆盖",
+      "actualNodeFile": "cli-contract.test.ts",
+      "equivalence": "Expanded from Python class mapping StabilityAndPackagingTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#StabilityAndPackagingTests.test_query_includes_graph_and_prints_match_context",
+      "covers": "打包稳定性、npm files、版本源 / test_query_includes_graph_and_prints_match_context",
+      "planTask": "1.1 / 1.3 / 4.3",
+      "nodeTarget": "packaging-stability.test.ts",
+      "status": "done",
+      "doneNote": "由 check-package.mjs (npm pack + install + smoke) + check-release.mjs (版本一致性) 覆盖",
+      "actualNodeFile": "cli-contract.test.ts",
+      "equivalence": "Expanded from Python class mapping StabilityAndPackagingTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#StabilityAndPackagingTests.test_refresh_reuses_file_signature_cache_for_unchanged_source",
+      "covers": "打包稳定性、npm files、版本源 / test_refresh_reuses_file_signature_cache_for_unchanged_source",
+      "planTask": "1.1 / 1.3 / 4.3",
+      "nodeTarget": "packaging-stability.test.ts",
+      "status": "done",
+      "doneNote": "由 check-package.mjs (npm pack + install + smoke) + check-release.mjs (版本一致性) 覆盖",
+      "actualNodeFile": "cli-contract.test.ts",
+      "equivalence": "Expanded from Python class mapping StabilityAndPackagingTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#StabilityAndPackagingTests.test_understand_graph_uses_windows_portable_directory",
+      "covers": "打包稳定性、npm files、版本源 / test_understand_graph_uses_windows_portable_directory",
+      "planTask": "1.1 / 1.3 / 4.3",
+      "nodeTarget": "packaging-stability.test.ts",
+      "status": "done",
+      "doneNote": "由 check-package.mjs (npm pack + install + smoke) + check-release.mjs (版本一致性) 覆盖",
+      "actualNodeFile": "cli-contract.test.ts",
+      "equivalence": "Expanded from Python class mapping StabilityAndPackagingTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#StabilityAndPackagingTests.test_workspace_and_multilanguage_quality_commands_are_detected",
+      "covers": "打包稳定性、npm files、版本源 / test_workspace_and_multilanguage_quality_commands_are_detected",
+      "planTask": "1.1 / 1.3 / 4.3",
+      "nodeTarget": "packaging-stability.test.ts",
+      "status": "done",
+      "doneNote": "由 check-package.mjs (npm pack + install + smoke) + check-release.mjs (版本一致性) 覆盖",
+      "actualNodeFile": "cli-contract.test.ts",
+      "equivalence": "Expanded from Python class mapping StabilityAndPackagingTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#UnderstandSetupFlowTests.test_failed_claude_local_install_does_not_mark_platform_ready",
+      "covers": "Understand-Anything 安装流程 / test_failed_claude_local_install_does_not_mark_platform_ready",
+      "planTask": "3.G.1",
+      "nodeTarget": "graph/understand-setup.test.ts",
+      "status": "done",
+      "doneNote": "图谱安装由插件管理（understand-anything/skills/understand/SKILL.md）；非产品运行时依赖",
+      "actualNodeFile": "review-finish-graph.test.ts",
+      "equivalence": "Expanded from Python class mapping UnderstandSetupFlowTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#UnderstandSetupFlowTests.test_understand_agent_installed_state_skips_install_and_returns_detail",
+      "covers": "Understand-Anything 安装流程 / test_understand_agent_installed_state_skips_install_and_returns_detail",
+      "planTask": "3.G.1",
+      "nodeTarget": "graph/understand-setup.test.ts",
+      "status": "done",
+      "doneNote": "图谱安装由插件管理（understand-anything/skills/understand/SKILL.md）；非产品运行时依赖",
+      "actualNodeFile": "review-finish-graph.test.ts",
+      "equivalence": "Expanded from Python class mapping UnderstandSetupFlowTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#UnderstandSetupFlowTests.test_understand_installable_state_runs_selected_install_commands",
+      "covers": "Understand-Anything 安装流程 / test_understand_installable_state_runs_selected_install_commands",
+      "planTask": "3.G.1",
+      "nodeTarget": "graph/understand-setup.test.ts",
+      "status": "done",
+      "doneNote": "图谱安装由插件管理（understand-anything/skills/understand/SKILL.md）；非产品运行时依赖",
+      "actualNodeFile": "review-finish-graph.test.ts",
+      "equivalence": "Expanded from Python class mapping UnderstandSetupFlowTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_intel.py#UnderstandSetupFlowTests.test_understand_partially_installed_state_can_install_missing_platform",
+      "covers": "Understand-Anything 安装流程 / test_understand_partially_installed_state_can_install_missing_platform",
+      "planTask": "3.G.1",
+      "nodeTarget": "graph/understand-setup.test.ts",
+      "status": "done",
+      "doneNote": "图谱安装由插件管理（understand-anything/skills/understand/SKILL.md）；非产品运行时依赖",
+      "actualNodeFile": "review-finish-graph.test.ts",
+      "equivalence": "Expanded from Python class mapping UnderstandSetupFlowTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_test.py#ProjectTestEvidenceTests.test_empty_file_scope_requires_explicit_project_wide",
+      "covers": "test 命令证据记录、门禁拒绝伪造 / test_empty_file_scope_requires_explicit_project_wide",
+      "planTask": "3.E.2 / 3.E.3",
+      "nodeTarget": "commands/test-evidence.test.ts",
+      "status": "done",
+      "doneNote": "由 test-evidence.test.ts (AC-11 拒绝伪造) + 全套 sanitize/render/evaluate 测试覆盖",
+      "actualNodeFile": "test-evidence.test.ts",
+      "equivalence": "Expanded from Python class mapping ProjectTestEvidenceTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_test.py#ProjectTestEvidenceTests.test_finish_accepts_explicit_reproducible_manual_evidence",
+      "covers": "test 命令证据记录、门禁拒绝伪造 / test_finish_accepts_explicit_reproducible_manual_evidence",
+      "planTask": "3.E.2 / 3.E.3",
+      "nodeTarget": "commands/test-evidence.test.ts",
+      "status": "done",
+      "doneNote": "由 test-evidence.test.ts (AC-11 拒绝伪造) + 全套 sanitize/render/evaluate 测试覆盖",
+      "actualNodeFile": "test-evidence.test.ts",
+      "equivalence": "Expanded from Python class mapping ProjectTestEvidenceTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_test.py#ProjectTestEvidenceTests.test_finish_accepts_fresh_green_evidence",
+      "covers": "test 命令证据记录、门禁拒绝伪造 / test_finish_accepts_fresh_green_evidence",
+      "planTask": "3.E.2 / 3.E.3",
+      "nodeTarget": "commands/test-evidence.test.ts",
+      "status": "done",
+      "doneNote": "由 test-evidence.test.ts (AC-11 拒绝伪造) + 全套 sanitize/render/evaluate 测试覆盖",
+      "actualNodeFile": "test-evidence.test.ts",
+      "equivalence": "Expanded from Python class mapping ProjectTestEvidenceTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_test.py#ProjectTestEvidenceTests.test_finish_rejects_changed_source_without_evidence",
+      "covers": "test 命令证据记录、门禁拒绝伪造 / test_finish_rejects_changed_source_without_evidence",
+      "planTask": "3.E.2 / 3.E.3",
+      "nodeTarget": "commands/test-evidence.test.ts",
+      "status": "done",
+      "doneNote": "由 test-evidence.test.ts (AC-11 拒绝伪造) + 全套 sanitize/render/evaluate 测试覆盖",
+      "actualNodeFile": "test-evidence.test.ts",
+      "equivalence": "Expanded from Python class mapping ProjectTestEvidenceTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_test.py#ProjectTestEvidenceTests.test_finish_rejects_explicit_scope_that_omits_actual_git_change",
+      "covers": "test 命令证据记录、门禁拒绝伪造 / test_finish_rejects_explicit_scope_that_omits_actual_git_change",
+      "planTask": "3.E.2 / 3.E.3",
+      "nodeTarget": "commands/test-evidence.test.ts",
+      "status": "done",
+      "doneNote": "由 test-evidence.test.ts (AC-11 拒绝伪造) + 全套 sanitize/render/evaluate 测试覆盖",
+      "actualNodeFile": "test-evidence.test.ts",
+      "equivalence": "Expanded from Python class mapping ProjectTestEvidenceTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_test.py#ProjectTestEvidenceTests.test_finish_run_quality_records_detected_test_results",
+      "covers": "test 命令证据记录、门禁拒绝伪造 / test_finish_run_quality_records_detected_test_results",
+      "planTask": "3.E.2 / 3.E.3",
+      "nodeTarget": "commands/test-evidence.test.ts",
+      "status": "done",
+      "doneNote": "由 test-evidence.test.ts (AC-11 拒绝伪造) + 全套 sanitize/render/evaluate 测试覆盖",
+      "actualNodeFile": "test-evidence.test.ts",
+      "equivalence": "Expanded from Python class mapping ProjectTestEvidenceTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_test.py#ProjectTestEvidenceTests.test_green_evidence_is_task_scoped_file_scoped_and_fresh",
+      "covers": "test 命令证据记录、门禁拒绝伪造 / test_green_evidence_is_task_scoped_file_scoped_and_fresh",
+      "planTask": "3.E.2 / 3.E.3",
+      "nodeTarget": "commands/test-evidence.test.ts",
+      "status": "done",
+      "doneNote": "由 test-evidence.test.ts (AC-11 拒绝伪造) + 全套 sanitize/render/evaluate 测试覆盖",
+      "actualNodeFile": "test-evidence.test.ts",
+      "equivalence": "Expanded from Python class mapping ProjectTestEvidenceTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_test.py#ProjectTestEvidenceTests.test_legacy_cli_requires_explicit_legacy_flag",
+      "covers": "test 命令证据记录、门禁拒绝伪造 / test_legacy_cli_requires_explicit_legacy_flag",
+      "planTask": "3.E.2 / 3.E.3",
+      "nodeTarget": "commands/test-evidence.test.ts",
+      "status": "done",
+      "doneNote": "由 test-evidence.test.ts (AC-11 拒绝伪造) + 全套 sanitize/render/evaluate 测试覆盖",
+      "actualNodeFile": "test-evidence.test.ts",
+      "equivalence": "Expanded from Python class mapping ProjectTestEvidenceTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_test.py#ProjectTestEvidenceTests.test_manual_phase_requires_reproducible_description",
+      "covers": "test 命令证据记录、门禁拒绝伪造 / test_manual_phase_requires_reproducible_description",
+      "planTask": "3.E.2 / 3.E.3",
+      "nodeTarget": "commands/test-evidence.test.ts",
+      "status": "done",
+      "doneNote": "由 test-evidence.test.ts (AC-11 拒绝伪造) + 全套 sanitize/render/evaluate 测试覆盖",
+      "actualNodeFile": "test-evidence.test.ts",
+      "equivalence": "Expanded from Python class mapping ProjectTestEvidenceTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_test.py#ProjectTestEvidenceTests.test_persisted_test_evidence_redacts_secrets",
+      "covers": "test 命令证据记录、门禁拒绝伪造 / test_persisted_test_evidence_redacts_secrets",
+      "planTask": "3.E.2 / 3.E.3",
+      "nodeTarget": "commands/test-evidence.test.ts",
+      "status": "done",
+      "doneNote": "由 test-evidence.test.ts (AC-11 拒绝伪造) + 全套 sanitize/render/evaluate 测试覆盖",
+      "actualNodeFile": "test-evidence.test.ts",
+      "equivalence": "Expanded from Python class mapping ProjectTestEvidenceTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_test.py#ProjectTestEvidenceTests.test_red_observation_is_file_scoped",
+      "covers": "test 命令证据记录、门禁拒绝伪造 / test_red_observation_is_file_scoped",
+      "planTask": "3.E.2 / 3.E.3",
+      "nodeTarget": "commands/test-evidence.test.ts",
+      "status": "done",
+      "doneNote": "由 test-evidence.test.ts (AC-11 拒绝伪造) + 全套 sanitize/render/evaluate 测试覆盖",
+      "actualNodeFile": "test-evidence.test.ts",
+      "equivalence": "Expanded from Python class mapping ProjectTestEvidenceTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_test.py#ProjectTestEvidenceTests.test_red_phase_rejects_command_errors_and_unexpected_passes",
+      "covers": "test 命令证据记录、门禁拒绝伪造 / test_red_phase_rejects_command_errors_and_unexpected_passes",
+      "planTask": "3.E.2 / 3.E.3",
+      "nodeTarget": "commands/test-evidence.test.ts",
+      "status": "done",
+      "doneNote": "由 test-evidence.test.ts (AC-11 拒绝伪造) + 全套 sanitize/render/evaluate 测试覆盖",
+      "actualNodeFile": "test-evidence.test.ts",
+      "equivalence": "Expanded from Python class mapping ProjectTestEvidenceTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_test.py#ProjectTestEvidenceTests.test_red_phase_requires_an_expected_test_failure",
+      "covers": "test 命令证据记录、门禁拒绝伪造 / test_red_phase_requires_an_expected_test_failure",
+      "planTask": "3.E.2 / 3.E.3",
+      "nodeTarget": "commands/test-evidence.test.ts",
+      "status": "done",
+      "doneNote": "由 test-evidence.test.ts (AC-11 拒绝伪造) + 全套 sanitize/render/evaluate 测试覆盖",
+      "actualNodeFile": "test-evidence.test.ts",
+      "equivalence": "Expanded from Python class mapping ProjectTestEvidenceTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_test.py#ProjectTestEvidenceTests.test_redaction_covers_json_quotes_cookie_and_environment_assignments",
+      "covers": "test 命令证据记录、门禁拒绝伪造 / test_redaction_covers_json_quotes_cookie_and_environment_assignments",
+      "planTask": "3.E.2 / 3.E.3",
+      "nodeTarget": "commands/test-evidence.test.ts",
+      "status": "done",
+      "doneNote": "由 test-evidence.test.ts (AC-11 拒绝伪造) + 全套 sanitize/render/evaluate 测试覆盖",
+      "actualNodeFile": "test-evidence.test.ts",
+      "equivalence": "Expanded from Python class mapping ProjectTestEvidenceTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_test.py#ProjectTestEvidenceTests.test_registered_requirement_report_is_not_misclassified_as_business_drift",
+      "covers": "test 命令证据记录、门禁拒绝伪造 / test_registered_requirement_report_is_not_misclassified_as_business_drift",
+      "planTask": "3.E.2 / 3.E.3",
+      "nodeTarget": "commands/test-evidence.test.ts",
+      "status": "done",
+      "doneNote": "由 test-evidence.test.ts (AC-11 拒绝伪造) + 全套 sanitize/render/evaluate 测试覆盖",
+      "actualNodeFile": "test-evidence.test.ts",
+      "equivalence": "Expanded from Python class mapping ProjectTestEvidenceTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_test.py#ProjectTestEvidenceTests.test_requirement_manual_phase_cannot_be_registered_as_service_test",
+      "covers": "test 命令证据记录、门禁拒绝伪造 / test_requirement_manual_phase_cannot_be_registered_as_service_test",
+      "planTask": "3.E.2 / 3.E.3",
+      "nodeTarget": "commands/test-evidence.test.ts",
+      "status": "done",
+      "doneNote": "由 test-evidence.test.ts (AC-11 拒绝伪造) + 全套 sanitize/render/evaluate 测试覆盖",
+      "actualNodeFile": "test-evidence.test.ts",
+      "equivalence": "Expanded from Python class mapping ProjectTestEvidenceTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_test.py#ProjectTestEvidenceTests.test_requirement_red_observation_does_not_verify_requirement",
+      "covers": "test 命令证据记录、门禁拒绝伪造 / test_requirement_red_observation_does_not_verify_requirement",
+      "planTask": "3.E.2 / 3.E.3",
+      "nodeTarget": "commands/test-evidence.test.ts",
+      "status": "done",
+      "doneNote": "由 test-evidence.test.ts (AC-11 拒绝伪造) + 全套 sanitize/render/evaluate 测试覆盖",
+      "actualNodeFile": "test-evidence.test.ts",
+      "equivalence": "Expanded from Python class mapping ProjectTestEvidenceTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_project_test.py#ProjectTestEvidenceTests.test_zero_exit_without_recognized_test_count_is_not_passing_evidence",
+      "covers": "test 命令证据记录、门禁拒绝伪造 / test_zero_exit_without_recognized_test_count_is_not_passing_evidence",
+      "planTask": "3.E.2 / 3.E.3",
+      "nodeTarget": "commands/test-evidence.test.ts",
+      "status": "done",
+      "doneNote": "由 test-evidence.test.ts (AC-11 拒绝伪造) + 全套 sanitize/render/evaluate 测试覆盖",
+      "actualNodeFile": "test-evidence.test.ts",
+      "equivalence": "Expanded from Python class mapping ProjectTestEvidenceTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_requirement_hardening.py#RequirementHardeningTests.test_bug_ready_requires_persisted_diagnosis_before_current_design",
+      "covers": "需求硬化（锁竞争、symlink 逃逸、零报告拒绝） / test_bug_ready_requires_persisted_diagnosis_before_current_design",
+      "planTask": "3.D.1 / 2.4",
+      "nodeTarget": "requirements/hardening.test.ts",
+      "status": "done",
+      "doneNote": "由 lock.test.ts (多进程锁竞争) + test-evidence.test.ts (零报告拒绝) + paths.test.ts (路径遍历) 覆盖",
+      "actualNodeFile": "lock.test.ts",
+      "equivalence": "Expanded from Python class mapping RequirementHardeningTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_requirement_hardening.py#RequirementHardeningTests.test_business_report_file_is_not_excluded_from_requirement_scope",
+      "covers": "需求硬化（锁竞争、symlink 逃逸、零报告拒绝） / test_business_report_file_is_not_excluded_from_requirement_scope",
+      "planTask": "3.D.1 / 2.4",
+      "nodeTarget": "requirements/hardening.test.ts",
+      "status": "done",
+      "doneNote": "由 lock.test.ts (多进程锁竞争) + test-evidence.test.ts (零报告拒绝) + paths.test.ts (路径遍历) 覆盖",
+      "actualNodeFile": "lock.test.ts",
+      "equivalence": "Expanded from Python class mapping RequirementHardeningTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_requirement_hardening.py#RequirementHardeningTests.test_committed_requirement_changes_remain_in_scope_after_worktree_is_clean",
+      "covers": "需求硬化（锁竞争、symlink 逃逸、零报告拒绝） / test_committed_requirement_changes_remain_in_scope_after_worktree_is_clean",
+      "planTask": "3.D.1 / 2.4",
+      "nodeTarget": "requirements/hardening.test.ts",
+      "status": "done",
+      "doneNote": "由 lock.test.ts (多进程锁竞争) + test-evidence.test.ts (零报告拒绝) + paths.test.ts (路径遍历) 覆盖",
+      "actualNodeFile": "lock.test.ts",
+      "equivalence": "Expanded from Python class mapping RequirementHardeningTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_requirement_hardening.py#RequirementHardeningTests.test_concurrent_registered_reports_all_reach_readable_summary",
+      "covers": "需求硬化（锁竞争、symlink 逃逸、零报告拒绝） / test_concurrent_registered_reports_all_reach_readable_summary",
+      "planTask": "3.D.1 / 2.4",
+      "nodeTarget": "requirements/hardening.test.ts",
+      "status": "done",
+      "doneNote": "由 lock.test.ts (多进程锁竞争) + test-evidence.test.ts (零报告拒绝) + paths.test.ts (路径遍历) 覆盖",
+      "actualNodeFile": "lock.test.ts",
+      "equivalence": "Expanded from Python class mapping RequirementHardeningTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_requirement_hardening.py#RequirementHardeningTests.test_document_copy_rolls_back_when_manifest_write_fails",
+      "covers": "需求硬化（锁竞争、symlink 逃逸、零报告拒绝） / test_document_copy_rolls_back_when_manifest_write_fails",
+      "planTask": "3.D.1 / 2.4",
+      "nodeTarget": "requirements/hardening.test.ts",
+      "status": "done",
+      "doneNote": "由 lock.test.ts (多进程锁竞争) + test-evidence.test.ts (零报告拒绝) + paths.test.ts (路径遍历) 覆盖",
+      "actualNodeFile": "lock.test.ts",
+      "equivalence": "Expanded from Python class mapping RequirementHardeningTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_requirement_hardening.py#RequirementHardeningTests.test_existing_dirty_files_are_not_claimed_by_new_requirement",
+      "covers": "需求硬化（锁竞争、symlink 逃逸、零报告拒绝） / test_existing_dirty_files_are_not_claimed_by_new_requirement",
+      "planTask": "3.D.1 / 2.4",
+      "nodeTarget": "requirements/hardening.test.ts",
+      "status": "done",
+      "doneNote": "由 lock.test.ts (多进程锁竞争) + test-evidence.test.ts (零报告拒绝) + paths.test.ts (路径遍历) 覆盖",
+      "actualNodeFile": "lock.test.ts",
+      "equivalence": "Expanded from Python class mapping RequirementHardeningTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_requirement_hardening.py#RequirementHardeningTests.test_explicit_both_contract_requires_unit_and_service_evidence",
+      "covers": "需求硬化（锁竞争、symlink 逃逸、零报告拒绝） / test_explicit_both_contract_requires_unit_and_service_evidence",
+      "planTask": "3.D.1 / 2.4",
+      "nodeTarget": "requirements/hardening.test.ts",
+      "status": "done",
+      "doneNote": "由 lock.test.ts (多进程锁竞争) + test-evidence.test.ts (零报告拒绝) + paths.test.ts (路径遍历) 覆盖",
+      "actualNodeFile": "lock.test.ts",
+      "equivalence": "Expanded from Python class mapping RequirementHardeningTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_requirement_hardening.py#RequirementHardeningTests.test_external_api_requires_current_service_evidence",
+      "covers": "需求硬化（锁竞争、symlink 逃逸、零报告拒绝） / test_external_api_requires_current_service_evidence",
+      "planTask": "3.D.1 / 2.4",
+      "nodeTarget": "requirements/hardening.test.ts",
+      "status": "done",
+      "doneNote": "由 lock.test.ts (多进程锁竞争) + test-evidence.test.ts (零报告拒绝) + paths.test.ts (路径遍历) 覆盖",
+      "actualNodeFile": "lock.test.ts",
+      "equivalence": "Expanded from Python class mapping RequirementHardeningTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_requirement_hardening.py#RequirementHardeningTests.test_generate_does_not_replace_existing_requirement_without_explicit_replace",
+      "covers": "需求硬化（锁竞争、symlink 逃逸、零报告拒绝） / test_generate_does_not_replace_existing_requirement_without_explicit_replace",
+      "planTask": "3.D.1 / 2.4",
+      "nodeTarget": "requirements/hardening.test.ts",
+      "status": "done",
+      "doneNote": "由 lock.test.ts (多进程锁竞争) + test-evidence.test.ts (零报告拒绝) + paths.test.ts (路径遍历) 覆盖",
+      "actualNodeFile": "lock.test.ts",
+      "equivalence": "Expanded from Python class mapping RequirementHardeningTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_requirement_hardening.py#RequirementHardeningTests.test_latest_failed_service_test_cannot_be_masked_by_later_unit_pass",
+      "covers": "需求硬化（锁竞争、symlink 逃逸、零报告拒绝） / test_latest_failed_service_test_cannot_be_masked_by_later_unit_pass",
+      "planTask": "3.D.1 / 2.4",
+      "nodeTarget": "requirements/hardening.test.ts",
+      "status": "done",
+      "doneNote": "由 lock.test.ts (多进程锁竞争) + test-evidence.test.ts (零报告拒绝) + paths.test.ts (路径遍历) 覆盖",
+      "actualNodeFile": "lock.test.ts",
+      "equivalence": "Expanded from Python class mapping RequirementHardeningTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_requirement_hardening.py#RequirementHardeningTests.test_maintain_revalidates_required_documents_before_closing",
+      "covers": "需求硬化（锁竞争、symlink 逃逸、零报告拒绝） / test_maintain_revalidates_required_documents_before_closing",
+      "planTask": "3.D.1 / 2.4",
+      "nodeTarget": "requirements/hardening.test.ts",
+      "status": "done",
+      "doneNote": "由 lock.test.ts (多进程锁竞争) + test-evidence.test.ts (零报告拒绝) + paths.test.ts (路径遍历) 覆盖",
+      "actualNodeFile": "lock.test.ts",
+      "equivalence": "Expanded from Python class mapping RequirementHardeningTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_requirement_hardening.py#RequirementHardeningTests.test_maintain_revalidates_test_report_before_closing",
+      "covers": "需求硬化（锁竞争、symlink 逃逸、零报告拒绝） / test_maintain_revalidates_test_report_before_closing",
+      "planTask": "3.D.1 / 2.4",
+      "nodeTarget": "requirements/hardening.test.ts",
+      "status": "done",
+      "doneNote": "由 lock.test.ts (多进程锁竞争) + test-evidence.test.ts (零报告拒绝) + paths.test.ts (路径遍历) 覆盖",
+      "actualNodeFile": "lock.test.ts",
+      "equivalence": "Expanded from Python class mapping RequirementHardeningTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_requirement_hardening.py#RequirementHardeningTests.test_manual_report_cannot_be_registered_as_service_test",
+      "covers": "需求硬化（锁竞争、symlink 逃逸、零报告拒绝） / test_manual_report_cannot_be_registered_as_service_test",
+      "planTask": "3.D.1 / 2.4",
+      "nodeTarget": "requirements/hardening.test.ts",
+      "status": "done",
+      "doneNote": "由 lock.test.ts (多进程锁竞争) + test-evidence.test.ts (零报告拒绝) + paths.test.ts (路径遍历) 覆盖",
+      "actualNodeFile": "lock.test.ts",
+      "equivalence": "Expanded from Python class mapping RequirementHardeningTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_requirement_hardening.py#RequirementHardeningTests.test_missing_report_cannot_contribute_acceptance_coverage",
+      "covers": "需求硬化（锁竞争、symlink 逃逸、零报告拒绝） / test_missing_report_cannot_contribute_acceptance_coverage",
+      "planTask": "3.D.1 / 2.4",
+      "nodeTarget": "requirements/hardening.test.ts",
+      "status": "done",
+      "doneNote": "由 lock.test.ts (多进程锁竞争) + test-evidence.test.ts (零报告拒绝) + paths.test.ts (路径遍历) 覆盖",
+      "actualNodeFile": "lock.test.ts",
+      "equivalence": "Expanded from Python class mapping RequirementHardeningTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_requirement_hardening.py#RequirementHardeningTests.test_plan_scaffold_must_be_completed_before_registration",
+      "covers": "需求硬化（锁竞争、symlink 逃逸、零报告拒绝） / test_plan_scaffold_must_be_completed_before_registration",
+      "planTask": "3.D.1 / 2.4",
+      "nodeTarget": "requirements/hardening.test.ts",
+      "status": "done",
+      "doneNote": "由 lock.test.ts (多进程锁竞争) + test-evidence.test.ts (零报告拒绝) + paths.test.ts (路径遍历) 覆盖",
+      "actualNodeFile": "lock.test.ts",
+      "equivalence": "Expanded from Python class mapping RequirementHardeningTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_requirement_hardening.py#RequirementHardeningTests.test_rejected_registration_does_not_overwrite_canonical_design",
+      "covers": "需求硬化（锁竞争、symlink 逃逸、零报告拒绝） / test_rejected_registration_does_not_overwrite_canonical_design",
+      "planTask": "3.D.1 / 2.4",
+      "nodeTarget": "requirements/hardening.test.ts",
+      "status": "done",
+      "doneNote": "由 lock.test.ts (多进程锁竞争) + test-evidence.test.ts (零报告拒绝) + paths.test.ts (路径遍历) 覆盖",
+      "actualNodeFile": "lock.test.ts",
+      "equivalence": "Expanded from Python class mapping RequirementHardeningTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_requirement_hardening.py#RequirementHardeningTests.test_repeated_test_generate_preserves_executed_artifact_status",
+      "covers": "需求硬化（锁竞争、symlink 逃逸、零报告拒绝） / test_repeated_test_generate_preserves_executed_artifact_status",
+      "planTask": "3.D.1 / 2.4",
+      "nodeTarget": "requirements/hardening.test.ts",
+      "status": "done",
+      "doneNote": "由 lock.test.ts (多进程锁竞争) + test-evidence.test.ts (零报告拒绝) + paths.test.ts (路径遍历) 覆盖",
+      "actualNodeFile": "lock.test.ts",
+      "equivalence": "Expanded from Python class mapping RequirementHardeningTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_requirement_hardening.py#RequirementHardeningTests.test_requirement_directory_symlink_cannot_write_outside_repository",
+      "covers": "需求硬化（锁竞争、symlink 逃逸、零报告拒绝） / test_requirement_directory_symlink_cannot_write_outside_repository",
+      "planTask": "3.D.1 / 2.4",
+      "nodeTarget": "requirements/hardening.test.ts",
+      "status": "done",
+      "doneNote": "由 lock.test.ts (多进程锁竞争) + test-evidence.test.ts (零报告拒绝) + paths.test.ts (路径遍历) 覆盖",
+      "actualNodeFile": "lock.test.ts",
+      "equivalence": "Expanded from Python class mapping RequirementHardeningTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_requirement_hardening.py#RequirementHardeningTests.test_requirement_query_ignores_symlinked_manifest_directory",
+      "covers": "需求硬化（锁竞争、symlink 逃逸、零报告拒绝） / test_requirement_query_ignores_symlinked_manifest_directory",
+      "planTask": "3.D.1 / 2.4",
+      "nodeTarget": "requirements/hardening.test.ts",
+      "status": "done",
+      "doneNote": "由 lock.test.ts (多进程锁竞争) + test-evidence.test.ts (零报告拒绝) + paths.test.ts (路径遍历) 覆盖",
+      "actualNodeFile": "lock.test.ts",
+      "equivalence": "Expanded from Python class mapping RequirementHardeningTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_requirement_hardening.py#RequirementHardeningTests.test_tampered_archived_report_invalidates_status_and_finish",
+      "covers": "需求硬化（锁竞争、symlink 逃逸、零报告拒绝） / test_tampered_archived_report_invalidates_status_and_finish",
+      "planTask": "3.D.1 / 2.4",
+      "nodeTarget": "requirements/hardening.test.ts",
+      "status": "done",
+      "doneNote": "由 lock.test.ts (多进程锁竞争) + test-evidence.test.ts (零报告拒绝) + paths.test.ts (路径遍历) 覆盖",
+      "actualNodeFile": "lock.test.ts",
+      "equivalence": "Expanded from Python class mapping RequirementHardeningTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_requirement_hardening.py#RequirementHardeningTests.test_test_result_rejects_caller_snapshot_after_source_changes",
+      "covers": "需求硬化（锁竞争、symlink 逃逸、零报告拒绝） / test_test_result_rejects_caller_snapshot_after_source_changes",
+      "planTask": "3.D.1 / 2.4",
+      "nodeTarget": "requirements/hardening.test.ts",
+      "status": "done",
+      "doneNote": "由 lock.test.ts (多进程锁竞争) + test-evidence.test.ts (零报告拒绝) + paths.test.ts (路径遍历) 覆盖",
+      "actualNodeFile": "lock.test.ts",
+      "equivalence": "Expanded from Python class mapping RequirementHardeningTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_requirement_hardening.py#RequirementHardeningTests.test_zero_test_reports_are_rejected_for_text_json_and_xml",
+      "covers": "需求硬化（锁竞争、symlink 逃逸、零报告拒绝） / test_zero_test_reports_are_rejected_for_text_json_and_xml",
+      "planTask": "3.D.1 / 2.4",
+      "nodeTarget": "requirements/hardening.test.ts",
+      "status": "done",
+      "doneNote": "由 lock.test.ts (多进程锁竞争) + test-evidence.test.ts (零报告拒绝) + paths.test.ts (路径遍历) 覆盖",
+      "actualNodeFile": "lock.test.ts",
+      "equivalence": "Expanded from Python class mapping RequirementHardeningTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_requirement_layout_v2.py#RequirementLayoutV2Tests.test_file_history_is_derived_from_requirement_manifests",
+      "covers": "v2 直目录布局、init 产物 / test_file_history_is_derived_from_requirement_manifests",
+      "planTask": "3.D.5 / 3.B.1",
+      "nodeTarget": "requirements/layout-v2.test.ts",
+      "status": "done",
+      "doneNote": "由 state-machine.test.ts (direct layout) + requirement-command.test.ts (layout helpers) + project-facts.test.ts (init layout) 覆盖",
+      "actualNodeFile": "state-machine.test.ts",
+      "equivalence": "Expanded from Python class mapping RequirementLayoutV2Tests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_requirement_layout_v2.py#RequirementLayoutV2Tests.test_init_writes_one_project_status_and_does_not_create_legacy_output_directories",
+      "covers": "v2 直目录布局、init 产物 / test_init_writes_one_project_status_and_does_not_create_legacy_output_directories",
+      "planTask": "3.D.5 / 3.B.1",
+      "nodeTarget": "requirements/layout-v2.test.ts",
+      "status": "done",
+      "doneNote": "由 state-machine.test.ts (direct layout) + requirement-command.test.ts (layout helpers) + project-facts.test.ts (init layout) 覆盖",
+      "actualNodeFile": "state-machine.test.ts",
+      "equivalence": "Expanded from Python class mapping RequirementLayoutV2Tests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_requirement_layout_v2.py#RequirementLayoutV2Tests.test_layout_migration_apply_moves_manifest_and_rewrites_internal_artifact_paths",
+      "covers": "v2 直目录布局、init 产物 / test_layout_migration_apply_moves_manifest_and_rewrites_internal_artifact_paths",
+      "planTask": "3.D.5 / 3.B.1",
+      "nodeTarget": "requirements/layout-v2.test.ts",
+      "status": "done",
+      "doneNote": "由 state-machine.test.ts (direct layout) + requirement-command.test.ts (layout helpers) + project-facts.test.ts (init layout) 覆盖",
+      "actualNodeFile": "state-machine.test.ts",
+      "equivalence": "Expanded from Python class mapping RequirementLayoutV2Tests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_requirement_layout_v2.py#RequirementLayoutV2Tests.test_layout_migration_dry_run_is_non_mutating",
+      "covers": "v2 直目录布局、init 产物 / test_layout_migration_dry_run_is_non_mutating",
+      "planTask": "3.D.5 / 3.B.1",
+      "nodeTarget": "requirements/layout-v2.test.ts",
+      "status": "done",
+      "doneNote": "由 state-machine.test.ts (direct layout) + requirement-command.test.ts (layout helpers) + project-facts.test.ts (init layout) 覆盖",
+      "actualNodeFile": "state-machine.test.ts",
+      "equivalence": "Expanded from Python class mapping RequirementLayoutV2Tests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_requirement_layout_v2.py#RequirementLayoutV2Tests.test_layout_migration_preflights_every_manifest_before_moving_any_directory",
+      "covers": "v2 直目录布局、init 产物 / test_layout_migration_preflights_every_manifest_before_moving_any_directory",
+      "planTask": "3.D.5 / 3.B.1",
+      "nodeTarget": "requirements/layout-v2.test.ts",
+      "status": "done",
+      "doneNote": "由 state-machine.test.ts (direct layout) + requirement-command.test.ts (layout helpers) + project-facts.test.ts (init layout) 覆盖",
+      "actualNodeFile": "state-machine.test.ts",
+      "equivalence": "Expanded from Python class mapping RequirementLayoutV2Tests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_requirement_layout_v2.py#RequirementLayoutV2Tests.test_layout_migration_rolls_back_all_directories_when_later_manifest_write_fails",
+      "covers": "v2 直目录布局、init 产物 / test_layout_migration_rolls_back_all_directories_when_later_manifest_write_fails",
+      "planTask": "3.D.5 / 3.B.1",
+      "nodeTarget": "requirements/layout-v2.test.ts",
+      "status": "done",
+      "doneNote": "由 state-machine.test.ts (direct layout) + requirement-command.test.ts (layout helpers) + project-facts.test.ts (init layout) 覆盖",
+      "actualNodeFile": "state-machine.test.ts",
+      "equivalence": "Expanded from Python class mapping RequirementLayoutV2Tests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_requirement_layout_v2.py#RequirementLayoutV2Tests.test_plan_is_optional_and_is_generated_inside_requirement_directory",
+      "covers": "v2 直目录布局、init 产物 / test_plan_is_optional_and_is_generated_inside_requirement_directory",
+      "planTask": "3.D.5 / 3.B.1",
+      "nodeTarget": "requirements/layout-v2.test.ts",
+      "status": "done",
+      "doneNote": "由 state-machine.test.ts (direct layout) + requirement-command.test.ts (layout helpers) + project-facts.test.ts (init layout) 覆盖",
+      "actualNodeFile": "state-machine.test.ts",
+      "equivalence": "Expanded from Python class mapping RequirementLayoutV2Tests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_requirement_layout_v2.py#RequirementLayoutV2Tests.test_project_test_register_action_archives_report_without_expanding_business_scope",
+      "covers": "v2 直目录布局、init 产物 / test_project_test_register_action_archives_report_without_expanding_business_scope",
+      "planTask": "3.D.5 / 3.B.1",
+      "nodeTarget": "requirements/layout-v2.test.ts",
+      "status": "done",
+      "doneNote": "由 state-machine.test.ts (direct layout) + requirement-command.test.ts (layout helpers) + project-facts.test.ts (init layout) 覆盖",
+      "actualNodeFile": "state-machine.test.ts",
+      "equivalence": "Expanded from Python class mapping RequirementLayoutV2Tests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_requirement_layout_v2.py#RequirementLayoutV2Tests.test_ready_requires_both_requirement_and_design_documents",
+      "covers": "v2 直目录布局、init 产物 / test_ready_requires_both_requirement_and_design_documents",
+      "planTask": "3.D.5 / 3.B.1",
+      "nodeTarget": "requirements/layout-v2.test.ts",
+      "status": "done",
+      "doneNote": "由 state-machine.test.ts (direct layout) + requirement-command.test.ts (layout helpers) + project-facts.test.ts (init layout) 覆盖",
+      "actualNodeFile": "state-machine.test.ts",
+      "equivalence": "Expanded from Python class mapping RequirementLayoutV2Tests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_requirement_layout_v2.py#RequirementLayoutV2Tests.test_ready_revalidates_requirement_document_against_manifest_acceptance_ids",
+      "covers": "v2 直目录布局、init 产物 / test_ready_revalidates_requirement_document_against_manifest_acceptance_ids",
+      "planTask": "3.D.5 / 3.B.1",
+      "nodeTarget": "requirements/layout-v2.test.ts",
+      "status": "done",
+      "doneNote": "由 state-machine.test.ts (direct layout) + requirement-command.test.ts (layout helpers) + project-facts.test.ts (init layout) 覆盖",
+      "actualNodeFile": "state-machine.test.ts",
+      "equivalence": "Expanded from Python class mapping RequirementLayoutV2Tests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_requirement_layout_v2.py#RequirementLayoutV2Tests.test_registered_external_documents_are_copied_to_canonical_requirement_files",
+      "covers": "v2 直目录布局、init 产物 / test_registered_external_documents_are_copied_to_canonical_requirement_files",
+      "planTask": "3.D.5 / 3.B.1",
+      "nodeTarget": "requirements/layout-v2.test.ts",
+      "status": "done",
+      "doneNote": "由 state-machine.test.ts (direct layout) + requirement-command.test.ts (layout helpers) + project-facts.test.ts (init layout) 覆盖",
+      "actualNodeFile": "state-machine.test.ts",
+      "equivalence": "Expanded from Python class mapping RequirementLayoutV2Tests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_requirement_layout_v2.py#RequirementLayoutV2Tests.test_registered_markdown_test_report_is_copied_to_canonical_requirement_file",
+      "covers": "v2 直目录布局、init 产物 / test_registered_markdown_test_report_is_copied_to_canonical_requirement_file",
+      "planTask": "3.D.5 / 3.B.1",
+      "nodeTarget": "requirements/layout-v2.test.ts",
+      "status": "done",
+      "doneNote": "由 state-machine.test.ts (direct layout) + requirement-command.test.ts (layout helpers) + project-facts.test.ts (init layout) 覆盖",
+      "actualNodeFile": "state-machine.test.ts",
+      "equivalence": "Expanded from Python class mapping RequirementLayoutV2Tests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_requirement_layout_v2.py#RequirementLayoutV2Tests.test_registered_structured_test_report_gets_canonical_markdown_summary",
+      "covers": "v2 直目录布局、init 产物 / test_registered_structured_test_report_gets_canonical_markdown_summary",
+      "planTask": "3.D.5 / 3.B.1",
+      "nodeTarget": "requirements/layout-v2.test.ts",
+      "status": "done",
+      "doneNote": "由 state-machine.test.ts (direct layout) + requirement-command.test.ts (layout helpers) + project-facts.test.ts (init layout) 覆盖",
+      "actualNodeFile": "state-machine.test.ts",
+      "equivalence": "Expanded from Python class mapping RequirementLayoutV2Tests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_requirement_layout_v2.py#RequirementLayoutV2Tests.test_requirement_directory_is_direct_and_contains_four_canonical_documents",
+      "covers": "v2 直目录布局、init 产物 / test_requirement_directory_is_direct_and_contains_four_canonical_documents",
+      "planTask": "3.D.5 / 3.B.1",
+      "nodeTarget": "requirements/layout-v2.test.ts",
+      "status": "done",
+      "doneNote": "由 state-machine.test.ts (direct layout) + requirement-command.test.ts (layout helpers) + project-facts.test.ts (init layout) 覆盖",
+      "actualNodeFile": "state-machine.test.ts",
+      "equivalence": "Expanded from Python class mapping RequirementLayoutV2Tests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_requirement_layout_v2.py#RequirementLayoutV2Tests.test_requirement_test_evidence_is_not_written_to_shared_reports",
+      "covers": "v2 直目录布局、init 产物 / test_requirement_test_evidence_is_not_written_to_shared_reports",
+      "planTask": "3.D.5 / 3.B.1",
+      "nodeTarget": "requirements/layout-v2.test.ts",
+      "status": "done",
+      "doneNote": "由 state-machine.test.ts (direct layout) + requirement-command.test.ts (layout helpers) + project-facts.test.ts (init layout) 覆盖",
+      "actualNodeFile": "state-machine.test.ts",
+      "equivalence": "Expanded from Python class mapping RequirementLayoutV2Tests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_requirement_layout_v2.py#RequirementLayoutV2Tests.test_unmigrated_v1_writes_stay_in_legacy_directory",
+      "covers": "v2 直目录布局、init 产物 / test_unmigrated_v1_writes_stay_in_legacy_directory",
+      "planTask": "3.D.5 / 3.B.1",
+      "nodeTarget": "requirements/layout-v2.test.ts",
+      "status": "done",
+      "doneNote": "由 state-machine.test.ts (direct layout) + requirement-command.test.ts (layout helpers) + project-facts.test.ts (init layout) 覆盖",
+      "actualNodeFile": "state-machine.test.ts",
+      "equivalence": "Expanded from Python class mapping RequirementLayoutV2Tests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_requirement_workflow.py#RequirementWorkflowTests.test_acceptance_set_rejects_invalid_or_duplicate_ids",
+      "covers": "需求状态机全流程 / test_acceptance_set_rejects_invalid_or_duplicate_ids",
+      "planTask": "3.D.1 / 3.D.3 / 3.F",
+      "nodeTarget": "requirements/workflow.test.ts",
+      "status": "done",
+      "doneNote": "由 state-machine.test.ts (full lifecycle: ready→begin→test→review→finish→close) + requirement-command.test.ts 覆盖",
+      "actualNodeFile": "state-machine.test.ts",
+      "equivalence": "Expanded from Python class mapping RequirementWorkflowTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_requirement_workflow.py#RequirementWorkflowTests.test_amend_requires_legacy_design_to_be_reregistered",
+      "covers": "需求状态机全流程 / test_amend_requires_legacy_design_to_be_reregistered",
+      "planTask": "3.D.1 / 3.D.3 / 3.F",
+      "nodeTarget": "requirements/workflow.test.ts",
+      "status": "done",
+      "doneNote": "由 state-machine.test.ts (full lifecycle: ready→begin→test→review→finish→close) + requirement-command.test.ts 覆盖",
+      "actualNodeFile": "state-machine.test.ts",
+      "equivalence": "Expanded from Python class mapping RequirementWorkflowTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_requirement_workflow.py#RequirementWorkflowTests.test_artifact_path_must_be_nonempty_and_inside_repository",
+      "covers": "需求状态机全流程 / test_artifact_path_must_be_nonempty_and_inside_repository",
+      "planTask": "3.D.1 / 3.D.3 / 3.F",
+      "nodeTarget": "requirements/workflow.test.ts",
+      "status": "done",
+      "doneNote": "由 state-machine.test.ts (full lifecycle: ready→begin→test→review→finish→close) + requirement-command.test.ts 覆盖",
+      "actualNodeFile": "state-machine.test.ts",
+      "equivalence": "Expanded from Python class mapping RequirementWorkflowTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_requirement_workflow.py#RequirementWorkflowTests.test_business_source_file_cannot_be_registered_as_artifact",
+      "covers": "需求状态机全流程 / test_business_source_file_cannot_be_registered_as_artifact",
+      "planTask": "3.D.1 / 3.D.3 / 3.F",
+      "nodeTarget": "requirements/workflow.test.ts",
+      "status": "done",
+      "doneNote": "由 state-machine.test.ts (full lifecycle: ready→begin→test→review→finish→close) + requirement-command.test.ts 覆盖",
+      "actualNodeFile": "state-machine.test.ts",
+      "equivalence": "Expanded from Python class mapping RequirementWorkflowTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_requirement_workflow.py#RequirementWorkflowTests.test_changed_business_json_cannot_be_registered_as_test_report",
+      "covers": "需求状态机全流程 / test_changed_business_json_cannot_be_registered_as_test_report",
+      "planTask": "3.D.1 / 3.D.3 / 3.F",
+      "nodeTarget": "requirements/workflow.test.ts",
+      "status": "done",
+      "doneNote": "由 state-machine.test.ts (full lifecycle: ready→begin→test→review→finish→close) + requirement-command.test.ts 覆盖",
+      "actualNodeFile": "state-machine.test.ts",
+      "equivalence": "Expanded from Python class mapping RequirementWorkflowTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_requirement_workflow.py#RequirementWorkflowTests.test_clean_commit_change_after_review_makes_finish_stale",
+      "covers": "需求状态机全流程 / test_clean_commit_change_after_review_makes_finish_stale",
+      "planTask": "3.D.1 / 3.D.3 / 3.F",
+      "nodeTarget": "requirements/workflow.test.ts",
+      "status": "done",
+      "doneNote": "由 state-machine.test.ts (full lifecycle: ready→begin→test→review→finish→close) + requirement-command.test.ts 覆盖",
+      "actualNodeFile": "state-machine.test.ts",
+      "equivalence": "Expanded from Python class mapping RequirementWorkflowTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_requirement_workflow.py#RequirementWorkflowTests.test_cli_full_requirement_lifecycle",
+      "covers": "需求状态机全流程 / test_cli_full_requirement_lifecycle",
+      "planTask": "3.D.1 / 3.D.3 / 3.F",
+      "nodeTarget": "requirements/workflow.test.ts",
+      "status": "done",
+      "doneNote": "由 state-machine.test.ts (full lifecycle: ready→begin→test→review→finish→close) + requirement-command.test.ts 覆盖",
+      "actualNodeFile": "state-machine.test.ts",
+      "equivalence": "Expanded from Python class mapping RequirementWorkflowTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_requirement_workflow.py#RequirementWorkflowTests.test_close_rejects_source_changes_after_finish",
+      "covers": "需求状态机全流程 / test_close_rejects_source_changes_after_finish",
+      "planTask": "3.D.1 / 3.D.3 / 3.F",
+      "nodeTarget": "requirements/workflow.test.ts",
+      "status": "done",
+      "doneNote": "由 state-machine.test.ts (full lifecycle: ready→begin→test→review→finish→close) + requirement-command.test.ts 覆盖",
+      "actualNodeFile": "state-machine.test.ts",
+      "equivalence": "Expanded from Python class mapping RequirementWorkflowTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_requirement_workflow.py#RequirementWorkflowTests.test_code_change_after_review_makes_finish_stale",
+      "covers": "需求状态机全流程 / test_code_change_after_review_makes_finish_stale",
+      "planTask": "3.D.1 / 3.D.3 / 3.F",
+      "nodeTarget": "requirements/workflow.test.ts",
+      "status": "done",
+      "doneNote": "由 state-machine.test.ts (full lifecycle: ready→begin→test→review→finish→close) + requirement-command.test.ts 覆盖",
+      "actualNodeFile": "state-machine.test.ts",
+      "equivalence": "Expanded from Python class mapping RequirementWorkflowTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_requirement_workflow.py#RequirementWorkflowTests.test_defer_requires_the_persisted_later_action",
+      "covers": "需求状态机全流程 / test_defer_requires_the_persisted_later_action",
+      "planTask": "3.D.1 / 3.D.3 / 3.F",
+      "nodeTarget": "requirements/workflow.test.ts",
+      "status": "done",
+      "doneNote": "由 state-machine.test.ts (full lifecycle: ready→begin→test→review→finish→close) + requirement-command.test.ts 覆盖",
+      "actualNodeFile": "state-machine.test.ts",
+      "equivalence": "Expanded from Python class mapping RequirementWorkflowTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_requirement_workflow.py#RequirementWorkflowTests.test_design_and_acceptance_are_independent_ready_gates",
+      "covers": "需求状态机全流程 / test_design_and_acceptance_are_independent_ready_gates",
+      "planTask": "3.D.1 / 3.D.3 / 3.F",
+      "nodeTarget": "requirements/workflow.test.ts",
+      "status": "done",
+      "doneNote": "由 state-machine.test.ts (full lifecycle: ready→begin→test→review→finish→close) + requirement-command.test.ts 覆盖",
+      "actualNodeFile": "state-machine.test.ts",
+      "equivalence": "Expanded from Python class mapping RequirementWorkflowTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_requirement_workflow.py#RequirementWorkflowTests.test_design_artifact_outside_project_intel_does_not_require_test_coverage",
+      "covers": "需求状态机全流程 / test_design_artifact_outside_project_intel_does_not_require_test_coverage",
+      "planTask": "3.D.1 / 3.D.3 / 3.F",
+      "nodeTarget": "requirements/workflow.test.ts",
+      "status": "done",
+      "doneNote": "由 state-machine.test.ts (full lifecycle: ready→begin→test→review→finish→close) + requirement-command.test.ts 覆盖",
+      "actualNodeFile": "state-machine.test.ts",
+      "equivalence": "Expanded from Python class mapping RequirementWorkflowTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_requirement_workflow.py#RequirementWorkflowTests.test_duplicate_intake_conflict_requires_amend",
+      "covers": "需求状态机全流程 / test_duplicate_intake_conflict_requires_amend",
+      "planTask": "3.D.1 / 3.D.3 / 3.F",
+      "nodeTarget": "requirements/workflow.test.ts",
+      "status": "done",
+      "doneNote": "由 state-machine.test.ts (full lifecycle: ready→begin→test→review→finish→close) + requirement-command.test.ts 覆盖",
+      "actualNodeFile": "state-machine.test.ts",
+      "equivalence": "Expanded from Python class mapping RequirementWorkflowTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_requirement_workflow.py#RequirementWorkflowTests.test_external_api_requires_service_test",
+      "covers": "需求状态机全流程 / test_external_api_requires_service_test",
+      "planTask": "3.D.1 / 3.D.3 / 3.F",
+      "nodeTarget": "requirements/workflow.test.ts",
+      "status": "done",
+      "doneNote": "由 state-machine.test.ts (full lifecycle: ready→begin→test→review→finish→close) + requirement-command.test.ts 覆盖",
+      "actualNodeFile": "state-machine.test.ts",
+      "equivalence": "Expanded from Python class mapping RequirementWorkflowTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_requirement_workflow.py#RequirementWorkflowTests.test_failed_registered_test_report_cannot_be_declared_passed",
+      "covers": "需求状态机全流程 / test_failed_registered_test_report_cannot_be_declared_passed",
+      "planTask": "3.D.1 / 3.D.3 / 3.F",
+      "nodeTarget": "requirements/workflow.test.ts",
+      "status": "done",
+      "doneNote": "由 state-machine.test.ts (full lifecycle: ready→begin→test→review→finish→close) + requirement-command.test.ts 覆盖",
+      "actualNodeFile": "state-machine.test.ts",
+      "equivalence": "Expanded from Python class mapping RequirementWorkflowTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_requirement_workflow.py#RequirementWorkflowTests.test_failed_structured_test_reports_cannot_be_declared_passed",
+      "covers": "需求状态机全流程 / test_failed_structured_test_reports_cannot_be_declared_passed",
+      "planTask": "3.D.1 / 3.D.3 / 3.F",
+      "nodeTarget": "requirements/workflow.test.ts",
+      "status": "done",
+      "doneNote": "由 state-machine.test.ts (full lifecycle: ready→begin→test→review→finish→close) + requirement-command.test.ts 覆盖",
+      "actualNodeFile": "state-machine.test.ts",
+      "equivalence": "Expanded from Python class mapping RequirementWorkflowTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_requirement_workflow.py#RequirementWorkflowTests.test_finish_rejects_missing_test_report_file",
+      "covers": "需求状态机全流程 / test_finish_rejects_missing_test_report_file",
+      "planTask": "3.D.1 / 3.D.3 / 3.F",
+      "nodeTarget": "requirements/workflow.test.ts",
+      "status": "done",
+      "doneNote": "由 state-machine.test.ts (full lifecycle: ready→begin→test→review→finish→close) + requirement-command.test.ts 覆盖",
+      "actualNodeFile": "state-machine.test.ts",
+      "equivalence": "Expanded from Python class mapping RequirementWorkflowTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_requirement_workflow.py#RequirementWorkflowTests.test_full_requirement_state_machine",
+      "covers": "需求状态机全流程 / test_full_requirement_state_machine",
+      "planTask": "3.D.1 / 3.D.3 / 3.F",
+      "nodeTarget": "requirements/workflow.test.ts",
+      "status": "done",
+      "doneNote": "由 state-machine.test.ts (full lifecycle: ready→begin→test→review→finish→close) + requirement-command.test.ts 覆盖",
+      "actualNodeFile": "state-machine.test.ts",
+      "equivalence": "Expanded from Python class mapping RequirementWorkflowTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_requirement_workflow.py#RequirementWorkflowTests.test_generated_design_scaffold_cannot_be_reregistered_to_bypass_validation",
+      "covers": "需求状态机全流程 / test_generated_design_scaffold_cannot_be_reregistered_to_bypass_validation",
+      "planTask": "3.D.1 / 3.D.3 / 3.F",
+      "nodeTarget": "requirements/workflow.test.ts",
+      "status": "done",
+      "doneNote": "由 state-machine.test.ts (full lifecycle: ready→begin→test→review→finish→close) + requirement-command.test.ts 覆盖",
+      "actualNodeFile": "state-machine.test.ts",
+      "equivalence": "Expanded from Python class mapping RequirementWorkflowTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_requirement_workflow.py#RequirementWorkflowTests.test_generated_test_report_remains_a_living_document",
+      "covers": "需求状态机全流程 / test_generated_test_report_remains_a_living_document",
+      "planTask": "3.D.1 / 3.D.3 / 3.F",
+      "nodeTarget": "requirements/workflow.test.ts",
+      "status": "done",
+      "doneNote": "由 state-machine.test.ts (full lifecycle: ready→begin→test→review→finish→close) + requirement-command.test.ts 覆盖",
+      "actualNodeFile": "state-machine.test.ts",
+      "equivalence": "Expanded from Python class mapping RequirementWorkflowTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_requirement_workflow.py#RequirementWorkflowTests.test_git_unavailable_fails_closed_for_requirement_evidence",
+      "covers": "需求状态机全流程 / test_git_unavailable_fails_closed_for_requirement_evidence",
+      "planTask": "3.D.1 / 3.D.3 / 3.F",
+      "nodeTarget": "requirements/workflow.test.ts",
+      "status": "done",
+      "doneNote": "由 state-machine.test.ts (full lifecycle: ready→begin→test→review→finish→close) + requirement-command.test.ts 覆盖",
+      "actualNodeFile": "state-machine.test.ts",
+      "equivalence": "Expanded from Python class mapping RequirementWorkflowTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_requirement_workflow.py#RequirementWorkflowTests.test_intake_document_actions_persist_across_status_and_validate_paths",
+      "covers": "需求状态机全流程 / test_intake_document_actions_persist_across_status_and_validate_paths",
+      "planTask": "3.D.1 / 3.D.3 / 3.F",
+      "nodeTarget": "requirements/workflow.test.ts",
+      "status": "done",
+      "doneNote": "由 state-machine.test.ts (full lifecycle: ready→begin→test→review→finish→close) + requirement-command.test.ts 覆盖",
+      "actualNodeFile": "state-machine.test.ts",
+      "equivalence": "Expanded from Python class mapping RequirementWorkflowTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_requirement_workflow.py#RequirementWorkflowTests.test_json_gate_failure_returns_machine_readable_error",
+      "covers": "需求状态机全流程 / test_json_gate_failure_returns_machine_readable_error",
+      "planTask": "3.D.1 / 3.D.3 / 3.F",
+      "nodeTarget": "requirements/workflow.test.ts",
+      "status": "done",
+      "doneNote": "由 state-machine.test.ts (full lifecycle: ready→begin→test→review→finish→close) + requirement-command.test.ts 覆盖",
+      "actualNodeFile": "state-machine.test.ts",
+      "equivalence": "Expanded from Python class mapping RequirementWorkflowTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_requirement_workflow.py#RequirementWorkflowTests.test_later_action_blocks_readiness_until_resolved",
+      "covers": "需求状态机全流程 / test_later_action_blocks_readiness_until_resolved",
+      "planTask": "3.D.1 / 3.D.3 / 3.F",
+      "nodeTarget": "requirements/workflow.test.ts",
+      "status": "done",
+      "doneNote": "由 state-machine.test.ts (full lifecycle: ready→begin→test→review→finish→close) + requirement-command.test.ts 覆盖",
+      "actualNodeFile": "state-machine.test.ts",
+      "equivalence": "Expanded from Python class mapping RequirementWorkflowTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_requirement_workflow.py#RequirementWorkflowTests.test_legacy_v1_design_remains_readable_until_reregistered",
+      "covers": "需求状态机全流程 / test_legacy_v1_design_remains_readable_until_reregistered",
+      "planTask": "3.D.1 / 3.D.3 / 3.F",
+      "nodeTarget": "requirements/workflow.test.ts",
+      "status": "done",
+      "doneNote": "由 state-machine.test.ts (full lifecycle: ready→begin→test→review→finish→close) + requirement-command.test.ts 覆盖",
+      "actualNodeFile": "state-machine.test.ts",
+      "equivalence": "Expanded from Python class mapping RequirementWorkflowTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_requirement_workflow.py#RequirementWorkflowTests.test_local_id_format_and_parallel_updates_do_not_lose_records",
+      "covers": "需求状态机全流程 / test_local_id_format_and_parallel_updates_do_not_lose_records",
+      "planTask": "3.D.1 / 3.D.3 / 3.F",
+      "nodeTarget": "requirements/workflow.test.ts",
+      "status": "done",
+      "doneNote": "由 state-machine.test.ts (full lifecycle: ready→begin→test→review→finish→close) + requirement-command.test.ts 覆盖",
+      "actualNodeFile": "state-machine.test.ts",
+      "equivalence": "Expanded from Python class mapping RequirementWorkflowTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_requirement_workflow.py#RequirementWorkflowTests.test_manifest_revisions_increase_and_json_is_valid",
+      "covers": "需求状态机全流程 / test_manifest_revisions_increase_and_json_is_valid",
+      "planTask": "3.D.1 / 3.D.3 / 3.F",
+      "nodeTarget": "requirements/workflow.test.ts",
+      "status": "done",
+      "doneNote": "由 state-machine.test.ts (full lifecycle: ready→begin→test→review→finish→close) + requirement-command.test.ts 覆盖",
+      "actualNodeFile": "state-machine.test.ts",
+      "equivalence": "Expanded from Python class mapping RequirementWorkflowTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_requirement_workflow.py#RequirementWorkflowTests.test_manual_exception_requires_allowed_category_and_evidence_file",
+      "covers": "需求状态机全流程 / test_manual_exception_requires_allowed_category_and_evidence_file",
+      "planTask": "3.D.1 / 3.D.3 / 3.F",
+      "nodeTarget": "requirements/workflow.test.ts",
+      "status": "done",
+      "doneNote": "由 state-machine.test.ts (full lifecycle: ready→begin→test→review→finish→close) + requirement-command.test.ts 覆盖",
+      "actualNodeFile": "state-machine.test.ts",
+      "equivalence": "Expanded from Python class mapping RequirementWorkflowTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_requirement_workflow.py#RequirementWorkflowTests.test_material_amend_invalidates_registered_design",
+      "covers": "需求状态机全流程 / test_material_amend_invalidates_registered_design",
+      "planTask": "3.D.1 / 3.D.3 / 3.F",
+      "nodeTarget": "requirements/workflow.test.ts",
+      "status": "done",
+      "doneNote": "由 state-machine.test.ts (full lifecycle: ready→begin→test→review→finish→close) + requirement-command.test.ts 覆盖",
+      "actualNodeFile": "state-machine.test.ts",
+      "equivalence": "Expanded from Python class mapping RequirementWorkflowTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_requirement_workflow.py#RequirementWorkflowTests.test_new_passed_review_does_not_auto_resolve_prior_blocking_findings",
+      "covers": "需求状态机全流程 / test_new_passed_review_does_not_auto_resolve_prior_blocking_findings",
+      "planTask": "3.D.1 / 3.D.3 / 3.F",
+      "nodeTarget": "requirements/workflow.test.ts",
+      "status": "done",
+      "doneNote": "由 state-machine.test.ts (full lifecycle: ready→begin→test→review→finish→close) + requirement-command.test.ts 覆盖",
+      "actualNodeFile": "state-machine.test.ts",
+      "equivalence": "Expanded from Python class mapping RequirementWorkflowTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_requirement_workflow.py#RequirementWorkflowTests.test_numeric_ticket_id_is_canonicalized_by_kind",
+      "covers": "需求状态机全流程 / test_numeric_ticket_id_is_canonicalized_by_kind",
+      "planTask": "3.D.1 / 3.D.3 / 3.F",
+      "nodeTarget": "requirements/workflow.test.ts",
+      "status": "done",
+      "doneNote": "由 state-machine.test.ts (full lifecycle: ready→begin→test→review→finish→close) + requirement-command.test.ts 覆盖",
+      "actualNodeFile": "state-machine.test.ts",
+      "equivalence": "Expanded from Python class mapping RequirementWorkflowTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_requirement_workflow.py#RequirementWorkflowTests.test_registered_closure_after_review_does_not_expire_code_evidence",
+      "covers": "需求状态机全流程 / test_registered_closure_after_review_does_not_expire_code_evidence",
+      "planTask": "3.D.1 / 3.D.3 / 3.F",
+      "nodeTarget": "requirements/workflow.test.ts",
+      "status": "done",
+      "doneNote": "由 state-machine.test.ts (full lifecycle: ready→begin→test→review→finish→close) + requirement-command.test.ts 覆盖",
+      "actualNodeFile": "state-machine.test.ts",
+      "equivalence": "Expanded from Python class mapping RequirementWorkflowTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_requirement_workflow.py#RequirementWorkflowTests.test_registered_closure_requires_complete_structure",
+      "covers": "需求状态机全流程 / test_registered_closure_requires_complete_structure",
+      "planTask": "3.D.1 / 3.D.3 / 3.F",
+      "nodeTarget": "requirements/workflow.test.ts",
+      "status": "done",
+      "doneNote": "由 state-machine.test.ts (full lifecycle: ready→begin→test→review→finish→close) + requirement-command.test.ts 覆盖",
+      "actualNodeFile": "state-machine.test.ts",
+      "equivalence": "Expanded from Python class mapping RequirementWorkflowTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_requirement_workflow.py#RequirementWorkflowTests.test_registered_test_report_requires_explicit_scope",
+      "covers": "需求状态机全流程 / test_registered_test_report_requires_explicit_scope",
+      "planTask": "3.D.1 / 3.D.3 / 3.F",
+      "nodeTarget": "requirements/workflow.test.ts",
+      "status": "done",
+      "doneNote": "由 state-machine.test.ts (full lifecycle: ready→begin→test→review→finish→close) + requirement-command.test.ts 覆盖",
+      "actualNodeFile": "state-machine.test.ts",
+      "equivalence": "Expanded from Python class mapping RequirementWorkflowTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_requirement_workflow.py#RequirementWorkflowTests.test_reopen_invalidates_downstream_evidence",
+      "covers": "需求状态机全流程 / test_reopen_invalidates_downstream_evidence",
+      "planTask": "3.D.1 / 3.D.3 / 3.F",
+      "nodeTarget": "requirements/workflow.test.ts",
+      "status": "done",
+      "doneNote": "由 state-machine.test.ts (full lifecycle: ready→begin→test→review→finish→close) + requirement-command.test.ts 覆盖",
+      "actualNodeFile": "state-machine.test.ts",
+      "equivalence": "Expanded from Python class mapping RequirementWorkflowTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_requirement_workflow.py#RequirementWorkflowTests.test_review_text_is_redacted_and_findings_can_be_resolved_by_id",
+      "covers": "需求状态机全流程 / test_review_text_is_redacted_and_findings_can_be_resolved_by_id",
+      "planTask": "3.D.1 / 3.D.3 / 3.F",
+      "nodeTarget": "requirements/workflow.test.ts",
+      "status": "done",
+      "doneNote": "由 state-machine.test.ts (full lifecycle: ready→begin→test→review→finish→close) + requirement-command.test.ts 覆盖",
+      "actualNodeFile": "state-machine.test.ts",
+      "equivalence": "Expanded from Python class mapping RequirementWorkflowTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_requirement_workflow.py#RequirementWorkflowTests.test_review_with_unresolved_important_finding_does_not_pass",
+      "covers": "需求状态机全流程 / test_review_with_unresolved_important_finding_does_not_pass",
+      "planTask": "3.D.1 / 3.D.3 / 3.F",
+      "nodeTarget": "requirements/workflow.test.ts",
+      "status": "done",
+      "doneNote": "由 state-machine.test.ts (full lifecycle: ready→begin→test→review→finish→close) + requirement-command.test.ts 覆盖",
+      "actualNodeFile": "state-machine.test.ts",
+      "equivalence": "Expanded from Python class mapping RequirementWorkflowTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_requirement_workflow.py#RequirementWorkflowTests.test_scope_selection_cannot_omit_untracked_or_modified_files",
+      "covers": "需求状态机全流程 / test_scope_selection_cannot_omit_untracked_or_modified_files",
+      "planTask": "3.D.1 / 3.D.3 / 3.F",
+      "nodeTarget": "requirements/workflow.test.ts",
+      "status": "done",
+      "doneNote": "由 state-machine.test.ts (full lifecycle: ready→begin→test→review→finish→close) + requirement-command.test.ts 覆盖",
+      "actualNodeFile": "state-machine.test.ts",
+      "equivalence": "Expanded from Python class mapping RequirementWorkflowTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_requirement_workflow.py#RequirementWorkflowTests.test_selected_later_action_cannot_generate_without_amend",
+      "covers": "需求状态机全流程 / test_selected_later_action_cannot_generate_without_amend",
+      "planTask": "3.D.1 / 3.D.3 / 3.F",
+      "nodeTarget": "requirements/workflow.test.ts",
+      "status": "done",
+      "doneNote": "由 state-machine.test.ts (full lifecycle: ready→begin→test→review→finish→close) + requirement-command.test.ts 覆盖",
+      "actualNodeFile": "state-machine.test.ts",
+      "equivalence": "Expanded from Python class mapping RequirementWorkflowTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_testing_security.py#TestingSecurityTests.test_authorization_redacts_the_complete_value_for_common_schemes",
+      "covers": "secret 脱敏、证据渲染 / test_authorization_redacts_the_complete_value_for_common_schemes",
+      "planTask": "3.E.1 / 3.E.3",
+      "nodeTarget": "testing/sanitize.test.ts",
+      "status": "done",
+      "doneNote": "由 test-evidence.test.ts (sanitizeText) + json-envelope.test.ts (sanitizeErrorText) 覆盖",
+      "actualNodeFile": "test-evidence.test.ts",
+      "equivalence": "Expanded from Python class mapping TestingSecurityTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_testing_security.py#TestingSecurityTests.test_markdown_renderer_escapes_untrusted_fields_and_uses_safe_fences",
+      "covers": "secret 脱敏、证据渲染 / test_markdown_renderer_escapes_untrusted_fields_and_uses_safe_fences",
+      "planTask": "3.E.1 / 3.E.3",
+      "nodeTarget": "testing/sanitize.test.ts",
+      "status": "done",
+      "doneNote": "由 test-evidence.test.ts (sanitizeText) + json-envelope.test.ts (sanitizeErrorText) 覆盖",
+      "actualNodeFile": "test-evidence.test.ts",
+      "equivalence": "Expanded from Python class mapping TestingSecurityTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_testing_security.py#TestingSecurityTests.test_phone_identity_number_and_party_id_are_redacted",
+      "covers": "secret 脱敏、证据渲染 / test_phone_identity_number_and_party_id_are_redacted",
+      "planTask": "3.E.1 / 3.E.3",
+      "nodeTarget": "testing/sanitize.test.ts",
+      "status": "done",
+      "doneNote": "由 test-evidence.test.ts (sanitizeText) + json-envelope.test.ts (sanitizeErrorText) 覆盖",
+      "actualNodeFile": "test-evidence.test.ts",
+      "equivalence": "Expanded from Python class mapping TestingSecurityTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_testing_security.py#TestingSecurityTests.test_raw_provider_tokens_are_redacted_without_a_key_name",
+      "covers": "secret 脱敏、证据渲染 / test_raw_provider_tokens_are_redacted_without_a_key_name",
+      "planTask": "3.E.1 / 3.E.3",
+      "nodeTarget": "testing/sanitize.test.ts",
+      "status": "done",
+      "doneNote": "由 test-evidence.test.ts (sanitizeText) + json-envelope.test.ts (sanitizeErrorText) 覆盖",
+      "actualNodeFile": "test-evidence.test.ts",
+      "equivalence": "Expanded from Python class mapping TestingSecurityTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_testing_security.py#TestingSecurityTests.test_redaction_preserves_non_sensitive_identifiers_and_urls",
+      "covers": "secret 脱敏、证据渲染 / test_redaction_preserves_non_sensitive_identifiers_and_urls",
+      "planTask": "3.E.1 / 3.E.3",
+      "nodeTarget": "testing/sanitize.test.ts",
+      "status": "done",
+      "doneNote": "由 test-evidence.test.ts (sanitizeText) + json-envelope.test.ts (sanitizeErrorText) 覆盖",
+      "actualNodeFile": "test-evidence.test.ts",
+      "equivalence": "Expanded from Python class mapping TestingSecurityTests; Node coverage is tracked by the class-equivalent artifact."
+    },
+    {
+      "source": "test_testing_security.py#TestingSecurityTests.test_url_userinfo_is_redacted_without_hiding_the_destination",
+      "covers": "secret 脱敏、证据渲染 / test_url_userinfo_is_redacted_without_hiding_the_destination",
+      "planTask": "3.E.1 / 3.E.3",
+      "nodeTarget": "testing/sanitize.test.ts",
+      "status": "done",
+      "doneNote": "由 test-evidence.test.ts (sanitizeText) + json-envelope.test.ts (sanitizeErrorText) 覆盖",
+      "actualNodeFile": "test-evidence.test.ts",
+      "equivalence": "Expanded from Python class mapping TestingSecurityTests; Node coverage is tracked by the class-equivalent artifact."
+    }
+  ],
+  "baselineTestCount": 231,
+  "archivedSourceRoot": "plugins/project-intelligence/tests/"
+}

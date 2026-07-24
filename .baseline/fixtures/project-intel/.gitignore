@@ -1,0 +1,6 @@
+# Project Intelligence local-only files
+cache/
+local/
+tmp/
+**/.manifest.lock
+**/.*.tmp

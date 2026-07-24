@@ -1,0 +1,204 @@
+{
+  "generatedFrom": "v0.6.1 worktree (.baseline/worktree)",
+  "bin": ".baseline/worktree/bin/project-intel.mjs",
+  "version": {
+    "exitCode": 0,
+    "stdout": "0.6.1"
+  },
+  "topHelp": {
+    "exitCode": 0,
+    "stdout": "usage: project-intel [-h] [--project PROJECT] [--version]\n                     {init,refresh,install,adapters,check,intake,spec,plan,lifecycle,debug,test,requirement,review,finish,maintain,requirements,query,graph-tools,doctor,agent,version} ...\n\n项目智能 CLI\n\npositional arguments:\n  {init,refresh,install,adapters,check,intake,spec,plan,lifecycle,debug,test,requirement,review,finish,maintain,requirements,query,graph-tools,doctor,agent,version}\n    init                初始化 .project-intel\n    refresh             从当前工作区刷新 .project-intel\n    install             安装 Claude 兼容的项目入口\n    adapters            预览、应用或移除 Codex/Claude 根入口适配器\n    check               运行项目智能检查\n    intake              分析需求入口、任务分流和 readiness\n    spec                为需求档案设置编号验收标准\n    plan                按需在需求目录生成 plan.md\n    lifecycle           输出任务影响分析\n    debug               输出系统化调试上下文\n    test                运行并记录 RED/GREEN/回归/验证测试证据\n    requirement         维护需求级档案和状态机\n    review              登记需求级代码评审结果\n    finish              任务完成后生成收口报告\n    maintain            任务完成后刷新项目智能\n    requirements        按源码文件维护简短中文需求记录\n    query               搜索项目智能产物\n    graph-tools         查询可选图谱工具的状态与命令\n    doctor              诊断运行时、项目和图谱工具状态\n    agent               显式安装 Claude/Codex 插件\n    version             打印版本号\n\noptions:\n  -h, --help            show this help message and exit\n  --project PROJECT     项目根目录，默认为当前目录。\n  --version             打印版本号",
+    "commands": [
+      "init",
+      "refresh",
+      "install",
+      "adapters",
+      "check",
+      "intake",
+      "spec",
+      "plan",
+      "lifecycle",
+      "debug",
+      "test",
+      "requirement",
+      "review",
+      "finish",
+      "maintain",
+      "requirements",
+      "query",
+      "graph-tools",
+      "doctor",
+      "agent",
+      "version"
+    ]
+  },
+  "commands": {
+    "init": {
+      "exitCode": 0,
+      "stdout": "usage: project-intel init [-h] [--interactive] [--setup-missing]\n                          [--with-graph] [--no-graph] [--allow-repo-runner]\n                          [--allow-env-command] [--allow-external-path]\n                          [--strict] [--dry-run]\n\noptions:\n  -h, --help            show this help message and exit\n  --interactive         显式要求在交互终端询问是否准备缺失图谱工具（init 默认已自动启用）\n  --setup-missing       对缺失的可选图谱工具跳过询问并运行支持的安装/初始化命令\n  --with-graph          检查图谱工具并运行已安装的分析器（init 默认启用）\n  --no-graph            跳过图谱工具初始化\n  --allow-repo-runner   允许执行项目仓库内发现的图谱 runner\n  --allow-env-command   允许执行环境变量提供的图谱命令\n  --allow-external-path\n                        允许图谱命令引用项目外绝对路径\n  --strict              --with-graph 未产生任何图谱来源时失败\n  --dry-run             只分析将生成的项目事实，不写入文件或运行图谱命令",
+      "stderr": ""
+    },
+    "refresh": {
+      "exitCode": 0,
+      "stdout": "usage: project-intel refresh [-h] [--with-graph] [--allow-repo-runner]\n                             [--allow-env-command] [--allow-external-path]\n                             [--adapters]\n\noptions:\n  -h, --help            show this help message and exit\n  --with-graph          刷新前运行已安装的图谱分析器；不会安装缺失工具\n  --allow-repo-runner   允许执行项目仓库内发现的图谱 runner\n  --allow-env-command   允许执行环境变量提供的图谱命令\n  --allow-external-path\n                        允许图谱命令引用项目外绝对路径\n  --adapters            显式更新 AGENTS.md、CLAUDE.md 和根 .gitignore 适配器",
+      "stderr": ""
+    },
+    "install": {
+      "exitCode": 0,
+      "stdout": "usage: project-intel install [-h] [--hooks] [--activate-git-hooks]\n                             [--allow-external-hooks]\n\noptions:\n  -h, --help            show this help message and exit\n  --hooks               在 .project-intel/hooks 下生成可选的 Git 钩子模板\n  --activate-git-hooks  将项目智能包装器安装到 .git/hooks（不覆盖自定义钩子）\n  --allow-external-hooks\n                        显式允许 core.hooksPath 指向仓库外目录",
+      "stderr": ""
+    },
+    "adapters": {
+      "exitCode": 0,
+      "stdout": "usage: project-intel adapters [-h] {status,preview,apply,remove} ...\n\npositional arguments:\n  {status,preview,apply,remove}\n    status              检查适配器当前状态\n    preview             预览将写入的适配器块\n    apply               应用适配器块\n    remove              移除 Project Intelligence 管理块\n\noptions:\n  -h, --help            show this help message and exit",
+      "stderr": ""
+    },
+    "check": {
+      "exitCode": 0,
+      "stdout": "usage: project-intel check [-h] [--run-quality] [--dry-run]\n\noptions:\n  -h, --help     show this help message and exit\n  --run-quality  实际运行检测到的 lint/type/style/format 命令\n  --dry-run      只预览检查配置，不写入 project-status.md",
+      "stderr": ""
+    },
+    "intake": {
+      "exitCode": 0,
+      "stdout": "usage: project-intel intake [-h] [--task TASK]\n                            [--requirement-id REQUIREMENT_ID]\n                            [--requirement-name REQUIREMENT_NAME]\n                            [--ticket-kind {bug,requirement}]\n                            [--external-api {yes,no}]\n                            [--requirement-action {generate,register,later}]\n                            [--requirement-path REQUIREMENT_PATH]\n                            [--design-action {generate,register,later}]\n                            [--design-path DESIGN_PATH]\n                            [--track {auto,quick,standard,complex}] [--write]\n                            [--legacy]\n\noptions:\n  -h, --help            show this help message and exit\n  --task TASK           兼容的中文任务摘要；需求级流程可使用 --requirement-name\n  --requirement-id REQUIREMENT_ID\n                        正式需求号；省略时需求级流程生成 LOCAL 时间编号\n  --requirement-name REQUIREMENT_NAME\n                        需求名称\n  --ticket-kind {bug,requirement}\n                        单据类型；默认 requirement\n  --external-api {yes,no}\n                        明确确认是否影响对外接口\n  --requirement-action {generate,register,later}\n                        需求文档动作\n  --requirement-path REQUIREMENT_PATH\n                        requirement-action=register 时的仓库相对路径\n  --design-action {generate,register,later}\n                        设计文档动作\n  --design-path DESIGN_PATH\n                        design-action=register 时的仓库相对路径\n  --track {auto,quick,standard,complex}\n                        显式指定 quick/standard/complex；默认自动判断\n  --write               仅旧 --legacy 模式写入共享 intake 报告\n  --legacy              显式使用旧的非需求级兼容流程",
+      "stderr": ""
+    },
+    "spec": {
+      "exitCode": 0,
+      "stdout": "usage: project-intel spec [-h] [--requirement-id REQUIREMENT_ID]\n                          [--criterion CRITERION] [--title TITLE]\n                          [--from REQUIREMENT]\n                          [--track {auto,quick,standard,complex}] [--legacy]\n\noptions:\n  -h, --help            show this help message and exit\n  --requirement-id REQUIREMENT_ID\n                        需求号；新流程不会创建独立 specs 目录\n  --criterion CRITERION\n                        AC-01:说明；可重复\n  --title TITLE\n  --from REQUIREMENT\n  --track {auto,quick,standard,complex}\n                        显式指定 quick/standard/complex；默认自动判断\n  --legacy              显式使用旧 specs 目录兼容流程",
+      "stderr": ""
+    },
+    "plan": {
+      "exitCode": 0,
+      "stdout": "usage: project-intel plan [-h] [--requirement-id REQUIREMENT_ID]\n                          [--title TITLE] [--from-spec FROM_SPEC]\n                          [--track {auto,quick,standard,complex}] [--replace]\n                          [--legacy]\n\noptions:\n  -h, --help            show this help message and exit\n  --requirement-id REQUIREMENT_ID\n                        需求号；新流程写入 requirements/<id>/plan.md\n  --title TITLE\n  --from-spec FROM_SPEC\n  --track {auto,quick,standard,complex}\n                        显式指定 quick/standard/complex；默认自动判断\n  --replace             显式覆盖已有 plan.md\n  --legacy              显式使用旧 plans 目录兼容流程",
+      "stderr": ""
+    },
+    "lifecycle": {
+      "exitCode": 0,
+      "stdout": "usage: project-intel lifecycle [-h] [--task TASK]\n                               [--requirement-id REQUIREMENT_ID]\n                               [--track {auto,quick,standard,complex}]\n                               [--test-kind {unit,service,both,manual}]\n                               [--report-action {generate,register,later}]\n                               [--report-path REPORT_PATH]\n                               [--acceptance ACCEPTANCE] [--write] [--legacy]\n\noptions:\n  -h, --help            show this help message and exit\n  --task TASK           任务摘要；传入 --requirement-id 时默认读取已登记的需求名称\n  --requirement-id REQUIREMENT_ID\n                        复用该需求已确认的验收标准；与测试参数一起生成准确的收口命令\n  --track {auto,quick,standard,complex}\n                        显式指定 quick/standard/complex；默认自动判断\n  --test-kind {unit,service,both,manual}\n                        已确认的测试类型；不会擅自默认 unit\n  --report-action {generate,register,later}\n                        已确认的报告动作；不会擅自默认 generate\n  --report-path REPORT_PATH\n                        report-action=register 时的仓库相对报告路径\n  --acceptance ACCEPTANCE\n                        已确认的验收标准；默认使用需求档案全部 AC\n  --write               仅旧 --legacy 模式写入共享影响报告\n  --legacy              显式使用旧 reports 目录兼容写入",
+      "stderr": ""
+    },
+    "debug": {
+      "exitCode": 0,
+      "stdout": "usage: project-intel debug [-h] --bug BUG [--write] [--legacy]\n\noptions:\n  -h, --help  show this help message and exit\n  --bug BUG\n  --write     仅旧 --legacy 模式写入共享调试报告\n  --legacy    显式使用旧 reports 目录兼容写入",
+      "stderr": ""
+    },
+    "test": {
+      "exitCode": 0,
+      "stdout": "usage: project-intel test [-h] [--task TASK] [--requirement-id REQUIREMENT_ID]\n                          [--test-kind {unit,service,manual}]\n                          [--report-action {generate,register,later}]\n                          [--report-path REPORT_PATH]\n                          [--acceptance ACCEPTANCE]\n                          --phase {red,green,regression,verify,manual}\n                          [--command TEST_COMMANDS] [--files [FILES ...]]\n                          [--project-wide] [--expect-failure EXPECT_FAILURE]\n                          [--manual-evidence MANUAL_EVIDENCE]\n                          [--manual-approved]\n                          [--manual-category {visual,device,hardware,configuration}]\n                          [--manual-reason MANUAL_REASON]\n                          [--manual-steps MANUAL_STEPS]\n                          [--manual-input MANUAL_INPUT]\n                          [--manual-observation MANUAL_OBSERVATION]\n                          [--manual-evidence-path MANUAL_EVIDENCE_PATH]\n                          [--legacy]\n\noptions:\n  -h, --help            show this help message and exit\n  --task TASK           兼容的中文任务摘要；需求级流程可从 manifest 读取\n  --requirement-id REQUIREMENT_ID\n                        将测试证据写入指定需求档案\n  --test-kind {unit,service,manual}\n                        需求级测试证据类型；both 只能用于测试契约\n  --report-action {generate,register,later}\n                        测试报告动作\n  --report-path REPORT_PATH\n                        report-action=register 时的仓库相对路径\n  --acceptance ACCEPTANCE\n                        覆盖的验收标准，可重复或使用逗号分隔\n  --phase {red,green,regression,verify,manual}\n                        测试阶段：red/green/regression/verify/manual\n  --command TEST_COMMANDS\n                        要执行的目标测试命令；可重复。未提供时使用检测到的 test/verify 命令\n  --files [FILES ...]   该证据覆盖的源码和测试文件\n  --project-wide        显式声明证据覆盖整个项目\n  --expect-failure EXPECT_FAILURE\n                        RED 阶段必须匹配的预期失败文本或正则\n  --manual-evidence MANUAL_EVIDENCE\n                        manual 阶段的可复现人工验证说明\n  --manual-approved     用户已批准以人工测试作为例外证据\n  --manual-category {visual,device,hardware,configuration}\n                        允许人工例外的场景类别\n  --manual-reason MANUAL_REASON\n                        无法合理自动化的原因\n  --manual-steps MANUAL_STEPS\n                        可复现操作步骤\n  --manual-input MANUAL_INPUT\n                        测试输入\n  --manual-observation MANUAL_OBSERVATION\n                        实际观察结果\n  --manual-evidence-path MANUAL_EVIDENCE_PATH\n                        截图或日志的仓库相对路径\n  --legacy              显式使用旧的非需求级兼容流程",
+      "stderr": ""
+    },
+    "requirement": {
+      "exitCode": 0,
+      "stdout": "usage: project-intel requirement [-h]\n                                 {status,query,migrate,generate,add,acceptance,test-contract,ready,begin,diagnose,defer,reopen,amend,resolve-finding} ...\n\npositional arguments:\n  {status,query,migrate,generate,add,acceptance,test-contract,ready,begin,diagnose,defer,reopen,amend,resolve-finding}\n    status              查看需求状态和门禁\n    query               按业务文件或状态查询需求历史\n    migrate             将旧 by-id 档案迁移到直接需求目录\n    generate            生成需求级产物\n    add                 登记已有需求级产物\n    acceptance          维护独立于设计文档的验收标准\n    test-contract       维护实现前测试契约\n    ready               通过实施前 readiness 门禁\n    begin               进入 implementing 状态\n    diagnose            登记 Bug 根因和源码证据\n    defer               将需求级产物记录为稍后处理并保留阻塞\n    reopen              重新打开需求并废弃下游证据\n    amend               显式修改已登记的需求关键信息并废弃下游证据\n    resolve-finding     按稳定 ID 解决评审问题\n\noptions:\n  -h, --help            show this help message and exit",
+      "stderr": ""
+    },
+    "review": {
+      "exitCode": 0,
+      "stdout": "usage: project-intel review [-h] --requirement-id REQUIREMENT_ID\n                            --result {passed,failed} --summary SUMMARY\n                            [--finding FINDING] [--files [FILES ...]]\n                            [--dry-run]\n\noptions:\n  -h, --help            show this help message and exit\n  --requirement-id REQUIREMENT_ID\n  --result {passed,failed}\n  --summary SUMMARY\n  --finding FINDING     critical:说明、important:说明 或 minor:说明\n  --files [FILES ...]\n  --dry-run             只检查评审参数和当前需求，不写入 manifest",
+      "stderr": ""
+    },
+    "finish": {
+      "exitCode": 0,
+      "stdout": "usage: project-intel finish [-h] [--task TASK]\n                            [--requirement-id REQUIREMENT_ID] [--run-quality]\n                            [--files [FILES ...]]\n                            [--manual-evidence MANUAL_EVIDENCE] [--dry-run]\n                            [--legacy]\n\noptions:\n  -h, --help            show this help message and exit\n  --task TASK           兼容的中文任务摘要；需求级流程从 manifest 读取\n  --requirement-id REQUIREMENT_ID\n                        执行需求级 finish 强门禁\n  --run-quality         实际运行检测到的 lint/type/style/format/test/verify 命令\n  --files [FILES ...]   本次需求实际影响的源码文件；用于收口范围展示\n  --manual-evidence MANUAL_EVIDENCE\n                        没有自动测试时，记录可复现的人工验证证据\n  --dry-run             只检查 finish 门禁，不写入状态\n  --legacy              显式使用旧的非需求级兼容流程",
+      "stderr": ""
+    },
+    "maintain": {
+      "exitCode": 0,
+      "stdout": "usage: project-intel maintain [-h] [--task TASK]\n                              [--requirement-id REQUIREMENT_ID]\n                              [--run-quality] [--archive]\n                              [--files [FILES ...]] [--dry-run] [--legacy]\n\noptions:\n  -h, --help            show this help message and exit\n  --task TASK           兼容的中文任务摘要；需求级流程从 manifest 读取\n  --requirement-id REQUIREMENT_ID\n                        只有 finished 状态才允许维护并关闭\n  --run-quality         实际运行检测到的 lint/type/style/format/test/verify 命令\n  --archive             仅旧 --legacy 模式保留维护历史\n  --files [FILES ...]   本次需求实际影响的源码文件；用于维护每个文件唯一的简短中文需求记录\n  --dry-run             只检查 maintain 前置状态，不关闭需求\n  --legacy              显式使用旧的非需求级兼容流程",
+      "stderr": ""
+    },
+    "requirements": {
+      "exitCode": 0,
+      "stdout": "usage: project-intel requirements [-h] --task TASK --files FILES [FILES ...]\n                                  [--legacy]\n\noptions:\n  -h, --help            show this help message and exit\n  --task TASK           中文需求摘要\n  --files FILES [FILES ...]\n                        要沉淀需求的源码文件\n  --legacy              显式使用旧 requirements/files 兼容流程",
+      "stderr": ""
+    },
+    "query": {
+      "exitCode": 0,
+      "stdout": "usage: project-intel query [-h] text\n\npositional arguments:\n  text\n\noptions:\n  -h, --help  show this help message and exit",
+      "stderr": ""
+    },
+    "graph-tools": {
+      "exitCode": 0,
+      "stdout": "usage: project-intel graph-tools [-h]\n\noptions:\n  -h, --help  show this help message and exit",
+      "stderr": ""
+    },
+    "doctor": {
+      "exitCode": 0,
+      "stdout": "usage: project-intel doctor [-h]\n\noptions:\n  -h, --help  show this help message and exit",
+      "stderr": ""
+    },
+    "agent": {
+      "exitCode": 0,
+      "stdout": "usage: project-intel agent [-h] {install} ...\n\npositional arguments:\n  {install}\n    install   安装插件到 Claude、Codex 或两者\n\noptions:\n  -h, --help  show this help message and exit",
+      "stderr": ""
+    },
+    "version": {
+      "exitCode": 0,
+      "stdout": "usage: project-intel version [-h]\n\noptions:\n  -h, --help  show this help message and exit",
+      "stderr": ""
+    }
+  },
+  "jsonEnvelopes": {
+    "version": {
+      "args": [
+        "--version"
+      ],
+      "exitCode": 0,
+      "envelope": {
+        "ok": true,
+        "command": "version",
+        "status": "ok",
+        "exitCode": 0,
+        "error": null,
+        "result": {
+          "version": "0.6.1"
+        },
+        "output": ""
+      }
+    },
+    "usageError": {
+      "args": [
+        "--nope-nope-nope"
+      ],
+      "exitCode": 2,
+      "envelope": {
+        "ok": false,
+        "command": "unknown",
+        "status": "failed",
+        "exitCode": 2,
+        "error": {
+          "code": "USAGE_ERROR",
+          "message": "usage: project-intel [-h] [--project PROJECT] [--version]\n                     {init,refresh,install,adapters,check,intake,spec,plan,lifecycle,debug,test,requirement,review,finish,maintain,requirements,query,graph-tools,doctor,agent,version} ...\nproject-intel: error: the following arguments are required: command"
+        },
+        "result": {
+          "error": "usage: project-intel [-h] [--project PROJECT] [--version]\n                     {init,refresh,install,adapters,check,intake,spec,plan,lifecycle,debug,test,requirement,review,finish,maintain,requirements,query,graph-tools,doctor,agent,version} ...\nproject-intel: error: the following arguments are required: command"
+        },
+        "output": ""
+      }
+    },
+    "requirementMissing": {
+      "args": [
+        "requirement",
+        "status",
+        "--requirement-id",
+        "NONEXISTENT-SNAPSHOT-PROBE"
+      ],
+      "exitCode": 2,
+      "envelope": {
+        "ok": false,
+        "command": "requirement",
+        "status": "failed",
+        "exitCode": 2,
+        "error": {
+          "code": "USAGE_ERROR",
+          "message": "未找到需求档案：NONEXISTENT-SNAPSHOT-PROBE"
+        },
+        "result": {
+          "error": "未找到需求档案：NONEXISTENT-SNAPSHOT-PROBE"
+        },
+        "output": ""
+      }
+    }
+  }
+}

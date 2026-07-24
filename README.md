@@ -10,7 +10,7 @@ Project Intelligence 是一个本地的 Codex/Claude 兼容项目插件，用于
 
 ### npm（推荐）
 
-需要 Node.js 18+ 和 Python 3.9+。npm 包会安装 `project-intel` CLI，但不会在安装阶段修改 Claude Code 或 Codex 配置。
+需要 Node.js 18+。npm 包会安装 `project-intel` CLI，但不会在安装阶段修改 Claude Code 或 Codex 配置。
 
 ```bash
 npm install -g project-intelligence

@@ -2,7 +2,11 @@
 
 ## 请求封装
 
-_None detected._
+| 封装/信号 | 出现次数 |
+| --- | --- |
+| request | 3 |
+| fetch | 2 |
+| axios | 1 |
 
 ## 服务前缀
 
@@ -10,11 +14,17 @@ _None detected._
 
 ## 接口路径热点
 
-_None detected._
+| 接口路径前缀 | 出现次数 |
+| --- | --- |
+| api/list | 1 |
+| api/orders | 1 |
 
 ## API 模块清单
 
-_None detected._
+| 模块 | 请求封装 | 导出函数数 | 接口样例 |
+| --- | --- | --- | --- |
+| src/__tests__/frontend-files-quality.test.ts | request | 2 | /api/list; /api/orders |
+| src/standards/docs.ts | axios, fetch, request | 1 |  |
 
 ## 约定
 

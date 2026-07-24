@@ -4,33 +4,27 @@
 
 | 框架/入口风格 | 文件数 |
 | --- | --- |
-| Spring | 3 |
+| Unknown | 3 |
 
 ## API/入口清单
 
 | 路径 | 框架 | 入口信号 | 路径样例 | 方法样例 |
 | --- | --- | --- | --- | --- |
-| plugins/project-intelligence/scripts/project_intel_lib/application.py | Spring | Controller, GetMapping, MessageListener, PostMapping, RequestMapping, RestController |  | now_iso, script_path, run, run_shell, command_exists, user_home, package_manager, slugify |
-| plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py | Spring | Injectable |  | unique_limited, flatten_regex_hits, annotation_values, mask_comments_and_strings, annotation_values_in_code, quoted_literal_at, python_ast_facts, detect_backend_framework |
-| plugins/project-intelligence/tests/test_project_intel.py | Spring | GetMapping, PostMapping, RequestMapping, RestController, Scheduled, app | /api/orders; /create; /fake\\\; /fake\\; /comment; /real | symlink_or_skip, test_iter_files_excludes_hidden_paths, test_init_runs_installed_graph_analysis, test_init_asks_before_installing_missing_graph_tool, test_init_continues_when_missing_graph_tool_is_declined, test_noninteractive_init_never_waits_for_missing_tool_input, test_interactive_flag_without_tty_degrades_without_input, test_init_runs_configured_understand_analysis |
+| src/app/project-state.ts | Unknown | config:annotation:1 |  | assembly, nowIso, Date, toISOString, info, gitInfo, spawnSync, trim |
+| src/scanner/backend.ts | Unknown | config:call:2 |  | scanner, Set, stringify, String, add, push, flattenRegexHits, uniqueLimited |
+| src/standards/infer.ts | Unknown | config:annotation:1 |  | inference, dominantParent, split, pop, join, set, componentScope, startsWith |
 
 ## 路径热点
 
-| 路径前缀 | 出现次数 |
-| --- | --- |
-| api/orders | 1 |
-| create | 1 |
-| fake\\\ | 1 |
-| fake\\ | 1 |
-| comment | 1 |
-| real | 1 |
-| health | 1 |
-| fixture | 1 |
-| fake | 1 |
+_None detected._
 
 ## 非标准入口候选
 
-_None detected._
+| 路径 | 原因 | 等级 |
+| --- | --- | --- |
+| src/commands/adapter-blocks.ts | 路径/名称暗示非标准入口点 | candidate |
+| src/commands/adapters.ts | 路径/名称暗示非标准入口点 | candidate |
+| src/graph/actions.ts | 路径/名称暗示非标准入口点 | candidate |
 
 ## 约定
 

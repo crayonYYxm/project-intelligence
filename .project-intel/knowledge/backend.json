@@ -1,268 +1,147 @@
 {
   "apis": [
     {
-      "path": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
-      "framework": "Spring",
-      "parser": "python-ast",
+      "path": "src/app/project-state.ts",
+      "framework": "Unknown",
+      "parser": "regex-fallback",
       "signals": [
-        "Controller",
-        "GetMapping",
-        "MessageListener",
-        "PostMapping",
-        "RequestMapping",
-        "RestController",
-        "Scheduled",
         "config:annotation:1"
       ],
       "endpoints": [],
       "methods": [
-        "now_iso",
-        "script_path",
+        "assembly",
+        "nowIso",
+        "Date",
+        "toISOString",
+        "info",
+        "gitInfo",
+        "spawnSync",
+        "trim",
         "run",
-        "run_shell",
-        "command_exists",
-        "user_home",
-        "package_manager",
-        "slugify",
-        "today_slug",
-        "truncate",
-        "read_text",
-        "write_json",
-        "write_text",
-        "_assert_safe_managed_path",
-        "_adapter_relative_path",
-        "_assert_safe_adapter_path",
-        "_read_adapter_text",
-        "_write_adapter_text",
-        "_replace_single_managed_block",
-        "upsert_adapter_managed_block"
+        "snapshot",
+        "changes",
+        "detected",
+        "writes",
+        "captureGitSnapshot",
+        "captureScopeSnapshot",
+        "payload",
+        "buildManifest",
+        "set",
+        "detectGraphSources",
+        "map"
       ]
     },
     {
-      "path": "plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py",
-      "framework": "Spring",
-      "parser": "python-ast",
+      "path": "src/scanner/backend.ts",
+      "framework": "Unknown",
+      "parser": "regex-fallback",
       "signals": [
-        "Injectable"
+        "config:call:2"
       ],
       "endpoints": [],
       "methods": [
-        "unique_limited",
-        "flatten_regex_hits",
-        "annotation_values",
-        "mask_comments_and_strings",
-        "annotation_values_in_code",
-        "quoted_literal_at",
-        "python_ast_facts",
-        "detect_backend_framework",
-        "extract_backend_endpoints",
-        "extract_backend_methods",
-        "extract_backend_fields",
-        "extract_repository_methods",
-        "extract_sql_ops",
-        "extract_config_keys",
-        "extract_signals",
-        "extract_permission_signals",
-        "extract_transaction_signals",
-        "extract_remote_call_signals",
-        "extract_message_job_signals",
-        "extract_error_code_signals"
+        "scanner",
+        "Set",
+        "stringify",
+        "String",
+        "add",
+        "push",
+        "flattenRegexHits",
+        "uniqueLimited",
+        "allMatches",
+        "RegExp",
+        "annotationValues",
+        "annotationValuesInCode",
+        "quotedLiteralAt",
+        "join",
+        "contents",
+        "maskCommentsAndStrings",
+        "pythonFacts",
+        "match",
+        "map",
+        "set"
       ]
     },
     {
-      "path": "plugins/project-intelligence/tests/test_project_intel.py",
-      "framework": "Spring",
-      "parser": "python-ast",
+      "path": "src/standards/infer.ts",
+      "framework": "Unknown",
+      "parser": "regex-fallback",
       "signals": [
-        "GetMapping",
-        "PostMapping",
-        "RequestMapping",
-        "RestController",
-        "Scheduled",
-        "app",
-        "config:annotation:1",
-        "config:call:2",
-        "get",
-        "post"
+        "config:annotation:1"
       ],
-      "endpoints": [
-        "/api/orders",
-        "/create",
-        "/fake\\\\\\",
-        "/fake\\\\",
-        "/comment",
-        "/real",
-        "/health",
-        "/fixture",
-        "/fake"
-      ],
+      "endpoints": [],
       "methods": [
-        "symlink_or_skip",
-        "test_iter_files_excludes_hidden_paths",
-        "test_init_runs_installed_graph_analysis",
-        "test_init_asks_before_installing_missing_graph_tool",
-        "test_init_continues_when_missing_graph_tool_is_declined",
-        "test_noninteractive_init_never_waits_for_missing_tool_input",
-        "test_interactive_flag_without_tty_degrades_without_input",
-        "test_init_runs_configured_understand_analysis",
-        "test_repo_runner_and_environment_commands_require_explicit_authorization",
-        "test_external_absolute_graph_command_requires_separate_authorization",
-        "test_external_path_in_graph_option_requires_separate_authorization",
-        "test_external_path_in_graph_environment_assignment_requires_separate_authorization",
-        "test_shell_expansion_in_graph_command_requires_separate_authorization",
-        "test_windows_shell_expansion_in_graph_command_requires_separate_authorization",
-        "test_unquoted_windows_absolute_graph_command_is_external",
-        "test_project_internal_posix_path_is_not_external",
-        "test_graph_timeout_is_configurable",
-        "test_quality_report_redacts_commands_stdout_and_stderr",
-        "test_report_graph_tools_json_prints_graph_actions",
-        "test_report_graph_tools_text_is_chinese"
+        "inference",
+        "dominantParent",
+        "split",
+        "pop",
+        "join",
+        "set",
+        "componentScope",
+        "startsWith",
+        "inferStandards",
+        "push",
+        "map",
+        "String",
+        "filter",
+        "test",
+        "add",
+        "flatMap",
+        "counterTop",
+        "entries",
+        "sort",
+        "slice"
       ]
     }
   ],
-  "services": [
-    {
-      "name": "backend",
-      "path": "plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py",
-      "framework": "Spring",
-      "parser": "python-ast",
-      "methods": [
-        "unique_limited",
-        "flatten_regex_hits",
-        "annotation_values",
-        "mask_comments_and_strings",
-        "annotation_values_in_code",
-        "quoted_literal_at",
-        "python_ast_facts",
-        "detect_backend_framework",
-        "extract_backend_endpoints",
-        "extract_backend_methods",
-        "extract_backend_fields",
-        "extract_repository_methods",
-        "extract_sql_ops",
-        "extract_config_keys",
-        "extract_signals",
-        "extract_permission_signals",
-        "extract_transaction_signals",
-        "extract_remote_call_signals",
-        "extract_message_job_signals",
-        "extract_error_code_signals",
-        "extract_exported_functions",
-        "scan_backend_file",
-        "scan_backend",
-        "dotted_name"
-      ],
-      "transactions": [
-        "@Transactional",
-        "TransactionTemplate",
-        "DataSourceTransactionManager",
-        "EntityManager",
-        "UnitOfWork"
-      ],
-      "remoteCalls": [
-        "@FeignClient",
-        "RestTemplate",
-        "WebClient",
-        "Feign",
-        "HttpClient",
-        "OkHttpClient",
-        "ServiceMeshAdapter",
-        "grpc",
-        "axios",
-        "fetch"
-      ],
-      "permissionSignals": [
-        "jwt",
-        "token",
-        "session",
-        "principal",
-        "SecurityContext",
-        "AuthGuard",
-        "CanActivate"
-      ]
-    },
-    {
-      "name": "test_project_intel",
-      "path": "plugins/project-intelligence/tests/test_project_intel.py",
-      "framework": "Spring",
-      "parser": "python-ast",
-      "methods": [
-        "symlink_or_skip",
-        "test_iter_files_excludes_hidden_paths",
-        "test_init_runs_installed_graph_analysis",
-        "test_init_asks_before_installing_missing_graph_tool",
-        "test_init_continues_when_missing_graph_tool_is_declined",
-        "test_noninteractive_init_never_waits_for_missing_tool_input",
-        "test_interactive_flag_without_tty_degrades_without_input",
-        "test_init_runs_configured_understand_analysis",
-        "test_repo_runner_and_environment_commands_require_explicit_authorization",
-        "test_external_absolute_graph_command_requires_separate_authorization",
-        "test_external_path_in_graph_option_requires_separate_authorization",
-        "test_external_path_in_graph_environment_assignment_requires_separate_authorization",
-        "test_shell_expansion_in_graph_command_requires_separate_authorization",
-        "test_windows_shell_expansion_in_graph_command_requires_separate_authorization",
-        "test_unquoted_windows_absolute_graph_command_is_external",
-        "test_project_internal_posix_path_is_not_external",
-        "test_graph_timeout_is_configurable",
-        "test_quality_report_redacts_commands_stdout_and_stderr",
-        "test_report_graph_tools_json_prints_graph_actions",
-        "test_report_graph_tools_text_is_chinese",
-        "test_default_understand_install_command_prefers_current_agent",
-        "test_default_understand_install_command_can_be_overridden_by_env",
-        "test_detect_graph_actions_marks_gitnexus_as_download_and_run",
-        "test_detect_graph_actions_marks_understand_as_agent_installed",
-        "test_understand_repo_checkout_is_recognized_as_codex_install",
-        "test_detect_graph_actions_marks_understand_as_installable",
-        "test_detect_graph_actions_marks_understand_as_partially_installed",
-        "test_detect_tooling_treats_agent_installed_understand_as_follow_up",
-        "test_detect_tooling_treats_partially_installed_understand_as_install_and_follow_up",
-        "test_understand_agent_installed_state_skips_install_and_returns_detail"
-      ],
-      "transactions": [
-        "@Transactional"
-      ],
-      "remoteCalls": [
-        "RestTemplate"
-      ],
-      "permissionSignals": [
-        "@PreAuthorize(\\\"hasRole('ORDER')\\\")\"], \"level\": \"candidate\"}",
-        "@PreAuthorize(\"hasRole('ORDER')\")",
-        "token",
-        "session"
-      ]
-    }
-  ],
+  "services": [],
   "dataTypes": [],
   "repositories": [
     {
       "name": "backend",
-      "path": "plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py",
+      "path": "src/scanner/backend.ts",
       "kind": "Mapper",
       "methods": [
-        "unique_limited",
-        "flatten_regex_hits",
-        "annotation_values",
-        "mask_comments_and_strings",
-        "annotation_values_in_code",
-        "quoted_literal_at",
-        "python_ast_facts",
-        "detect_backend_framework",
-        "extract_backend_endpoints",
-        "extract_backend_methods",
-        "extract_backend_fields",
-        "extract_repository_methods",
-        "extract_sql_ops",
-        "extract_config_keys",
-        "extract_signals",
-        "extract_permission_signals",
-        "extract_transaction_signals",
-        "extract_remote_call_signals",
-        "extract_message_job_signals",
-        "extract_error_code_signals",
-        "extract_exported_functions",
-        "scan_backend_file",
-        "scan_backend",
-        "dotted_name",
+        "scanner",
+        "Set",
+        "stringify",
+        "String",
+        "add",
+        "push",
+        "flattenRegexHits",
+        "uniqueLimited",
+        "allMatches",
+        "RegExp",
+        "annotationValues",
+        "annotationValuesInCode",
+        "quotedLiteralAt",
+        "join",
+        "contents",
+        "maskCommentsAndStrings",
+        "pythonFacts",
+        "match",
+        "map",
+        "set",
+        "exec",
+        "split",
+        "shift",
+        "get",
+        "resolveName",
+        "startsWith",
+        "includes",
+        "at",
+        "pythonSyntaxLooksValid",
+        "repeat",
+        "slice",
+        "test",
+        "detectBackendFramework",
+        "extname",
+        "toLowerCase",
+        "b",
+        "extractBackendEndpoints",
+        "trim",
+        "filter",
+        "extractBackendMethods",
         "getForObject"
       ],
       "sqlOps": [
@@ -276,6 +155,47 @@
   ],
   "configs": [
     {
+      "path": ".github/workflows/live-skill-evals.yml",
+      "keys": [
+        "name",
+        "on",
+        "workflow_dispatch",
+        "schedule",
+        "jobs",
+        "claude",
+        "runs-on",
+        "steps",
+        "with",
+        "node-version",
+        "env",
+        "ANTHROPIC_API_KEY",
+        "run",
+        "codex",
+        "OPENAI_API_KEY"
+      ],
+      "kind": "yml"
+    },
+    {
+      "path": ".github/workflows/validate.yml",
+      "keys": [
+        "name",
+        "on",
+        "push",
+        "pull_request",
+        "jobs",
+        "node-core",
+        "runs-on",
+        "strategy",
+        "matrix",
+        "os",
+        "node-version",
+        "steps",
+        "with",
+        "run"
+      ],
+      "kind": "yml"
+    },
+    {
       "path": "plugins/project-intelligence/skills/project-design/agents/openai.yaml",
       "keys": [
         "interface",
@@ -288,36 +208,72 @@
   ],
   "permissionChecks": [
     {
-      "path": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "path": "src/__tests__/backend.test.ts",
       "signals": [
-        "token",
-        "session"
+        "@PreAuthorize(\\\"hasRole('ADMIN')\\\")\\npublic void secure()"
       ],
       "level": "candidate"
     },
     {
-      "path": "plugins/project-intelligence/scripts/project_intel_lib/cli.py",
+      "path": "src/__tests__/json-envelope.test.ts",
+      "signals": [
+        "session",
+        "token"
+      ],
+      "level": "candidate"
+    },
+    {
+      "path": "src/__tests__/review-finish-graph.test.ts",
       "signals": [
         "token"
       ],
       "level": "candidate"
     },
     {
-      "path": "plugins/project-intelligence/scripts/project_intel_lib/design_documents.py",
+      "path": "src/__tests__/test-evidence.test.ts",
+      "signals": [
+        "session",
+        "token"
+      ],
+      "level": "candidate"
+    },
+    {
+      "path": "src/app/dispatcher.ts",
       "signals": [
         "token"
       ],
       "level": "candidate"
     },
     {
-      "path": "plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
+      "path": "src/cli/command-flags.ts",
       "signals": [
         "token"
       ],
       "level": "candidate"
     },
     {
-      "path": "plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py",
+      "path": "src/cli/json-envelope.ts",
+      "signals": [
+        "token"
+      ],
+      "level": "candidate"
+    },
+    {
+      "path": "src/cli/parser.ts",
+      "signals": [
+        "token"
+      ],
+      "level": "candidate"
+    },
+    {
+      "path": "src/requirements/scope.ts",
+      "signals": [
+        "token"
+      ],
+      "level": "candidate"
+    },
+    {
+      "path": "src/scanner/backend.ts",
       "signals": [
         "jwt",
         "token",
@@ -330,31 +286,7 @@
       "level": "candidate"
     },
     {
-      "path": "plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py",
-      "signals": [
-        "token"
-      ],
-      "level": "candidate"
-    },
-    {
-      "path": "plugins/project-intelligence/scripts/project_intel_lib/testing.py",
-      "signals": [
-        "token"
-      ],
-      "level": "candidate"
-    },
-    {
-      "path": "plugins/project-intelligence/tests/test_project_intel.py",
-      "signals": [
-        "@PreAuthorize(\\\"hasRole('ORDER')\\\")\"], \"level\": \"candidate\"}",
-        "@PreAuthorize(\"hasRole('ORDER')\")",
-        "token",
-        "session"
-      ],
-      "level": "candidate"
-    },
-    {
-      "path": "plugins/project-intelligence/tests/test_project_test.py",
+      "path": "src/standards/docs.ts",
       "signals": [
         "token",
         "session"
@@ -362,14 +294,7 @@
       "level": "candidate"
     },
     {
-      "path": "plugins/project-intelligence/tests/test_requirement_workflow.py",
-      "signals": [
-        "token"
-      ],
-      "level": "candidate"
-    },
-    {
-      "path": "plugins/project-intelligence/tests/test_testing_security.py",
+      "path": "src/testing/sanitize.ts",
       "signals": [
         "token"
       ],
@@ -378,7 +303,14 @@
   ],
   "transactions": [
     {
-      "path": "plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py",
+      "path": "src/__tests__/backend.test.ts",
+      "signals": [
+        "transaction("
+      ],
+      "level": "candidate"
+    },
+    {
+      "path": "src/scanner/backend.ts",
       "signals": [
         "@Transactional",
         "TransactionTemplate",
@@ -387,27 +319,25 @@
         "UnitOfWork"
       ],
       "level": "candidate"
-    },
-    {
-      "path": "plugins/project-intelligence/tests/test_project_intel.py",
-      "signals": [
-        "@Transactional"
-      ],
-      "level": "candidate"
     }
   ],
   "remoteCalls": [
     {
-      "path": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "path": "src/__tests__/frontend-files-quality.test.ts",
       "signals": [
-        "axios",
-        "fetch",
-        "Feign"
+        "fetch"
       ],
       "level": "candidate"
     },
     {
-      "path": "plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py",
+      "path": "src/__tests__/project-facts.test.ts",
+      "signals": [
+        "RestTemplate"
+      ],
+      "level": "candidate"
+    },
+    {
+      "path": "src/scanner/backend.ts",
       "signals": [
         "@FeignClient",
         "RestTemplate",
@@ -423,7 +353,7 @@
       "level": "candidate"
     },
     {
-      "path": "plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py",
+      "path": "src/scanner/frontend.ts",
       "signals": [
         "fetch",
         "axios"
@@ -431,16 +361,34 @@
       "level": "candidate"
     },
     {
-      "path": "plugins/project-intelligence/tests/test_project_intel.py",
+      "path": "src/standards/docs.ts",
       "signals": [
-        "RestTemplate"
+        "axios",
+        "fetch",
+        "Feign"
+      ],
+      "level": "candidate"
+    },
+    {
+      "path": "src/standards/infer.ts",
+      "signals": [
+        "axios",
+        "fetch"
       ],
       "level": "candidate"
     }
   ],
   "messagesJobs": [
     {
-      "path": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
+      "path": ".github/workflows/live-skill-evals.yml",
+      "signals": [
+        "schedule",
+        "cron"
+      ],
+      "level": "candidate"
+    },
+    {
+      "path": "src/app/project-state.ts",
       "signals": [
         "@MessageListener",
         "@Scheduled"
@@ -448,7 +396,7 @@
       "level": "candidate"
     },
     {
-      "path": "plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py",
+      "path": "src/scanner/backend.ts",
       "signals": [
         "Queue",
         "Topic",
@@ -460,47 +408,267 @@
         "schedule"
       ],
       "level": "candidate"
-    },
-    {
-      "path": "plugins/project-intelligence/tests/test_project_intel.py",
-      "signals": [
-        "@Scheduled(cron = \\\"0 * * * * ?\\\")",
-        "cron"
-      ],
-      "level": "candidate"
     }
   ],
   "errorCodes": [
     {
-      "path": "plugins/project-intelligence/scripts/project_intel_lib/cli.py",
+      "path": "src/__tests__/backend.test.ts",
       "signals": [
-        "COMMAND_FAILED",
-        "USAGE_ERROR"
-      ],
-      "level": "candidate"
-    },
-    {
-      "path": "plugins/project-intelligence/tests/test_project_intel.py",
-      "signals": [
-        "ORDER_FAILED",
-        "USAGE_ERROR",
-        "COMMAND_FAILED",
+        "ERR_001",
         "BusinessException"
       ],
       "level": "candidate"
     },
     {
-      "path": "plugins/project-intelligence/tests/test_requirement_workflow.py",
+      "path": "src/__tests__/dispatcher.test.ts",
       "signals": [
-        "USAGE_ERROR"
+        "UsageError",
+        "RuntimeError"
+      ],
+      "level": "candidate"
+    },
+    {
+      "path": "src/__tests__/json-envelope.test.ts",
+      "signals": [
+        "USAGE_ERROR",
+        "COMMAND_FAILED"
+      ],
+      "level": "candidate"
+    },
+    {
+      "path": "src/__tests__/project-facts.test.ts",
+      "signals": [
+        "ORDER_FAILED"
+      ],
+      "level": "candidate"
+    },
+    {
+      "path": "src/app/dispatcher.ts",
+      "signals": [
+        "USAGE_ERROR",
+        "COMMAND_FAILED",
+        "RuntimeError"
+      ],
+      "level": "candidate"
+    },
+    {
+      "path": "src/cli.ts",
+      "signals": [
+        "UsageError"
+      ],
+      "level": "candidate"
+    },
+    {
+      "path": "src/cli/json-envelope.ts",
+      "signals": [
+        "USAGE_ERROR",
+        "COMMAND_FAILED"
+      ],
+      "level": "candidate"
+    },
+    {
+      "path": "src/cli/parser.ts",
+      "signals": [
+        "UsageError"
+      ],
+      "level": "candidate"
+    },
+    {
+      "path": "src/commands/adapters.ts",
+      "signals": [
+        "UsageError"
+      ],
+      "level": "candidate"
+    },
+    {
+      "path": "src/commands/agent-install.ts",
+      "signals": [
+        "UsageError"
+      ],
+      "level": "candidate"
+    },
+    {
+      "path": "src/commands/check.ts",
+      "signals": [
+        "UsageError",
+        "RuntimeError"
+      ],
+      "level": "candidate"
+    },
+    {
+      "path": "src/commands/finish.ts",
+      "signals": [
+        "UsageError"
+      ],
+      "level": "candidate"
+    },
+    {
+      "path": "src/commands/init.ts",
+      "signals": [
+        "UsageError"
+      ],
+      "level": "candidate"
+    },
+    {
+      "path": "src/commands/maintain.ts",
+      "signals": [
+        "UsageError"
+      ],
+      "level": "candidate"
+    },
+    {
+      "path": "src/commands/orchestration.ts",
+      "signals": [
+        "UsageError"
+      ],
+      "level": "candidate"
+    },
+    {
+      "path": "src/commands/query.ts",
+      "signals": [
+        "UsageError"
+      ],
+      "level": "candidate"
+    },
+    {
+      "path": "src/commands/requirement.ts",
+      "signals": [
+        "UsageError"
+      ],
+      "level": "candidate"
+    },
+    {
+      "path": "src/commands/review.ts",
+      "signals": [
+        "UsageError"
+      ],
+      "level": "candidate"
+    },
+    {
+      "path": "src/commands/test.ts",
+      "signals": [
+        "UsageError"
+      ],
+      "level": "candidate"
+    },
+    {
+      "path": "src/errors.ts",
+      "signals": [
+        "EXIT_NOT_FOUND"
+      ],
+      "level": "candidate"
+    },
+    {
+      "path": "src/fs/atomic-write.ts",
+      "signals": [
+        "StrictReadError"
+      ],
+      "level": "candidate"
+    },
+    {
+      "path": "src/fs/lock.ts",
+      "signals": [
+        "RequirementError"
+      ],
+      "level": "candidate"
+    },
+    {
+      "path": "src/fs/paths.ts",
+      "signals": [
+        "UsageError"
+      ],
+      "level": "candidate"
+    },
+    {
+      "path": "src/process/spawn.ts",
+      "signals": [
+        "EXIT_NOT_FOUND"
+      ],
+      "level": "candidate"
+    },
+    {
+      "path": "src/requirements/documents.ts",
+      "signals": [
+        "RequirementError"
+      ],
+      "level": "candidate"
+    },
+    {
+      "path": "src/requirements/layout.ts",
+      "signals": [
+        "RequirementError"
+      ],
+      "level": "candidate"
+    },
+    {
+      "path": "src/requirements/scope.ts",
+      "signals": [
+        "RequirementError"
+      ],
+      "level": "candidate"
+    },
+    {
+      "path": "src/requirements/state-machine.ts",
+      "signals": [
+        "RequirementError"
       ],
       "level": "candidate"
     }
   ],
   "utilities": [],
-  "candidateEntrypoints": [],
+  "candidateEntrypoints": [
+    {
+      "path": "src/commands/adapter-blocks.ts",
+      "reason": "路径/名称暗示非标准入口点",
+      "level": "candidate"
+    },
+    {
+      "path": "src/commands/adapters.ts",
+      "reason": "路径/名称暗示非标准入口点",
+      "level": "candidate"
+    },
+    {
+      "path": "src/graph/actions.ts",
+      "reason": "路径/名称暗示非标准入口点",
+      "level": "candidate"
+    }
+  ],
+  "testFixtures": [
+    {
+      "path": "src/__tests__/backend.test.ts",
+      "framework": "Unknown",
+      "parser": "regex-fallback",
+      "signals": [
+        "config:annotation:1",
+        "config:call:2"
+      ],
+      "endpoints": [],
+      "methods": [
+        "describe",
+        "it",
+        "maskCommentsAndStrings",
+        "ok",
+        "preserved",
+        "equal",
+        "RequestMapping",
+        "GetMapping",
+        "list",
+        "create",
+        "join",
+        "scanBackendFile",
+        "deepEqual",
+        "Blueprint",
+        "route",
+        "create_order",
+        "submit",
+        "transaction",
+        "PreAuthorize",
+        "secure"
+      ],
+      "classification": "test-fixture"
+    }
+  ],
   "scanModes": [
-    "python-ast",
     "regex-fallback"
   ]
 }

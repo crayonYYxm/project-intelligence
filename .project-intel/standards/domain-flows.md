@@ -33,28 +33,7 @@ _None detected._
 
 ## 图谱路径热点
 
-| 路径前缀 | 节点数 |
-| --- | --- |
-| plugins/project-intelligence/scripts/project_intel_lib | 325 |
-| plugins/project-intelligence/tests/test_project_intel.py | 17 |
-| plugins/project-intelligence/skills/project-design | 5 |
-| plugins/project-intelligence/tests/design_fixtures.py | 4 |
-| plugins/project-intelligence/tests/test_document_truth_validation.py | 4 |
-| scripts/run-skill-evals.mjs | 4 |
-| scripts/skill-eval-events.mjs | 4 |
-| plugins/project-intelligence/tests/test_requirement_hardening.py | 3 |
-| plugins/project-intelligence/tests/test_requirement_layout_v2.py | 3 |
-| scripts/validate_bundle.py | 3 |
-| plugins/project-intelligence/tests/test_project_design.py | 2 |
-| plugins/project-intelligence/tests/test_project_test.py | 2 |
-| plugins/project-intelligence/tests/test_requirement_workflow.py | 2 |
-| plugins/project-intelligence/tests/test_testing_security.py | 2 |
-| scripts/check-package.mjs | 2 |
-| scripts/validate-skill-evals.mjs | 1 |
-| .github/workflows/live-skill-evals.yml | 1 |
-| .github/workflows/validate.yml | 1 |
-| .project-intel/knowledge/backend.json | 1 |
-| .project-intel/knowledge/files.json | 1 |
+_None detected._
 
 ## 约定
 

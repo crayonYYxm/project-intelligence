@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-07-21T10:46:36.824021+00:00",
+  "generatedAt": "2026-07-24T08:46:37.877Z",
   "sources": [
     {
       "name": "GitNexus",
@@ -8,13 +8,13 @@
       "role": "符号调用、影响、变更风险",
       "status": "present",
       "schemaVersion": 5,
-      "indexedCommit": "d677a4725f46d10fd2b9bebbc98b27183c3da009",
+      "indexedCommit": "5f3ad66c9355153e765351291f5c8d8e3620ce22",
       "stats": {
-        "files": 61,
-        "nodes": 1502,
-        "edges": 3574,
-        "communities": 66,
-        "processes": 131
+        "files": 128,
+        "nodes": 2562,
+        "edges": 6596,
+        "communities": 130,
+        "processes": 221
       },
       "capabilities": {
         "graph": "available",
@@ -35,8 +35,8 @@
     "components": 0,
     "hooks": 0,
     "apis": 3,
-    "services": 2,
-    "candidateEntrypoints": 0
+    "services": 0,
+    "candidateEntrypoints": 3
   },
   "gitnexusSummary": {
     "name": "GitNexus",
@@ -44,13 +44,13 @@
     "role": "符号调用、影响、变更风险",
     "status": "present",
     "schemaVersion": 5,
-    "indexedCommit": "d677a4725f46d10fd2b9bebbc98b27183c3da009",
+    "indexedCommit": "5f3ad66c9355153e765351291f5c8d8e3620ce22",
     "stats": {
-      "files": 61,
-      "nodes": 1502,
-      "edges": 3574,
-      "communities": 66,
-      "processes": 131
+      "files": 128,
+      "nodes": 2562,
+      "edges": 6596,
+      "communities": 130,
+      "processes": 221
     },
     "capabilities": {
       "graph": "available",
@@ -374,93 +374,12 @@
       }
     ],
     "keyModules": [],
-    "topPathPrefixes": [
-      [
-        "plugins/project-intelligence/scripts/project_intel_lib",
-        325
-      ],
-      [
-        "plugins/project-intelligence/tests/test_project_intel.py",
-        17
-      ],
-      [
-        "plugins/project-intelligence/skills/project-design",
-        5
-      ],
-      [
-        "plugins/project-intelligence/tests/design_fixtures.py",
-        4
-      ],
-      [
-        "plugins/project-intelligence/tests/test_document_truth_validation.py",
-        4
-      ],
-      [
-        "scripts/run-skill-evals.mjs",
-        4
-      ],
-      [
-        "scripts/skill-eval-events.mjs",
-        4
-      ],
-      [
-        "plugins/project-intelligence/tests/test_requirement_hardening.py",
-        3
-      ],
-      [
-        "plugins/project-intelligence/tests/test_requirement_layout_v2.py",
-        3
-      ],
-      [
-        "scripts/validate_bundle.py",
-        3
-      ],
-      [
-        "plugins/project-intelligence/tests/test_project_design.py",
-        2
-      ],
-      [
-        "plugins/project-intelligence/tests/test_project_test.py",
-        2
-      ],
-      [
-        "plugins/project-intelligence/tests/test_requirement_workflow.py",
-        2
-      ],
-      [
-        "plugins/project-intelligence/tests/test_testing_security.py",
-        2
-      ],
-      [
-        "scripts/check-package.mjs",
-        2
-      ],
-      [
-        "scripts/validate-skill-evals.mjs",
-        1
-      ],
-      [
-        ".github/workflows/live-skill-evals.yml",
-        1
-      ],
-      [
-        ".github/workflows/validate.yml",
-        1
-      ],
-      [
-        ".project-intel/knowledge/backend.json",
-        1
-      ],
-      [
-        ".project-intel/knowledge/files.json",
-        1
-      ]
-    ]
+    "topPathPrefixes": []
   },
   "projectDomains": [
     {
       "name": "project_intel_lib",
-      "count": 291,
+      "count": 290,
       "paths": [
         "plugins/project-intelligence/scripts/project_intel_lib/application.py"
       ],
@@ -468,9 +387,8 @@
     },
     {
       "name": "tests",
-      "count": 41,
+      "count": 39,
       "paths": [
-        "plugins/project-intelligence/tests/test_project_intel.py",
         "plugins/project-intelligence/tests/design_fixtures.py",
         "plugins/project-intelligence/tests/test_document_truth_validation.py",
         "plugins/project-intelligence/tests/test_project_design.py",
@@ -480,11 +398,30 @@
     },
     {
       "name": "scanner",
-      "count": 38,
+      "count": 37,
       "paths": [
-        "plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py",
+        "src/scanner/backend.ts",
         "plugins/project-intelligence/scripts/project_intel_lib/scanner/__init__.py",
         "plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py"
+      ],
+      "source": "project-derived"
+    },
+    {
+      "name": "standards",
+      "count": 21,
+      "paths": [
+        "src/standards/docs.ts",
+        "src/standards/infer.ts",
+        ".project-intel/standards/api.md",
+        ".project-intel/standards/backend-api.md",
+        ".project-intel/standards/backend-async.md",
+        ".project-intel/standards/backend-config.md",
+        ".project-intel/standards/backend-errors.md",
+        ".project-intel/standards/backend-models.md",
+        ".project-intel/standards/backend-remote-calls.md",
+        ".project-intel/standards/backend-repository.md",
+        ".project-intel/standards/backend-security.md",
+        ".project-intel/standards/backend-services.md"
       ],
       "source": "project-derived"
     },
@@ -498,25 +435,6 @@
         "plugins/project-intelligence/scripts/project_intel.py",
         "plugins/project-intelligence/scripts/project-intel",
         "plugins/project-intelligence/skills/project-design/scripts/validate_design_doc.py"
-      ],
-      "source": "project-derived"
-    },
-    {
-      "name": "standards",
-      "count": 19,
-      "paths": [
-        ".project-intel/standards/api.md",
-        ".project-intel/standards/backend-api.md",
-        ".project-intel/standards/backend-async.md",
-        ".project-intel/standards/backend-config.md",
-        ".project-intel/standards/backend-errors.md",
-        ".project-intel/standards/backend-models.md",
-        ".project-intel/standards/backend-remote-calls.md",
-        ".project-intel/standards/backend-repository.md",
-        ".project-intel/standards/backend-security.md",
-        ".project-intel/standards/backend-services.md",
-        ".project-intel/standards/backend-transactions.md",
-        ".project-intel/standards/backend-utilities.md"
       ],
       "source": "project-derived"
     },

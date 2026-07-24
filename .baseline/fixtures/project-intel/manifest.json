@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 2,
+  "toolVersion": "0.6.1",
+  "projectRoot": ".",
+  "generatedAt": "2026-01-01T00:00:00.000000+00:00",
+  "git": {
+    "commit": "<GIT_COMMIT>",
+    "branch": "main",
+    "dirty": false
+  },
+  "frameworks": [],
+  "packageName": "fixture-sample",
+  "packages": [
+    {
+      "path": ".",
+      "name": "fixture-sample",
+      "frameworks": []
+    }
+  ],
+  "fileCount": 6,
+  "suffixCounts": {
+    ".py": 2,
+    ".tsx": 2,
+    ".md": 1,
+    ".json": 1
+  },
+  "graphSources": [
+    {
+      "name": "GitNexus",
+      "path": ".gitnexus",
+      "role": "符号调用、影响、变更风险",
+      "status": "missing",
+      "reason": "未找到索引目录"
+    },
+    {
+      "name": "Understand-Anything",
+      "path": ".understand-anything/knowledge-graph.json",
+      "role": "架构、模块、领域流、入职",
+      "status": "missing",
+      "reason": "未找到知识图谱"
+    }
+  ],
+  "tooling": {
+    "node": "present",
+    "gitnexus": "installable",
+    "understandAnything": "agent-installed",
+    "recommendedActions": 1
+  },
+  "notes": [
+    "可用时优先使用 GitNexus 和 Understand-Anything 作为图谱来源。"
+  ]
+}

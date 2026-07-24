@@ -4,12 +4,35 @@
 
 | 路径 | 类型 | 配置键样例 |
 | --- | --- | --- |
+| .github/workflows/live-skill-evals.yml | yml | name, on, workflow_dispatch, schedule, jobs, claude, runs-on, steps, with, node-version, env, ANTHROPIC_API_KEY, run, codex, OPENAI_API_KEY |
+| .github/workflows/validate.yml | yml | name, on, push, pull_request, jobs, node-core, runs-on, strategy, matrix, os, node-version, steps, with, run |
 | plugins/project-intelligence/skills/project-design/agents/openai.yaml | yaml | interface, display_name, short_description, default_prompt |
 
 ## 配置前缀热点
 
 | 前缀 | 出现次数 |
 | --- | --- |
+| name | 2 |
+| on | 2 |
+| jobs | 2 |
+| runs-on | 2 |
+| steps | 2 |
+| with | 2 |
+| node-version | 2 |
+| run | 2 |
+| workflow_dispatch | 1 |
+| schedule | 1 |
+| claude | 1 |
+| env | 1 |
+| ANTHROPIC_API_KEY | 1 |
+| codex | 1 |
+| OPENAI_API_KEY | 1 |
+| push | 1 |
+| pull_request | 1 |
+| node-core | 1 |
+| strategy | 1 |
+| matrix | 1 |
+| os | 1 |
 | interface | 1 |
 | display_name | 1 |
 | short_description | 1 |

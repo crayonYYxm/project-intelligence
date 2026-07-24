@@ -4,14 +4,15 @@
 
 | 路径 | 信号样例 | 等级 |
 | --- | --- | --- |
-| plugins/project-intelligence/scripts/project_intel_lib/application.py | @MessageListener, @Scheduled | candidate |
-| plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py | Queue, Topic, Consumer, Producer, BullMQ, agenda, cron, schedule | candidate |
-| plugins/project-intelligence/tests/test_project_intel.py | @Scheduled(cron = \"0 * * * * ?\"), cron | candidate |
+| .github/workflows/live-skill-evals.yml | schedule, cron | candidate |
+| src/app/project-state.ts | @MessageListener, @Scheduled | candidate |
+| src/scanner/backend.ts | Queue, Topic, Consumer, Producer, BullMQ, agenda, cron, schedule | candidate |
 
 ## 信号热点
 
 | 信号 | 出现次数 |
 | --- | --- |
+| schedule | 2 |
 | cron | 2 |
 | @MessageListener | 1 |
 | @Scheduled | 1 |
@@ -21,8 +22,6 @@
 | Producer | 1 |
 | BullMQ | 1 |
 | agenda | 1 |
-| schedule | 1 |
-| @Scheduled(cron = \"0 * * * * ?\") | 1 |
 
 ## 约定
 

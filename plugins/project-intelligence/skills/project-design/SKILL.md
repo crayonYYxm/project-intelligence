@@ -53,10 +53,10 @@ Keep Bugs in the compact five-part structure without changing its style. Reprodu
 
 Do not add acceptance criteria, test matrices, source-evidence tables, or pending-item sections.
 
-Resolve the validator from this Skill directory, not from the target repository. Run the bundled validator by absolute path and fix all exit-code `1` findings:
+Resolve the validator from this Skill directory, not from the target repository. Run the bundled Node.js validator by absolute path and fix all exit-code `1` findings:
 
 ```bash
-python3 <project-design-skill-dir>/scripts/validate_design_doc.py \
+node <project-design-skill-dir>/scripts/validate_design_doc.mjs \
   --file <design.md> \
   --repo <primary-repository> \
   --kind auto \

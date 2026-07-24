@@ -5,28 +5,49 @@
       "**/*"
     ],
     "exclude": [
-      ".cache",
-      ".claude",
       ".git",
-      ".idea",
+      ".mypy_cache",
       ".next",
       ".nuxt",
-      ".project-intel",
+      ".parcel-cache",
       ".project-intel/cache",
       ".project-intel/local",
       ".project-intel/tmp",
+      ".pytest_cache",
+      ".ruff_cache",
       ".turbo",
-      ".vscode",
+      ".venv",
+      "__pycache__",
       "build",
-      "coverage",
       "dist",
       "node_modules",
-      "target"
+      "out",
+      "venv"
     ],
     "excludeHidden": true
   },
   "quality": {
     "commands": [
+      {
+        "kind": "type-check",
+        "command": "npm --prefix package.json run typecheck",
+        "source": "package.json/package.json"
+      },
+      {
+        "kind": "test",
+        "command": "npm --prefix package.json run test",
+        "source": "package.json/package.json"
+      },
+      {
+        "kind": "type-check",
+        "command": "npx tsc --noEmit",
+        "source": "inferred"
+      },
+      {
+        "kind": "type-check",
+        "command": "npm run typecheck",
+        "source": "package.json"
+      },
       {
         "kind": "test",
         "command": "npm run test",
@@ -56,15 +77,8 @@
     "inferred": [
       {
         "scope": "backend",
-        "category": "backend-layering",
-        "rule": "后端遵循 Controller→Service→Repository 分层，新接口按此分层组织，不要跨层直接访问数据",
-        "evidence": "3 个入口、2 个服务、1 个仓库层文件",
-        "level": "inferred"
-      },
-      {
-        "scope": "backend",
         "category": "backend-api",
-        "rule": "后端入口主要使用 Spring 风格，新增 API 应跟随同框架入口声明方式",
+        "rule": "后端入口主要使用 Unknown 风格，新增 API 应跟随同框架入口声明方式",
         "evidence": "3/3 个入口匹配",
         "level": "inferred"
       },
@@ -72,14 +86,14 @@
         "scope": "backend",
         "category": "config",
         "rule": "配置项应集中在已有配置文件或配置类中维护，新增配置需同步默认值和环境差异",
-        "evidence": "1 个配置文件/类，4 个配置键候选",
+        "evidence": "3 个配置文件/类，33 个配置键候选",
         "level": "inferred"
       },
       {
         "scope": "backend",
         "category": "permission",
         "rule": "已有权限/认证信号需要作为接口改动前置检查，新增入口不能绕过认证边界",
-        "evidence": "11 个文件包含权限或认证信号",
+        "evidence": "12 个文件包含权限或认证信号",
         "level": "inferred"
       },
       {
@@ -93,7 +107,7 @@
         "scope": "backend",
         "category": "remote-call",
         "rule": "远程调用应复用已有客户端/适配器，变更前需要检查超时、重试、错误映射和调用链影响",
-        "evidence": "4 个文件包含远程调用信号",
+        "evidence": "6 个文件包含远程调用信号",
         "level": "inferred"
       },
       {
@@ -107,7 +121,7 @@
         "scope": "backend",
         "category": "error-code",
         "rule": "业务异常和错误码应复用既有错误码体系，新增错误需同步前端/调用方可识别的语义",
-        "evidence": "3 个文件包含错误码或异常信号",
+        "evidence": "28 个文件包含错误码或异常信号",
         "level": "inferred"
       }
     ],

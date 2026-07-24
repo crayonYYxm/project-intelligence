@@ -13,6 +13,10 @@
 
 | 类型 | 命令 | 来源 |
 | --- | --- | --- |
+| type-check | npm --prefix package.json run typecheck | package.json/package.json |
+| test | npm --prefix package.json run test | package.json/package.json |
+| type-check | npx tsc --noEmit | inferred |
+| type-check | npm run typecheck | package.json |
 | test | npm run test | package.json |
 
 ## 策略

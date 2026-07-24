@@ -5,53 +5,35 @@ on:
   pull_request:
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.9", "3.10", "3.12"]
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-      - name: Compile CLI
-        run: python -m compileall -q plugins/project-intelligence/scripts
-      - name: Run tests
-        run: python -m unittest discover -s plugins/project-intelligence/tests -p "test_*.py"
-      - name: Validate plugin manifests and skills
-        run: |
-          python scripts/validate_bundle.py
-          node scripts/validate-skill-evals.mjs
-      - name: Validate npm package metadata
-        run: |
-          node scripts/check-release.mjs
-          node scripts/check-package.mjs
-          node bin/project-intel.mjs --version
-          npm pack --dry-run
-
-  cli-smoke:
-    name: CLI smoke (${{ matrix.os }})
+  # Node-only core: build, typecheck, unit tests, pack smoke. No Python.
+  node-core:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
+        node-version: ["18", "20"]
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
-      - name: Compile CLI
-        run: python -m compileall -q plugins/project-intelligence/scripts
-      - name: Run full cross-platform test suite
-        run: python -m unittest discover -s plugins/project-intelligence/tests -p "test_*.py"
-      - name: Validate skill contracts
+          node-version: ${{ matrix.node-version }}
+      - name: Install dependencies
+        run: npm install --ignore-scripts
+      - name: Generate version + typecheck
+        run: |
+          npm run gen-version
+          npm run typecheck
+      - name: Build
+        run: npm run build
+      - name: Unit tests
+        run: npm run test:unit
+      - name: Skill contract validation
         run: node scripts/validate-skill-evals.mjs
-      - name: Validate package scripts
+      - name: No-Python runtime scan
+        run: node scripts/scan-python-runtime-refs.mjs
+      - name: Release + package check
         run: npm run check-release
+      - name: CLI version smoke
+        run: node bin/project-intel.mjs --version
+      - name: Pack smoke (Node-only install)
+        run: node scripts/smoke-pack.mjs

@@ -1,320 +1,758 @@
 [
   {
-    "path": "CHANGELOG.md",
-    "size": 12119,
-    "mtime": 1784616627,
+    "path": ".github/workflows/live-skill-evals.yml",
+    "size": 1218,
+    "mtime": 1784175239577.0874,
+    "suffix": ".yml"
+  },
+  {
+    "path": ".github/workflows/validate.yml",
+    "size": 1154,
+    "mtime": 1784796046663.627,
+    "suffix": ".yml"
+  },
+  {
+    "path": "AGENTS.md",
+    "size": 10788,
+    "mtime": 1784879776910.6667,
     "suffix": ".md"
   },
   {
-    "path": "README.md",
-    "size": 16973,
-    "mtime": 1784599844,
+    "path": "CHANGELOG.md",
+    "size": 12986,
+    "mtime": 1784881793010.9873,
     "suffix": ".md"
+  },
+  {
+    "path": "CLAUDE.md",
+    "size": 9258,
+    "mtime": 1784879776910.8936,
+    "suffix": ".md"
+  },
+  {
+    "path": "LICENSE",
+    "size": 1067,
+    "mtime": 1783702262414.9534,
+    "suffix": "<none>"
+  },
+  {
+    "path": "README.md",
+    "size": 16957,
+    "mtime": 1784790095668.936,
+    "suffix": ".md"
+  },
+  {
+    "path": "bin/project-intel.mjs",
+    "size": 378,
+    "mtime": 1784881981671.1262,
+    "suffix": ".mjs"
   },
   {
     "path": "docs/node-typescript-migration-requirement.md",
     "size": 15393,
-    "mtime": 1784616495,
+    "mtime": 1784616495019.256,
     "suffix": ".md"
   },
   {
     "path": "docs/project-intelligence-guide.md",
     "size": 25441,
-    "mtime": 1784599844,
+    "mtime": 1784599844251.2297,
     "suffix": ".md"
   },
   {
     "path": "evals/skill-behavior-scenarios.json",
     "size": 10721,
-    "mtime": 1784522859,
+    "mtime": 1784522859663.0942,
+    "suffix": ".json"
+  },
+  {
+    "path": "package-lock.json",
+    "size": 16908,
+    "mtime": 1784771178475.7024,
     "suffix": ".json"
   },
   {
     "path": "package.json",
-    "size": 1675,
-    "mtime": 1784616627,
+    "size": 2079,
+    "mtime": 1784875973268.8032,
     "suffix": ".json"
   },
   {
-    "path": "plugins/project-intelligence/scripts/project_intel.py",
-    "size": 584,
-    "mtime": 1784176362,
-    "suffix": ".py"
-  },
-  {
-    "path": "plugins/project-intelligence/scripts/project_intel_lib/__init__.py",
-    "size": 205,
-    "mtime": 1783700809,
-    "suffix": ".py"
-  },
-  {
-    "path": "plugins/project-intelligence/scripts/project_intel_lib/application.py",
-    "size": 269174,
-    "mtime": 1784616627,
-    "suffix": ".py"
-  },
-  {
-    "path": "plugins/project-intelligence/scripts/project_intel_lib/cli.py",
-    "size": 1799,
-    "mtime": 1784272890,
-    "suffix": ".py"
-  },
-  {
-    "path": "plugins/project-intelligence/scripts/project_intel_lib/core.py",
-    "size": 4512,
-    "mtime": 1783700809,
-    "suffix": ".py"
-  },
-  {
-    "path": "plugins/project-intelligence/scripts/project_intel_lib/design_documents.py",
-    "size": 30568,
-    "mtime": 1784522596,
-    "suffix": ".py"
-  },
-  {
-    "path": "plugins/project-intelligence/scripts/project_intel_lib/graph.py",
-    "size": 7168,
-    "mtime": 1783701232,
-    "suffix": ".py"
-  },
-  {
-    "path": "plugins/project-intelligence/scripts/project_intel_lib/lifecycle.py",
-    "size": 1887,
-    "mtime": 1784257335,
-    "suffix": ".py"
-  },
-  {
-    "path": "plugins/project-intelligence/scripts/project_intel_lib/quality.py",
-    "size": 9275,
-    "mtime": 1783701129,
-    "suffix": ".py"
-  },
-  {
-    "path": "plugins/project-intelligence/scripts/project_intel_lib/requirement_documents.py",
-    "size": 10654,
-    "mtime": 1784265181,
-    "suffix": ".py"
-  },
-  {
-    "path": "plugins/project-intelligence/scripts/project_intel_lib/requirements.py",
-    "size": 153659,
-    "mtime": 1784599844,
-    "suffix": ".py"
-  },
-  {
-    "path": "plugins/project-intelligence/scripts/project_intel_lib/scanner/__init__.py",
-    "size": 187,
-    "mtime": 1783700809,
-    "suffix": ".py"
-  },
-  {
-    "path": "plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py",
-    "size": 23266,
-    "mtime": 1784190313,
-    "suffix": ".py"
-  },
-  {
-    "path": "plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py",
-    "size": 12199,
-    "mtime": 1783704103,
-    "suffix": ".py"
-  },
-  {
-    "path": "plugins/project-intelligence/scripts/project_intel_lib/standards.py",
-    "size": 1755,
-    "mtime": 1783701271,
-    "suffix": ".py"
-  },
-  {
-    "path": "plugins/project-intelligence/scripts/project_intel_lib/testing.py",
-    "size": 15653,
-    "mtime": 1784522059,
-    "suffix": ".py"
+    "path": "plugins/project-intelligence/assets/plugin-intro.html",
+    "size": 50825,
+    "mtime": 1784599844251.7957,
+    "suffix": ".html"
   },
   {
     "path": "plugins/project-intelligence/skills/project-brainstorm/SKILL.md",
     "size": 1452,
-    "mtime": 1784262545,
+    "mtime": 1784262545347.6177,
     "suffix": ".md"
   },
   {
     "path": "plugins/project-intelligence/skills/project-debug/SKILL.md",
     "size": 3389,
-    "mtime": 1784262775,
+    "mtime": 1784262775246.4236,
     "suffix": ".md"
   },
   {
     "path": "plugins/project-intelligence/skills/project-design/SKILL.md",
-    "size": 6660,
-    "mtime": 1784522755,
+    "size": 6666,
+    "mtime": 1784794363795.4473,
     "suffix": ".md"
   },
   {
     "path": "plugins/project-intelligence/skills/project-design/agents/openai.yaml",
     "size": 286,
-    "mtime": 1784198369,
+    "mtime": 1784198369570.302,
     "suffix": ".yaml"
   },
   {
     "path": "plugins/project-intelligence/skills/project-design/references/bug-design-template.md",
     "size": 2032,
-    "mtime": 1784198369,
+    "mtime": 1784198369570.5684,
     "suffix": ".md"
   },
   {
     "path": "plugins/project-intelligence/skills/project-design/references/requirement-design-template.md",
     "size": 5156,
-    "mtime": 1784522695,
+    "mtime": 1784522695370.5667,
     "suffix": ".md"
   },
   {
-    "path": "plugins/project-intelligence/skills/project-design/scripts/validate_design_doc.py",
-    "size": 383,
-    "mtime": 1784198369,
-    "suffix": ".py"
+    "path": "plugins/project-intelligence/skills/project-design/scripts/validate_design_doc.mjs",
+    "size": 3987,
+    "mtime": 1784794341179.4065,
+    "suffix": ".mjs"
   },
   {
     "path": "plugins/project-intelligence/skills/project-finish/SKILL.md",
     "size": 3229,
-    "mtime": 1784262010,
+    "mtime": 1784262010845.3557,
     "suffix": ".md"
   },
   {
     "path": "plugins/project-intelligence/skills/project-init/SKILL.md",
     "size": 7120,
-    "mtime": 1784599844,
+    "mtime": 1784599844253.3674,
     "suffix": ".md"
   },
   {
     "path": "plugins/project-intelligence/skills/project-intake/SKILL.md",
     "size": 4743,
-    "mtime": 1784522233,
+    "mtime": 1784522233369.9578,
     "suffix": ".md"
   },
   {
     "path": "plugins/project-intelligence/skills/project-knowledge/SKILL.md",
     "size": 1724,
-    "mtime": 1784257728,
+    "mtime": 1784257728808.2073,
     "suffix": ".md"
   },
   {
     "path": "plugins/project-intelligence/skills/project-maintain/SKILL.md",
     "size": 2510,
-    "mtime": 1784261746,
+    "mtime": 1784261746163.1956,
     "suffix": ".md"
   },
   {
     "path": "plugins/project-intelligence/skills/project-orchestrate/SKILL.md",
     "size": 4528,
-    "mtime": 1784257728,
+    "mtime": 1784257728809.0234,
     "suffix": ".md"
   },
   {
     "path": "plugins/project-intelligence/skills/project-plan/SKILL.md",
     "size": 3272,
-    "mtime": 1784262010,
+    "mtime": 1784262010743.6208,
     "suffix": ".md"
   },
   {
     "path": "plugins/project-intelligence/skills/project-quality/SKILL.md",
     "size": 1834,
-    "mtime": 1784262804,
+    "mtime": 1784262804101.6824,
     "suffix": ".md"
   },
   {
     "path": "plugins/project-intelligence/skills/project-refresh/SKILL.md",
     "size": 6528,
-    "mtime": 1784261746,
+    "mtime": 1784261746294.281,
     "suffix": ".md"
   },
   {
     "path": "plugins/project-intelligence/skills/project-review/SKILL.md",
     "size": 3414,
-    "mtime": 1784261745,
+    "mtime": 1784261745904.0283,
     "suffix": ".md"
   },
   {
     "path": "plugins/project-intelligence/skills/project-spec/SKILL.md",
     "size": 4257,
-    "mtime": 1784266759,
+    "mtime": 1784266759762.8667,
     "suffix": ".md"
   },
   {
     "path": "plugins/project-intelligence/skills/project-standards/SKILL.md",
     "size": 902,
-    "mtime": 1783702556,
+    "mtime": 1783702556579.687,
     "suffix": ".md"
   },
   {
     "path": "plugins/project-intelligence/skills/project-task/SKILL.md",
     "size": 6475,
-    "mtime": 1784522132,
+    "mtime": 1784522132864.747,
     "suffix": ".md"
   },
   {
     "path": "plugins/project-intelligence/skills/project-test/SKILL.md",
     "size": 6300,
-    "mtime": 1784522132,
+    "mtime": 1784522132864.0874,
     "suffix": ".md"
   },
   {
-    "path": "plugins/project-intelligence/tests/design_fixtures.py",
-    "size": 5312,
-    "mtime": 1784522695,
-    "suffix": ".py"
+    "path": "scripts/bench.mjs",
+    "size": 5168,
+    "mtime": 1784876722215.5713,
+    "suffix": ".mjs"
   },
   {
-    "path": "plugins/project-intelligence/tests/test_document_truth_validation.py",
-    "size": 9374,
-    "mtime": 1784599844,
-    "suffix": ".py"
+    "path": "scripts/build-fixtures.mjs",
+    "size": 8712,
+    "mtime": 1784770118240.0354,
+    "suffix": ".mjs"
   },
   {
-    "path": "plugins/project-intelligence/tests/test_project_design.py",
-    "size": 9113,
-    "mtime": 1784522715,
-    "suffix": ".py"
+    "path": "scripts/check-dual-compat.mjs",
+    "size": 8087,
+    "mtime": 1784878945260.3164,
+    "suffix": ".mjs"
   },
   {
-    "path": "plugins/project-intelligence/tests/test_project_intel.py",
-    "size": 118095,
-    "mtime": 1784616627,
-    "suffix": ".py"
+    "path": "scripts/check-package.mjs",
+    "size": 5817,
+    "mtime": 1784799245783.2485,
+    "suffix": ".mjs"
   },
   {
-    "path": "plugins/project-intelligence/tests/test_project_test.py",
-    "size": 22347,
-    "mtime": 1784522485,
-    "suffix": ".py"
+    "path": "scripts/check-release.mjs",
+    "size": 1917,
+    "mtime": 1784795844166.1597,
+    "suffix": ".mjs"
   },
   {
-    "path": "plugins/project-intelligence/tests/test_requirement_hardening.py",
-    "size": 34451,
-    "mtime": 1784599844,
-    "suffix": ".py"
+    "path": "scripts/gen-version.mjs",
+    "size": 3028,
+    "mtime": 1784795834541.592,
+    "suffix": ".mjs"
   },
   {
-    "path": "plugins/project-intelligence/tests/test_requirement_layout_v2.py",
-    "size": 23672,
-    "mtime": 1784522402,
-    "suffix": ".py"
+    "path": "scripts/npm-pack-dry-run.mjs",
+    "size": 360,
+    "mtime": 1784273456968.9795,
+    "suffix": ".mjs"
   },
   {
-    "path": "plugins/project-intelligence/tests/test_requirement_workflow.py",
-    "size": 66542,
-    "mtime": 1784522402,
-    "suffix": ".py"
+    "path": "scripts/rollback-read.mjs",
+    "size": 3238,
+    "mtime": 1784790008308.451,
+    "suffix": ".mjs"
   },
   {
-    "path": "plugins/project-intelligence/tests/test_testing_security.py",
-    "size": 5951,
-    "mtime": 1784527710,
-    "suffix": ".py"
+    "path": "scripts/run-skill-evals.mjs",
+    "size": 6053,
+    "mtime": 1784265105231.1091,
+    "suffix": ".mjs"
   },
   {
-    "path": "scripts/validate_bundle.py",
-    "size": 2446,
-    "mtime": 1783702676,
-    "suffix": ".py"
+    "path": "scripts/run-tests.mjs",
+    "size": 929,
+    "mtime": 1784881776090.396,
+    "suffix": ".mjs"
+  },
+  {
+    "path": "scripts/run-unit-tests.mjs",
+    "size": 1464,
+    "mtime": 1784771281517.1584,
+    "suffix": ".mjs"
+  },
+  {
+    "path": "scripts/scan-python-runtime-refs.mjs",
+    "size": 2805,
+    "mtime": 1784876722215.4373,
+    "suffix": ".mjs"
+  },
+  {
+    "path": "scripts/skill-eval-events.mjs",
+    "size": 2041,
+    "mtime": 1784265105139.8428,
+    "suffix": ".mjs"
+  },
+  {
+    "path": "scripts/smoke-pack.mjs",
+    "size": 3735,
+    "mtime": 1784799271537.9917,
+    "suffix": ".mjs"
+  },
+  {
+    "path": "scripts/snapshot-cli.mjs",
+    "size": 4586,
+    "mtime": 1784769811993.0806,
+    "suffix": ".mjs"
+  },
+  {
+    "path": "scripts/validate-skill-evals.mjs",
+    "size": 8988,
+    "mtime": 1784265845880.6626,
+    "suffix": ".mjs"
+  },
+  {
+    "path": "scripts/validate-test-map.mjs",
+    "size": 4830,
+    "mtime": 1784881890541.4624,
+    "suffix": ".mjs"
+  },
+  {
+    "path": "src/__tests__/backend.test.ts",
+    "size": 5856,
+    "mtime": 1784878253563.2703,
+    "suffix": ".ts"
+  },
+  {
+    "path": "src/__tests__/cli-contract.test.ts",
+    "size": 8386,
+    "mtime": 1784876266748.1826,
+    "suffix": ".ts"
+  },
+  {
+    "path": "src/__tests__/dispatcher.test.ts",
+    "size": 3563,
+    "mtime": 1784793821413.395,
+    "suffix": ".ts"
+  },
+  {
+    "path": "src/__tests__/dual-impl.test.ts",
+    "size": 2772,
+    "mtime": 1784795864063.747,
+    "suffix": ".ts"
+  },
+  {
+    "path": "src/__tests__/frontend-files-quality.test.ts",
+    "size": 9078,
+    "mtime": 1784878710219.6548,
+    "suffix": ".ts"
+  },
+  {
+    "path": "src/__tests__/graph-setup.test.ts",
+    "size": 2686,
+    "mtime": 1784878475471.9434,
+    "suffix": ".ts"
+  },
+  {
+    "path": "src/__tests__/helpers.ts",
+    "size": 7906,
+    "mtime": 1784879865262.745,
+    "suffix": ".ts"
+  },
+  {
+    "path": "src/__tests__/install-hooks.test.ts",
+    "size": 6932,
+    "mtime": 1784779095797.5066,
+    "suffix": ".ts"
+  },
+  {
+    "path": "src/__tests__/json-envelope.test.ts",
+    "size": 4209,
+    "mtime": 1784772825645.4756,
+    "suffix": ".ts"
+  },
+  {
+    "path": "src/__tests__/lock-contender.ts",
+    "size": 884,
+    "mtime": 1784773474093.741,
+    "suffix": ".ts"
+  },
+  {
+    "path": "src/__tests__/lock.test.ts",
+    "size": 3136,
+    "mtime": 1784773557122.2998,
+    "suffix": ".ts"
+  },
+  {
+    "path": "src/__tests__/paths.test.ts",
+    "size": 3299,
+    "mtime": 1784772969822.1045,
+    "suffix": ".ts"
+  },
+  {
+    "path": "src/__tests__/process-io.test.ts",
+    "size": 4268,
+    "mtime": 1784773920897.4705,
+    "suffix": ".ts"
+  },
+  {
+    "path": "src/__tests__/project-facts.test.ts",
+    "size": 11529,
+    "mtime": 1784881619863.362,
+    "suffix": ".ts"
+  },
+  {
+    "path": "src/__tests__/requirement-command.test.ts",
+    "size": 22268,
+    "mtime": 1784881330502.3967,
+    "suffix": ".ts"
+  },
+  {
+    "path": "src/__tests__/review-finish-graph.test.ts",
+    "size": 7580,
+    "mtime": 1784881110030.501,
+    "suffix": ".ts"
+  },
+  {
+    "path": "src/__tests__/scope.test.ts",
+    "size": 1475,
+    "mtime": 1784876174302.2412,
+    "suffix": ".ts"
+  },
+  {
+    "path": "src/__tests__/smoke.test.ts",
+    "size": 604,
+    "mtime": 1784771295491.3513,
+    "suffix": ".ts"
+  },
+  {
+    "path": "src/__tests__/state-machine.test.ts",
+    "size": 9961,
+    "mtime": 1784881228411.994,
+    "suffix": ".ts"
+  },
+  {
+    "path": "src/__tests__/test-evidence.test.ts",
+    "size": 9545,
+    "mtime": 1784881532254.9746,
+    "suffix": ".ts"
+  },
+  {
+    "path": "src/app/dispatcher.ts",
+    "size": 10730,
+    "mtime": 1784875973268.2114,
+    "suffix": ".ts"
+  },
+  {
+    "path": "src/app/project-state.ts",
+    "size": 15733,
+    "mtime": 1784879020060.7368,
+    "suffix": ".ts"
+  },
+  {
+    "path": "src/cli.ts",
+    "size": 6061,
+    "mtime": 1784881844674.0112,
+    "suffix": ".ts"
+  },
+  {
+    "path": "src/cli/command-flags.ts",
+    "size": 3731,
+    "mtime": 1784793719637.8142,
+    "suffix": ".ts"
+  },
+  {
+    "path": "src/cli/json-envelope.ts",
+    "size": 2921,
+    "mtime": 1784772753003.9917,
+    "suffix": ".ts"
+  },
+  {
+    "path": "src/cli/parser.ts",
+    "size": 5558,
+    "mtime": 1784796788090.657,
+    "suffix": ".ts"
+  },
+  {
+    "path": "src/commands/adapter-blocks.ts",
+    "size": 6558,
+    "mtime": 1784779145276.9038,
+    "suffix": ".ts"
+  },
+  {
+    "path": "src/commands/adapters.ts",
+    "size": 4848,
+    "mtime": 1784778711911.6865,
+    "suffix": ".ts"
+  },
+  {
+    "path": "src/commands/agent-install.ts",
+    "size": 2974,
+    "mtime": 1784778885493.7002,
+    "suffix": ".ts"
+  },
+  {
+    "path": "src/commands/agent-rules.ts",
+    "size": 4374,
+    "mtime": 1784877515739.631,
+    "suffix": ".ts"
+  },
+  {
+    "path": "src/commands/check.ts",
+    "size": 3940,
+    "mtime": 1784877484270.6355,
+    "suffix": ".ts"
+  },
+  {
+    "path": "src/commands/doctor.ts",
+    "size": 2686,
+    "mtime": 1784877661835.9604,
+    "suffix": ".ts"
+  },
+  {
+    "path": "src/commands/finish.ts",
+    "size": 2115,
+    "mtime": 1784875780410.3835,
+    "suffix": ".ts"
+  },
+  {
+    "path": "src/commands/graph-tools.ts",
+    "size": 482,
+    "mtime": 1784877484269.2908,
+    "suffix": ".ts"
+  },
+  {
+    "path": "src/commands/hooks.ts",
+    "size": 4916,
+    "mtime": 1784778974793.3054,
+    "suffix": ".ts"
+  },
+  {
+    "path": "src/commands/init.ts",
+    "size": 9487,
+    "mtime": 1784879077207.8115,
+    "suffix": ".ts"
+  },
+  {
+    "path": "src/commands/install.ts",
+    "size": 2082,
+    "mtime": 1784778866920.2585,
+    "suffix": ".ts"
+  },
+  {
+    "path": "src/commands/maintain.ts",
+    "size": 3074,
+    "mtime": 1784875800450.4497,
+    "suffix": ".ts"
+  },
+  {
+    "path": "src/commands/orchestration.ts",
+    "size": 9230,
+    "mtime": 1784880001518.1204,
+    "suffix": ".ts"
+  },
+  {
+    "path": "src/commands/query.ts",
+    "size": 2775,
+    "mtime": 1784877490207.7507,
+    "suffix": ".ts"
+  },
+  {
+    "path": "src/commands/requirement.ts",
+    "size": 22581,
+    "mtime": 1784881288214.5928,
+    "suffix": ".ts"
+  },
+  {
+    "path": "src/commands/review.ts",
+    "size": 3108,
+    "mtime": 1784875741879.9734,
+    "suffix": ".ts"
+  },
+  {
+    "path": "src/commands/test.ts",
+    "size": 16836,
+    "mtime": 1784881481971.7014,
+    "suffix": ".ts"
+  },
+  {
+    "path": "src/errors.ts",
+    "size": 1150,
+    "mtime": 1784793571991.6074,
+    "suffix": ".ts"
+  },
+  {
+    "path": "src/fs/atomic-write.ts",
+    "size": 3015,
+    "mtime": 1784772999614.971,
+    "suffix": ".ts"
+  },
+  {
+    "path": "src/fs/lock.ts",
+    "size": 3227,
+    "mtime": 1784773202845.231,
+    "suffix": ".ts"
+  },
+  {
+    "path": "src/fs/paths.ts",
+    "size": 2750,
+    "mtime": 1784773141640.34,
+    "suffix": ".ts"
+  },
+  {
+    "path": "src/graph/actions.ts",
+    "size": 9120,
+    "mtime": 1784879020060.3474,
+    "suffix": ".ts"
+  },
+  {
+    "path": "src/graph/setup.ts",
+    "size": 11375,
+    "mtime": 1784878444356.9668,
+    "suffix": ".ts"
+  },
+  {
+    "path": "src/graph/sources.ts",
+    "size": 7143,
+    "mtime": 1784787002814.1284,
+    "suffix": ".ts"
+  },
+  {
+    "path": "src/index.ts",
+    "size": 445,
+    "mtime": 1784771503799.3438,
+    "suffix": ".ts"
+  },
+  {
+    "path": "src/io/markdown.ts",
+    "size": 1832,
+    "mtime": 1784773838368.898,
+    "suffix": ".ts"
+  },
+  {
+    "path": "src/io/output.ts",
+    "size": 1737,
+    "mtime": 1784875914200.9834,
+    "suffix": ".ts"
+  },
+  {
+    "path": "src/io/yaml.ts",
+    "size": 1813,
+    "mtime": 1784773812023.833,
+    "suffix": ".ts"
+  },
+  {
+    "path": "src/process/exec-shell.ts",
+    "size": 1654,
+    "mtime": 1784773905414.009,
+    "suffix": ".ts"
+  },
+  {
+    "path": "src/process/spawn.ts",
+    "size": 3669,
+    "mtime": 1784773622548.7854,
+    "suffix": ".ts"
+  },
+  {
+    "path": "src/requirements/documents.ts",
+    "size": 21033,
+    "mtime": 1784880918372.5063,
+    "suffix": ".ts"
+  },
+  {
+    "path": "src/requirements/layout.ts",
+    "size": 3407,
+    "mtime": 1784881151303.3435,
+    "suffix": ".ts"
+  },
+  {
+    "path": "src/requirements/scope.ts",
+    "size": 10385,
+    "mtime": 1784876198376.9502,
+    "suffix": ".ts"
+  },
+  {
+    "path": "src/requirements/state-machine.ts",
+    "size": 69028,
+    "mtime": 1784881204585.098,
+    "suffix": ".ts"
+  },
+  {
+    "path": "src/rules/hard.ts",
+    "size": 6933,
+    "mtime": 1784800330855.9863,
+    "suffix": ".ts"
+  },
+  {
+    "path": "src/scanner/backend.ts",
+    "size": 27324,
+    "mtime": 1784878683994.4287,
+    "suffix": ".ts"
+  },
+  {
+    "path": "src/scanner/core.ts",
+    "size": 4723,
+    "mtime": 1784878683993.489,
+    "suffix": ".ts"
+  },
+  {
+    "path": "src/scanner/files.ts",
+    "size": 6684,
+    "mtime": 1784878110845.143,
+    "suffix": ".ts"
+  },
+  {
+    "path": "src/scanner/frontend.ts",
+    "size": 14945,
+    "mtime": 1784878683993.962,
+    "suffix": ".ts"
+  },
+  {
+    "path": "src/scanner/quality.ts",
+    "size": 11038,
+    "mtime": 1784877258739.536,
+    "suffix": ".ts"
+  },
+  {
+    "path": "src/standards/docs.ts",
+    "size": 23978,
+    "mtime": 1784878860597.2979,
+    "suffix": ".ts"
+  },
+  {
+    "path": "src/standards/domains.ts",
+    "size": 2398,
+    "mtime": 1784878161043.1401,
+    "suffix": ".ts"
+  },
+  {
+    "path": "src/standards/infer.ts",
+    "size": 12680,
+    "mtime": 1784878149101.2043,
+    "suffix": ".ts"
+  },
+  {
+    "path": "src/testing/dual-impl.ts",
+    "size": 7476,
+    "mtime": 1784771786361.966,
+    "suffix": ".ts"
+  },
+  {
+    "path": "src/testing/render.ts",
+    "size": 10335,
+    "mtime": 1784876722214.7683,
+    "suffix": ".ts"
+  },
+  {
+    "path": "src/testing/sanitize.ts",
+    "size": 5577,
+    "mtime": 1784786283358.2979,
+    "suffix": ".ts"
+  },
+  {
+    "path": "src/version.ts",
+    "size": 191,
+    "mtime": 1784882722857.7314,
+    "suffix": ".ts"
+  },
+  {
+    "path": "tsconfig.json",
+    "size": 607,
+    "mtime": 1784774628341.644,
+    "suffix": ".json"
   }
 ]

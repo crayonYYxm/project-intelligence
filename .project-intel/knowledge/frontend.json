@@ -2,7 +2,41 @@
   "components": [],
   "hooks": [],
   "routes": [],
-  "apiModules": [],
+  "apiModules": [
+    {
+      "path": "src/__tests__/frontend-files-quality.test.ts",
+      "signals": [
+        "fetch",
+        "request"
+      ],
+      "wrappers": [
+        "request"
+      ],
+      "endpoints": [
+        "/api/list",
+        "/api/orders"
+      ],
+      "servicePrefixes": [],
+      "exports": [
+        "Card",
+        "useCounter"
+      ]
+    },
+    {
+      "path": "src/standards/docs.ts",
+      "signals": [
+        "axios",
+        "fetch",
+        "request"
+      ],
+      "wrappers": [],
+      "endpoints": [],
+      "servicePrefixes": [],
+      "exports": [
+        "standardsDocs"
+      ]
+    }
+  ],
   "stores": [],
   "styles": [],
   "redundancyCandidates": [],

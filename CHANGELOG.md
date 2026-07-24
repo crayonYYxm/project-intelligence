@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.7.0 - 2026-07-23
+
+- **运行时迁移到 Node.js/TypeScript**：生产 CLI 从 "Node.js 启动器 + Python 核心" 迁移为 "Node.js + TypeScript 核心"。发布包仅依赖 Node.js 18+，不再要求 Python。
+- `bin/project-intel.mjs` 直接加载编译产物 `dist/cli.js`，不 spawn Python。
+- 全部 21 个公开命令迁移到 TypeScript 实现。
+- 生成的 Git Hook 调用 npm 包的 Node CLI，不再引用 `python3`。
+- 版本单一源：`package.json#version` → 构建期生成 `dist/version.js` + 两个 plugin.json，`check-release` 校验一致。
+- 仓库移除旧 Python 生产实现；npm 包不包含 Python 源码。
+- CI 支持 Node 18/20 × 三平台，新增 Node-only pack 冒烟 + 无 Python 运行时引用扫描。
+- Python 旧测试按 AC-10 映射到 Node 测试/端到端场景，不再作为 npm test 的运行时依赖。
+
 ## 0.6.1 - 2026-07-21
 
 - Preserve Windows absolute paths while parsing graph commands on macOS and Linux, so external paths consistently require `--allow-external-path`.

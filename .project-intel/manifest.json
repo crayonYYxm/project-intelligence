@@ -1,27 +1,35 @@
 {
   "schemaVersion": 2,
-  "toolVersion": "0.1.16",
+  "toolVersion": "0.7.0",
   "projectRoot": ".",
-  "generatedAt": "2026-07-21T10:46:36.799622+00:00",
+  "generatedAt": "2026-07-24T08:46:37.849Z",
   "git": {
-    "commit": "d677a4725f46d10fd2b9bebbc98b27183c3da009",
+    "commit": "5f3ad66c9355153e765351291f5c8d8e3620ce22",
     "branch": "main",
     "dirty": true
   },
-  "frameworks": [],
+  "frameworks": [
+    "TypeScript"
+  ],
   "packageName": "project-intelligence",
   "packages": [
     {
       "path": ".",
       "name": "project-intelligence",
-      "frameworks": []
+      "frameworks": [
+        "TypeScript"
+      ]
     }
   ],
-  "fileCount": 53,
+  "fileCount": 126,
   "suffixCounts": {
-    ".py": 27,
-    ".md": 23,
-    ".json": 2,
+    ".ts": 73,
+    ".md": 25,
+    ".mjs": 19,
+    ".json": 4,
+    ".yml": 2,
+    "<none>": 1,
+    ".html": 1,
     ".yaml": 1
   },
   "graphSources": [
@@ -31,13 +39,13 @@
       "role": "符号调用、影响、变更风险",
       "status": "present",
       "schemaVersion": 5,
-      "indexedCommit": "d677a4725f46d10fd2b9bebbc98b27183c3da009",
+      "indexedCommit": "5f3ad66c9355153e765351291f5c8d8e3620ce22",
       "stats": {
-        "files": 61,
-        "nodes": 1502,
-        "edges": 3574,
-        "communities": 66,
-        "processes": 131
+        "files": 128,
+        "nodes": 2562,
+        "edges": 6596,
+        "communities": 130,
+        "processes": 221
       },
       "capabilities": {
         "graph": "available",

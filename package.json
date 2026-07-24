@@ -1,6 +1,6 @@
 {
   "name": "project-intelligence",
-  "version": "0.6.1",
+  "version": "0.7.0",
   "description": "Source-backed development design, requirement lifecycle gates, project context, test evidence, review, finish, and maintenance for Claude and Codex.",
   "license": "MIT",
   "type": "module",
@@ -10,12 +10,13 @@
   },
   "files": [
     "bin",
+    "dist",
+    ".baseline/cli-snapshot.json",
     ".agents/plugins/marketplace.json",
     ".claude-plugin/marketplace.json",
     "plugins/project-intelligence/.claude-plugin",
     "plugins/project-intelligence/.codex-plugin",
     "plugins/project-intelligence/assets",
-    "plugins/project-intelligence/scripts",
     "plugins/project-intelligence/skills",
     "scripts/npm-pack-dry-run.mjs",
     "docs",
@@ -42,11 +43,21 @@
     "developer-tools"
   ],
   "scripts": {
+    "build": "node scripts/gen-version.mjs && tsc -p tsconfig.json",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "node scripts/run-tests.mjs",
+    "test:unit": "node scripts/run-unit-tests.mjs",
     "test:skills": "node scripts/run-skill-evals.mjs --agent claude",
     "test:skills:dry-run": "node scripts/run-skill-evals.mjs --agent claude --dry-run",
+    "gen-version": "node scripts/gen-version.mjs",
     "check-release": "node scripts/check-release.mjs && node scripts/check-package.mjs",
+    "prepack": "node scripts/gen-version.mjs && tsc -p tsconfig.json",
     "pack:dry-run": "node scripts/npm-pack-dry-run.mjs"
+  },
+  "devDependencies": {
+    "@types/node": "^18.19.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3"
   },
   "publishConfig": {
     "access": "public"

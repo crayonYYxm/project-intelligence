@@ -1,0 +1,23 @@
+{
+  "components": [
+    {
+      "name": "SearchForm",
+      "path": "frontend/components/SearchForm.tsx",
+      "kind": "react",
+      "scope": "page-local",
+      "props": [],
+      "emits": [],
+      "slots": [],
+      "expose": [],
+      "dependencies": [],
+      "level": "candidate"
+    }
+  ],
+  "hooks": [],
+  "routes": [],
+  "apiModules": [],
+  "stores": [],
+  "styles": [],
+  "redundancyCandidates": [],
+  "scanMode": "regex-fallback"
+}

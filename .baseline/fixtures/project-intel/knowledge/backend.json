@@ -1,0 +1,45 @@
+{
+  "apis": [
+    {
+      "path": "backend/api.py",
+      "framework": "FastAPI/Flask",
+      "parser": "python-ast",
+      "signals": [],
+      "endpoints": [
+        "/orders"
+      ],
+      "methods": [
+        "create_order"
+      ]
+    }
+  ],
+  "services": [
+    {
+      "name": "service",
+      "path": "backend/service.py",
+      "framework": "Unknown",
+      "parser": "python-ast",
+      "methods": [
+        "create",
+        "submit"
+      ],
+      "transactions": [],
+      "remoteCalls": [],
+      "permissionSignals": []
+    }
+  ],
+  "dataTypes": [],
+  "repositories": [],
+  "configs": [],
+  "permissionChecks": [],
+  "transactions": [],
+  "remoteCalls": [],
+  "messagesJobs": [],
+  "errorCodes": [],
+  "utilities": [],
+  "candidateEntrypoints": [],
+  "testFixtures": [],
+  "scanModes": [
+    "python-ast"
+  ]
+}

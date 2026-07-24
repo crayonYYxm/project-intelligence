@@ -4,14 +4,15 @@
 
 | 路径 | 信号样例 | 等级 |
 | --- | --- | --- |
-| plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py | @Transactional, TransactionTemplate, DataSourceTransactionManager, EntityManager, UnitOfWork | candidate |
-| plugins/project-intelligence/tests/test_project_intel.py | @Transactional | candidate |
+| src/__tests__/backend.test.ts | transaction( | candidate |
+| src/scanner/backend.ts | @Transactional, TransactionTemplate, DataSourceTransactionManager, EntityManager, UnitOfWork | candidate |
 
 ## 信号热点
 
 | 信号 | 出现次数 |
 | --- | --- |
-| @Transactional | 2 |
+| transaction( | 1 |
+| @Transactional | 1 |
 | TransactionTemplate | 1 |
 | DataSourceTransactionManager | 1 |
 | EntityManager | 1 |

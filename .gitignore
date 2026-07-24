@@ -6,3 +6,13 @@ __pycache__/
 
 # Project Intelligence local artifacts
 .project-intel/local/
+
+# Node-TypeScript migration baseline: immutable v0.6.1 worktree (machine-local, large)
+# Committed under .baseline/: cli-snapshot.json, fixtures/, test-map.json
+.baseline/worktree/
+
+# TypeScript build output
+dist/
+
+# Node dependencies (lockfile IS committed for reproducible installs)
+node_modules/

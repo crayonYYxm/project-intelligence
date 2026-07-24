@@ -1,0 +1,38 @@
+[
+  {
+    "path": "README.md",
+    "size": 85,
+    "mtime": 0,
+    "suffix": ".md"
+  },
+  {
+    "path": "backend/api.py",
+    "size": 143,
+    "mtime": 0,
+    "suffix": ".py"
+  },
+  {
+    "path": "backend/service.py",
+    "size": 198,
+    "mtime": 0,
+    "suffix": ".py"
+  },
+  {
+    "path": "frontend/App.tsx",
+    "size": 77,
+    "mtime": 0,
+    "suffix": ".tsx"
+  },
+  {
+    "path": "frontend/components/SearchForm.tsx",
+    "size": 75,
+    "mtime": 0,
+    "suffix": ".tsx"
+  },
+  {
+    "path": "package.json",
+    "size": 116,
+    "mtime": 0,
+    "suffix": ".json"
+  }
+]

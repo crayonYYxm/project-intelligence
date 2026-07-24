@@ -4,17 +4,18 @@
 
 | 路径 | 信号样例 | 等级 |
 | --- | --- | --- |
-| plugins/project-intelligence/scripts/project_intel_lib/application.py | token, session | candidate |
-| plugins/project-intelligence/scripts/project_intel_lib/cli.py | token | candidate |
-| plugins/project-intelligence/scripts/project_intel_lib/design_documents.py | token | candidate |
-| plugins/project-intelligence/scripts/project_intel_lib/requirements.py | token | candidate |
-| plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py | jwt, token, session, principal, SecurityContext, AuthGuard, CanActivate | candidate |
-| plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py | token | candidate |
-| plugins/project-intelligence/scripts/project_intel_lib/testing.py | token | candidate |
-| plugins/project-intelligence/tests/test_project_intel.py | @PreAuthorize(\"hasRole('ORDER')\")"], "level": "candidate"}, @PreAuthorize("hasRole('ORDER')"), token, session | candidate |
-| plugins/project-intelligence/tests/test_project_test.py | token, session | candidate |
-| plugins/project-intelligence/tests/test_requirement_workflow.py | token | candidate |
-| plugins/project-intelligence/tests/test_testing_security.py | token | candidate |
+| src/__tests__/backend.test.ts | @PreAuthorize(\"hasRole('ADMIN')\")\npublic void secure() | candidate |
+| src/__tests__/json-envelope.test.ts | session, token | candidate |
+| src/__tests__/review-finish-graph.test.ts | token | candidate |
+| src/__tests__/test-evidence.test.ts | session, token | candidate |
+| src/app/dispatcher.ts | token | candidate |
+| src/cli/command-flags.ts | token | candidate |
+| src/cli/json-envelope.ts | token | candidate |
+| src/cli/parser.ts | token | candidate |
+| src/requirements/scope.ts | token | candidate |
+| src/scanner/backend.ts | jwt, token, session, principal, SecurityContext, AuthGuard, CanActivate | candidate |
+| src/standards/docs.ts | token, session | candidate |
+| src/testing/sanitize.ts | token | candidate |
 
 ## 信号热点
 
@@ -22,13 +23,12 @@
 | --- | --- |
 | token | 11 |
 | session | 4 |
+| @PreAuthorize(\"hasRole('ADMIN')\")\npublic void secure() | 1 |
 | jwt | 1 |
 | principal | 1 |
 | SecurityContext | 1 |
 | AuthGuard | 1 |
 | CanActivate | 1 |
-| @PreAuthorize(\"hasRole('ORDER')\")"], "level": "candidate"} | 1 |
-| @PreAuthorize("hasRole('ORDER')") | 1 |
 
 ## 约定
 

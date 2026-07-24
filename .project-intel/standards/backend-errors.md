@@ -4,18 +4,49 @@
 
 | 路径 | 信号样例 | 等级 |
 | --- | --- | --- |
-| plugins/project-intelligence/scripts/project_intel_lib/cli.py | COMMAND_FAILED, USAGE_ERROR | candidate |
-| plugins/project-intelligence/tests/test_project_intel.py | ORDER_FAILED, USAGE_ERROR, COMMAND_FAILED, BusinessException | candidate |
-| plugins/project-intelligence/tests/test_requirement_workflow.py | USAGE_ERROR | candidate |
+| src/__tests__/backend.test.ts | ERR_001, BusinessException | candidate |
+| src/__tests__/dispatcher.test.ts | UsageError, RuntimeError | candidate |
+| src/__tests__/json-envelope.test.ts | USAGE_ERROR, COMMAND_FAILED | candidate |
+| src/__tests__/project-facts.test.ts | ORDER_FAILED | candidate |
+| src/app/dispatcher.ts | USAGE_ERROR, COMMAND_FAILED, RuntimeError | candidate |
+| src/cli.ts | UsageError | candidate |
+| src/cli/json-envelope.ts | USAGE_ERROR, COMMAND_FAILED | candidate |
+| src/cli/parser.ts | UsageError | candidate |
+| src/commands/adapters.ts | UsageError | candidate |
+| src/commands/agent-install.ts | UsageError | candidate |
+| src/commands/check.ts | UsageError, RuntimeError | candidate |
+| src/commands/finish.ts | UsageError | candidate |
+| src/commands/init.ts | UsageError | candidate |
+| src/commands/maintain.ts | UsageError | candidate |
+| src/commands/orchestration.ts | UsageError | candidate |
+| src/commands/query.ts | UsageError | candidate |
+| src/commands/requirement.ts | UsageError | candidate |
+| src/commands/review.ts | UsageError | candidate |
+| src/commands/test.ts | UsageError | candidate |
+| src/errors.ts | EXIT_NOT_FOUND | candidate |
+| src/fs/atomic-write.ts | StrictReadError | candidate |
+| src/fs/lock.ts | RequirementError | candidate |
+| src/fs/paths.ts | UsageError | candidate |
+| src/process/spawn.ts | EXIT_NOT_FOUND | candidate |
+| src/requirements/documents.ts | RequirementError | candidate |
+| src/requirements/layout.ts | RequirementError | candidate |
+| src/requirements/scope.ts | RequirementError | candidate |
+| src/requirements/state-machine.ts | RequirementError | candidate |
 
 ## 信号热点
 
 | 信号 | 出现次数 |
 | --- | --- |
+| UsageError | 15 |
+| RequirementError | 5 |
+| RuntimeError | 3 |
 | USAGE_ERROR | 3 |
-| COMMAND_FAILED | 2 |
-| ORDER_FAILED | 1 |
+| COMMAND_FAILED | 3 |
+| EXIT_NOT_FOUND | 2 |
+| ERR_001 | 1 |
 | BusinessException | 1 |
+| ORDER_FAILED | 1 |
+| StrictReadError | 1 |
 
 ## 约定
 

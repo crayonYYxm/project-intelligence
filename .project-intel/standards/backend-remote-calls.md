@@ -4,19 +4,21 @@
 
 | 路径 | 信号样例 | 等级 |
 | --- | --- | --- |
-| plugins/project-intelligence/scripts/project_intel_lib/application.py | axios, fetch, Feign | candidate |
-| plugins/project-intelligence/scripts/project_intel_lib/scanner/backend.py | @FeignClient, RestTemplate, WebClient, Feign, HttpClient, OkHttpClient, ServiceMeshAdapter, grpc, axios, fetch | candidate |
-| plugins/project-intelligence/scripts/project_intel_lib/scanner/frontend.py | fetch, axios | candidate |
-| plugins/project-intelligence/tests/test_project_intel.py | RestTemplate | candidate |
+| src/__tests__/frontend-files-quality.test.ts | fetch | candidate |
+| src/__tests__/project-facts.test.ts | RestTemplate | candidate |
+| src/scanner/backend.ts | @FeignClient, RestTemplate, WebClient, Feign, HttpClient, OkHttpClient, ServiceMeshAdapter, grpc, axios, fetch | candidate |
+| src/scanner/frontend.ts | fetch, axios | candidate |
+| src/standards/docs.ts | axios, fetch, Feign | candidate |
+| src/standards/infer.ts | axios, fetch | candidate |
 
 ## 信号热点
 
 | 信号 | 出现次数 |
 | --- | --- |
-| axios | 3 |
-| fetch | 3 |
-| Feign | 2 |
+| fetch | 5 |
+| axios | 4 |
 | RestTemplate | 2 |
+| Feign | 2 |
 | @FeignClient | 1 |
 | WebClient | 1 |
 | HttpClient | 1 |
