@@ -4,9 +4,15 @@ import { mkdtempSync, mkdirSync, writeFileSync, existsSync, readFileSync, append
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { runRequirement } from "../commands/requirement.js";
-import { runIntake } from "../commands/orchestration.js";
+import { runIntake, runPlan } from "../commands/orchestration.js";
 import { migrateLayout, artifactFilename, ARTIFACT_FILES } from "../requirements/layout.js";
-import { createRequirement, loadRequirement, mutate, setAcceptanceCriteria } from "../requirements/state-machine.js";
+import {
+  createRequirement,
+  loadRequirement,
+  mutate,
+  requirementDir,
+  setAcceptanceCriteria,
+} from "../requirements/state-machine.js";
 import {
   beginWithBusinessChange,
   designDocument,
@@ -24,6 +30,15 @@ describe("requirement command dispatcher", () => {
     const r = runRequirement(root, ["status", "--requirement-id", "REQ-1"], noopGlobal);
     assert.equal(r.exitCode, 0);
     assert.equal((r.result as Record<string, unknown>).state, "draft");
+  });
+
+  it("plan writes into the resolved id-title requirement directory", () => {
+    const root = mkdtempSync(join(tmpdir(), "pi-req-"));
+    createRequirement(root, "REQ-PLAN", "实施计划目录");
+    const result = runPlan(root, ["--requirement-id", "REQ-PLAN"], noopGlobal);
+    const path = String((result.result as Record<string, unknown>).path);
+    assert.ok(path.endsWith(join(".project-intel", "requirements", "REQ-PLAN-实施计划目录", "plan.md")));
+    assert.equal(existsSync(path), true);
   });
 
   it("intake persists document actions and later selection blocks generation", () => {
@@ -296,7 +311,7 @@ describe("requirement command dispatcher", () => {
     assert.equal(manifest.state, "verified");
     assert.equal(manifest.testEvidence?.length, 1);
     assert.equal(manifest.testEvidence?.[0]?.reportOriginalPath, "reports/unit.json");
-    assert.ok(existsSync(join(root, ".project-intel", "requirements", prepared.id, "test-report.md")));
+    assert.ok(existsSync(join(requirementDir(root, prepared.id), "test-report.md")));
   });
 
   it("diagnose records a Bug root cause (ticketKind=bug)", () => {
@@ -433,6 +448,7 @@ describe("requirement layout", () => {
     writeFileSync(join(legacyDir, "test-reports", "unit.json"), '{"tests":1,"failures":0}');
     writeFileSync(join(legacyDir, "manifest.json"), JSON.stringify({
       requirementId: "REQ-OLD",
+      requirementName: "旧版布局迁移",
       artifacts: [
         {
           type: "requirement",
@@ -448,12 +464,14 @@ describe("requirement layout", () => {
     const dryRun = migrateLayout(root, "REQ-OLD", false);
     assert.equal(dryRun.migrated, true);
     assert.equal(existsSync(join(root, ".project-intel", "requirements", "REQ-OLD", "manifest.json")), false);
+    assert.ok(dryRun.to?.endsWith(join(".project-intel", "requirements", "REQ-OLD-旧版布局迁移")));
     const result = migrateLayout(root, "REQ-OLD", true);
     assert.equal(result.migrated, true);
     assert.equal(existsSync(join(legacyDir, "manifest.json")), true);
-    assert.equal(existsSync(join(root, ".project-intel", "requirements", "REQ-OLD", "test-reports", "unit.json")), true);
-    const migrated = readFileSync(join(root, ".project-intel", "requirements", "REQ-OLD", "manifest.json"), "utf8");
-    assert.ok(migrated.includes(".project-intel/requirements/REQ-OLD/requirement.md"));
+    const migratedDir = join(root, ".project-intel", "requirements", "REQ-OLD-旧版布局迁移");
+    assert.equal(existsSync(join(migratedDir, "test-reports", "unit.json")), true);
+    const migrated = readFileSync(join(migratedDir, "manifest.json"), "utf8");
+    assert.ok(migrated.includes(".project-intel/requirements/REQ-OLD-旧版布局迁移/requirement.md"));
     assert.ok(!migrated.includes(".project-intel/requirements/by-id/REQ-OLD/"));
   });
 });

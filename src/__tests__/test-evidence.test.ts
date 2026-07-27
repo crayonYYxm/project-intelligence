@@ -2,7 +2,7 @@ import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, existsSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { join, relative } from "node:path";
 import { sanitizeText, manualEvidenceValid, COMMAND_ERROR_CODES } from "../testing/sanitize.js";
 import {
   executedTestCount,
@@ -12,7 +12,7 @@ import {
   evaluateTestEvidence,
 } from "../testing/render.js";
 import { runTest } from "../commands/test.js";
-import { loadRequirement } from "../requirements/state-machine.js";
+import { loadRequirement, requirementDir } from "../requirements/state-machine.js";
 import { beginWithBusinessChange, prepareDesignedRequirement } from "./helpers.js";
 
 const noopGlobal = { project: null, jsonMode: false } as never;
@@ -163,7 +163,7 @@ describe("test command (AC-11: rejects forged pass)", () => {
     const root = mkdtempSync(join(tmpdir(), "pi-tc-"));
     const prepared = prepareDesignedRequirement(root, "REQ-TEST-DOC", { name: "测试文档需求" });
     beginWithBusinessChange(prepared);
-    const reportPath = join(root, ".project-intel", "requirements", prepared.id, "test-report.md");
+    const reportPath = join(requirementDir(root, prepared.id), "test-report.md");
 
     runTest(root, [
       "--requirement-id", prepared.id,
@@ -196,7 +196,7 @@ describe("test command (AC-11: rejects forged pass)", () => {
     assert.match(second, /Ran 3 tests/);
     assert.ok(second.length > first.length);
     const artifact = loadRequirement(root, prepared.id).artifacts.find((item) => item.type === "test");
-    assert.equal(artifact?.path, `.project-intel/requirements/${prepared.id}/test-report.md`);
+    assert.equal(artifact?.path, relative(root, reportPath).replaceAll("\\", "/"));
     assert.equal(artifact?.status, "passed");
   });
 
@@ -225,7 +225,10 @@ describe("test command (AC-11: rejects forged pass)", () => {
     assert.equal(manifest.state, "verified");
     const evidence = manifest.testEvidence?.[0] as Record<string, unknown>;
     assert.equal(evidence.reportOriginalPath, reportPath);
-    assert.match(String(evidence.reportPath ?? ""), /\.project-intel\/requirements\/REQ-R\/test-reports\/TEST-01-unit\.md$/);
+    assert.match(
+      String(evidence.reportPath ?? ""),
+      /\.project-intel\/requirements\/REQ-R-登记报告需求\/test-reports\/TEST-01-unit\.md$/
+    );
     assert.ok(existsSync(join(root, String(evidence.reportPath))));
   });
 

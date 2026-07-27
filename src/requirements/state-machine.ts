@@ -8,7 +8,7 @@
 // reviewed -> finished -> closed (with reopen/amend/defer side transitions).
 // schemaVersion 2. AC-05 / AC-13.
 
-import { existsSync, readFileSync, mkdirSync, realpathSync, statSync, unlinkSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, mkdirSync, readdirSync, realpathSync, statSync, unlinkSync, writeFileSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { dirname, isAbsolute, join, relative, resolve } from "node:path";
 import { withLock } from "../fs/lock.js";
@@ -112,9 +112,78 @@ export interface RequirementManifest {
   updatedAt: string;
 }
 
-/** Resolve the `.project-intel/requirements/<id>` directory (v2 direct layout). */
-export function requirementDir(root: string, requirementId: string): string {
-  return join(root, ".project-intel", "requirements", normalizeId(requirementId));
+const MAX_REQUIREMENT_DIRECTORY_BYTES = 240;
+
+function truncateUtf8(value: string, maxBytes: number): string {
+  let result = "";
+  let bytes = 0;
+  for (const character of value) {
+    const size = Buffer.byteLength(character);
+    if (bytes + size > maxBytes) break;
+    result += character;
+    bytes += size;
+  }
+  return result;
+}
+
+export function requirementDirectoryName(requirementId: string, requirementName: string): string {
+  const id = normalizeId(requirementId);
+  const availableTitleBytes = MAX_REQUIREMENT_DIRECTORY_BYTES - Buffer.byteLength(id) - 1;
+  if (availableTitleBytes < 1) {
+    throw new RequirementError(`需求号过长，无法生成安全目录名：${id}`);
+  }
+  const normalizedTitle = String(requirementName ?? "")
+    .normalize("NFKC")
+    .replace(/[\u0000-\u001f\u007f-\u009f<>:\x22/\\|?*]/g, "-")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^[ .-]+|[ .-]+$/g, "");
+  const fallback = "untitled";
+  const truncated = truncateUtf8(normalizedTitle || fallback, availableTitleBytes)
+    .replace(/[ .-]+$/g, "");
+  return `${id}-${truncated || fallback}`;
+}
+
+function directManifestPaths(root: string, requirementId: string): string[] {
+  const id = normalizeId(requirementId);
+  const requirementsRoot = join(root, ".project-intel", "requirements");
+  if (!existsSync(requirementsRoot)) return [];
+  const matches: string[] = [];
+  for (const directory of readdirSync(requirementsRoot).sort()) {
+    if (directory === "by-id") continue;
+    const candidate = join(requirementsRoot, directory, "manifest.json");
+    if (!existsSync(candidate)) continue;
+    if (directory === id) {
+      matches.push(candidate);
+      continue;
+    }
+    if (!directory.startsWith(`${id}-`)) continue;
+    try {
+      const payload = JSON.parse(readFileSync(candidate, "utf8")) as { requirementId?: string };
+      if (normalizeId(String(payload.requirementId ?? "")) === id) matches.push(candidate);
+    } catch {
+      // A malformed title directory is not a valid identity match.
+    }
+  }
+  if (matches.length > 1) {
+    const directories = matches.map((path) => dirname(path).split(/[\\/]/).pop()).join(", ");
+    throw new RequirementError(`需求号 ${id} 存在多个需求档案：${directories}`);
+  }
+  return matches;
+}
+
+/** Resolve an existing requirement directory by id, or build a new `<id>-<title>` path when a name is provided. */
+export function requirementDir(root: string, requirementId: string, requirementName?: string): string {
+  const existing = directManifestPaths(root, requirementId)[0];
+  if (existing) return dirname(existing);
+  const directory = requirementName
+    ? requirementDirectoryName(requirementId, requirementName)
+    : normalizeId(requirementId);
+  const target = join(root, ".project-intel", "requirements", directory);
+  if (requirementName && existsSync(join(target, "manifest.json"))) {
+    throw new RequirementError(`需求目录已存在但档案身份无法识别：${directory}`);
+  }
+  return target;
 }
 
 export function manifestPath(root: string, requirementId: string): string {
@@ -171,7 +240,7 @@ export function loadRequirement(root: string, requirementId: string): Requiremen
 
 /** Persist a manifest atomically under the requirement lock. */
 export function writeManifest(root: string, requirementId: string, manifest: RequirementManifest): void {
-  const dir = requirementDir(root, requirementId);
+  const dir = requirementDir(root, requirementId, manifest.requirementName);
   mkdirSync(dir, { recursive: true });
   manifest.updatedAt = nowIso();
   const path = join(dir, "manifest.json");
@@ -274,8 +343,6 @@ export function createRequirement(
     };
   }
   const path = activeManifestPath(root, identifier);
-  const dir = dirname(path);
-  mkdirSync(dir, { recursive: true });
 
   if (existsSync(path)) {
     const current = loadRequirement(root, identifier);

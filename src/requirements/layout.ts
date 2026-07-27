@@ -1,10 +1,10 @@
 // Requirement layout + artifact helpers (phase 3.D.5), ported from
 // requirements.requirement_dir / ARTIFACT_FILES / migrate_layout. The v2 layout
-// stores requirements directly under `.project-intel/requirements/<id>/` (no
-// by-id/); legacy by-id archives are read transparently for 0.6.1 compat (AC-04).
+// stores new requirements under `.project-intel/requirements/<id>-<title>/`
+// (no by-id/); id-only and legacy by-id archives remain readable.
 
 import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
+import { join, relative } from "node:path";
 import { requirementDir, legacyManifestPath, manifestPath, activeManifestPath } from "./state-machine.js";
 import { RequirementError } from "../errors.js";
 
@@ -35,13 +35,20 @@ export function hasRequirement(root: string, requirementId: string): boolean {
 export function migrateLayout(root: string, requirementId: string, apply: boolean): { migrated: boolean; from?: string; to?: string } {
   const legacy = legacyManifestPath(root, requirementId);
   if (!existsSync(legacy)) return { migrated: false };
-  const target = manifestPath(root, requirementId);
-  if (existsSync(target)) return { migrated: false }; // v2 already present
+  if (existsSync(manifestPath(root, requirementId))) return { migrated: false }; // v2 already present
+  const legacyManifest = JSON.parse(readFileSync(legacy, "utf8")) as {
+    requirementName?: unknown;
+  };
+  const requirementName = String(legacyManifest.requirementName ?? "").trim() || "untitled";
   const fromDir = join(legacy, "..");
-  const toDir = requirementDir(root, requirementId);
+  const toDir = requirementDir(root, requirementId, requirementName);
+  const target = join(toDir, "manifest.json");
+  if (existsSync(toDir)) {
+    throw new RequirementError(`迁移目标目录已存在，拒绝覆盖：${toDir}`);
+  }
   if (apply) {
     copyTree(fromDir, toDir);
-    rewriteManifestPaths(target, requirementId);
+    rewriteManifestPaths(target, requirementId, `${relative(root, toDir).replaceAll("\\", "/")}/`);
     return { migrated: true, from: fromDir, to: toDir };
   }
   return { migrated: true, from: fromDir, to: toDir };
@@ -64,10 +71,9 @@ function copyTree(src: string, dest: string): void {
   }
 }
 
-function rewriteManifestPaths(path: string, requirementId: string): void {
+function rewriteManifestPaths(path: string, requirementId: string, directPrefix: string): void {
   const manifest = JSON.parse(readFileSync(path, "utf8")) as unknown;
   const legacyPrefix = `.project-intel/requirements/by-id/${requirementId}/`;
-  const directPrefix = `.project-intel/requirements/${requirementId}/`;
   const rewrite = (value: unknown): unknown => {
     if (typeof value === "string") return value.split(legacyPrefix).join(directPrefix);
     if (Array.isArray(value)) return value.map(rewrite);

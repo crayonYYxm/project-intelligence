@@ -62,10 +62,10 @@ project-intel --project /path/to/repo doctor --json
 project-intel --project /path/to/repo intake --task "新需求"
 project-intel --project /path/to/repo intake --requirement-id REQ-1001 --requirement-name "新需求" --ticket-kind requirement --external-api no --requirement-action generate --design-action generate
 project-intel --project /path/to/repo requirement acceptance set --requirement-id REQ-1001 --criterion "AC-01:实现目标行为" --criterion "AC-02:相关回归测试通过"
-project-intel --project /path/to/repo requirement add --requirement-id REQ-1001 --type requirement --path .project-intel/requirements/REQ-1001/requirement.md
+project-intel --project /path/to/repo requirement add --requirement-id REQ-1001 --type requirement --path .project-intel/requirements/REQ-1001-新需求/requirement.md
 # 仅 Bug 需要在 design/ready 前登记根因证据：
 project-intel --project /path/to/repo requirement diagnose --requirement-id bug1001 --root-cause "已确认根因" --evidence "src/order/service.ts#submitOrder"
-project-intel --project /path/to/repo requirement add --requirement-id REQ-1001 --type design --path .project-intel/requirements/REQ-1001/design.md
+project-intel --project /path/to/repo requirement add --requirement-id REQ-1001 --type design --path .project-intel/requirements/REQ-1001-新需求/design.md
 project-intel --project /path/to/repo requirement test-contract set --requirement-id REQ-1001 --kind unit --report-action generate --acceptance AC-01,AC-02
 project-intel --project /path/to/repo requirement ready --requirement-id REQ-1001 --resolution "需求、设计、测试合同和验收已确认"
 project-intel --project /path/to/repo requirement begin --requirement-id REQ-1001
@@ -102,8 +102,8 @@ project-intel --project /path/to/repo requirement migrate
 - `intake` 将需求分为 `quick`、`standard`、`complex`，并输出 readiness、风险、缺失信息、必经阶段和复用候选；默认只打印，不生成文件。
 - `lifecycle` 输出带 track/readiness 的任务影响分析，默认只打印，不写共享报告。
 - `project-spec` 维护需求目录中的 `requirement.md` 和 manifest 验收标准；`project-plan` 仅在复杂任务或明确要求时生成同目录的可选 `plan.md`。未选择计划时不强制生成；一旦生成，必须补全、登记且保持哈希有效，才能通过 ready/begin。
-- `project-design` 可以独立把本地 Bug/需求单转换为 `docs/requirements/` 下的源码佐证设计文档；独立调用不会初始化或修改 `.project-intel`。Bug 保持五段式；Requirement 保持 CRM 正式章节，但以中文业务场景、处理规则和字段流转为主，源码只保留 `路径#符号` 依据和极少量关键片段。在生命周期模式中，设计统一归档为 `.project-intel/requirements/<id>/design.md`。
-- `requirement` 将每个需求直接归档到 `.project-intel/requirements/<id>/`。四个必选文档是 `requirement.md`、`design.md`、`test-report.md`、`closure-summary.md`；`plan.md` 可选。manifest 保存状态、AC、测试/评审证据、变更文件、finish 和 maintenance 结果。纯数字编号按单据类型规范化为 `bug<数字>` 或 `req<数字>`。
+- `project-design` 可以独立把本地 Bug/需求单转换为 `docs/requirements/` 下的源码佐证设计文档；独立调用不会初始化或修改 `.project-intel`。Bug 保持五段式；Requirement 保持 CRM 正式章节，但以中文业务场景、处理规则和字段流转为主，源码只保留 `路径#符号` 依据和极少量关键片段。在生命周期模式中，设计统一归档为 `.project-intel/requirements/<id>-<title>/design.md`。
+- `requirement` 将新需求归档到 `.project-intel/requirements/<id>-<title>/`，并继续兼容历史 `<id>/` 与 `by-id/<id>/`。四个必选文档是 `requirement.md`、`design.md`、`test-report.md`、`closure-summary.md`；`plan.md` 可选。manifest 保存状态、AC、测试/评审证据、变更文件、finish 和 maintenance 结果。纯数字编号按单据类型规范化为 `bug<数字>` 或 `req<数字>`。
 - intake 选择的需求文档和设计文档动作及已有文件路径保存在 `manifest.workflowSelections`，后续会话和子任务从 `requirement status --json` 恢复，不重复询问或猜测。
 - 项目级可覆盖状态统一写入 `.project-intel/project-status.md`。新流程不创建共享 `reports/specs/plans/maintenance`、`requirements/by-id` 或 `requirements/files`；旧结构可用 `requirement migrate` 先预览，再加 `--apply` 迁移。
 - `requirement test-contract set` 把测试类型、报告动作和 AC 映射写入 manifest；`both` 只表示契约要求 unit 和 service 两类证据，单条 `test` 证据只能是 `unit`、`service` 或 `manual`。

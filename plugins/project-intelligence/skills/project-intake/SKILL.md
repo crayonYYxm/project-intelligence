@@ -19,7 +19,7 @@ project-intel intake --task "<requirement>"
    - `standard`: normal feature/change that needs lightweight spec and plan in context.
    - `complex`: cross-module, API/data/auth/payment/cache/async/release/compatibility/security/performance work.
 4. If readiness is `needs-clarification`, resolve only the missing information that can change implementation or acceptance.
-5. Do not create shared spec, plan, lifecycle, intake, or report files. Requirement-level durable files belong only in `.project-intel/requirements/<id>/`.
+5. Do not create shared spec, plan, lifecycle, intake, or report files. New requirement-level durable files belong only in `.project-intel/requirements/<id>-<title>/`; legacy `<id>/` archives remain readable.
 6. Route first to `project-spec` after collecting the requirement-document and design-document actions during intake. Persist both choices in `manifest.workflowSelections`; when `register` is chosen, persist the validated repository-relative source path too. Always execute the lifecycle in this order: `project-spec` first, then `project-debug` for a Bug, then `project-design`. `project-spec` must generate or register `requirement.md` and persist the same numbered acceptance criteria in the manifest. A `later` requirement document is a blocking choice.
 7. After `project-spec`, handle the selected development-design action:
    - `generate`: invoke `project-design`; for a Bug, invoke `project-debug` first so the design contains an evidence-backed root cause.

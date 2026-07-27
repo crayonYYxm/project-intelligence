@@ -37,8 +37,8 @@
   },
   {
     "path": "README.md",
-    "size": 16957,
-    "mtime": 1784790095668.936,
+    "size": 17034,
+    "mtime": 1785133828522.358,
     "suffix": ".md"
   },
   {
@@ -68,7 +68,7 @@
   {
     "path": "marketplace.json",
     "size": 604,
-    "mtime": 1785125463859.1309,
+    "mtime": 1785134342640.8767,
     "suffix": ".json"
   },
   {
@@ -85,8 +85,8 @@
   },
   {
     "path": "plugins/project-intelligence/assets/plugin-intro.html",
-    "size": 50825,
-    "mtime": 1784599844251.7957,
+    "size": 50890,
+    "mtime": 1785133737581.7107,
     "suffix": ".html"
   },
   {
@@ -103,8 +103,8 @@
   },
   {
     "path": "plugins/project-intelligence/skills/project-design/SKILL.md",
-    "size": 6666,
-    "mtime": 1784794363795.4473,
+    "size": 6757,
+    "mtime": 1785133718624.5146,
     "suffix": ".md"
   },
   {
@@ -133,8 +133,8 @@
   },
   {
     "path": "plugins/project-intelligence/skills/project-finish/SKILL.md",
-    "size": 3229,
-    "mtime": 1784262010845.3557,
+    "size": 3284,
+    "mtime": 1785133718625.4136,
     "suffix": ".md"
   },
   {
@@ -145,14 +145,14 @@
   },
   {
     "path": "plugins/project-intelligence/skills/project-intake/SKILL.md",
-    "size": 4743,
-    "mtime": 1784522233369.9578,
+    "size": 4796,
+    "mtime": 1785133718623.754,
     "suffix": ".md"
   },
   {
     "path": "plugins/project-intelligence/skills/project-knowledge/SKILL.md",
-    "size": 1724,
-    "mtime": 1784257728808.2073,
+    "size": 1767,
+    "mtime": 1785133718625.6543,
     "suffix": ".md"
   },
   {
@@ -169,8 +169,8 @@
   },
   {
     "path": "plugins/project-intelligence/skills/project-plan/SKILL.md",
-    "size": 3272,
-    "mtime": 1784262010743.6208,
+    "size": 3334,
+    "mtime": 1785133718624.8528,
     "suffix": ".md"
   },
   {
@@ -193,8 +193,8 @@
   },
   {
     "path": "plugins/project-intelligence/skills/project-spec/SKILL.md",
-    "size": 4257,
-    "mtime": 1784266759762.8667,
+    "size": 4314,
+    "mtime": 1785133718624.1118,
     "suffix": ".md"
   },
   {
@@ -205,8 +205,8 @@
   },
   {
     "path": "plugins/project-intelligence/skills/project-task/SKILL.md",
-    "size": 6475,
-    "mtime": 1784522132864.747,
+    "size": 6518,
+    "mtime": 1785133718625.1494,
     "suffix": ".md"
   },
   {
@@ -403,14 +403,14 @@
   },
   {
     "path": "src/__tests__/requirement-command.test.ts",
-    "size": 22268,
-    "mtime": 1784881330502.3967,
+    "size": 22992,
+    "mtime": 1785133904593.8782,
     "suffix": ".ts"
   },
   {
     "path": "src/__tests__/review-finish-graph.test.ts",
-    "size": 8691,
-    "mtime": 1785115490938.3987,
+    "size": 8653,
+    "mtime": 1785133636667.6804,
     "suffix": ".ts"
   },
   {
@@ -427,14 +427,14 @@
   },
   {
     "path": "src/__tests__/state-machine.test.ts",
-    "size": 9961,
-    "mtime": 1784881228411.994,
+    "size": 12271,
+    "mtime": 1785134294423.3418,
     "suffix": ".ts"
   },
   {
     "path": "src/__tests__/test-evidence.test.ts",
-    "size": 12139,
-    "mtime": 1785116047991.7322,
+    "size": 12173,
+    "mtime": 1785133636667.9185,
     "suffix": ".ts"
   },
   {
@@ -499,8 +499,8 @@
   },
   {
     "path": "src/commands/agent-rules.ts",
-    "size": 4374,
-    "mtime": 1784877515739.631,
+    "size": 4511,
+    "mtime": 1785133718622.6555,
     "suffix": ".ts"
   },
   {
@@ -535,8 +535,8 @@
   },
   {
     "path": "src/commands/init.ts",
-    "size": 9487,
-    "mtime": 1784879077207.8115,
+    "size": 9552,
+    "mtime": 1785133718622.3694,
     "suffix": ".ts"
   },
   {
@@ -553,8 +553,8 @@
   },
   {
     "path": "src/commands/orchestration.ts",
-    "size": 9230,
-    "mtime": 1784880001518.1204,
+    "size": 9126,
+    "mtime": 1785133518150.0176,
     "suffix": ".ts"
   },
   {
@@ -565,8 +565,8 @@
   },
   {
     "path": "src/commands/requirement.ts",
-    "size": 22581,
-    "mtime": 1784881288214.5928,
+    "size": 22983,
+    "mtime": 1785133535191.5056,
     "suffix": ".ts"
   },
   {
@@ -667,20 +667,20 @@
   },
   {
     "path": "src/requirements/layout.ts",
-    "size": 3407,
-    "mtime": 1784881151303.3435,
+    "size": 3760,
+    "mtime": 1785133828521.7878,
     "suffix": ".ts"
   },
   {
     "path": "src/requirements/scope.ts",
-    "size": 10385,
-    "mtime": 1784876198376.9502,
+    "size": 10594,
+    "mtime": 1785133575502.5933,
     "suffix": ".ts"
   },
   {
     "path": "src/requirements/state-machine.ts",
-    "size": 69205,
-    "mtime": 1785115742034.6772,
+    "size": 71928,
+    "mtime": 1785134294422.9692,
     "suffix": ".ts"
   },
   {
@@ -758,7 +758,7 @@
   {
     "path": "src/version.ts",
     "size": 191,
-    "mtime": 1785125463858.445,
+    "mtime": 1785134342640.2632,
     "suffix": ".ts"
   },
   {

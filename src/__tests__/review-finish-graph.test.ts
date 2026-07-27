@@ -9,7 +9,7 @@ import { runMaintain } from "../commands/maintain.js";
 import { runGraphTools } from "../commands/graph-tools.js";
 import { runQuery } from "../commands/query.js";
 import { gitnexusSummary, understandSummary, detectGraphSources, understandGraphSummary } from "../graph/sources.js";
-import { loadRequirement, mutate } from "../requirements/state-machine.js";
+import { loadRequirement, mutate, requirementDir } from "../requirements/state-machine.js";
 import { prepareReviewedRequirement, prepareVerifiedRequirement } from "./helpers.js";
 
 const noopGlobal = { project: null, jsonMode: false } as never;
@@ -58,7 +58,7 @@ describe("review / finish / maintain commands (3.F)", () => {
     const r = runFinish(root, ["--requirement-id", "REQ-F", "--files", ...prepared.files], noopGlobal);
     assert.equal(r.exitCode, 0);
     assert.equal((r.result as Record<string, unknown>).state, "finished");
-    assert.ok(existsSync(join(root, ".project-intel", "requirements", "REQ-F", "closure-summary.md")));
+    assert.ok(existsSync(join(requirementDir(root, "REQ-F"), "closure-summary.md")));
   });
 
   it("finish automatically generates and registers the closure summary", () => {
@@ -70,7 +70,7 @@ describe("review / finish / maintain commands (3.F)", () => {
       "--summary", "代码、测试报告和范围均已复核",
       "--files", ...prepared.files,
     ], noopGlobal);
-    const closurePath = join(root, ".project-intel", "requirements", prepared.id, "closure-summary.md");
+    const closurePath = join(requirementDir(root, prepared.id), "closure-summary.md");
     assert.equal(existsSync(closurePath), false);
 
     const result = runFinish(root, ["--requirement-id", prepared.id, "--files", ...prepared.files], noopGlobal);
@@ -90,7 +90,7 @@ describe("review / finish / maintain commands (3.F)", () => {
       m.state = "reviewed"; // simulate reviewed but no passed review round
     });
     assert.throws(() => runFinish(root, ["--requirement-id", "REQ-F2", "--files", ...prepared.files], noopGlobal));
-    assert.equal(existsSync(join(root, ".project-intel", "requirements", "REQ-F2", "closure-summary.md")), false);
+    assert.equal(existsSync(join(requirementDir(root, "REQ-F2"), "closure-summary.md")), false);
   });
 
   it("maintain refreshes facts and closes the requirement", () => {

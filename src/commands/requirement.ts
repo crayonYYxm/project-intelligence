@@ -77,6 +77,16 @@ function manifestMentionsFile(value: unknown, file: string): boolean {
   return false;
 }
 
+function requirementIdFromManifest(path: string): string | undefined {
+  try {
+    const payload = JSON.parse(readFileSync(path, "utf8")) as { requirementId?: unknown };
+    const id = String(payload.requirementId ?? "").trim();
+    return id || undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 export function runRequirement(root: string, args: string[], global: GlobalOptions): CommandResult {
   const sub = args[0];
   const rest = args.slice(1);
@@ -93,13 +103,16 @@ export function runRequirement(root: string, args: string[], global: GlobalOptio
       const ids = new Set<string>();
       if (existsSync(reqsDir)) {
         for (const d of readdirSafe(reqsDir)) {
-          if (d !== "by-id" && existsSync(join(reqsDir, d, "manifest.json"))) ids.add(d);
+          if (d === "by-id") continue;
+          const id = requirementIdFromManifest(join(reqsDir, d, "manifest.json"));
+          if (id) ids.add(id);
         }
       }
       const legacyDir = join(reqsDir, "by-id");
       if (existsSync(legacyDir)) {
         for (const d of readdirSafe(legacyDir)) {
-          if (existsSync(join(legacyDir, d, "manifest.json"))) ids.add(d);
+          const id = requirementIdFromManifest(join(legacyDir, d, "manifest.json"));
+          if (id) ids.add(id);
         }
       }
       const matches = [...ids]

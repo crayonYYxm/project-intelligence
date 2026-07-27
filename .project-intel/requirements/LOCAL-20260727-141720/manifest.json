@@ -1,0 +1,2815 @@
+{
+  "schemaVersion": 2,
+  "revision": 34,
+  "requirementId": "LOCAL-20260727-141720",
+  "requirementName": "需求与 Bug 目录使用编号加标题",
+  "ticketKind": "requirement",
+  "track": "complex",
+  "state": "closed",
+  "externalApiImpact": {
+    "confirmed": true,
+    "value": false,
+    "source": "user"
+  },
+  "sourceTickets": [],
+  "changedFiles": [
+    {
+      "status": " M",
+      "path": "plugins/project-intelligence/assets/plugin-intro.html",
+      "sha256": "7c92472961e9eb170e8fbc4aec05db0c1d8c9cfb488fcbad037e228108d5cc21",
+      "recordedAt": "2026-07-27T06:39:25.138Z"
+    },
+    {
+      "status": " M",
+      "path": "plugins/project-intelligence/skills/project-design/SKILL.md",
+      "sha256": "4813e8e86242782ecb9a94495605238a3e6f75ffe248b8a678b6be8eeb1e63c7",
+      "recordedAt": "2026-07-27T06:39:25.138Z"
+    },
+    {
+      "status": " M",
+      "path": "plugins/project-intelligence/skills/project-finish/SKILL.md",
+      "sha256": "817537b4b05ab2eedebd00694adda16012bf4f0abb13272d3a108d347b71e61f",
+      "recordedAt": "2026-07-27T06:39:25.138Z"
+    },
+    {
+      "status": " M",
+      "path": "plugins/project-intelligence/skills/project-intake/SKILL.md",
+      "sha256": "77f389c972d726b21dc7d16bffd2eaf08c6043fdfc27cb7fb7f70a8f57ee27d1",
+      "recordedAt": "2026-07-27T06:39:25.138Z"
+    },
+    {
+      "status": " M",
+      "path": "plugins/project-intelligence/skills/project-knowledge/SKILL.md",
+      "sha256": "e3a08bc7df3b9c803f496893a4d545ccd0ec621d613477057bd29c3b279e8d95",
+      "recordedAt": "2026-07-27T06:39:25.138Z"
+    },
+    {
+      "status": " M",
+      "path": "plugins/project-intelligence/skills/project-plan/SKILL.md",
+      "sha256": "ab3694860aadfe7e97b607d0e32dadd21b85b2bc9a6e00e94b3b539bd9d69ff6",
+      "recordedAt": "2026-07-27T06:39:25.138Z"
+    },
+    {
+      "status": " M",
+      "path": "plugins/project-intelligence/skills/project-spec/SKILL.md",
+      "sha256": "cb6fa44d9521b09ecbce9834cafb2ec5cda9190e4227af6d687b3b5e4994f013",
+      "recordedAt": "2026-07-27T06:39:25.138Z"
+    },
+    {
+      "status": " M",
+      "path": "plugins/project-intelligence/skills/project-task/SKILL.md",
+      "sha256": "d7a17f904554dc8437b1f8d6890890816d1120959b90ebf357cbf87aa4020661",
+      "recordedAt": "2026-07-27T06:39:25.138Z"
+    },
+    {
+      "status": " M",
+      "path": "README.md",
+      "sha256": "dbff220774fd5f0fec11ade35d571d278c653cb4793abafc6d4c00048baca57c",
+      "recordedAt": "2026-07-27T06:39:25.138Z"
+    },
+    {
+      "status": " M",
+      "path": "src/__tests__/requirement-command.test.ts",
+      "sha256": "d4522e84a8d5fa675e8d48432ebb87b43d720edc523c7151f9185f29b75aaca6",
+      "recordedAt": "2026-07-27T06:39:25.138Z"
+    },
+    {
+      "status": " M",
+      "path": "src/__tests__/review-finish-graph.test.ts",
+      "sha256": "e0a7237ca7a8ed3bd6a349c6de399d3ddee459f56ca144a83ca1bc55a1345f70",
+      "recordedAt": "2026-07-27T06:39:25.138Z"
+    },
+    {
+      "status": " M",
+      "path": "src/__tests__/state-machine.test.ts",
+      "sha256": "30e8fbb709d90bfb39ba847c57db4586c422580a1b2d9eddcc5a5e7d8aa8a387",
+      "recordedAt": "2026-07-27T06:39:25.138Z"
+    },
+    {
+      "status": " M",
+      "path": "src/__tests__/test-evidence.test.ts",
+      "sha256": "4dfcf2b76de744c3ccb0b86b3b63e17914a62f124d3e4fa317e16bd1960d51eb",
+      "recordedAt": "2026-07-27T06:39:25.138Z"
+    },
+    {
+      "status": " M",
+      "path": "src/commands/agent-rules.ts",
+      "sha256": "bf174b7bb274694fb3b719e91f860839c772fba1d53e972d5780b14a2a2f7b3c",
+      "recordedAt": "2026-07-27T06:39:25.138Z"
+    },
+    {
+      "status": " M",
+      "path": "src/commands/init.ts",
+      "sha256": "e6820de19844f10ead1e502337c7ab4305b8cdddb54c0c223a920cb33e872302",
+      "recordedAt": "2026-07-27T06:39:25.138Z"
+    },
+    {
+      "status": " M",
+      "path": "src/commands/orchestration.ts",
+      "sha256": "1e36abb5c4b25bd51dc80801dfb9cde45dd31f4745a135e02f3952ac8d613066",
+      "recordedAt": "2026-07-27T06:39:25.138Z"
+    },
+    {
+      "status": " M",
+      "path": "src/commands/requirement.ts",
+      "sha256": "ed8382e96dccfc77af2b9fbfbaaca9185aa610118e480619a73d46ffae894e62",
+      "recordedAt": "2026-07-27T06:39:25.138Z"
+    },
+    {
+      "status": " M",
+      "path": "src/requirements/layout.ts",
+      "sha256": "66ca47299d5db5b777276bb49cf20ad770e5915034b4939ded52efb1d524dc36",
+      "recordedAt": "2026-07-27T06:39:25.138Z"
+    },
+    {
+      "status": " M",
+      "path": "src/requirements/scope.ts",
+      "sha256": "003bdef4c47b36c83f2c6479fccf207afe4fa62434adaca20b0e01e27e18eda8",
+      "recordedAt": "2026-07-27T06:39:25.138Z"
+    },
+    {
+      "status": " M",
+      "path": "src/requirements/state-machine.ts",
+      "sha256": "1b74ccaafe6da803e2388bdf1771799c512c18b9388552d64345d7c08964f1c3",
+      "recordedAt": "2026-07-27T06:39:25.138Z"
+    }
+  ],
+  "diagnosis": null,
+  "acceptanceCriteria": [
+    {
+      "id": "AC-01",
+      "description": "新建 Requirement 或 Bug 后，实际目录名为规范化编号-安全标题，且所有生成文档与 manifest artifact 路径均指向该目录。",
+      "status": "passed"
+    },
+    {
+      "id": "AC-02",
+      "description": "标题含空格、中文、斜杠、反斜杠、Windows 禁止字符、控制字符或尾随句点/空格时，生成结果跨平台安全、非空且稳定。",
+      "status": "passed"
+    },
+    {
+      "id": "AC-03",
+      "description": "仅提供需求编号时，可继续读取和更新新的编号-标题目录、历史仅编号目录及旧版 by-id/<id> 目录。",
+      "status": "passed"
+    },
+    {
+      "id": "AC-04",
+      "description": "需求查询、旧布局迁移、测试证据与收口路径不因目录名变化而失效；同编号存在多个档案时返回明确错误。",
+      "status": "passed"
+    }
+  ],
+  "readiness": {
+    "blockers": [],
+    "resolutions": [
+      {
+        "resolution": "需求范围、验收标准、路径兼容边界和单元测试验证方式已确认",
+        "recordedAt": "2026-07-27T06:21:21.137Z"
+      },
+      {
+        "resolution": "空目录残留根因、修复范围与真实 CLI 验证方式已确认",
+        "recordedAt": "2026-07-27T06:38:55.214Z"
+      }
+    ]
+  },
+  "artifacts": [
+    {
+      "type": "requirement",
+      "path": ".project-intel/requirements/LOCAL-20260727-141720/requirement.md",
+      "sha256": "e83a160ec8a5bfe96ebbf50f2a6930308a308cacc6a1c7a24e85860a5e07f626",
+      "source": "registered",
+      "status": "registered",
+      "validation": {
+        "ok": true,
+        "kind": "requirement",
+        "schema": "requirement-v2",
+        "errors": [],
+        "warnings": [],
+        "acceptanceIds": [
+          "AC-01",
+          "AC-02",
+          "AC-03",
+          "AC-04"
+        ],
+        "acceptanceCriteria": [
+          {
+            "id": "AC-01",
+            "description": "新建 Requirement 或 Bug 后，实际目录名为规范化编号-安全标题，且所有生成文档与 manifest artifact 路径均指向该目录。"
+          },
+          {
+            "id": "AC-02",
+            "description": "标题含空格、中文、斜杠、反斜杠、Windows 禁止字符、控制字符或尾随句点/空格时，生成结果跨平台安全、非空且稳定。"
+          },
+          {
+            "id": "AC-03",
+            "description": "仅提供需求编号时，可继续读取和更新新的编号-标题目录、历史仅编号目录及旧版 by-id/<id> 目录。"
+          },
+          {
+            "id": "AC-04",
+            "description": "需求查询、旧布局迁移、测试证据与收口路径不因目录名变化而失效；同编号存在多个档案时返回明确错误。"
+          }
+        ],
+        "documentIdentity": {
+          "requirementId": "LOCAL-20260727-141720",
+          "requirementName": "需求与 Bug 目录使用编号加标题",
+          "ticketKind": "requirement",
+          "externalApiImpact": false
+        },
+        "blockingIssues": [],
+        "validatedAt": "2026-07-27T06:19:14.707Z"
+      },
+      "documentKind": "requirement",
+      "recordedAt": "2026-07-27T06:17:35.084Z",
+      "sourcePath": ".project-intel/requirements/LOCAL-20260727-141720/requirement.md",
+      "registeredAt": "2026-07-27T06:19:14.708Z"
+    },
+    {
+      "type": "design",
+      "path": ".project-intel/requirements/LOCAL-20260727-141720/design.md",
+      "sha256": "6cd9894609e79464ee053e8c70da3e94b99a49e0c576107f32221899f26cfabf",
+      "source": "registered",
+      "status": "registered",
+      "validation": {
+        "ok": true,
+        "kind": "requirement",
+        "schema": "requirement-crm-v2",
+        "errors": [],
+        "warnings": [],
+        "validatedAt": "2026-07-27T06:20:45.386Z",
+        "sourceEvidence": [
+          {
+            "path": "src/requirements/state-machine.ts",
+            "symbols": [
+              "requirementDir",
+              "activeManifestPath",
+              "createRequirement"
+            ]
+          },
+          {
+            "path": "src/commands/requirement.ts",
+            "symbols": [
+              "runRequirement"
+            ]
+          },
+          {
+            "path": "src/requirements/layout.ts",
+            "symbols": [
+              "migrateLayout",
+              "rewriteManifestPaths"
+            ]
+          },
+          {
+            "path": "src/requirements/scope.ts",
+            "symbols": [
+              "isUnderRequirementDir"
+            ]
+          },
+          {
+            "path": "src/commands/init.ts",
+            "symbols": [
+              "runInit"
+            ]
+          }
+        ]
+      },
+      "documentKind": "requirement",
+      "recordedAt": "2026-07-27T06:19:20.494Z",
+      "sourcePath": ".project-intel/requirements/LOCAL-20260727-141720/design.md",
+      "registeredAt": "2026-07-27T06:20:45.392Z"
+    },
+    {
+      "type": "unit-test",
+      "path": ".project-intel/requirements/LOCAL-20260727-141720/test-reports/TEST-06-unit.md",
+      "sha256": "4011f35176447c1f6e5f6630a3f0ba958dcd260e7f2467a45505c3d8da036190",
+      "status": "passed",
+      "result": "passed",
+      "source": "generated",
+      "testKind": "unit",
+      "acceptanceIds": [
+        "AC-01",
+        "AC-02",
+        "AC-03",
+        "AC-04"
+      ],
+      "recordedAt": "2026-07-27T06:39:02.371Z"
+    },
+    {
+      "type": "test",
+      "path": ".project-intel/requirements/LOCAL-20260727-141720/test-report.md",
+      "sha256": "e6129b0d2fd2b80bb2979346c31402e7f8a01a3936e6268a1c27b0baa239662e",
+      "source": "generated",
+      "status": "passed",
+      "validation": {
+        "ok": true,
+        "schema": "test-report-v1",
+        "evidenceCount": 6
+      },
+      "recordedAt": "2026-07-27T06:39:02.384Z"
+    },
+    {
+      "type": "closure",
+      "path": ".project-intel/requirements/LOCAL-20260727-141720/closure-summary.md",
+      "sha256": "b87baddedbc8f85100bafd2f2cf67bb0c190a8f125be4c8a7f3bdcc57b835927",
+      "source": "registered",
+      "status": "registered",
+      "validation": {
+        "ok": true,
+        "kind": "closure",
+        "schema": "closure-v1",
+        "errors": [],
+        "warnings": [],
+        "validatedAt": "2026-07-27T06:39:24.941Z"
+      },
+      "recordedAt": "2026-07-27T06:33:17.085Z",
+      "invalidatedAt": "2026-07-27T06:38:34.431Z",
+      "invalidatedReason": "需求已重新打开。",
+      "sourcePath": ".project-intel/requirements/LOCAL-20260727-141720/closure-summary.md",
+      "documentKind": "requirement",
+      "registeredAt": "2026-07-27T06:39:24.942Z"
+    }
+  ],
+  "testContract": {
+    "kind": "unit",
+    "reportAction": "generate",
+    "acceptanceIds": [
+      "AC-01",
+      "AC-02",
+      "AC-03",
+      "AC-04"
+    ],
+    "reportPath": null,
+    "status": "selected",
+    "recordedAt": "2026-07-27T06:20:51.808Z",
+    "source": "explicit"
+  },
+  "testEvidence": [
+    {
+      "id": "TEST-01",
+      "phase": "red",
+      "passed": true,
+      "acceptance": [
+        "AC-01",
+        "AC-02",
+        "AC-03",
+        "AC-04"
+      ],
+      "testKind": "unit",
+      "result": "passed",
+      "acceptanceIds": [
+        "AC-01",
+        "AC-02",
+        "AC-03",
+        "AC-04"
+      ],
+      "files": [
+        "src/__tests__/requirement-command.test.ts",
+        "src/__tests__/state-machine.test.ts",
+        "src/commands/orchestration.ts",
+        "src/commands/requirement.ts",
+        "src/requirements/layout.ts",
+        "src/requirements/scope.ts",
+        "src/requirements/state-machine.ts"
+      ],
+      "projectWide": false,
+      "gitCommit": "e8f0a6aea116525d5224faaf69c9945c0c92bbae",
+      "evidenceCommit": "e8f0a6aea116525d5224faaf69c9945c0c92bbae",
+      "diffHash": "4367c58c4cadad65c11ea70de7611de996bcc21661599194262b198fadb31c51",
+      "evidenceDiffHash": "4367c58c4cadad65c11ea70de7611de996bcc21661599194262b198fadb31c51",
+      "command": "node --import tsx --test src/__tests__/state-machine.test.ts src/__tests__/requirement-command.test.ts",
+      "reportPath": ".project-intel/requirements/LOCAL-20260727-141720/test-reports/TEST-01-unit.md",
+      "reportSha256": "16172328da39c869460d1311a5f99b8684379760ac4790582a672e10794970cc",
+      "reportSourcePath": "",
+      "reportOriginalPath": "",
+      "recordedAt": "2026-07-27T06:24:33.859Z",
+      "valid": false,
+      "invalidatedAt": "2026-07-27T06:38:34.430Z",
+      "invalidatedReason": "需求已重新打开。"
+    },
+    {
+      "id": "TEST-02",
+      "phase": "green",
+      "passed": true,
+      "acceptance": [
+        "AC-01",
+        "AC-02",
+        "AC-03",
+        "AC-04"
+      ],
+      "testKind": "unit",
+      "result": "passed",
+      "acceptanceIds": [
+        "AC-01",
+        "AC-02",
+        "AC-03",
+        "AC-04"
+      ],
+      "files": [
+        "src/__tests__/requirement-command.test.ts",
+        "src/__tests__/state-machine.test.ts",
+        "src/commands/orchestration.ts",
+        "src/commands/requirement.ts",
+        "src/requirements/layout.ts",
+        "src/requirements/scope.ts",
+        "src/requirements/state-machine.ts"
+      ],
+      "projectWide": false,
+      "gitCommit": "e8f0a6aea116525d5224faaf69c9945c0c92bbae",
+      "evidenceCommit": "e8f0a6aea116525d5224faaf69c9945c0c92bbae",
+      "diffHash": "9397763b243d4ee0cf5f067e2bb875c10e74f53ed2d0eba41b2c979c8129f5ba",
+      "evidenceDiffHash": "9397763b243d4ee0cf5f067e2bb875c10e74f53ed2d0eba41b2c979c8129f5ba",
+      "command": "node --import tsx --test src/__tests__/state-machine.test.ts src/__tests__/requirement-command.test.ts",
+      "reportPath": ".project-intel/requirements/LOCAL-20260727-141720/test-reports/TEST-02-unit.md",
+      "reportSha256": "0e2292d93530e0028b2f71b0d28b9a18ca0298cc13460d6b5948791f586f233f",
+      "reportSourcePath": "",
+      "reportOriginalPath": "",
+      "recordedAt": "2026-07-27T06:26:46.577Z",
+      "valid": false,
+      "invalidatedAt": "2026-07-27T06:38:34.431Z",
+      "invalidatedReason": "需求已重新打开。"
+    },
+    {
+      "id": "TEST-03",
+      "phase": "regression",
+      "passed": true,
+      "acceptance": [
+        "AC-01",
+        "AC-02",
+        "AC-03",
+        "AC-04"
+      ],
+      "testKind": "unit",
+      "result": "passed",
+      "acceptanceIds": [
+        "AC-01",
+        "AC-02",
+        "AC-03",
+        "AC-04"
+      ],
+      "files": [
+        "README.md",
+        "plugins/project-intelligence/assets/plugin-intro.html",
+        "plugins/project-intelligence/skills/project-design/SKILL.md",
+        "plugins/project-intelligence/skills/project-finish/SKILL.md",
+        "plugins/project-intelligence/skills/project-intake/SKILL.md",
+        "plugins/project-intelligence/skills/project-knowledge/SKILL.md",
+        "plugins/project-intelligence/skills/project-plan/SKILL.md",
+        "plugins/project-intelligence/skills/project-spec/SKILL.md",
+        "plugins/project-intelligence/skills/project-task/SKILL.md",
+        "src/__tests__/requirement-command.test.ts",
+        "src/__tests__/review-finish-graph.test.ts",
+        "src/__tests__/state-machine.test.ts",
+        "src/__tests__/test-evidence.test.ts",
+        "src/commands/agent-rules.ts",
+        "src/commands/init.ts",
+        "src/commands/orchestration.ts",
+        "src/commands/requirement.ts",
+        "src/requirements/layout.ts",
+        "src/requirements/scope.ts",
+        "src/requirements/state-machine.ts"
+      ],
+      "projectWide": false,
+      "gitCommit": "e8f0a6aea116525d5224faaf69c9945c0c92bbae",
+      "evidenceCommit": "e8f0a6aea116525d5224faaf69c9945c0c92bbae",
+      "diffHash": "966f7ced18cde2fad0d5bdb671bf13252f1477b7807ab946d1c384edea7fe327",
+      "evidenceDiffHash": "966f7ced18cde2fad0d5bdb671bf13252f1477b7807ab946d1c384edea7fe327",
+      "command": "npm test",
+      "reportPath": ".project-intel/requirements/LOCAL-20260727-141720/test-reports/TEST-03-unit.md",
+      "reportSha256": "cca6e9313965060953bea3a6d2b982c7345b03a50cde6216cb39f98dbe2ef981",
+      "reportSourcePath": "",
+      "reportOriginalPath": "",
+      "recordedAt": "2026-07-27T06:31:04.201Z",
+      "valid": false,
+      "invalidatedAt": "2026-07-27T06:38:34.431Z",
+      "invalidatedReason": "需求已重新打开。"
+    },
+    {
+      "id": "TEST-04",
+      "phase": "regression",
+      "passed": true,
+      "acceptance": [
+        "AC-01",
+        "AC-02",
+        "AC-03",
+        "AC-04"
+      ],
+      "testKind": "unit",
+      "result": "passed",
+      "acceptanceIds": [
+        "AC-01",
+        "AC-02",
+        "AC-03",
+        "AC-04"
+      ],
+      "files": [
+        "README.md",
+        "plugins/project-intelligence/assets/plugin-intro.html",
+        "plugins/project-intelligence/skills/project-design/SKILL.md",
+        "plugins/project-intelligence/skills/project-finish/SKILL.md",
+        "plugins/project-intelligence/skills/project-intake/SKILL.md",
+        "plugins/project-intelligence/skills/project-knowledge/SKILL.md",
+        "plugins/project-intelligence/skills/project-plan/SKILL.md",
+        "plugins/project-intelligence/skills/project-spec/SKILL.md",
+        "plugins/project-intelligence/skills/project-task/SKILL.md",
+        "src/__tests__/requirement-command.test.ts",
+        "src/__tests__/review-finish-graph.test.ts",
+        "src/__tests__/state-machine.test.ts",
+        "src/__tests__/test-evidence.test.ts",
+        "src/commands/agent-rules.ts",
+        "src/commands/init.ts",
+        "src/commands/orchestration.ts",
+        "src/commands/requirement.ts",
+        "src/requirements/layout.ts",
+        "src/requirements/scope.ts",
+        "src/requirements/state-machine.ts"
+      ],
+      "projectWide": false,
+      "gitCommit": "e8f0a6aea116525d5224faaf69c9945c0c92bbae",
+      "evidenceCommit": "e8f0a6aea116525d5224faaf69c9945c0c92bbae",
+      "diffHash": "77dc6dc25ed55e1658d683e1aa3c552c1c4dd40abbebfa878881916016532aa3",
+      "evidenceDiffHash": "77dc6dc25ed55e1658d683e1aa3c552c1c4dd40abbebfa878881916016532aa3",
+      "command": "npm test",
+      "reportPath": ".project-intel/requirements/LOCAL-20260727-141720/test-reports/TEST-04-unit.md",
+      "reportSha256": "c3e534902652a252cfc3bad6fe7762f0996aed28baf4602d2a8d0555f581229c",
+      "reportSourcePath": "",
+      "reportOriginalPath": "",
+      "recordedAt": "2026-07-27T06:32:35.655Z",
+      "valid": false,
+      "invalidatedAt": "2026-07-27T06:38:34.431Z",
+      "invalidatedReason": "需求已重新打开。"
+    },
+    {
+      "id": "TEST-05",
+      "phase": "regression",
+      "passed": true,
+      "acceptance": [
+        "AC-01",
+        "AC-02",
+        "AC-03",
+        "AC-04"
+      ],
+      "testKind": "unit",
+      "result": "passed",
+      "acceptanceIds": [
+        "AC-01",
+        "AC-02",
+        "AC-03",
+        "AC-04"
+      ],
+      "files": [
+        "README.md",
+        "plugins/project-intelligence/assets/plugin-intro.html",
+        "plugins/project-intelligence/skills/project-design/SKILL.md",
+        "plugins/project-intelligence/skills/project-finish/SKILL.md",
+        "plugins/project-intelligence/skills/project-intake/SKILL.md",
+        "plugins/project-intelligence/skills/project-knowledge/SKILL.md",
+        "plugins/project-intelligence/skills/project-plan/SKILL.md",
+        "plugins/project-intelligence/skills/project-spec/SKILL.md",
+        "plugins/project-intelligence/skills/project-task/SKILL.md",
+        "src/__tests__/requirement-command.test.ts",
+        "src/__tests__/review-finish-graph.test.ts",
+        "src/__tests__/state-machine.test.ts",
+        "src/__tests__/test-evidence.test.ts",
+        "src/commands/agent-rules.ts",
+        "src/commands/init.ts",
+        "src/commands/orchestration.ts",
+        "src/commands/requirement.ts",
+        "src/requirements/layout.ts",
+        "src/requirements/scope.ts",
+        "src/requirements/state-machine.ts"
+      ],
+      "projectWide": false,
+      "gitCommit": "e8f0a6aea116525d5224faaf69c9945c0c92bbae",
+      "evidenceCommit": "e8f0a6aea116525d5224faaf69c9945c0c92bbae",
+      "diffHash": "5807a8fa74a001f5d6cf2b8b0b84edcaf3f2d270a265cad2c022dd1756a40b0a",
+      "evidenceDiffHash": "5807a8fa74a001f5d6cf2b8b0b84edcaf3f2d270a265cad2c022dd1756a40b0a",
+      "command": "npm test",
+      "reportPath": ".project-intel/requirements/LOCAL-20260727-141720/test-reports/TEST-05-unit.md",
+      "reportSha256": "ccd7e620c51a4239b2a43a4908befb29fef3c040420a733be7962221921b7a5d",
+      "reportSourcePath": "",
+      "reportOriginalPath": "",
+      "recordedAt": "2026-07-27T06:36:52.530Z",
+      "valid": false,
+      "invalidatedAt": "2026-07-27T06:38:34.431Z",
+      "invalidatedReason": "需求已重新打开。"
+    },
+    {
+      "id": "TEST-06",
+      "phase": "regression",
+      "passed": true,
+      "acceptance": [
+        "AC-01",
+        "AC-02",
+        "AC-03",
+        "AC-04"
+      ],
+      "testKind": "unit",
+      "result": "passed",
+      "acceptanceIds": [
+        "AC-01",
+        "AC-02",
+        "AC-03",
+        "AC-04"
+      ],
+      "files": [
+        "README.md",
+        "plugins/project-intelligence/assets/plugin-intro.html",
+        "plugins/project-intelligence/skills/project-design/SKILL.md",
+        "plugins/project-intelligence/skills/project-finish/SKILL.md",
+        "plugins/project-intelligence/skills/project-intake/SKILL.md",
+        "plugins/project-intelligence/skills/project-knowledge/SKILL.md",
+        "plugins/project-intelligence/skills/project-plan/SKILL.md",
+        "plugins/project-intelligence/skills/project-spec/SKILL.md",
+        "plugins/project-intelligence/skills/project-task/SKILL.md",
+        "src/__tests__/requirement-command.test.ts",
+        "src/__tests__/review-finish-graph.test.ts",
+        "src/__tests__/state-machine.test.ts",
+        "src/__tests__/test-evidence.test.ts",
+        "src/commands/agent-rules.ts",
+        "src/commands/init.ts",
+        "src/commands/orchestration.ts",
+        "src/commands/requirement.ts",
+        "src/requirements/layout.ts",
+        "src/requirements/scope.ts",
+        "src/requirements/state-machine.ts"
+      ],
+      "projectWide": false,
+      "gitCommit": "e8f0a6aea116525d5224faaf69c9945c0c92bbae",
+      "evidenceCommit": "e8f0a6aea116525d5224faaf69c9945c0c92bbae",
+      "diffHash": "c2c42a92790de3d5ab2fb980197e419303c389b4186cd44f65a03c0c3d716d84",
+      "evidenceDiffHash": "c2c42a92790de3d5ab2fb980197e419303c389b4186cd44f65a03c0c3d716d84",
+      "command": "npm test",
+      "reportPath": ".project-intel/requirements/LOCAL-20260727-141720/test-reports/TEST-06-unit.md",
+      "reportSha256": "4011f35176447c1f6e5f6630a3f0ba958dcd260e7f2467a45505c3d8da036190",
+      "reportSourcePath": "",
+      "reportOriginalPath": "",
+      "recordedAt": "2026-07-27T06:39:02.371Z",
+      "valid": true
+    }
+  ],
+  "reviewRounds": [
+    {
+      "id": "REVIEW-01",
+      "result": "passed",
+      "summary": "目录命名、编号解析、历史兼容、迁移、证据路径与适配器说明已复核；260 个单测、typecheck 和发布包检查通过。",
+      "findings": [],
+      "files": [
+        "README.md",
+        "plugins/project-intelligence/assets/plugin-intro.html",
+        "plugins/project-intelligence/skills/project-design/SKILL.md",
+        "plugins/project-intelligence/skills/project-finish/SKILL.md",
+        "plugins/project-intelligence/skills/project-intake/SKILL.md",
+        "plugins/project-intelligence/skills/project-knowledge/SKILL.md",
+        "plugins/project-intelligence/skills/project-plan/SKILL.md",
+        "plugins/project-intelligence/skills/project-spec/SKILL.md",
+        "plugins/project-intelligence/skills/project-task/SKILL.md",
+        "src/__tests__/requirement-command.test.ts",
+        "src/__tests__/review-finish-graph.test.ts",
+        "src/__tests__/state-machine.test.ts",
+        "src/__tests__/test-evidence.test.ts",
+        "src/commands/agent-rules.ts",
+        "src/commands/init.ts",
+        "src/commands/orchestration.ts",
+        "src/commands/requirement.ts",
+        "src/requirements/layout.ts",
+        "src/requirements/scope.ts",
+        "src/requirements/state-machine.ts"
+      ],
+      "diffHash": "77dc6dc25ed55e1658d683e1aa3c552c1c4dd40abbebfa878881916016532aa3",
+      "evidenceDiffHash": "77dc6dc25ed55e1658d683e1aa3c552c1c4dd40abbebfa878881916016532aa3",
+      "gitCommit": "e8f0a6aea116525d5224faaf69c9945c0c92bbae",
+      "recordedAt": "2026-07-27T06:33:05.727Z",
+      "valid": false,
+      "invalidatedAt": "2026-07-27T06:38:34.431Z",
+      "invalidatedReason": "需求已重新打开。"
+    },
+    {
+      "id": "REVIEW-02",
+      "result": "failed",
+      "summary": "finish 前发现源码表示调整导致既有测试快照过期，退回 verified 重新登记当前 diff 证据。",
+      "findings": [],
+      "files": [
+        "README.md",
+        "plugins/project-intelligence/assets/plugin-intro.html",
+        "plugins/project-intelligence/skills/project-design/SKILL.md",
+        "plugins/project-intelligence/skills/project-finish/SKILL.md",
+        "plugins/project-intelligence/skills/project-intake/SKILL.md",
+        "plugins/project-intelligence/skills/project-knowledge/SKILL.md",
+        "plugins/project-intelligence/skills/project-plan/SKILL.md",
+        "plugins/project-intelligence/skills/project-spec/SKILL.md",
+        "plugins/project-intelligence/skills/project-task/SKILL.md",
+        "src/__tests__/requirement-command.test.ts",
+        "src/__tests__/review-finish-graph.test.ts",
+        "src/__tests__/state-machine.test.ts",
+        "src/__tests__/test-evidence.test.ts",
+        "src/commands/agent-rules.ts",
+        "src/commands/init.ts",
+        "src/commands/orchestration.ts",
+        "src/commands/requirement.ts",
+        "src/requirements/layout.ts",
+        "src/requirements/scope.ts",
+        "src/requirements/state-machine.ts"
+      ],
+      "diffHash": "5807a8fa74a001f5d6cf2b8b0b84edcaf3f2d270a265cad2c022dd1756a40b0a",
+      "evidenceDiffHash": "5807a8fa74a001f5d6cf2b8b0b84edcaf3f2d270a265cad2c022dd1756a40b0a",
+      "gitCommit": "e8f0a6aea116525d5224faaf69c9945c0c92bbae",
+      "recordedAt": "2026-07-27T06:36:45.393Z",
+      "valid": false,
+      "invalidatedAt": "2026-07-27T06:38:34.431Z",
+      "invalidatedReason": "需求已重新打开。"
+    },
+    {
+      "id": "REVIEW-03",
+      "result": "passed",
+      "summary": "最终 diff 已复核：编号-标题目录、跨平台清洗、旧目录兼容、迁移、查询、测试/finish 路径及适配器说明一致；260 个单测通过。",
+      "findings": [],
+      "files": [
+        "README.md",
+        "plugins/project-intelligence/assets/plugin-intro.html",
+        "plugins/project-intelligence/skills/project-design/SKILL.md",
+        "plugins/project-intelligence/skills/project-finish/SKILL.md",
+        "plugins/project-intelligence/skills/project-intake/SKILL.md",
+        "plugins/project-intelligence/skills/project-knowledge/SKILL.md",
+        "plugins/project-intelligence/skills/project-plan/SKILL.md",
+        "plugins/project-intelligence/skills/project-spec/SKILL.md",
+        "plugins/project-intelligence/skills/project-task/SKILL.md",
+        "src/__tests__/requirement-command.test.ts",
+        "src/__tests__/review-finish-graph.test.ts",
+        "src/__tests__/state-machine.test.ts",
+        "src/__tests__/test-evidence.test.ts",
+        "src/commands/agent-rules.ts",
+        "src/commands/init.ts",
+        "src/commands/orchestration.ts",
+        "src/commands/requirement.ts",
+        "src/requirements/layout.ts",
+        "src/requirements/scope.ts",
+        "src/requirements/state-machine.ts"
+      ],
+      "diffHash": "5807a8fa74a001f5d6cf2b8b0b84edcaf3f2d270a265cad2c022dd1756a40b0a",
+      "evidenceDiffHash": "5807a8fa74a001f5d6cf2b8b0b84edcaf3f2d270a265cad2c022dd1756a40b0a",
+      "gitCommit": "e8f0a6aea116525d5224faaf69c9945c0c92bbae",
+      "recordedAt": "2026-07-27T06:37:03.878Z",
+      "valid": false,
+      "invalidatedAt": "2026-07-27T06:38:34.431Z",
+      "invalidatedReason": "需求已重新打开。"
+    },
+    {
+      "id": "REVIEW-04",
+      "result": "passed",
+      "summary": "最终复核通过：真实 CLI 仅生成编号-标题目录且无空编号目录；旧目录、迁移、查询、证据和收口链兼容；完整单测、typecheck 与发布包检查通过。",
+      "findings": [],
+      "files": [
+        "README.md",
+        "plugins/project-intelligence/assets/plugin-intro.html",
+        "plugins/project-intelligence/skills/project-design/SKILL.md",
+        "plugins/project-intelligence/skills/project-finish/SKILL.md",
+        "plugins/project-intelligence/skills/project-intake/SKILL.md",
+        "plugins/project-intelligence/skills/project-knowledge/SKILL.md",
+        "plugins/project-intelligence/skills/project-plan/SKILL.md",
+        "plugins/project-intelligence/skills/project-spec/SKILL.md",
+        "plugins/project-intelligence/skills/project-task/SKILL.md",
+        "src/__tests__/requirement-command.test.ts",
+        "src/__tests__/review-finish-graph.test.ts",
+        "src/__tests__/state-machine.test.ts",
+        "src/__tests__/test-evidence.test.ts",
+        "src/commands/agent-rules.ts",
+        "src/commands/init.ts",
+        "src/commands/orchestration.ts",
+        "src/commands/requirement.ts",
+        "src/requirements/layout.ts",
+        "src/requirements/scope.ts",
+        "src/requirements/state-machine.ts"
+      ],
+      "diffHash": "c2c42a92790de3d5ab2fb980197e419303c389b4186cd44f65a03c0c3d716d84",
+      "evidenceDiffHash": "c2c42a92790de3d5ab2fb980197e419303c389b4186cd44f65a03c0c3d716d84",
+      "gitCommit": "e8f0a6aea116525d5224faaf69c9945c0c92bbae",
+      "recordedAt": "2026-07-27T06:39:24.864Z",
+      "valid": true
+    }
+  ],
+  "scopeSnapshots": [
+    {
+      "kind": "test",
+      "capturedAt": "2026-07-27T06:24:33.859Z",
+      "gitAvailable": true,
+      "gitCommit": "e8f0a6aea116525d5224faaf69c9945c0c92bbae",
+      "diffHash": "4367c58c4cadad65c11ea70de7611de996bcc21661599194262b198fadb31c51",
+      "evidenceDiffHash": "4367c58c4cadad65c11ea70de7611de996bcc21661599194262b198fadb31c51",
+      "files": [
+        "src/__tests__/requirement-command.test.ts",
+        "src/__tests__/state-machine.test.ts",
+        "src/commands/orchestration.ts",
+        "src/commands/requirement.ts",
+        "src/requirements/layout.ts",
+        "src/requirements/scope.ts",
+        "src/requirements/state-machine.ts"
+      ],
+      "evidenceFiles": [
+        "src/__tests__/requirement-command.test.ts",
+        "src/__tests__/state-machine.test.ts",
+        "src/commands/orchestration.ts",
+        "src/commands/requirement.ts",
+        "src/requirements/layout.ts",
+        "src/requirements/scope.ts",
+        "src/requirements/state-machine.ts"
+      ],
+      "entries": []
+    },
+    {
+      "kind": "test",
+      "capturedAt": "2026-07-27T06:26:46.577Z",
+      "gitAvailable": true,
+      "gitCommit": "e8f0a6aea116525d5224faaf69c9945c0c92bbae",
+      "diffHash": "9397763b243d4ee0cf5f067e2bb875c10e74f53ed2d0eba41b2c979c8129f5ba",
+      "evidenceDiffHash": "9397763b243d4ee0cf5f067e2bb875c10e74f53ed2d0eba41b2c979c8129f5ba",
+      "files": [
+        "src/__tests__/requirement-command.test.ts",
+        "src/__tests__/state-machine.test.ts",
+        "src/commands/orchestration.ts",
+        "src/commands/requirement.ts",
+        "src/requirements/layout.ts",
+        "src/requirements/scope.ts",
+        "src/requirements/state-machine.ts"
+      ],
+      "evidenceFiles": [
+        "src/__tests__/requirement-command.test.ts",
+        "src/__tests__/state-machine.test.ts",
+        "src/commands/orchestration.ts",
+        "src/commands/requirement.ts",
+        "src/requirements/layout.ts",
+        "src/requirements/scope.ts",
+        "src/requirements/state-machine.ts"
+      ],
+      "entries": []
+    },
+    {
+      "kind": "test",
+      "capturedAt": "2026-07-27T06:31:04.201Z",
+      "gitAvailable": true,
+      "gitCommit": "e8f0a6aea116525d5224faaf69c9945c0c92bbae",
+      "diffHash": "966f7ced18cde2fad0d5bdb671bf13252f1477b7807ab946d1c384edea7fe327",
+      "evidenceDiffHash": "966f7ced18cde2fad0d5bdb671bf13252f1477b7807ab946d1c384edea7fe327",
+      "files": [
+        "README.md",
+        "plugins/project-intelligence/assets/plugin-intro.html",
+        "plugins/project-intelligence/skills/project-design/SKILL.md",
+        "plugins/project-intelligence/skills/project-finish/SKILL.md",
+        "plugins/project-intelligence/skills/project-intake/SKILL.md",
+        "plugins/project-intelligence/skills/project-knowledge/SKILL.md",
+        "plugins/project-intelligence/skills/project-plan/SKILL.md",
+        "plugins/project-intelligence/skills/project-spec/SKILL.md",
+        "plugins/project-intelligence/skills/project-task/SKILL.md",
+        "src/__tests__/requirement-command.test.ts",
+        "src/__tests__/review-finish-graph.test.ts",
+        "src/__tests__/state-machine.test.ts",
+        "src/__tests__/test-evidence.test.ts",
+        "src/commands/agent-rules.ts",
+        "src/commands/init.ts",
+        "src/commands/orchestration.ts",
+        "src/commands/requirement.ts",
+        "src/requirements/layout.ts",
+        "src/requirements/scope.ts",
+        "src/requirements/state-machine.ts"
+      ],
+      "evidenceFiles": [
+        "README.md",
+        "plugins/project-intelligence/assets/plugin-intro.html",
+        "plugins/project-intelligence/skills/project-design/SKILL.md",
+        "plugins/project-intelligence/skills/project-finish/SKILL.md",
+        "plugins/project-intelligence/skills/project-intake/SKILL.md",
+        "plugins/project-intelligence/skills/project-knowledge/SKILL.md",
+        "plugins/project-intelligence/skills/project-plan/SKILL.md",
+        "plugins/project-intelligence/skills/project-spec/SKILL.md",
+        "plugins/project-intelligence/skills/project-task/SKILL.md",
+        "src/__tests__/requirement-command.test.ts",
+        "src/__tests__/review-finish-graph.test.ts",
+        "src/__tests__/state-machine.test.ts",
+        "src/__tests__/test-evidence.test.ts",
+        "src/commands/agent-rules.ts",
+        "src/commands/init.ts",
+        "src/commands/orchestration.ts",
+        "src/commands/requirement.ts",
+        "src/requirements/layout.ts",
+        "src/requirements/scope.ts",
+        "src/requirements/state-machine.ts"
+      ],
+      "entries": []
+    },
+    {
+      "kind": "test",
+      "capturedAt": "2026-07-27T06:32:35.655Z",
+      "gitAvailable": true,
+      "gitCommit": "e8f0a6aea116525d5224faaf69c9945c0c92bbae",
+      "diffHash": "77dc6dc25ed55e1658d683e1aa3c552c1c4dd40abbebfa878881916016532aa3",
+      "evidenceDiffHash": "77dc6dc25ed55e1658d683e1aa3c552c1c4dd40abbebfa878881916016532aa3",
+      "files": [
+        "README.md",
+        "plugins/project-intelligence/assets/plugin-intro.html",
+        "plugins/project-intelligence/skills/project-design/SKILL.md",
+        "plugins/project-intelligence/skills/project-finish/SKILL.md",
+        "plugins/project-intelligence/skills/project-intake/SKILL.md",
+        "plugins/project-intelligence/skills/project-knowledge/SKILL.md",
+        "plugins/project-intelligence/skills/project-plan/SKILL.md",
+        "plugins/project-intelligence/skills/project-spec/SKILL.md",
+        "plugins/project-intelligence/skills/project-task/SKILL.md",
+        "src/__tests__/requirement-command.test.ts",
+        "src/__tests__/review-finish-graph.test.ts",
+        "src/__tests__/state-machine.test.ts",
+        "src/__tests__/test-evidence.test.ts",
+        "src/commands/agent-rules.ts",
+        "src/commands/init.ts",
+        "src/commands/orchestration.ts",
+        "src/commands/requirement.ts",
+        "src/requirements/layout.ts",
+        "src/requirements/scope.ts",
+        "src/requirements/state-machine.ts"
+      ],
+      "evidenceFiles": [
+        "README.md",
+        "plugins/project-intelligence/assets/plugin-intro.html",
+        "plugins/project-intelligence/skills/project-design/SKILL.md",
+        "plugins/project-intelligence/skills/project-finish/SKILL.md",
+        "plugins/project-intelligence/skills/project-intake/SKILL.md",
+        "plugins/project-intelligence/skills/project-knowledge/SKILL.md",
+        "plugins/project-intelligence/skills/project-plan/SKILL.md",
+        "plugins/project-intelligence/skills/project-spec/SKILL.md",
+        "plugins/project-intelligence/skills/project-task/SKILL.md",
+        "src/__tests__/requirement-command.test.ts",
+        "src/__tests__/review-finish-graph.test.ts",
+        "src/__tests__/state-machine.test.ts",
+        "src/__tests__/test-evidence.test.ts",
+        "src/commands/agent-rules.ts",
+        "src/commands/init.ts",
+        "src/commands/orchestration.ts",
+        "src/commands/requirement.ts",
+        "src/requirements/layout.ts",
+        "src/requirements/scope.ts",
+        "src/requirements/state-machine.ts"
+      ],
+      "entries": []
+    },
+    {
+      "kind": "review",
+      "capturedAt": "2026-07-27T06:33:05.723Z",
+      "gitAvailable": true,
+      "gitCommit": "e8f0a6aea116525d5224faaf69c9945c0c92bbae",
+      "diffHash": "77dc6dc25ed55e1658d683e1aa3c552c1c4dd40abbebfa878881916016532aa3",
+      "files": [
+        "README.md",
+        "plugins/project-intelligence/assets/plugin-intro.html",
+        "plugins/project-intelligence/skills/project-design/SKILL.md",
+        "plugins/project-intelligence/skills/project-finish/SKILL.md",
+        "plugins/project-intelligence/skills/project-intake/SKILL.md",
+        "plugins/project-intelligence/skills/project-knowledge/SKILL.md",
+        "plugins/project-intelligence/skills/project-plan/SKILL.md",
+        "plugins/project-intelligence/skills/project-spec/SKILL.md",
+        "plugins/project-intelligence/skills/project-task/SKILL.md",
+        "src/__tests__/requirement-command.test.ts",
+        "src/__tests__/review-finish-graph.test.ts",
+        "src/__tests__/state-machine.test.ts",
+        "src/__tests__/test-evidence.test.ts",
+        "src/commands/agent-rules.ts",
+        "src/commands/init.ts",
+        "src/commands/orchestration.ts",
+        "src/commands/requirement.ts",
+        "src/requirements/layout.ts",
+        "src/requirements/scope.ts",
+        "src/requirements/state-machine.ts"
+      ],
+      "entries": [
+        {
+          "status": " M",
+          "path": "plugins/project-intelligence/assets/plugin-intro.html",
+          "sha256": "7c92472961e9eb170e8fbc4aec05db0c1d8c9cfb488fcbad037e228108d5cc21"
+        },
+        {
+          "status": " M",
+          "path": "plugins/project-intelligence/skills/project-design/SKILL.md",
+          "sha256": "4813e8e86242782ecb9a94495605238a3e6f75ffe248b8a678b6be8eeb1e63c7"
+        },
+        {
+          "status": " M",
+          "path": "plugins/project-intelligence/skills/project-finish/SKILL.md",
+          "sha256": "817537b4b05ab2eedebd00694adda16012bf4f0abb13272d3a108d347b71e61f"
+        },
+        {
+          "status": " M",
+          "path": "plugins/project-intelligence/skills/project-intake/SKILL.md",
+          "sha256": "77f389c972d726b21dc7d16bffd2eaf08c6043fdfc27cb7fb7f70a8f57ee27d1"
+        },
+        {
+          "status": " M",
+          "path": "plugins/project-intelligence/skills/project-knowledge/SKILL.md",
+          "sha256": "e3a08bc7df3b9c803f496893a4d545ccd0ec621d613477057bd29c3b279e8d95"
+        },
+        {
+          "status": " M",
+          "path": "plugins/project-intelligence/skills/project-plan/SKILL.md",
+          "sha256": "ab3694860aadfe7e97b607d0e32dadd21b85b2bc9a6e00e94b3b539bd9d69ff6"
+        },
+        {
+          "status": " M",
+          "path": "plugins/project-intelligence/skills/project-spec/SKILL.md",
+          "sha256": "cb6fa44d9521b09ecbce9834cafb2ec5cda9190e4227af6d687b3b5e4994f013"
+        },
+        {
+          "status": " M",
+          "path": "plugins/project-intelligence/skills/project-task/SKILL.md",
+          "sha256": "d7a17f904554dc8437b1f8d6890890816d1120959b90ebf357cbf87aa4020661"
+        },
+        {
+          "status": " M",
+          "path": "README.md",
+          "sha256": "dbff220774fd5f0fec11ade35d571d278c653cb4793abafc6d4c00048baca57c"
+        },
+        {
+          "status": " M",
+          "path": "src/__tests__/requirement-command.test.ts",
+          "sha256": "d4522e84a8d5fa675e8d48432ebb87b43d720edc523c7151f9185f29b75aaca6"
+        },
+        {
+          "status": " M",
+          "path": "src/__tests__/review-finish-graph.test.ts",
+          "sha256": "e0a7237ca7a8ed3bd6a349c6de399d3ddee459f56ca144a83ca1bc55a1345f70"
+        },
+        {
+          "status": " M",
+          "path": "src/__tests__/state-machine.test.ts",
+          "sha256": "f87f3a574530a607fe7336dc4cb71437ea303ac30f29573aa2519eb5853da049"
+        },
+        {
+          "status": " M",
+          "path": "src/__tests__/test-evidence.test.ts",
+          "sha256": "4dfcf2b76de744c3ccb0b86b3b63e17914a62f124d3e4fa317e16bd1960d51eb"
+        },
+        {
+          "status": " M",
+          "path": "src/commands/agent-rules.ts",
+          "sha256": "bf174b7bb274694fb3b719e91f860839c772fba1d53e972d5780b14a2a2f7b3c"
+        },
+        {
+          "status": " M",
+          "path": "src/commands/init.ts",
+          "sha256": "e6820de19844f10ead1e502337c7ab4305b8cdddb54c0c223a920cb33e872302"
+        },
+        {
+          "status": " M",
+          "path": "src/commands/orchestration.ts",
+          "sha256": "1e36abb5c4b25bd51dc80801dfb9cde45dd31f4745a135e02f3952ac8d613066"
+        },
+        {
+          "status": " M",
+          "path": "src/commands/requirement.ts",
+          "sha256": "ed8382e96dccfc77af2b9fbfbaaca9185aa610118e480619a73d46ffae894e62"
+        },
+        {
+          "status": " M",
+          "path": "src/requirements/layout.ts",
+          "sha256": "66ca47299d5db5b777276bb49cf20ad770e5915034b4939ded52efb1d524dc36"
+        },
+        {
+          "status": " M",
+          "path": "src/requirements/scope.ts",
+          "sha256": "003bdef4c47b36c83f2c6479fccf207afe4fa62434adaca20b0e01e27e18eda8"
+        },
+        {
+          "status": " M",
+          "path": "src/requirements/state-machine.ts",
+          "sha256": "7c1878b5e744a6dee68c13168f266e66909987108a647e58a6fe29f7397c7970"
+        }
+      ],
+      "baselineFiles": [],
+      "artifactFiles": [],
+      "evidenceFiles": [
+        "README.md",
+        "plugins/project-intelligence/assets/plugin-intro.html",
+        "plugins/project-intelligence/skills/project-design/SKILL.md",
+        "plugins/project-intelligence/skills/project-finish/SKILL.md",
+        "plugins/project-intelligence/skills/project-intake/SKILL.md",
+        "plugins/project-intelligence/skills/project-knowledge/SKILL.md",
+        "plugins/project-intelligence/skills/project-plan/SKILL.md",
+        "plugins/project-intelligence/skills/project-spec/SKILL.md",
+        "plugins/project-intelligence/skills/project-task/SKILL.md",
+        "src/__tests__/requirement-command.test.ts",
+        "src/__tests__/review-finish-graph.test.ts",
+        "src/__tests__/state-machine.test.ts",
+        "src/__tests__/test-evidence.test.ts",
+        "src/commands/agent-rules.ts",
+        "src/commands/init.ts",
+        "src/commands/orchestration.ts",
+        "src/commands/requirement.ts",
+        "src/requirements/layout.ts",
+        "src/requirements/scope.ts",
+        "src/requirements/state-machine.ts"
+      ],
+      "evidenceEntries": [
+        {
+          "status": " M",
+          "path": "plugins/project-intelligence/assets/plugin-intro.html",
+          "sha256": "7c92472961e9eb170e8fbc4aec05db0c1d8c9cfb488fcbad037e228108d5cc21"
+        },
+        {
+          "status": " M",
+          "path": "plugins/project-intelligence/skills/project-design/SKILL.md",
+          "sha256": "4813e8e86242782ecb9a94495605238a3e6f75ffe248b8a678b6be8eeb1e63c7"
+        },
+        {
+          "status": " M",
+          "path": "plugins/project-intelligence/skills/project-finish/SKILL.md",
+          "sha256": "817537b4b05ab2eedebd00694adda16012bf4f0abb13272d3a108d347b71e61f"
+        },
+        {
+          "status": " M",
+          "path": "plugins/project-intelligence/skills/project-intake/SKILL.md",
+          "sha256": "77f389c972d726b21dc7d16bffd2eaf08c6043fdfc27cb7fb7f70a8f57ee27d1"
+        },
+        {
+          "status": " M",
+          "path": "plugins/project-intelligence/skills/project-knowledge/SKILL.md",
+          "sha256": "e3a08bc7df3b9c803f496893a4d545ccd0ec621d613477057bd29c3b279e8d95"
+        },
+        {
+          "status": " M",
+          "path": "plugins/project-intelligence/skills/project-plan/SKILL.md",
+          "sha256": "ab3694860aadfe7e97b607d0e32dadd21b85b2bc9a6e00e94b3b539bd9d69ff6"
+        },
+        {
+          "status": " M",
+          "path": "plugins/project-intelligence/skills/project-spec/SKILL.md",
+          "sha256": "cb6fa44d9521b09ecbce9834cafb2ec5cda9190e4227af6d687b3b5e4994f013"
+        },
+        {
+          "status": " M",
+          "path": "plugins/project-intelligence/skills/project-task/SKILL.md",
+          "sha256": "d7a17f904554dc8437b1f8d6890890816d1120959b90ebf357cbf87aa4020661"
+        },
+        {
+          "status": " M",
+          "path": "README.md",
+          "sha256": "dbff220774fd5f0fec11ade35d571d278c653cb4793abafc6d4c00048baca57c"
+        },
+        {
+          "status": " M",
+          "path": "src/__tests__/requirement-command.test.ts",
+          "sha256": "d4522e84a8d5fa675e8d48432ebb87b43d720edc523c7151f9185f29b75aaca6"
+        },
+        {
+          "status": " M",
+          "path": "src/__tests__/review-finish-graph.test.ts",
+          "sha256": "e0a7237ca7a8ed3bd6a349c6de399d3ddee459f56ca144a83ca1bc55a1345f70"
+        },
+        {
+          "status": " M",
+          "path": "src/__tests__/state-machine.test.ts",
+          "sha256": "f87f3a574530a607fe7336dc4cb71437ea303ac30f29573aa2519eb5853da049"
+        },
+        {
+          "status": " M",
+          "path": "src/__tests__/test-evidence.test.ts",
+          "sha256": "4dfcf2b76de744c3ccb0b86b3b63e17914a62f124d3e4fa317e16bd1960d51eb"
+        },
+        {
+          "status": " M",
+          "path": "src/commands/agent-rules.ts",
+          "sha256": "bf174b7bb274694fb3b719e91f860839c772fba1d53e972d5780b14a2a2f7b3c"
+        },
+        {
+          "status": " M",
+          "path": "src/commands/init.ts",
+          "sha256": "e6820de19844f10ead1e502337c7ab4305b8cdddb54c0c223a920cb33e872302"
+        },
+        {
+          "status": " M",
+          "path": "src/commands/orchestration.ts",
+          "sha256": "1e36abb5c4b25bd51dc80801dfb9cde45dd31f4745a135e02f3952ac8d613066"
+        },
+        {
+          "status": " M",
+          "path": "src/commands/requirement.ts",
+          "sha256": "ed8382e96dccfc77af2b9fbfbaaca9185aa610118e480619a73d46ffae894e62"
+        },
+        {
+          "status": " M",
+          "path": "src/requirements/layout.ts",
+          "sha256": "66ca47299d5db5b777276bb49cf20ad770e5915034b4939ded52efb1d524dc36"
+        },
+        {
+          "status": " M",
+          "path": "src/requirements/scope.ts",
+          "sha256": "003bdef4c47b36c83f2c6479fccf207afe4fa62434adaca20b0e01e27e18eda8"
+        },
+        {
+          "status": " M",
+          "path": "src/requirements/state-machine.ts",
+          "sha256": "7c1878b5e744a6dee68c13168f266e66909987108a647e58a6fe29f7397c7970"
+        }
+      ],
+      "evidenceDiffHash": "77dc6dc25ed55e1658d683e1aa3c552c1c4dd40abbebfa878881916016532aa3",
+      "selectedFiles": [
+        "README.md",
+        "plugins/project-intelligence/assets/plugin-intro.html",
+        "plugins/project-intelligence/skills/project-design/SKILL.md",
+        "plugins/project-intelligence/skills/project-finish/SKILL.md",
+        "plugins/project-intelligence/skills/project-intake/SKILL.md",
+        "plugins/project-intelligence/skills/project-knowledge/SKILL.md",
+        "plugins/project-intelligence/skills/project-plan/SKILL.md",
+        "plugins/project-intelligence/skills/project-spec/SKILL.md",
+        "plugins/project-intelligence/skills/project-task/SKILL.md",
+        "src/__tests__/requirement-command.test.ts",
+        "src/__tests__/review-finish-graph.test.ts",
+        "src/__tests__/state-machine.test.ts",
+        "src/__tests__/test-evidence.test.ts",
+        "src/commands/agent-rules.ts",
+        "src/commands/init.ts",
+        "src/commands/orchestration.ts",
+        "src/commands/requirement.ts",
+        "src/requirements/layout.ts",
+        "src/requirements/scope.ts",
+        "src/requirements/state-machine.ts"
+      ]
+    },
+    {
+      "kind": "review",
+      "capturedAt": "2026-07-27T06:36:45.391Z",
+      "gitAvailable": true,
+      "gitCommit": "e8f0a6aea116525d5224faaf69c9945c0c92bbae",
+      "diffHash": "5807a8fa74a001f5d6cf2b8b0b84edcaf3f2d270a265cad2c022dd1756a40b0a",
+      "files": [
+        "README.md",
+        "plugins/project-intelligence/assets/plugin-intro.html",
+        "plugins/project-intelligence/skills/project-design/SKILL.md",
+        "plugins/project-intelligence/skills/project-finish/SKILL.md",
+        "plugins/project-intelligence/skills/project-intake/SKILL.md",
+        "plugins/project-intelligence/skills/project-knowledge/SKILL.md",
+        "plugins/project-intelligence/skills/project-plan/SKILL.md",
+        "plugins/project-intelligence/skills/project-spec/SKILL.md",
+        "plugins/project-intelligence/skills/project-task/SKILL.md",
+        "src/__tests__/requirement-command.test.ts",
+        "src/__tests__/review-finish-graph.test.ts",
+        "src/__tests__/state-machine.test.ts",
+        "src/__tests__/test-evidence.test.ts",
+        "src/commands/agent-rules.ts",
+        "src/commands/init.ts",
+        "src/commands/orchestration.ts",
+        "src/commands/requirement.ts",
+        "src/requirements/layout.ts",
+        "src/requirements/scope.ts",
+        "src/requirements/state-machine.ts"
+      ],
+      "entries": [
+        {
+          "status": " M",
+          "path": "plugins/project-intelligence/assets/plugin-intro.html",
+          "sha256": "7c92472961e9eb170e8fbc4aec05db0c1d8c9cfb488fcbad037e228108d5cc21"
+        },
+        {
+          "status": " M",
+          "path": "plugins/project-intelligence/skills/project-design/SKILL.md",
+          "sha256": "4813e8e86242782ecb9a94495605238a3e6f75ffe248b8a678b6be8eeb1e63c7"
+        },
+        {
+          "status": " M",
+          "path": "plugins/project-intelligence/skills/project-finish/SKILL.md",
+          "sha256": "817537b4b05ab2eedebd00694adda16012bf4f0abb13272d3a108d347b71e61f"
+        },
+        {
+          "status": " M",
+          "path": "plugins/project-intelligence/skills/project-intake/SKILL.md",
+          "sha256": "77f389c972d726b21dc7d16bffd2eaf08c6043fdfc27cb7fb7f70a8f57ee27d1"
+        },
+        {
+          "status": " M",
+          "path": "plugins/project-intelligence/skills/project-knowledge/SKILL.md",
+          "sha256": "e3a08bc7df3b9c803f496893a4d545ccd0ec621d613477057bd29c3b279e8d95"
+        },
+        {
+          "status": " M",
+          "path": "plugins/project-intelligence/skills/project-plan/SKILL.md",
+          "sha256": "ab3694860aadfe7e97b607d0e32dadd21b85b2bc9a6e00e94b3b539bd9d69ff6"
+        },
+        {
+          "status": " M",
+          "path": "plugins/project-intelligence/skills/project-spec/SKILL.md",
+          "sha256": "cb6fa44d9521b09ecbce9834cafb2ec5cda9190e4227af6d687b3b5e4994f013"
+        },
+        {
+          "status": " M",
+          "path": "plugins/project-intelligence/skills/project-task/SKILL.md",
+          "sha256": "d7a17f904554dc8437b1f8d6890890816d1120959b90ebf357cbf87aa4020661"
+        },
+        {
+          "status": " M",
+          "path": "README.md",
+          "sha256": "dbff220774fd5f0fec11ade35d571d278c653cb4793abafc6d4c00048baca57c"
+        },
+        {
+          "status": " M",
+          "path": "src/__tests__/requirement-command.test.ts",
+          "sha256": "d4522e84a8d5fa675e8d48432ebb87b43d720edc523c7151f9185f29b75aaca6"
+        },
+        {
+          "status": " M",
+          "path": "src/__tests__/review-finish-graph.test.ts",
+          "sha256": "e0a7237ca7a8ed3bd6a349c6de399d3ddee459f56ca144a83ca1bc55a1345f70"
+        },
+        {
+          "status": " M",
+          "path": "src/__tests__/state-machine.test.ts",
+          "sha256": "f87f3a574530a607fe7336dc4cb71437ea303ac30f29573aa2519eb5853da049"
+        },
+        {
+          "status": " M",
+          "path": "src/__tests__/test-evidence.test.ts",
+          "sha256": "4dfcf2b76de744c3ccb0b86b3b63e17914a62f124d3e4fa317e16bd1960d51eb"
+        },
+        {
+          "status": " M",
+          "path": "src/commands/agent-rules.ts",
+          "sha256": "bf174b7bb274694fb3b719e91f860839c772fba1d53e972d5780b14a2a2f7b3c"
+        },
+        {
+          "status": " M",
+          "path": "src/commands/init.ts",
+          "sha256": "e6820de19844f10ead1e502337c7ab4305b8cdddb54c0c223a920cb33e872302"
+        },
+        {
+          "status": " M",
+          "path": "src/commands/orchestration.ts",
+          "sha256": "1e36abb5c4b25bd51dc80801dfb9cde45dd31f4745a135e02f3952ac8d613066"
+        },
+        {
+          "status": " M",
+          "path": "src/commands/requirement.ts",
+          "sha256": "ed8382e96dccfc77af2b9fbfbaaca9185aa610118e480619a73d46ffae894e62"
+        },
+        {
+          "status": " M",
+          "path": "src/requirements/layout.ts",
+          "sha256": "66ca47299d5db5b777276bb49cf20ad770e5915034b4939ded52efb1d524dc36"
+        },
+        {
+          "status": " M",
+          "path": "src/requirements/scope.ts",
+          "sha256": "003bdef4c47b36c83f2c6479fccf207afe4fa62434adaca20b0e01e27e18eda8"
+        },
+        {
+          "status": " M",
+          "path": "src/requirements/state-machine.ts",
+          "sha256": "d92fa871efd8c207b4ec2eb56868db0421db34af306b7ccc50fa42844ce4e5fc"
+        }
+      ],
+      "baselineFiles": [],
+      "artifactFiles": [],
+      "evidenceFiles": [
+        "README.md",
+        "plugins/project-intelligence/assets/plugin-intro.html",
+        "plugins/project-intelligence/skills/project-design/SKILL.md",
+        "plugins/project-intelligence/skills/project-finish/SKILL.md",
+        "plugins/project-intelligence/skills/project-intake/SKILL.md",
+        "plugins/project-intelligence/skills/project-knowledge/SKILL.md",
+        "plugins/project-intelligence/skills/project-plan/SKILL.md",
+        "plugins/project-intelligence/skills/project-spec/SKILL.md",
+        "plugins/project-intelligence/skills/project-task/SKILL.md",
+        "src/__tests__/requirement-command.test.ts",
+        "src/__tests__/review-finish-graph.test.ts",
+        "src/__tests__/state-machine.test.ts",
+        "src/__tests__/test-evidence.test.ts",
+        "src/commands/agent-rules.ts",
+        "src/commands/init.ts",
+        "src/commands/orchestration.ts",
+        "src/commands/requirement.ts",
+        "src/requirements/layout.ts",
+        "src/requirements/scope.ts",
+        "src/requirements/state-machine.ts"
+      ],
+      "evidenceEntries": [
+        {
+          "status": " M",
+          "path": "plugins/project-intelligence/assets/plugin-intro.html",
+          "sha256": "7c92472961e9eb170e8fbc4aec05db0c1d8c9cfb488fcbad037e228108d5cc21"
+        },
+        {
+          "status": " M",
+          "path": "plugins/project-intelligence/skills/project-design/SKILL.md",
+          "sha256": "4813e8e86242782ecb9a94495605238a3e6f75ffe248b8a678b6be8eeb1e63c7"
+        },
+        {
+          "status": " M",
+          "path": "plugins/project-intelligence/skills/project-finish/SKILL.md",
+          "sha256": "817537b4b05ab2eedebd00694adda16012bf4f0abb13272d3a108d347b71e61f"
+        },
+        {
+          "status": " M",
+          "path": "plugins/project-intelligence/skills/project-intake/SKILL.md",
+          "sha256": "77f389c972d726b21dc7d16bffd2eaf08c6043fdfc27cb7fb7f70a8f57ee27d1"
+        },
+        {
+          "status": " M",
+          "path": "plugins/project-intelligence/skills/project-knowledge/SKILL.md",
+          "sha256": "e3a08bc7df3b9c803f496893a4d545ccd0ec621d613477057bd29c3b279e8d95"
+        },
+        {
+          "status": " M",
+          "path": "plugins/project-intelligence/skills/project-plan/SKILL.md",
+          "sha256": "ab3694860aadfe7e97b607d0e32dadd21b85b2bc9a6e00e94b3b539bd9d69ff6"
+        },
+        {
+          "status": " M",
+          "path": "plugins/project-intelligence/skills/project-spec/SKILL.md",
+          "sha256": "cb6fa44d9521b09ecbce9834cafb2ec5cda9190e4227af6d687b3b5e4994f013"
+        },
+        {
+          "status": " M",
+          "path": "plugins/project-intelligence/skills/project-task/SKILL.md",
+          "sha256": "d7a17f904554dc8437b1f8d6890890816d1120959b90ebf357cbf87aa4020661"
+        },
+        {
+          "status": " M",
+          "path": "README.md",
+          "sha256": "dbff220774fd5f0fec11ade35d571d278c653cb4793abafc6d4c00048baca57c"
+        },
+        {
+          "status": " M",
+          "path": "src/__tests__/requirement-command.test.ts",
+          "sha256": "d4522e84a8d5fa675e8d48432ebb87b43d720edc523c7151f9185f29b75aaca6"
+        },
+        {
+          "status": " M",
+          "path": "src/__tests__/review-finish-graph.test.ts",
+          "sha256": "e0a7237ca7a8ed3bd6a349c6de399d3ddee459f56ca144a83ca1bc55a1345f70"
+        },
+        {
+          "status": " M",
+          "path": "src/__tests__/state-machine.test.ts",
+          "sha256": "f87f3a574530a607fe7336dc4cb71437ea303ac30f29573aa2519eb5853da049"
+        },
+        {
+          "status": " M",
+          "path": "src/__tests__/test-evidence.test.ts",
+          "sha256": "4dfcf2b76de744c3ccb0b86b3b63e17914a62f124d3e4fa317e16bd1960d51eb"
+        },
+        {
+          "status": " M",
+          "path": "src/commands/agent-rules.ts",
+          "sha256": "bf174b7bb274694fb3b719e91f860839c772fba1d53e972d5780b14a2a2f7b3c"
+        },
+        {
+          "status": " M",
+          "path": "src/commands/init.ts",
+          "sha256": "e6820de19844f10ead1e502337c7ab4305b8cdddb54c0c223a920cb33e872302"
+        },
+        {
+          "status": " M",
+          "path": "src/commands/orchestration.ts",
+          "sha256": "1e36abb5c4b25bd51dc80801dfb9cde45dd31f4745a135e02f3952ac8d613066"
+        },
+        {
+          "status": " M",
+          "path": "src/commands/requirement.ts",
+          "sha256": "ed8382e96dccfc77af2b9fbfbaaca9185aa610118e480619a73d46ffae894e62"
+        },
+        {
+          "status": " M",
+          "path": "src/requirements/layout.ts",
+          "sha256": "66ca47299d5db5b777276bb49cf20ad770e5915034b4939ded52efb1d524dc36"
+        },
+        {
+          "status": " M",
+          "path": "src/requirements/scope.ts",
+          "sha256": "003bdef4c47b36c83f2c6479fccf207afe4fa62434adaca20b0e01e27e18eda8"
+        },
+        {
+          "status": " M",
+          "path": "src/requirements/state-machine.ts",
+          "sha256": "d92fa871efd8c207b4ec2eb56868db0421db34af306b7ccc50fa42844ce4e5fc"
+        }
+      ],
+      "evidenceDiffHash": "5807a8fa74a001f5d6cf2b8b0b84edcaf3f2d270a265cad2c022dd1756a40b0a",
+      "selectedFiles": [
+        "README.md",
+        "plugins/project-intelligence/assets/plugin-intro.html",
+        "plugins/project-intelligence/skills/project-design/SKILL.md",
+        "plugins/project-intelligence/skills/project-finish/SKILL.md",
+        "plugins/project-intelligence/skills/project-intake/SKILL.md",
+        "plugins/project-intelligence/skills/project-knowledge/SKILL.md",
+        "plugins/project-intelligence/skills/project-plan/SKILL.md",
+        "plugins/project-intelligence/skills/project-spec/SKILL.md",
+        "plugins/project-intelligence/skills/project-task/SKILL.md",
+        "src/__tests__/requirement-command.test.ts",
+        "src/__tests__/review-finish-graph.test.ts",
+        "src/__tests__/state-machine.test.ts",
+        "src/__tests__/test-evidence.test.ts",
+        "src/commands/agent-rules.ts",
+        "src/commands/init.ts",
+        "src/commands/orchestration.ts",
+        "src/commands/requirement.ts",
+        "src/requirements/layout.ts",
+        "src/requirements/scope.ts",
+        "src/requirements/state-machine.ts"
+      ]
+    },
+    {
+      "kind": "test",
+      "capturedAt": "2026-07-27T06:36:52.530Z",
+      "gitAvailable": true,
+      "gitCommit": "e8f0a6aea116525d5224faaf69c9945c0c92bbae",
+      "diffHash": "5807a8fa74a001f5d6cf2b8b0b84edcaf3f2d270a265cad2c022dd1756a40b0a",
+      "evidenceDiffHash": "5807a8fa74a001f5d6cf2b8b0b84edcaf3f2d270a265cad2c022dd1756a40b0a",
+      "files": [
+        "README.md",
+        "plugins/project-intelligence/assets/plugin-intro.html",
+        "plugins/project-intelligence/skills/project-design/SKILL.md",
+        "plugins/project-intelligence/skills/project-finish/SKILL.md",
+        "plugins/project-intelligence/skills/project-intake/SKILL.md",
+        "plugins/project-intelligence/skills/project-knowledge/SKILL.md",
+        "plugins/project-intelligence/skills/project-plan/SKILL.md",
+        "plugins/project-intelligence/skills/project-spec/SKILL.md",
+        "plugins/project-intelligence/skills/project-task/SKILL.md",
+        "src/__tests__/requirement-command.test.ts",
+        "src/__tests__/review-finish-graph.test.ts",
+        "src/__tests__/state-machine.test.ts",
+        "src/__tests__/test-evidence.test.ts",
+        "src/commands/agent-rules.ts",
+        "src/commands/init.ts",
+        "src/commands/orchestration.ts",
+        "src/commands/requirement.ts",
+        "src/requirements/layout.ts",
+        "src/requirements/scope.ts",
+        "src/requirements/state-machine.ts"
+      ],
+      "evidenceFiles": [
+        "README.md",
+        "plugins/project-intelligence/assets/plugin-intro.html",
+        "plugins/project-intelligence/skills/project-design/SKILL.md",
+        "plugins/project-intelligence/skills/project-finish/SKILL.md",
+        "plugins/project-intelligence/skills/project-intake/SKILL.md",
+        "plugins/project-intelligence/skills/project-knowledge/SKILL.md",
+        "plugins/project-intelligence/skills/project-plan/SKILL.md",
+        "plugins/project-intelligence/skills/project-spec/SKILL.md",
+        "plugins/project-intelligence/skills/project-task/SKILL.md",
+        "src/__tests__/requirement-command.test.ts",
+        "src/__tests__/review-finish-graph.test.ts",
+        "src/__tests__/state-machine.test.ts",
+        "src/__tests__/test-evidence.test.ts",
+        "src/commands/agent-rules.ts",
+        "src/commands/init.ts",
+        "src/commands/orchestration.ts",
+        "src/commands/requirement.ts",
+        "src/requirements/layout.ts",
+        "src/requirements/scope.ts",
+        "src/requirements/state-machine.ts"
+      ],
+      "entries": []
+    },
+    {
+      "kind": "review",
+      "capturedAt": "2026-07-27T06:37:03.876Z",
+      "gitAvailable": true,
+      "gitCommit": "e8f0a6aea116525d5224faaf69c9945c0c92bbae",
+      "diffHash": "5807a8fa74a001f5d6cf2b8b0b84edcaf3f2d270a265cad2c022dd1756a40b0a",
+      "files": [
+        "README.md",
+        "plugins/project-intelligence/assets/plugin-intro.html",
+        "plugins/project-intelligence/skills/project-design/SKILL.md",
+        "plugins/project-intelligence/skills/project-finish/SKILL.md",
+        "plugins/project-intelligence/skills/project-intake/SKILL.md",
+        "plugins/project-intelligence/skills/project-knowledge/SKILL.md",
+        "plugins/project-intelligence/skills/project-plan/SKILL.md",
+        "plugins/project-intelligence/skills/project-spec/SKILL.md",
+        "plugins/project-intelligence/skills/project-task/SKILL.md",
+        "src/__tests__/requirement-command.test.ts",
+        "src/__tests__/review-finish-graph.test.ts",
+        "src/__tests__/state-machine.test.ts",
+        "src/__tests__/test-evidence.test.ts",
+        "src/commands/agent-rules.ts",
+        "src/commands/init.ts",
+        "src/commands/orchestration.ts",
+        "src/commands/requirement.ts",
+        "src/requirements/layout.ts",
+        "src/requirements/scope.ts",
+        "src/requirements/state-machine.ts"
+      ],
+      "entries": [
+        {
+          "status": " M",
+          "path": "plugins/project-intelligence/assets/plugin-intro.html",
+          "sha256": "7c92472961e9eb170e8fbc4aec05db0c1d8c9cfb488fcbad037e228108d5cc21"
+        },
+        {
+          "status": " M",
+          "path": "plugins/project-intelligence/skills/project-design/SKILL.md",
+          "sha256": "4813e8e86242782ecb9a94495605238a3e6f75ffe248b8a678b6be8eeb1e63c7"
+        },
+        {
+          "status": " M",
+          "path": "plugins/project-intelligence/skills/project-finish/SKILL.md",
+          "sha256": "817537b4b05ab2eedebd00694adda16012bf4f0abb13272d3a108d347b71e61f"
+        },
+        {
+          "status": " M",
+          "path": "plugins/project-intelligence/skills/project-intake/SKILL.md",
+          "sha256": "77f389c972d726b21dc7d16bffd2eaf08c6043fdfc27cb7fb7f70a8f57ee27d1"
+        },
+        {
+          "status": " M",
+          "path": "plugins/project-intelligence/skills/project-knowledge/SKILL.md",
+          "sha256": "e3a08bc7df3b9c803f496893a4d545ccd0ec621d613477057bd29c3b279e8d95"
+        },
+        {
+          "status": " M",
+          "path": "plugins/project-intelligence/skills/project-plan/SKILL.md",
+          "sha256": "ab3694860aadfe7e97b607d0e32dadd21b85b2bc9a6e00e94b3b539bd9d69ff6"
+        },
+        {
+          "status": " M",
+          "path": "plugins/project-intelligence/skills/project-spec/SKILL.md",
+          "sha256": "cb6fa44d9521b09ecbce9834cafb2ec5cda9190e4227af6d687b3b5e4994f013"
+        },
+        {
+          "status": " M",
+          "path": "plugins/project-intelligence/skills/project-task/SKILL.md",
+          "sha256": "d7a17f904554dc8437b1f8d6890890816d1120959b90ebf357cbf87aa4020661"
+        },
+        {
+          "status": " M",
+          "path": "README.md",
+          "sha256": "dbff220774fd5f0fec11ade35d571d278c653cb4793abafc6d4c00048baca57c"
+        },
+        {
+          "status": " M",
+          "path": "src/__tests__/requirement-command.test.ts",
+          "sha256": "d4522e84a8d5fa675e8d48432ebb87b43d720edc523c7151f9185f29b75aaca6"
+        },
+        {
+          "status": " M",
+          "path": "src/__tests__/review-finish-graph.test.ts",
+          "sha256": "e0a7237ca7a8ed3bd6a349c6de399d3ddee459f56ca144a83ca1bc55a1345f70"
+        },
+        {
+          "status": " M",
+          "path": "src/__tests__/state-machine.test.ts",
+          "sha256": "f87f3a574530a607fe7336dc4cb71437ea303ac30f29573aa2519eb5853da049"
+        },
+        {
+          "status": " M",
+          "path": "src/__tests__/test-evidence.test.ts",
+          "sha256": "4dfcf2b76de744c3ccb0b86b3b63e17914a62f124d3e4fa317e16bd1960d51eb"
+        },
+        {
+          "status": " M",
+          "path": "src/commands/agent-rules.ts",
+          "sha256": "bf174b7bb274694fb3b719e91f860839c772fba1d53e972d5780b14a2a2f7b3c"
+        },
+        {
+          "status": " M",
+          "path": "src/commands/init.ts",
+          "sha256": "e6820de19844f10ead1e502337c7ab4305b8cdddb54c0c223a920cb33e872302"
+        },
+        {
+          "status": " M",
+          "path": "src/commands/orchestration.ts",
+          "sha256": "1e36abb5c4b25bd51dc80801dfb9cde45dd31f4745a135e02f3952ac8d613066"
+        },
+        {
+          "status": " M",
+          "path": "src/commands/requirement.ts",
+          "sha256": "ed8382e96dccfc77af2b9fbfbaaca9185aa610118e480619a73d46ffae894e62"
+        },
+        {
+          "status": " M",
+          "path": "src/requirements/layout.ts",
+          "sha256": "66ca47299d5db5b777276bb49cf20ad770e5915034b4939ded52efb1d524dc36"
+        },
+        {
+          "status": " M",
+          "path": "src/requirements/scope.ts",
+          "sha256": "003bdef4c47b36c83f2c6479fccf207afe4fa62434adaca20b0e01e27e18eda8"
+        },
+        {
+          "status": " M",
+          "path": "src/requirements/state-machine.ts",
+          "sha256": "d92fa871efd8c207b4ec2eb56868db0421db34af306b7ccc50fa42844ce4e5fc"
+        }
+      ],
+      "baselineFiles": [],
+      "artifactFiles": [],
+      "evidenceFiles": [
+        "README.md",
+        "plugins/project-intelligence/assets/plugin-intro.html",
+        "plugins/project-intelligence/skills/project-design/SKILL.md",
+        "plugins/project-intelligence/skills/project-finish/SKILL.md",
+        "plugins/project-intelligence/skills/project-intake/SKILL.md",
+        "plugins/project-intelligence/skills/project-knowledge/SKILL.md",
+        "plugins/project-intelligence/skills/project-plan/SKILL.md",
+        "plugins/project-intelligence/skills/project-spec/SKILL.md",
+        "plugins/project-intelligence/skills/project-task/SKILL.md",
+        "src/__tests__/requirement-command.test.ts",
+        "src/__tests__/review-finish-graph.test.ts",
+        "src/__tests__/state-machine.test.ts",
+        "src/__tests__/test-evidence.test.ts",
+        "src/commands/agent-rules.ts",
+        "src/commands/init.ts",
+        "src/commands/orchestration.ts",
+        "src/commands/requirement.ts",
+        "src/requirements/layout.ts",
+        "src/requirements/scope.ts",
+        "src/requirements/state-machine.ts"
+      ],
+      "evidenceEntries": [
+        {
+          "status": " M",
+          "path": "plugins/project-intelligence/assets/plugin-intro.html",
+          "sha256": "7c92472961e9eb170e8fbc4aec05db0c1d8c9cfb488fcbad037e228108d5cc21"
+        },
+        {
+          "status": " M",
+          "path": "plugins/project-intelligence/skills/project-design/SKILL.md",
+          "sha256": "4813e8e86242782ecb9a94495605238a3e6f75ffe248b8a678b6be8eeb1e63c7"
+        },
+        {
+          "status": " M",
+          "path": "plugins/project-intelligence/skills/project-finish/SKILL.md",
+          "sha256": "817537b4b05ab2eedebd00694adda16012bf4f0abb13272d3a108d347b71e61f"
+        },
+        {
+          "status": " M",
+          "path": "plugins/project-intelligence/skills/project-intake/SKILL.md",
+          "sha256": "77f389c972d726b21dc7d16bffd2eaf08c6043fdfc27cb7fb7f70a8f57ee27d1"
+        },
+        {
+          "status": " M",
+          "path": "plugins/project-intelligence/skills/project-knowledge/SKILL.md",
+          "sha256": "e3a08bc7df3b9c803f496893a4d545ccd0ec621d613477057bd29c3b279e8d95"
+        },
+        {
+          "status": " M",
+          "path": "plugins/project-intelligence/skills/project-plan/SKILL.md",
+          "sha256": "ab3694860aadfe7e97b607d0e32dadd21b85b2bc9a6e00e94b3b539bd9d69ff6"
+        },
+        {
+          "status": " M",
+          "path": "plugins/project-intelligence/skills/project-spec/SKILL.md",
+          "sha256": "cb6fa44d9521b09ecbce9834cafb2ec5cda9190e4227af6d687b3b5e4994f013"
+        },
+        {
+          "status": " M",
+          "path": "plugins/project-intelligence/skills/project-task/SKILL.md",
+          "sha256": "d7a17f904554dc8437b1f8d6890890816d1120959b90ebf357cbf87aa4020661"
+        },
+        {
+          "status": " M",
+          "path": "README.md",
+          "sha256": "dbff220774fd5f0fec11ade35d571d278c653cb4793abafc6d4c00048baca57c"
+        },
+        {
+          "status": " M",
+          "path": "src/__tests__/requirement-command.test.ts",
+          "sha256": "d4522e84a8d5fa675e8d48432ebb87b43d720edc523c7151f9185f29b75aaca6"
+        },
+        {
+          "status": " M",
+          "path": "src/__tests__/review-finish-graph.test.ts",
+          "sha256": "e0a7237ca7a8ed3bd6a349c6de399d3ddee459f56ca144a83ca1bc55a1345f70"
+        },
+        {
+          "status": " M",
+          "path": "src/__tests__/state-machine.test.ts",
+          "sha256": "f87f3a574530a607fe7336dc4cb71437ea303ac30f29573aa2519eb5853da049"
+        },
+        {
+          "status": " M",
+          "path": "src/__tests__/test-evidence.test.ts",
+          "sha256": "4dfcf2b76de744c3ccb0b86b3b63e17914a62f124d3e4fa317e16bd1960d51eb"
+        },
+        {
+          "status": " M",
+          "path": "src/commands/agent-rules.ts",
+          "sha256": "bf174b7bb274694fb3b719e91f860839c772fba1d53e972d5780b14a2a2f7b3c"
+        },
+        {
+          "status": " M",
+          "path": "src/commands/init.ts",
+          "sha256": "e6820de19844f10ead1e502337c7ab4305b8cdddb54c0c223a920cb33e872302"
+        },
+        {
+          "status": " M",
+          "path": "src/commands/orchestration.ts",
+          "sha256": "1e36abb5c4b25bd51dc80801dfb9cde45dd31f4745a135e02f3952ac8d613066"
+        },
+        {
+          "status": " M",
+          "path": "src/commands/requirement.ts",
+          "sha256": "ed8382e96dccfc77af2b9fbfbaaca9185aa610118e480619a73d46ffae894e62"
+        },
+        {
+          "status": " M",
+          "path": "src/requirements/layout.ts",
+          "sha256": "66ca47299d5db5b777276bb49cf20ad770e5915034b4939ded52efb1d524dc36"
+        },
+        {
+          "status": " M",
+          "path": "src/requirements/scope.ts",
+          "sha256": "003bdef4c47b36c83f2c6479fccf207afe4fa62434adaca20b0e01e27e18eda8"
+        },
+        {
+          "status": " M",
+          "path": "src/requirements/state-machine.ts",
+          "sha256": "d92fa871efd8c207b4ec2eb56868db0421db34af306b7ccc50fa42844ce4e5fc"
+        }
+      ],
+      "evidenceDiffHash": "5807a8fa74a001f5d6cf2b8b0b84edcaf3f2d270a265cad2c022dd1756a40b0a",
+      "selectedFiles": [
+        "README.md",
+        "plugins/project-intelligence/assets/plugin-intro.html",
+        "plugins/project-intelligence/skills/project-design/SKILL.md",
+        "plugins/project-intelligence/skills/project-finish/SKILL.md",
+        "plugins/project-intelligence/skills/project-intake/SKILL.md",
+        "plugins/project-intelligence/skills/project-knowledge/SKILL.md",
+        "plugins/project-intelligence/skills/project-plan/SKILL.md",
+        "plugins/project-intelligence/skills/project-spec/SKILL.md",
+        "plugins/project-intelligence/skills/project-task/SKILL.md",
+        "src/__tests__/requirement-command.test.ts",
+        "src/__tests__/review-finish-graph.test.ts",
+        "src/__tests__/state-machine.test.ts",
+        "src/__tests__/test-evidence.test.ts",
+        "src/commands/agent-rules.ts",
+        "src/commands/init.ts",
+        "src/commands/orchestration.ts",
+        "src/commands/requirement.ts",
+        "src/requirements/layout.ts",
+        "src/requirements/scope.ts",
+        "src/requirements/state-machine.ts"
+      ]
+    },
+    {
+      "kind": "finish",
+      "capturedAt": "2026-07-27T06:37:04.095Z",
+      "gitAvailable": true,
+      "gitCommit": "e8f0a6aea116525d5224faaf69c9945c0c92bbae",
+      "diffHash": "5807a8fa74a001f5d6cf2b8b0b84edcaf3f2d270a265cad2c022dd1756a40b0a",
+      "files": [
+        "README.md",
+        "plugins/project-intelligence/assets/plugin-intro.html",
+        "plugins/project-intelligence/skills/project-design/SKILL.md",
+        "plugins/project-intelligence/skills/project-finish/SKILL.md",
+        "plugins/project-intelligence/skills/project-intake/SKILL.md",
+        "plugins/project-intelligence/skills/project-knowledge/SKILL.md",
+        "plugins/project-intelligence/skills/project-plan/SKILL.md",
+        "plugins/project-intelligence/skills/project-spec/SKILL.md",
+        "plugins/project-intelligence/skills/project-task/SKILL.md",
+        "src/__tests__/requirement-command.test.ts",
+        "src/__tests__/review-finish-graph.test.ts",
+        "src/__tests__/state-machine.test.ts",
+        "src/__tests__/test-evidence.test.ts",
+        "src/commands/agent-rules.ts",
+        "src/commands/init.ts",
+        "src/commands/orchestration.ts",
+        "src/commands/requirement.ts",
+        "src/requirements/layout.ts",
+        "src/requirements/scope.ts",
+        "src/requirements/state-machine.ts"
+      ],
+      "entries": [
+        {
+          "status": " M",
+          "path": "plugins/project-intelligence/assets/plugin-intro.html",
+          "sha256": "7c92472961e9eb170e8fbc4aec05db0c1d8c9cfb488fcbad037e228108d5cc21"
+        },
+        {
+          "status": " M",
+          "path": "plugins/project-intelligence/skills/project-design/SKILL.md",
+          "sha256": "4813e8e86242782ecb9a94495605238a3e6f75ffe248b8a678b6be8eeb1e63c7"
+        },
+        {
+          "status": " M",
+          "path": "plugins/project-intelligence/skills/project-finish/SKILL.md",
+          "sha256": "817537b4b05ab2eedebd00694adda16012bf4f0abb13272d3a108d347b71e61f"
+        },
+        {
+          "status": " M",
+          "path": "plugins/project-intelligence/skills/project-intake/SKILL.md",
+          "sha256": "77f389c972d726b21dc7d16bffd2eaf08c6043fdfc27cb7fb7f70a8f57ee27d1"
+        },
+        {
+          "status": " M",
+          "path": "plugins/project-intelligence/skills/project-knowledge/SKILL.md",
+          "sha256": "e3a08bc7df3b9c803f496893a4d545ccd0ec621d613477057bd29c3b279e8d95"
+        },
+        {
+          "status": " M",
+          "path": "plugins/project-intelligence/skills/project-plan/SKILL.md",
+          "sha256": "ab3694860aadfe7e97b607d0e32dadd21b85b2bc9a6e00e94b3b539bd9d69ff6"
+        },
+        {
+          "status": " M",
+          "path": "plugins/project-intelligence/skills/project-spec/SKILL.md",
+          "sha256": "cb6fa44d9521b09ecbce9834cafb2ec5cda9190e4227af6d687b3b5e4994f013"
+        },
+        {
+          "status": " M",
+          "path": "plugins/project-intelligence/skills/project-task/SKILL.md",
+          "sha256": "d7a17f904554dc8437b1f8d6890890816d1120959b90ebf357cbf87aa4020661"
+        },
+        {
+          "status": " M",
+          "path": "README.md",
+          "sha256": "dbff220774fd5f0fec11ade35d571d278c653cb4793abafc6d4c00048baca57c"
+        },
+        {
+          "status": " M",
+          "path": "src/__tests__/requirement-command.test.ts",
+          "sha256": "d4522e84a8d5fa675e8d48432ebb87b43d720edc523c7151f9185f29b75aaca6"
+        },
+        {
+          "status": " M",
+          "path": "src/__tests__/review-finish-graph.test.ts",
+          "sha256": "e0a7237ca7a8ed3bd6a349c6de399d3ddee459f56ca144a83ca1bc55a1345f70"
+        },
+        {
+          "status": " M",
+          "path": "src/__tests__/state-machine.test.ts",
+          "sha256": "f87f3a574530a607fe7336dc4cb71437ea303ac30f29573aa2519eb5853da049"
+        },
+        {
+          "status": " M",
+          "path": "src/__tests__/test-evidence.test.ts",
+          "sha256": "4dfcf2b76de744c3ccb0b86b3b63e17914a62f124d3e4fa317e16bd1960d51eb"
+        },
+        {
+          "status": " M",
+          "path": "src/commands/agent-rules.ts",
+          "sha256": "bf174b7bb274694fb3b719e91f860839c772fba1d53e972d5780b14a2a2f7b3c"
+        },
+        {
+          "status": " M",
+          "path": "src/commands/init.ts",
+          "sha256": "e6820de19844f10ead1e502337c7ab4305b8cdddb54c0c223a920cb33e872302"
+        },
+        {
+          "status": " M",
+          "path": "src/commands/orchestration.ts",
+          "sha256": "1e36abb5c4b25bd51dc80801dfb9cde45dd31f4745a135e02f3952ac8d613066"
+        },
+        {
+          "status": " M",
+          "path": "src/commands/requirement.ts",
+          "sha256": "ed8382e96dccfc77af2b9fbfbaaca9185aa610118e480619a73d46ffae894e62"
+        },
+        {
+          "status": " M",
+          "path": "src/requirements/layout.ts",
+          "sha256": "66ca47299d5db5b777276bb49cf20ad770e5915034b4939ded52efb1d524dc36"
+        },
+        {
+          "status": " M",
+          "path": "src/requirements/scope.ts",
+          "sha256": "003bdef4c47b36c83f2c6479fccf207afe4fa62434adaca20b0e01e27e18eda8"
+        },
+        {
+          "status": " M",
+          "path": "src/requirements/state-machine.ts",
+          "sha256": "d92fa871efd8c207b4ec2eb56868db0421db34af306b7ccc50fa42844ce4e5fc"
+        }
+      ],
+      "baselineFiles": [],
+      "artifactFiles": [],
+      "evidenceFiles": [
+        "README.md",
+        "plugins/project-intelligence/assets/plugin-intro.html",
+        "plugins/project-intelligence/skills/project-design/SKILL.md",
+        "plugins/project-intelligence/skills/project-finish/SKILL.md",
+        "plugins/project-intelligence/skills/project-intake/SKILL.md",
+        "plugins/project-intelligence/skills/project-knowledge/SKILL.md",
+        "plugins/project-intelligence/skills/project-plan/SKILL.md",
+        "plugins/project-intelligence/skills/project-spec/SKILL.md",
+        "plugins/project-intelligence/skills/project-task/SKILL.md",
+        "src/__tests__/requirement-command.test.ts",
+        "src/__tests__/review-finish-graph.test.ts",
+        "src/__tests__/state-machine.test.ts",
+        "src/__tests__/test-evidence.test.ts",
+        "src/commands/agent-rules.ts",
+        "src/commands/init.ts",
+        "src/commands/orchestration.ts",
+        "src/commands/requirement.ts",
+        "src/requirements/layout.ts",
+        "src/requirements/scope.ts",
+        "src/requirements/state-machine.ts"
+      ],
+      "evidenceEntries": [
+        {
+          "status": " M",
+          "path": "plugins/project-intelligence/assets/plugin-intro.html",
+          "sha256": "7c92472961e9eb170e8fbc4aec05db0c1d8c9cfb488fcbad037e228108d5cc21"
+        },
+        {
+          "status": " M",
+          "path": "plugins/project-intelligence/skills/project-design/SKILL.md",
+          "sha256": "4813e8e86242782ecb9a94495605238a3e6f75ffe248b8a678b6be8eeb1e63c7"
+        },
+        {
+          "status": " M",
+          "path": "plugins/project-intelligence/skills/project-finish/SKILL.md",
+          "sha256": "817537b4b05ab2eedebd00694adda16012bf4f0abb13272d3a108d347b71e61f"
+        },
+        {
+          "status": " M",
+          "path": "plugins/project-intelligence/skills/project-intake/SKILL.md",
+          "sha256": "77f389c972d726b21dc7d16bffd2eaf08c6043fdfc27cb7fb7f70a8f57ee27d1"
+        },
+        {
+          "status": " M",
+          "path": "plugins/project-intelligence/skills/project-knowledge/SKILL.md",
+          "sha256": "e3a08bc7df3b9c803f496893a4d545ccd0ec621d613477057bd29c3b279e8d95"
+        },
+        {
+          "status": " M",
+          "path": "plugins/project-intelligence/skills/project-plan/SKILL.md",
+          "sha256": "ab3694860aadfe7e97b607d0e32dadd21b85b2bc9a6e00e94b3b539bd9d69ff6"
+        },
+        {
+          "status": " M",
+          "path": "plugins/project-intelligence/skills/project-spec/SKILL.md",
+          "sha256": "cb6fa44d9521b09ecbce9834cafb2ec5cda9190e4227af6d687b3b5e4994f013"
+        },
+        {
+          "status": " M",
+          "path": "plugins/project-intelligence/skills/project-task/SKILL.md",
+          "sha256": "d7a17f904554dc8437b1f8d6890890816d1120959b90ebf357cbf87aa4020661"
+        },
+        {
+          "status": " M",
+          "path": "README.md",
+          "sha256": "dbff220774fd5f0fec11ade35d571d278c653cb4793abafc6d4c00048baca57c"
+        },
+        {
+          "status": " M",
+          "path": "src/__tests__/requirement-command.test.ts",
+          "sha256": "d4522e84a8d5fa675e8d48432ebb87b43d720edc523c7151f9185f29b75aaca6"
+        },
+        {
+          "status": " M",
+          "path": "src/__tests__/review-finish-graph.test.ts",
+          "sha256": "e0a7237ca7a8ed3bd6a349c6de399d3ddee459f56ca144a83ca1bc55a1345f70"
+        },
+        {
+          "status": " M",
+          "path": "src/__tests__/state-machine.test.ts",
+          "sha256": "f87f3a574530a607fe7336dc4cb71437ea303ac30f29573aa2519eb5853da049"
+        },
+        {
+          "status": " M",
+          "path": "src/__tests__/test-evidence.test.ts",
+          "sha256": "4dfcf2b76de744c3ccb0b86b3b63e17914a62f124d3e4fa317e16bd1960d51eb"
+        },
+        {
+          "status": " M",
+          "path": "src/commands/agent-rules.ts",
+          "sha256": "bf174b7bb274694fb3b719e91f860839c772fba1d53e972d5780b14a2a2f7b3c"
+        },
+        {
+          "status": " M",
+          "path": "src/commands/init.ts",
+          "sha256": "e6820de19844f10ead1e502337c7ab4305b8cdddb54c0c223a920cb33e872302"
+        },
+        {
+          "status": " M",
+          "path": "src/commands/orchestration.ts",
+          "sha256": "1e36abb5c4b25bd51dc80801dfb9cde45dd31f4745a135e02f3952ac8d613066"
+        },
+        {
+          "status": " M",
+          "path": "src/commands/requirement.ts",
+          "sha256": "ed8382e96dccfc77af2b9fbfbaaca9185aa610118e480619a73d46ffae894e62"
+        },
+        {
+          "status": " M",
+          "path": "src/requirements/layout.ts",
+          "sha256": "66ca47299d5db5b777276bb49cf20ad770e5915034b4939ded52efb1d524dc36"
+        },
+        {
+          "status": " M",
+          "path": "src/requirements/scope.ts",
+          "sha256": "003bdef4c47b36c83f2c6479fccf207afe4fa62434adaca20b0e01e27e18eda8"
+        },
+        {
+          "status": " M",
+          "path": "src/requirements/state-machine.ts",
+          "sha256": "d92fa871efd8c207b4ec2eb56868db0421db34af306b7ccc50fa42844ce4e5fc"
+        }
+      ],
+      "evidenceDiffHash": "5807a8fa74a001f5d6cf2b8b0b84edcaf3f2d270a265cad2c022dd1756a40b0a",
+      "selectedFiles": [
+        "README.md",
+        "plugins/project-intelligence/assets/plugin-intro.html",
+        "plugins/project-intelligence/skills/project-design/SKILL.md",
+        "plugins/project-intelligence/skills/project-finish/SKILL.md",
+        "plugins/project-intelligence/skills/project-intake/SKILL.md",
+        "plugins/project-intelligence/skills/project-knowledge/SKILL.md",
+        "plugins/project-intelligence/skills/project-plan/SKILL.md",
+        "plugins/project-intelligence/skills/project-spec/SKILL.md",
+        "plugins/project-intelligence/skills/project-task/SKILL.md",
+        "src/__tests__/requirement-command.test.ts",
+        "src/__tests__/review-finish-graph.test.ts",
+        "src/__tests__/state-machine.test.ts",
+        "src/__tests__/test-evidence.test.ts",
+        "src/commands/agent-rules.ts",
+        "src/commands/init.ts",
+        "src/commands/orchestration.ts",
+        "src/commands/requirement.ts",
+        "src/requirements/layout.ts",
+        "src/requirements/scope.ts",
+        "src/requirements/state-machine.ts"
+      ]
+    },
+    {
+      "kind": "test",
+      "capturedAt": "2026-07-27T06:39:02.371Z",
+      "gitAvailable": true,
+      "gitCommit": "e8f0a6aea116525d5224faaf69c9945c0c92bbae",
+      "diffHash": "c2c42a92790de3d5ab2fb980197e419303c389b4186cd44f65a03c0c3d716d84",
+      "evidenceDiffHash": "c2c42a92790de3d5ab2fb980197e419303c389b4186cd44f65a03c0c3d716d84",
+      "files": [
+        "README.md",
+        "plugins/project-intelligence/assets/plugin-intro.html",
+        "plugins/project-intelligence/skills/project-design/SKILL.md",
+        "plugins/project-intelligence/skills/project-finish/SKILL.md",
+        "plugins/project-intelligence/skills/project-intake/SKILL.md",
+        "plugins/project-intelligence/skills/project-knowledge/SKILL.md",
+        "plugins/project-intelligence/skills/project-plan/SKILL.md",
+        "plugins/project-intelligence/skills/project-spec/SKILL.md",
+        "plugins/project-intelligence/skills/project-task/SKILL.md",
+        "src/__tests__/requirement-command.test.ts",
+        "src/__tests__/review-finish-graph.test.ts",
+        "src/__tests__/state-machine.test.ts",
+        "src/__tests__/test-evidence.test.ts",
+        "src/commands/agent-rules.ts",
+        "src/commands/init.ts",
+        "src/commands/orchestration.ts",
+        "src/commands/requirement.ts",
+        "src/requirements/layout.ts",
+        "src/requirements/scope.ts",
+        "src/requirements/state-machine.ts"
+      ],
+      "evidenceFiles": [
+        "README.md",
+        "plugins/project-intelligence/assets/plugin-intro.html",
+        "plugins/project-intelligence/skills/project-design/SKILL.md",
+        "plugins/project-intelligence/skills/project-finish/SKILL.md",
+        "plugins/project-intelligence/skills/project-intake/SKILL.md",
+        "plugins/project-intelligence/skills/project-knowledge/SKILL.md",
+        "plugins/project-intelligence/skills/project-plan/SKILL.md",
+        "plugins/project-intelligence/skills/project-spec/SKILL.md",
+        "plugins/project-intelligence/skills/project-task/SKILL.md",
+        "src/__tests__/requirement-command.test.ts",
+        "src/__tests__/review-finish-graph.test.ts",
+        "src/__tests__/state-machine.test.ts",
+        "src/__tests__/test-evidence.test.ts",
+        "src/commands/agent-rules.ts",
+        "src/commands/init.ts",
+        "src/commands/orchestration.ts",
+        "src/commands/requirement.ts",
+        "src/requirements/layout.ts",
+        "src/requirements/scope.ts",
+        "src/requirements/state-machine.ts"
+      ],
+      "entries": []
+    },
+    {
+      "kind": "review",
+      "capturedAt": "2026-07-27T06:39:24.861Z",
+      "gitAvailable": true,
+      "gitCommit": "e8f0a6aea116525d5224faaf69c9945c0c92bbae",
+      "diffHash": "c2c42a92790de3d5ab2fb980197e419303c389b4186cd44f65a03c0c3d716d84",
+      "files": [
+        "README.md",
+        "plugins/project-intelligence/assets/plugin-intro.html",
+        "plugins/project-intelligence/skills/project-design/SKILL.md",
+        "plugins/project-intelligence/skills/project-finish/SKILL.md",
+        "plugins/project-intelligence/skills/project-intake/SKILL.md",
+        "plugins/project-intelligence/skills/project-knowledge/SKILL.md",
+        "plugins/project-intelligence/skills/project-plan/SKILL.md",
+        "plugins/project-intelligence/skills/project-spec/SKILL.md",
+        "plugins/project-intelligence/skills/project-task/SKILL.md",
+        "src/__tests__/requirement-command.test.ts",
+        "src/__tests__/review-finish-graph.test.ts",
+        "src/__tests__/state-machine.test.ts",
+        "src/__tests__/test-evidence.test.ts",
+        "src/commands/agent-rules.ts",
+        "src/commands/init.ts",
+        "src/commands/orchestration.ts",
+        "src/commands/requirement.ts",
+        "src/requirements/layout.ts",
+        "src/requirements/scope.ts",
+        "src/requirements/state-machine.ts"
+      ],
+      "entries": [
+        {
+          "status": " M",
+          "path": "plugins/project-intelligence/assets/plugin-intro.html",
+          "sha256": "7c92472961e9eb170e8fbc4aec05db0c1d8c9cfb488fcbad037e228108d5cc21"
+        },
+        {
+          "status": " M",
+          "path": "plugins/project-intelligence/skills/project-design/SKILL.md",
+          "sha256": "4813e8e86242782ecb9a94495605238a3e6f75ffe248b8a678b6be8eeb1e63c7"
+        },
+        {
+          "status": " M",
+          "path": "plugins/project-intelligence/skills/project-finish/SKILL.md",
+          "sha256": "817537b4b05ab2eedebd00694adda16012bf4f0abb13272d3a108d347b71e61f"
+        },
+        {
+          "status": " M",
+          "path": "plugins/project-intelligence/skills/project-intake/SKILL.md",
+          "sha256": "77f389c972d726b21dc7d16bffd2eaf08c6043fdfc27cb7fb7f70a8f57ee27d1"
+        },
+        {
+          "status": " M",
+          "path": "plugins/project-intelligence/skills/project-knowledge/SKILL.md",
+          "sha256": "e3a08bc7df3b9c803f496893a4d545ccd0ec621d613477057bd29c3b279e8d95"
+        },
+        {
+          "status": " M",
+          "path": "plugins/project-intelligence/skills/project-plan/SKILL.md",
+          "sha256": "ab3694860aadfe7e97b607d0e32dadd21b85b2bc9a6e00e94b3b539bd9d69ff6"
+        },
+        {
+          "status": " M",
+          "path": "plugins/project-intelligence/skills/project-spec/SKILL.md",
+          "sha256": "cb6fa44d9521b09ecbce9834cafb2ec5cda9190e4227af6d687b3b5e4994f013"
+        },
+        {
+          "status": " M",
+          "path": "plugins/project-intelligence/skills/project-task/SKILL.md",
+          "sha256": "d7a17f904554dc8437b1f8d6890890816d1120959b90ebf357cbf87aa4020661"
+        },
+        {
+          "status": " M",
+          "path": "README.md",
+          "sha256": "dbff220774fd5f0fec11ade35d571d278c653cb4793abafc6d4c00048baca57c"
+        },
+        {
+          "status": " M",
+          "path": "src/__tests__/requirement-command.test.ts",
+          "sha256": "d4522e84a8d5fa675e8d48432ebb87b43d720edc523c7151f9185f29b75aaca6"
+        },
+        {
+          "status": " M",
+          "path": "src/__tests__/review-finish-graph.test.ts",
+          "sha256": "e0a7237ca7a8ed3bd6a349c6de399d3ddee459f56ca144a83ca1bc55a1345f70"
+        },
+        {
+          "status": " M",
+          "path": "src/__tests__/state-machine.test.ts",
+          "sha256": "30e8fbb709d90bfb39ba847c57db4586c422580a1b2d9eddcc5a5e7d8aa8a387"
+        },
+        {
+          "status": " M",
+          "path": "src/__tests__/test-evidence.test.ts",
+          "sha256": "4dfcf2b76de744c3ccb0b86b3b63e17914a62f124d3e4fa317e16bd1960d51eb"
+        },
+        {
+          "status": " M",
+          "path": "src/commands/agent-rules.ts",
+          "sha256": "bf174b7bb274694fb3b719e91f860839c772fba1d53e972d5780b14a2a2f7b3c"
+        },
+        {
+          "status": " M",
+          "path": "src/commands/init.ts",
+          "sha256": "e6820de19844f10ead1e502337c7ab4305b8cdddb54c0c223a920cb33e872302"
+        },
+        {
+          "status": " M",
+          "path": "src/commands/orchestration.ts",
+          "sha256": "1e36abb5c4b25bd51dc80801dfb9cde45dd31f4745a135e02f3952ac8d613066"
+        },
+        {
+          "status": " M",
+          "path": "src/commands/requirement.ts",
+          "sha256": "ed8382e96dccfc77af2b9fbfbaaca9185aa610118e480619a73d46ffae894e62"
+        },
+        {
+          "status": " M",
+          "path": "src/requirements/layout.ts",
+          "sha256": "66ca47299d5db5b777276bb49cf20ad770e5915034b4939ded52efb1d524dc36"
+        },
+        {
+          "status": " M",
+          "path": "src/requirements/scope.ts",
+          "sha256": "003bdef4c47b36c83f2c6479fccf207afe4fa62434adaca20b0e01e27e18eda8"
+        },
+        {
+          "status": " M",
+          "path": "src/requirements/state-machine.ts",
+          "sha256": "1b74ccaafe6da803e2388bdf1771799c512c18b9388552d64345d7c08964f1c3"
+        }
+      ],
+      "baselineFiles": [],
+      "artifactFiles": [],
+      "evidenceFiles": [
+        "README.md",
+        "plugins/project-intelligence/assets/plugin-intro.html",
+        "plugins/project-intelligence/skills/project-design/SKILL.md",
+        "plugins/project-intelligence/skills/project-finish/SKILL.md",
+        "plugins/project-intelligence/skills/project-intake/SKILL.md",
+        "plugins/project-intelligence/skills/project-knowledge/SKILL.md",
+        "plugins/project-intelligence/skills/project-plan/SKILL.md",
+        "plugins/project-intelligence/skills/project-spec/SKILL.md",
+        "plugins/project-intelligence/skills/project-task/SKILL.md",
+        "src/__tests__/requirement-command.test.ts",
+        "src/__tests__/review-finish-graph.test.ts",
+        "src/__tests__/state-machine.test.ts",
+        "src/__tests__/test-evidence.test.ts",
+        "src/commands/agent-rules.ts",
+        "src/commands/init.ts",
+        "src/commands/orchestration.ts",
+        "src/commands/requirement.ts",
+        "src/requirements/layout.ts",
+        "src/requirements/scope.ts",
+        "src/requirements/state-machine.ts"
+      ],
+      "evidenceEntries": [
+        {
+          "status": " M",
+          "path": "plugins/project-intelligence/assets/plugin-intro.html",
+          "sha256": "7c92472961e9eb170e8fbc4aec05db0c1d8c9cfb488fcbad037e228108d5cc21"
+        },
+        {
+          "status": " M",
+          "path": "plugins/project-intelligence/skills/project-design/SKILL.md",
+          "sha256": "4813e8e86242782ecb9a94495605238a3e6f75ffe248b8a678b6be8eeb1e63c7"
+        },
+        {
+          "status": " M",
+          "path": "plugins/project-intelligence/skills/project-finish/SKILL.md",
+          "sha256": "817537b4b05ab2eedebd00694adda16012bf4f0abb13272d3a108d347b71e61f"
+        },
+        {
+          "status": " M",
+          "path": "plugins/project-intelligence/skills/project-intake/SKILL.md",
+          "sha256": "77f389c972d726b21dc7d16bffd2eaf08c6043fdfc27cb7fb7f70a8f57ee27d1"
+        },
+        {
+          "status": " M",
+          "path": "plugins/project-intelligence/skills/project-knowledge/SKILL.md",
+          "sha256": "e3a08bc7df3b9c803f496893a4d545ccd0ec621d613477057bd29c3b279e8d95"
+        },
+        {
+          "status": " M",
+          "path": "plugins/project-intelligence/skills/project-plan/SKILL.md",
+          "sha256": "ab3694860aadfe7e97b607d0e32dadd21b85b2bc9a6e00e94b3b539bd9d69ff6"
+        },
+        {
+          "status": " M",
+          "path": "plugins/project-intelligence/skills/project-spec/SKILL.md",
+          "sha256": "cb6fa44d9521b09ecbce9834cafb2ec5cda9190e4227af6d687b3b5e4994f013"
+        },
+        {
+          "status": " M",
+          "path": "plugins/project-intelligence/skills/project-task/SKILL.md",
+          "sha256": "d7a17f904554dc8437b1f8d6890890816d1120959b90ebf357cbf87aa4020661"
+        },
+        {
+          "status": " M",
+          "path": "README.md",
+          "sha256": "dbff220774fd5f0fec11ade35d571d278c653cb4793abafc6d4c00048baca57c"
+        },
+        {
+          "status": " M",
+          "path": "src/__tests__/requirement-command.test.ts",
+          "sha256": "d4522e84a8d5fa675e8d48432ebb87b43d720edc523c7151f9185f29b75aaca6"
+        },
+        {
+          "status": " M",
+          "path": "src/__tests__/review-finish-graph.test.ts",
+          "sha256": "e0a7237ca7a8ed3bd6a349c6de399d3ddee459f56ca144a83ca1bc55a1345f70"
+        },
+        {
+          "status": " M",
+          "path": "src/__tests__/state-machine.test.ts",
+          "sha256": "30e8fbb709d90bfb39ba847c57db4586c422580a1b2d9eddcc5a5e7d8aa8a387"
+        },
+        {
+          "status": " M",
+          "path": "src/__tests__/test-evidence.test.ts",
+          "sha256": "4dfcf2b76de744c3ccb0b86b3b63e17914a62f124d3e4fa317e16bd1960d51eb"
+        },
+        {
+          "status": " M",
+          "path": "src/commands/agent-rules.ts",
+          "sha256": "bf174b7bb274694fb3b719e91f860839c772fba1d53e972d5780b14a2a2f7b3c"
+        },
+        {
+          "status": " M",
+          "path": "src/commands/init.ts",
+          "sha256": "e6820de19844f10ead1e502337c7ab4305b8cdddb54c0c223a920cb33e872302"
+        },
+        {
+          "status": " M",
+          "path": "src/commands/orchestration.ts",
+          "sha256": "1e36abb5c4b25bd51dc80801dfb9cde45dd31f4745a135e02f3952ac8d613066"
+        },
+        {
+          "status": " M",
+          "path": "src/commands/requirement.ts",
+          "sha256": "ed8382e96dccfc77af2b9fbfbaaca9185aa610118e480619a73d46ffae894e62"
+        },
+        {
+          "status": " M",
+          "path": "src/requirements/layout.ts",
+          "sha256": "66ca47299d5db5b777276bb49cf20ad770e5915034b4939ded52efb1d524dc36"
+        },
+        {
+          "status": " M",
+          "path": "src/requirements/scope.ts",
+          "sha256": "003bdef4c47b36c83f2c6479fccf207afe4fa62434adaca20b0e01e27e18eda8"
+        },
+        {
+          "status": " M",
+          "path": "src/requirements/state-machine.ts",
+          "sha256": "1b74ccaafe6da803e2388bdf1771799c512c18b9388552d64345d7c08964f1c3"
+        }
+      ],
+      "evidenceDiffHash": "c2c42a92790de3d5ab2fb980197e419303c389b4186cd44f65a03c0c3d716d84",
+      "selectedFiles": [
+        "README.md",
+        "plugins/project-intelligence/assets/plugin-intro.html",
+        "plugins/project-intelligence/skills/project-design/SKILL.md",
+        "plugins/project-intelligence/skills/project-finish/SKILL.md",
+        "plugins/project-intelligence/skills/project-intake/SKILL.md",
+        "plugins/project-intelligence/skills/project-knowledge/SKILL.md",
+        "plugins/project-intelligence/skills/project-plan/SKILL.md",
+        "plugins/project-intelligence/skills/project-spec/SKILL.md",
+        "plugins/project-intelligence/skills/project-task/SKILL.md",
+        "src/__tests__/requirement-command.test.ts",
+        "src/__tests__/review-finish-graph.test.ts",
+        "src/__tests__/state-machine.test.ts",
+        "src/__tests__/test-evidence.test.ts",
+        "src/commands/agent-rules.ts",
+        "src/commands/init.ts",
+        "src/commands/orchestration.ts",
+        "src/commands/requirement.ts",
+        "src/requirements/layout.ts",
+        "src/requirements/scope.ts",
+        "src/requirements/state-machine.ts"
+      ]
+    },
+    {
+      "kind": "finish",
+      "capturedAt": "2026-07-27T06:39:25.137Z",
+      "gitAvailable": true,
+      "gitCommit": "e8f0a6aea116525d5224faaf69c9945c0c92bbae",
+      "diffHash": "c2c42a92790de3d5ab2fb980197e419303c389b4186cd44f65a03c0c3d716d84",
+      "files": [
+        "README.md",
+        "plugins/project-intelligence/assets/plugin-intro.html",
+        "plugins/project-intelligence/skills/project-design/SKILL.md",
+        "plugins/project-intelligence/skills/project-finish/SKILL.md",
+        "plugins/project-intelligence/skills/project-intake/SKILL.md",
+        "plugins/project-intelligence/skills/project-knowledge/SKILL.md",
+        "plugins/project-intelligence/skills/project-plan/SKILL.md",
+        "plugins/project-intelligence/skills/project-spec/SKILL.md",
+        "plugins/project-intelligence/skills/project-task/SKILL.md",
+        "src/__tests__/requirement-command.test.ts",
+        "src/__tests__/review-finish-graph.test.ts",
+        "src/__tests__/state-machine.test.ts",
+        "src/__tests__/test-evidence.test.ts",
+        "src/commands/agent-rules.ts",
+        "src/commands/init.ts",
+        "src/commands/orchestration.ts",
+        "src/commands/requirement.ts",
+        "src/requirements/layout.ts",
+        "src/requirements/scope.ts",
+        "src/requirements/state-machine.ts"
+      ],
+      "entries": [
+        {
+          "status": " M",
+          "path": "plugins/project-intelligence/assets/plugin-intro.html",
+          "sha256": "7c92472961e9eb170e8fbc4aec05db0c1d8c9cfb488fcbad037e228108d5cc21"
+        },
+        {
+          "status": " M",
+          "path": "plugins/project-intelligence/skills/project-design/SKILL.md",
+          "sha256": "4813e8e86242782ecb9a94495605238a3e6f75ffe248b8a678b6be8eeb1e63c7"
+        },
+        {
+          "status": " M",
+          "path": "plugins/project-intelligence/skills/project-finish/SKILL.md",
+          "sha256": "817537b4b05ab2eedebd00694adda16012bf4f0abb13272d3a108d347b71e61f"
+        },
+        {
+          "status": " M",
+          "path": "plugins/project-intelligence/skills/project-intake/SKILL.md",
+          "sha256": "77f389c972d726b21dc7d16bffd2eaf08c6043fdfc27cb7fb7f70a8f57ee27d1"
+        },
+        {
+          "status": " M",
+          "path": "plugins/project-intelligence/skills/project-knowledge/SKILL.md",
+          "sha256": "e3a08bc7df3b9c803f496893a4d545ccd0ec621d613477057bd29c3b279e8d95"
+        },
+        {
+          "status": " M",
+          "path": "plugins/project-intelligence/skills/project-plan/SKILL.md",
+          "sha256": "ab3694860aadfe7e97b607d0e32dadd21b85b2bc9a6e00e94b3b539bd9d69ff6"
+        },
+        {
+          "status": " M",
+          "path": "plugins/project-intelligence/skills/project-spec/SKILL.md",
+          "sha256": "cb6fa44d9521b09ecbce9834cafb2ec5cda9190e4227af6d687b3b5e4994f013"
+        },
+        {
+          "status": " M",
+          "path": "plugins/project-intelligence/skills/project-task/SKILL.md",
+          "sha256": "d7a17f904554dc8437b1f8d6890890816d1120959b90ebf357cbf87aa4020661"
+        },
+        {
+          "status": " M",
+          "path": "README.md",
+          "sha256": "dbff220774fd5f0fec11ade35d571d278c653cb4793abafc6d4c00048baca57c"
+        },
+        {
+          "status": " M",
+          "path": "src/__tests__/requirement-command.test.ts",
+          "sha256": "d4522e84a8d5fa675e8d48432ebb87b43d720edc523c7151f9185f29b75aaca6"
+        },
+        {
+          "status": " M",
+          "path": "src/__tests__/review-finish-graph.test.ts",
+          "sha256": "e0a7237ca7a8ed3bd6a349c6de399d3ddee459f56ca144a83ca1bc55a1345f70"
+        },
+        {
+          "status": " M",
+          "path": "src/__tests__/state-machine.test.ts",
+          "sha256": "30e8fbb709d90bfb39ba847c57db4586c422580a1b2d9eddcc5a5e7d8aa8a387"
+        },
+        {
+          "status": " M",
+          "path": "src/__tests__/test-evidence.test.ts",
+          "sha256": "4dfcf2b76de744c3ccb0b86b3b63e17914a62f124d3e4fa317e16bd1960d51eb"
+        },
+        {
+          "status": " M",
+          "path": "src/commands/agent-rules.ts",
+          "sha256": "bf174b7bb274694fb3b719e91f860839c772fba1d53e972d5780b14a2a2f7b3c"
+        },
+        {
+          "status": " M",
+          "path": "src/commands/init.ts",
+          "sha256": "e6820de19844f10ead1e502337c7ab4305b8cdddb54c0c223a920cb33e872302"
+        },
+        {
+          "status": " M",
+          "path": "src/commands/orchestration.ts",
+          "sha256": "1e36abb5c4b25bd51dc80801dfb9cde45dd31f4745a135e02f3952ac8d613066"
+        },
+        {
+          "status": " M",
+          "path": "src/commands/requirement.ts",
+          "sha256": "ed8382e96dccfc77af2b9fbfbaaca9185aa610118e480619a73d46ffae894e62"
+        },
+        {
+          "status": " M",
+          "path": "src/requirements/layout.ts",
+          "sha256": "66ca47299d5db5b777276bb49cf20ad770e5915034b4939ded52efb1d524dc36"
+        },
+        {
+          "status": " M",
+          "path": "src/requirements/scope.ts",
+          "sha256": "003bdef4c47b36c83f2c6479fccf207afe4fa62434adaca20b0e01e27e18eda8"
+        },
+        {
+          "status": " M",
+          "path": "src/requirements/state-machine.ts",
+          "sha256": "1b74ccaafe6da803e2388bdf1771799c512c18b9388552d64345d7c08964f1c3"
+        }
+      ],
+      "baselineFiles": [],
+      "artifactFiles": [],
+      "evidenceFiles": [
+        "README.md",
+        "plugins/project-intelligence/assets/plugin-intro.html",
+        "plugins/project-intelligence/skills/project-design/SKILL.md",
+        "plugins/project-intelligence/skills/project-finish/SKILL.md",
+        "plugins/project-intelligence/skills/project-intake/SKILL.md",
+        "plugins/project-intelligence/skills/project-knowledge/SKILL.md",
+        "plugins/project-intelligence/skills/project-plan/SKILL.md",
+        "plugins/project-intelligence/skills/project-spec/SKILL.md",
+        "plugins/project-intelligence/skills/project-task/SKILL.md",
+        "src/__tests__/requirement-command.test.ts",
+        "src/__tests__/review-finish-graph.test.ts",
+        "src/__tests__/state-machine.test.ts",
+        "src/__tests__/test-evidence.test.ts",
+        "src/commands/agent-rules.ts",
+        "src/commands/init.ts",
+        "src/commands/orchestration.ts",
+        "src/commands/requirement.ts",
+        "src/requirements/layout.ts",
+        "src/requirements/scope.ts",
+        "src/requirements/state-machine.ts"
+      ],
+      "evidenceEntries": [
+        {
+          "status": " M",
+          "path": "plugins/project-intelligence/assets/plugin-intro.html",
+          "sha256": "7c92472961e9eb170e8fbc4aec05db0c1d8c9cfb488fcbad037e228108d5cc21"
+        },
+        {
+          "status": " M",
+          "path": "plugins/project-intelligence/skills/project-design/SKILL.md",
+          "sha256": "4813e8e86242782ecb9a94495605238a3e6f75ffe248b8a678b6be8eeb1e63c7"
+        },
+        {
+          "status": " M",
+          "path": "plugins/project-intelligence/skills/project-finish/SKILL.md",
+          "sha256": "817537b4b05ab2eedebd00694adda16012bf4f0abb13272d3a108d347b71e61f"
+        },
+        {
+          "status": " M",
+          "path": "plugins/project-intelligence/skills/project-intake/SKILL.md",
+          "sha256": "77f389c972d726b21dc7d16bffd2eaf08c6043fdfc27cb7fb7f70a8f57ee27d1"
+        },
+        {
+          "status": " M",
+          "path": "plugins/project-intelligence/skills/project-knowledge/SKILL.md",
+          "sha256": "e3a08bc7df3b9c803f496893a4d545ccd0ec621d613477057bd29c3b279e8d95"
+        },
+        {
+          "status": " M",
+          "path": "plugins/project-intelligence/skills/project-plan/SKILL.md",
+          "sha256": "ab3694860aadfe7e97b607d0e32dadd21b85b2bc9a6e00e94b3b539bd9d69ff6"
+        },
+        {
+          "status": " M",
+          "path": "plugins/project-intelligence/skills/project-spec/SKILL.md",
+          "sha256": "cb6fa44d9521b09ecbce9834cafb2ec5cda9190e4227af6d687b3b5e4994f013"
+        },
+        {
+          "status": " M",
+          "path": "plugins/project-intelligence/skills/project-task/SKILL.md",
+          "sha256": "d7a17f904554dc8437b1f8d6890890816d1120959b90ebf357cbf87aa4020661"
+        },
+        {
+          "status": " M",
+          "path": "README.md",
+          "sha256": "dbff220774fd5f0fec11ade35d571d278c653cb4793abafc6d4c00048baca57c"
+        },
+        {
+          "status": " M",
+          "path": "src/__tests__/requirement-command.test.ts",
+          "sha256": "d4522e84a8d5fa675e8d48432ebb87b43d720edc523c7151f9185f29b75aaca6"
+        },
+        {
+          "status": " M",
+          "path": "src/__tests__/review-finish-graph.test.ts",
+          "sha256": "e0a7237ca7a8ed3bd6a349c6de399d3ddee459f56ca144a83ca1bc55a1345f70"
+        },
+        {
+          "status": " M",
+          "path": "src/__tests__/state-machine.test.ts",
+          "sha256": "30e8fbb709d90bfb39ba847c57db4586c422580a1b2d9eddcc5a5e7d8aa8a387"
+        },
+        {
+          "status": " M",
+          "path": "src/__tests__/test-evidence.test.ts",
+          "sha256": "4dfcf2b76de744c3ccb0b86b3b63e17914a62f124d3e4fa317e16bd1960d51eb"
+        },
+        {
+          "status": " M",
+          "path": "src/commands/agent-rules.ts",
+          "sha256": "bf174b7bb274694fb3b719e91f860839c772fba1d53e972d5780b14a2a2f7b3c"
+        },
+        {
+          "status": " M",
+          "path": "src/commands/init.ts",
+          "sha256": "e6820de19844f10ead1e502337c7ab4305b8cdddb54c0c223a920cb33e872302"
+        },
+        {
+          "status": " M",
+          "path": "src/commands/orchestration.ts",
+          "sha256": "1e36abb5c4b25bd51dc80801dfb9cde45dd31f4745a135e02f3952ac8d613066"
+        },
+        {
+          "status": " M",
+          "path": "src/commands/requirement.ts",
+          "sha256": "ed8382e96dccfc77af2b9fbfbaaca9185aa610118e480619a73d46ffae894e62"
+        },
+        {
+          "status": " M",
+          "path": "src/requirements/layout.ts",
+          "sha256": "66ca47299d5db5b777276bb49cf20ad770e5915034b4939ded52efb1d524dc36"
+        },
+        {
+          "status": " M",
+          "path": "src/requirements/scope.ts",
+          "sha256": "003bdef4c47b36c83f2c6479fccf207afe4fa62434adaca20b0e01e27e18eda8"
+        },
+        {
+          "status": " M",
+          "path": "src/requirements/state-machine.ts",
+          "sha256": "1b74ccaafe6da803e2388bdf1771799c512c18b9388552d64345d7c08964f1c3"
+        }
+      ],
+      "evidenceDiffHash": "c2c42a92790de3d5ab2fb980197e419303c389b4186cd44f65a03c0c3d716d84",
+      "selectedFiles": [
+        "README.md",
+        "plugins/project-intelligence/assets/plugin-intro.html",
+        "plugins/project-intelligence/skills/project-design/SKILL.md",
+        "plugins/project-intelligence/skills/project-finish/SKILL.md",
+        "plugins/project-intelligence/skills/project-intake/SKILL.md",
+        "plugins/project-intelligence/skills/project-knowledge/SKILL.md",
+        "plugins/project-intelligence/skills/project-plan/SKILL.md",
+        "plugins/project-intelligence/skills/project-spec/SKILL.md",
+        "plugins/project-intelligence/skills/project-task/SKILL.md",
+        "src/__tests__/requirement-command.test.ts",
+        "src/__tests__/review-finish-graph.test.ts",
+        "src/__tests__/state-machine.test.ts",
+        "src/__tests__/test-evidence.test.ts",
+        "src/commands/agent-rules.ts",
+        "src/commands/init.ts",
+        "src/commands/orchestration.ts",
+        "src/commands/requirement.ts",
+        "src/requirements/layout.ts",
+        "src/requirements/scope.ts",
+        "src/requirements/state-machine.ts"
+      ]
+    }
+  ],
+  "workflowSelections": {
+    "requirement": {
+      "action": "register",
+      "path": ".project-intel/requirements/LOCAL-20260727-141720/requirement.md",
+      "status": "completed",
+      "artifactPath": ".project-intel/requirements/LOCAL-20260727-141720/requirement.md",
+      "updatedAt": "2026-07-27T06:19:14.708Z"
+    },
+    "design": {
+      "action": "register",
+      "path": ".project-intel/requirements/LOCAL-20260727-141720/design.md",
+      "status": "completed",
+      "artifactPath": ".project-intel/requirements/LOCAL-20260727-141720/design.md",
+      "updatedAt": "2026-07-27T06:20:45.392Z"
+    }
+  },
+  "baselineDiffHash": "26695bfe97e8bfbfd3b1e9c530244759cbe2a5981032e597a5d02b95757523d7",
+  "baselineCommit": "e8f0a6aea116525d5224faaf69c9945c0c92bbae",
+  "baselineScope": {
+    "diffHash": "26695bfe97e8bfbfd3b1e9c530244759cbe2a5981032e597a5d02b95757523d7",
+    "gitCommit": "e8f0a6aea116525d5224faaf69c9945c0c92bbae",
+    "entries": []
+  },
+  "currentDiffHash": "c2c42a92790de3d5ab2fb980197e419303c389b4186cd44f65a03c0c3d716d84",
+  "finishResult": {
+    "status": "passed",
+    "diffHash": "c2c42a92790de3d5ab2fb980197e419303c389b4186cd44f65a03c0c3d716d84",
+    "evidenceDiffHash": "c2c42a92790de3d5ab2fb980197e419303c389b4186cd44f65a03c0c3d716d84",
+    "gitCommit": "e8f0a6aea116525d5224faaf69c9945c0c92bbae",
+    "files": [
+      "README.md",
+      "plugins/project-intelligence/assets/plugin-intro.html",
+      "plugins/project-intelligence/skills/project-design/SKILL.md",
+      "plugins/project-intelligence/skills/project-finish/SKILL.md",
+      "plugins/project-intelligence/skills/project-intake/SKILL.md",
+      "plugins/project-intelligence/skills/project-knowledge/SKILL.md",
+      "plugins/project-intelligence/skills/project-plan/SKILL.md",
+      "plugins/project-intelligence/skills/project-spec/SKILL.md",
+      "plugins/project-intelligence/skills/project-task/SKILL.md",
+      "src/__tests__/requirement-command.test.ts",
+      "src/__tests__/review-finish-graph.test.ts",
+      "src/__tests__/state-machine.test.ts",
+      "src/__tests__/test-evidence.test.ts",
+      "src/commands/agent-rules.ts",
+      "src/commands/init.ts",
+      "src/commands/orchestration.ts",
+      "src/commands/requirement.ts",
+      "src/requirements/layout.ts",
+      "src/requirements/scope.ts",
+      "src/requirements/state-machine.ts"
+    ],
+    "recordedAt": "2026-07-27T06:39:25.138Z"
+  },
+  "maintenanceResult": {
+    "status": "passed",
+    "diffHash": "c2c42a92790de3d5ab2fb980197e419303c389b4186cd44f65a03c0c3d716d84",
+    "evidenceDiffHash": "c2c42a92790de3d5ab2fb980197e419303c389b4186cd44f65a03c0c3d716d84",
+    "gitCommit": "e8f0a6aea116525d5224faaf69c9945c0c92bbae",
+    "recordedAt": "2026-07-27T06:39:33.792Z"
+  },
+  "history": [
+    {
+      "action": "reopen",
+      "reason": "真实 CLI 验证发现空的仅编号目录残留，补充去除提前建目录逻辑并重新验证。",
+      "recordedAt": "2026-07-27T06:38:34.431Z"
+    }
+  ],
+  "stateTimestamps": {
+    "draft": "2026-07-27T06:17:26.059Z",
+    "specified": "2026-07-27T06:19:14.708Z",
+    "designed": "2026-07-27T06:20:45.392Z",
+    "ready": "2026-07-27T06:38:55.214Z",
+    "implementing": "2026-07-27T06:38:55.318Z",
+    "verified": "2026-07-27T06:39:02.371Z",
+    "reviewed": "2026-07-27T06:39:24.864Z",
+    "finished": "2026-07-27T06:39:25.138Z",
+    "closed": "2026-07-27T06:39:33.792Z"
+  },
+  "createdAt": "2026-07-27T06:17:26.059Z",
+  "updatedAt": "2026-07-27T06:39:33.792Z"
+}

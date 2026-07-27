@@ -28,7 +28,7 @@ Use the plugin skill namespace when available:
 - Completion: \`$project-intelligence:project-finish\`; run \`$project-intelligence:project-maintain\` only after finish succeeds.
 - Knowledge, standards, quality, refresh, and init use their matching \`$project-intelligence:*\` skills.
 
-For requirement-level work, carry one requirement ID through every CLI call. Keep readable files under \`.project-intel/requirements/<id>/\`: \`requirement.md\`, \`design.md\`, optional \`plan.md\`, \`test-report.md\`, \`closure-summary.md\`, and \`manifest.json\`.
+For requirement-level work, carry one requirement ID through every CLI call. New archives keep readable files under \`.project-intel/requirements/<id>-<title>/\`; legacy \`<id>/\` archives remain readable. Each archive contains \`requirement.md\`, \`design.md\`, optional \`plan.md\`, \`test-report.md\`, \`closure-summary.md\`, and \`manifest.json\`.
 
 \`project-intel init\` and \`project-intel refresh\` are fact-only by default. Root adapters are changed only by explicit \`project-intel adapters apply\`, \`project-intel install\`, or \`project-intel refresh --adapters\`.`;
 }
@@ -47,7 +47,7 @@ Use slash skills when available:
 - Completion: \`/project-finish\`; run \`/project-maintain\` only after finish succeeds.
 - Knowledge, standards, quality, refresh, and init use their matching \`/project-*\` skills.
 
-For requirement-level work, keep all readable artifacts in \`.project-intel/requirements/<id>/\`. \`init\` and \`refresh\` are fact-only by default; adapters change only when explicitly requested.`;
+For requirement-level work, keep all readable artifacts in \`.project-intel/requirements/<id>-<title>/\`; legacy \`<id>/\` archives remain readable. \`init\` and \`refresh\` are fact-only by default; adapters change only when explicitly requested.`;
 }
 
 /** The block written to .claude/CLAUDE.md (claude-nested target). */

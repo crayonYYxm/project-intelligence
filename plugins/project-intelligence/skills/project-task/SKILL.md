@@ -5,7 +5,7 @@ description: Use after lifecycle readiness when the user wants to begin or conti
 
 # Project Task
 
-Before implementing, read `.project-intel/manifest.json`, `.project-intel/project-status.md`, and the active `.project-intel/requirements/<id>/manifest.json`. Then load only relevant standards, knowledge, graph facts, `requirement.md`, `design.md`, and optional `plan.md`.
+Before implementing, read `.project-intel/manifest.json`, `.project-intel/project-status.md`, and the active `.project-intel/requirements/<id>-<title>/manifest.json` (or a legacy `<id>/manifest.json`). Then load only relevant standards, knowledge, graph facts, `requirement.md`, `design.md`, and optional `plan.md`.
 
 If a conversation begins as discussion, explanation, spec, or plan and then turns into code modification, pause before the first `Edit`/`Write` and switch into this task workflow. Basic tools such as Grep, Read, Edit, Bash, Glob, or Write do not replace this workflow.
 

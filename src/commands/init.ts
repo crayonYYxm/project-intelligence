@@ -102,7 +102,7 @@ export function runInit(root: string, args: string[], global: GlobalOptions, ref
         ".project-intel/graph/project-graph.json",
         ".project-intel/standards/*.md",
         ".project-intel/project-status.md",
-        ".project-intel/requirements/<requirement-id>/*.md",
+        ".project-intel/requirements/<requirement-id>-<title>/*.md",
       ],
       adapterWritesRequireExplicitFlag: true,
       wouldRunGraph: opts.withGraph
@@ -200,7 +200,7 @@ _尚未单独运行项目质量检查。_
 
 ## 需求档案
 
-每个需求的需求文档、设计文档、可选计划、测试报告、收口总结和历史状态均位于 \`.project-intel/requirements/<需求号>/\`；本文件只表示可覆盖的项目级当前状态。
+每个新需求的需求文档、设计文档、可选计划、测试报告、收口总结和历史状态均位于 \`.project-intel/requirements/<需求号>-<标题>/\`；历史 \`<需求号>/\` 目录仍可读取。本文件只表示可覆盖的项目级当前状态。
 `;
 }
 

@@ -12,8 +12,8 @@ Answer from `.project-intel` first:
 - `.project-intel/knowledge/*.json` for components, Hooks, APIs, services, files, and candidates
 - `.project-intel/graph/project-graph.json` for graph summary
 - `.project-intel/project-status.md` for the replaceable current scan, tooling, and quality summary
-- `.project-intel/requirements/<id>/manifest.json` plus its four lifecycle documents for requirement history
-- `.project-intel/requirements/<id>/plan.md` only when a complex task or explicit request created it
+- `.project-intel/requirements/<id>-<title>/manifest.json` (or legacy `<id>/manifest.json`) plus its four lifecycle documents for requirement history
+- the resolved requirement archive's `plan.md` only when a complex task or explicit request created it
 
 Use GitNexus for precise symbol-level questions. Use Understand-Anything for architecture/domain questions.
 

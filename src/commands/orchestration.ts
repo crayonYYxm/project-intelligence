@@ -9,7 +9,12 @@ import { ok, type CommandResult, type GlobalOptions } from "../cli/parser.js";
 import { UsageError } from "../errors.js";
 import { detectGraphSources } from "../graph/sources.js";
 import { collectProjectState } from "../app/project-state.js";
-import { createRequirement, setAcceptanceCriteria } from "../requirements/state-machine.js";
+import {
+  createRequirement,
+  loadRequirement,
+  requirementDir,
+  setAcceptanceCriteria,
+} from "../requirements/state-machine.js";
 import { projectIntelDir } from "./init.js";
 import { writeText } from "../fs/atomic-write.js";
 
@@ -115,11 +120,8 @@ export function runPlan(root: string, args: string[], global: GlobalOptions): Co
   const title = flag(args, "--title");
   if (!id) throw new UsageError("plan 需要 --requirement-id。");
   // Verify the requirement exists before generating (mirrors Python's gate).
-  const reqDir = join(projectIntelDir(root), "requirements", id);
-  const manifestPath = join(reqDir, "manifest.json");
-  if (!existsSync(manifestPath)) {
-    throw new UsageError(`未找到需求档案：${id}`);
-  }
+  loadRequirement(root, id);
+  const reqDir = requirementDir(root, id);
   mkdirSync(reqDir, { recursive: true });
   const path = join(reqDir, "plan.md");
   // Refuse to overwrite existing user content unless --replace is passed

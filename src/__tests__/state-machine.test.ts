@@ -181,13 +181,61 @@ describe("requirement state machine", () => {
     assert.equal((m.testContract as Record<string, unknown>).kind, "both");
   });
 
-  it("manifest is written under the v2 direct layout (no by-id)", () => {
+  it("manifest is written under an id-title directory with a cross-platform safe title", () => {
     const root = freshProject();
-    createRequirement(root, "REQ-8", "布局需求");
+    createRequirement(root, "REQ-8", "布局 / 标题: Win\\dows?\u0001\u0085 .");
     const dir = requirementDir(root, "REQ-8");
-    assert.ok(dir.endsWith(join(".project-intel", "requirements", "REQ-8")));
+    assert.ok(dir.endsWith(join(".project-intel", "requirements", "REQ-8-布局-标题-Win-dows")));
+    assert.equal(existsSync(join(root, ".project-intel", "requirements", "REQ-8")), false);
     assert.ok(!dir.includes("by-id"));
     assert.ok(existsSync(join(dir, "manifest.json")));
+    assert.equal(loadRequirement(root, "REQ-8").requirementName, "布局 / 标题: Win\\dows?\u0001\u0085 .");
+  });
+
+  it("limits id-title directories by UTF-8 byte length", () => {
+    const root = freshProject();
+    createRequirement(root, "REQ-LONG", "标题".repeat(200));
+    const directory = requirementDir(root, "REQ-LONG").split(/[\\/]/).pop()!;
+    assert.ok(Buffer.byteLength(directory) <= 240);
+    assert.ok(existsSync(join(requirementDir(root, "REQ-LONG"), "manifest.json")));
+  });
+
+  it("numeric bug ids use the canonical id together with the title", () => {
+    const root = freshProject();
+    const manifest = createRequirement(root, "123", "登录失败", { ticketKind: "bug" });
+    assert.equal(manifest.requirementId, "bug123");
+    assert.ok(requirementDir(root, "bug123").endsWith(
+      join(".project-intel", "requirements", "bug123-登录失败")
+    ));
+  });
+
+  it("loadRequirement rejects ambiguous id-title directories", () => {
+    const root = freshProject();
+    const requirementsRoot = join(root, ".project-intel", "requirements");
+    for (const directory of ["REQ-DUP-标题一", "REQ-DUP-标题二"]) {
+      const target = join(requirementsRoot, directory);
+      mkdirSync(target, { recursive: true });
+      writeFileSync(join(target, "manifest.json"), JSON.stringify({
+        schemaVersion: 2,
+        requirementId: "REQ-DUP",
+        requirementName: directory,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      }));
+    }
+    assert.throws(() => loadRequirement(root, "REQ-DUP"), /存在多个需求档案/);
+  });
+
+  it("createRequirement does not overwrite an unrecognized id-title manifest", () => {
+    const root = freshProject();
+    const target = join(root, ".project-intel", "requirements", "REQ-CORRUPT-损坏档案");
+    mkdirSync(target, { recursive: true });
+    writeFileSync(join(target, "manifest.json"), "{not-json");
+    assert.throws(
+      () => createRequirement(root, "REQ-CORRUPT", "损坏档案"),
+      /档案身份无法识别/
+    );
+    assert.equal(readFileSync(join(target, "manifest.json"), "utf8"), "{not-json");
   });
 
   it("STATES includes the full v2 lifecycle", () => {

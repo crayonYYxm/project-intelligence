@@ -237,7 +237,11 @@ export function captureRequirementScope(root: string, manifest: ScopeManifest): 
 
 function isUnderRequirementDir(pathValue: string, requirementId: string | undefined): boolean {
   if (!requirementId) return false;
-  return normalizePath(pathValue).startsWith(`.project-intel/requirements/${requirementId}/`);
+  const prefix = ".project-intel/requirements/";
+  const normalized = normalizePath(pathValue);
+  if (!normalized.startsWith(prefix)) return false;
+  const directory = normalized.slice(prefix.length).split("/")[0] ?? "";
+  return directory === requirementId || directory.startsWith(`${requirementId}-`);
 }
 
 export function normalizeScopeFiles(root: string, files: string[]): string[] {

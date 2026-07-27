@@ -10,7 +10,7 @@ Generate or validate a development design from ticket facts and repository evide
 ## Choose the mode
 
 - **Standalone**: When the user asks only for a design document, generate and validate a kind-specific file under `docs/requirements/`: Bugs use `<bug-id>-<name>-设计文档.md`; Requirements use `<requirement-id>_<name>_设计文档.md`. Do not run intake, initialize `.project-intel`, or register lifecycle artifacts.
-- **Lifecycle**: When `project-intake` routes an implementation task here, use the existing requirement ID, name, ticket kind, repository, and selected action. Write the durable design as `.project-intel/requirements/<id>/design.md`; do not create a second manifest or a second lifecycle design file.
+- **Lifecycle**: When `project-intake` routes an implementation task here, use the existing requirement ID, name, ticket kind, repository, and selected action. Write the durable design in the resolved `.project-intel/requirements/<id>-<title>/design.md` archive; legacy `<id>/` archives remain readable. Do not create a second manifest or a second lifecycle design file.
 
 For lifecycle mode, read `project-intel requirement status --requirement-id <id> --json` first. Handle the persisted `workflowSelections.design` action/path; do not ask again or silently choose a different action:
 
@@ -26,7 +26,7 @@ For a lifecycle Bug, `project-debug` must have persisted a current `requirement 
 2. Use the current Git repository when available; otherwise ask for the target repository before producing a complete design.
 3. Preserve formal ticket identifiers. Prefix a purely numeric Bug with `bug` and a purely numeric Requirement with `req`.
 4. Identify one primary output repository when several repositories are involved. Treat unavailable repositories and services as external evidence gaps.
-5. In standalone mode, write Bugs as `<bug-id>-<name>-设计文档.md` and Requirements as `<requirement-id>_<name>_设计文档.md`. In lifecycle mode always use `.project-intel/requirements/<id>/design.md`. Reject path separators, control characters, and output outside the primary repository.
+5. In standalone mode, write Bugs as `<bug-id>-<name>-设计文档.md` and Requirements as `<requirement-id>_<name>_设计文档.md`. In lifecycle mode always use the resolved `.project-intel/requirements/<id>-<title>/design.md`. Reject path separators, control characters, and output outside the primary repository.
 
 ## Analyze evidence
 

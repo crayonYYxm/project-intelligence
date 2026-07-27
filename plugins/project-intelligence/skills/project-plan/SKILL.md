@@ -20,7 +20,7 @@ Create plans that preserve project standards and are ready to execute.
 project-intel plan --requirement-id "<id>"
 ```
 
-This writes `.project-intel/requirements/<id>/plan.md`. Never create `.project-intel/plans/` or `.project-intel/specs/` in the new workflow.
+This writes the resolved `.project-intel/requirements/<id>-<title>/plan.md`; legacy `<id>/` archives remain readable. Never create `.project-intel/plans/` or `.project-intel/specs/` in the new workflow.
 
 If `plan.md` already exists, update it deliberately instead of regenerating it. Pass `--replace` only after the user explicitly approves replacing the existing plan.
 
