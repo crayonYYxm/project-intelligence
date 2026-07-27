@@ -1262,64 +1262,335 @@ export function resolveReviewFindings(
 
 const GENERATED_ARTIFACT_TYPES = new Set(["requirement", "design", "plan", "test", "closure"]);
 
-function generatedArtifactText(manifest: RequirementManifest, type: string): string {
-  if (type === "requirement") {
-    const criteria = manifest.acceptanceCriteria
-      .map((criterion) => `- ${criterion.id}：${criterion.description}`)
-      .join("\n");
-    return `# ${manifest.requirementId} ${manifest.requirementName} 需求文档
+function dateOnly(value: string | undefined | null): string {
+  const text = String(value ?? "").trim();
+  if (/^\d{4}-\d{2}-\d{2}/.test(text)) return text.slice(0, 10);
+  return nowIso().slice(0, 10);
+}
 
-## 文档信息
+function calendarSpanDays(startValue: string | undefined | null, endValue: string | undefined | null): number {
+  const start = Date.parse(`${dateOnly(startValue)}T00:00:00.000Z`);
+  const end = Date.parse(`${dateOnly(endValue)}T00:00:00.000Z`);
+  if (!Number.isFinite(start) || !Number.isFinite(end)) return 1;
+  return Math.max(1, Math.floor((end - start) / 86_400_000) + 1);
+}
 
-- 需求号：${manifest.requirementId}
-- 需求名称：${manifest.requirementName}
-- 单据类型：${manifest.ticketKind === "bug" ? "Bug" : "Requirement"}
+function yamlString(value: string): string {
+  return JSON.stringify(value);
+}
 
-## 背景与现状
+function basename(pathValue: string): string {
+  return pathValue.split(/[\\/]/).filter(Boolean).at(-1) ?? pathValue;
+}
+
+function latestArtifactPath(manifest: RequirementManifest, type: string): string | undefined {
+  return [...(manifest.artifacts ?? [])].reverse().find((artifact) => artifact.type === type && artifact.path)?.path;
+}
+
+function artifactLink(manifest: RequirementManifest, type: string): string {
+  const directory = requirementDirectoryName(manifest.requirementId, manifest.requirementName);
+  const path = latestArtifactPath(manifest, type) ?? `.project-intel/requirements/${directory}/${artifactFilename(type, manifest)}`;
+  const filename = basename(path);
+  const localPrefix = `.project-intel/requirements/${directory}/`;
+  const href = path.startsWith(localPrefix) ? filename : `../../../${path.replace(/^\.?\//, "")}`;
+  return `[${filename}](${href})`;
+}
+
+function shortCommit(value: unknown): string | null {
+  const text = typeof value === "string" ? value.trim() : "";
+  if (!/^[0-9a-f]{7,40}$/i.test(text)) return null;
+  return text.slice(0, 7);
+}
+
+function collectClosureCommits(manifest: RequirementManifest): string[] {
+  const commits: string[] = [];
+  const add = (value: unknown) => {
+    const short = shortCommit(value);
+    if (short && !commits.includes(short)) commits.push(short);
+  };
+  add(manifest.baselineCommit);
+  for (const evidence of manifest.testEvidence ?? []) {
+    add(evidence.gitCommit);
+    add(evidence.evidenceCommit);
+  }
+  for (const round of manifest.reviewRounds ?? []) add(round.gitCommit);
+  add(manifest.finishResult?.gitCommit);
+  return commits;
+}
+
+function closureGitRange(manifest: RequirementManifest): string {
+  const commits = collectClosureCommits(manifest);
+  if (commits.length >= 2) return `${commits[0]}..${commits.at(-1)}`;
+  if (commits.length === 1) return `${commits[0]}..HEAD`;
+  return "未记录";
+}
+
+function validTestEvidenceCount(manifest: RequirementManifest): number {
+  return (manifest.testEvidence ?? []).filter((evidence) =>
+    evidence.valid !== false && !["failed", "fail", "error"].includes(String(evidence.result ?? evidence.status ?? "").toLowerCase())
+  ).length;
+}
+
+function latestValidReview(manifest: RequirementManifest): NonNullable<RequirementManifest["reviewRounds"]>[number] | undefined {
+  return [...(manifest.reviewRounds ?? [])].reverse().find((round) => round.valid !== false);
+}
+
+function closureGaps(manifest: RequirementManifest): string[] {
+  const gaps: string[] = [];
+  for (const blocker of manifest.readiness?.blockers ?? []) {
+    if (!blocker.resolvedAt) gaps.push(`- [gap] ${blocker.id} ${blocker.reason} [来源: readiness]`);
+  }
+  const review = latestValidReview(manifest);
+  for (const finding of review?.findings ?? []) {
+    const id = String(finding.id ?? "finding");
+    const resolved = finding.resolved === true || typeof finding.resolvedAt === "string";
+    if (!resolved) gaps.push(`- [gap] ${id} ${String(finding.summary ?? finding.message ?? finding.reason ?? "评审问题未关闭")} [来源: review]`);
+  }
+  if (gaps.length === 0) {
+    gaps.push("- [gap] 当前收口档案未记录业务侧额外澄清缺口；如存在离线口径，需要在收口后追加。 [来源: lifecycle]");
+  }
+  return gaps;
+}
+
+function renderClosureArchive(manifest: RequirementManifest): string {
+  const started = dateOnly(manifest.createdAt);
+  const finished = dateOnly(nowIso());
+  const span = calendarSpanDays(manifest.createdAt, finished);
+  const criteria = manifest.acceptanceCriteria;
+  const testCount = validTestEvidenceCount(manifest);
+  const review = latestValidReview(manifest);
+  const reviewSummary = review
+    ? `${review.result}(${review.summary || "评审记录已登记"})`
+    : "cannot_verify(无有效评审记录)";
+  const coverage = criteria.length > 0
+    ? `${criteria.length} 条验收标准已进入收口核对`
+    : "未登记验收标准";
+  const anchors = criteria.slice(0, 3).map((criterion) => `${criterion.id} ${criterion.description}`).join("、") || "生命周期门禁、测试证据、评审结论";
+  const criterionHits = criteria.length > 0
+    ? criteria.map((criterion) => `- [hit] ${criterion.id} ${criterion.description} [来源: 验收标准]`).join("\n")
+    : "- [hit] 本次收口未登记独立验收标准；以测试、评审和范围门禁为准。 [来源: lifecycle]";
+  const newConfirmations = criteria.length > 0
+    ? criteria.slice(0, 3).map((criterion) => `- [new] ${criterion.id} 已通过测试证据、评审记录和 finish 门禁形成闭环，可沉淀为后续同类任务检查项。 [来源: 收口归纳]`).join("\n")
+    : "- [new] 收口档案应持续保留 git_range、产物清单、测试汇总和澄清缺口，便于后续追溯。 [来源: 收口归纳]";
+  return `---
+req_id: ${yamlString(`${manifest.requirementId}-${manifest.requirementName}`)}
+簇: ${yamlString(`.project-intel/requirements/${requirementDirectoryName(manifest.requirementId, manifest.requirementName)}`)}
+status: 未收口
+mode: project-intelligence
+created: ${yamlString(finished)}
+git_range: ${yamlString(closureGitRange(manifest))}
+---
+
+# 收口档案:${manifest.requirementName}
+
+## 历时
+- 立项:${started} · 完成:${finished} · 日历跨度:${span} 天
+- 实际投入(估算,到小时):以需求生命周期时间戳、测试证据、评审记录和 Git 提交为主信号；当前未读取完整 AI 会话 transcript 与离线调试过程，工时只作收口估算依据。诚实局限:日历跨度不等于净编码时长，未计离线思考、手工验证等待和外部沟通成本。
+
+## 产物清单
+- 文档:${artifactLink(manifest, "requirement")} · ${artifactLink(manifest, "design")} · ${artifactLink(manifest, "test")} · ${artifactLink(manifest, "closure")} · 代码:${collectClosureCommits(manifest).map((commit) => `\`${commit}\``).join(" · ") || "`未记录`"} · 决策锚点:${anchors}
+
+## 测试汇总
+- 结果:${testCount > 0 ? "pass" : "cannot_verify"}(${testCount} 条有效测试证据) · 覆盖:${coverage} · review:${reviewSummary}
+
+## 知识引用归纳(命中)
+${criterionHits}
+
+## 澄清记录(缺口)
+${closureGaps(manifest).join("\n")}
+
+## 新确认(沉淀候选)
+${newConfirmations}
+`;
+}
+
+function renderAcceptanceList(manifest: RequirementManifest, emptyText: string): string {
+  return manifest.acceptanceCriteria
+    .map((criterion) => `- ${criterion.id}：${criterion.description}`)
+    .join("\n") || emptyText;
+}
+
+function renderRequirementDocument(manifest: RequirementManifest): string {
+  const date = dateOnly(nowIso());
+  return `# 业务需求文档: ${manifest.requirementName}
+> feature-id: ${manifest.requirementId}
+> 状态: 草稿
+> 日期: ${date}
+> 业务ID: ${manifest.requirementId}
+
+## 1. 背景与目标
 
 待补充。
 
-## 目标
+## 2. 需求范围
+
+### 2.1 本次包含
 
 待补充。
 
-## 业务场景
+### 2.2 本次不包含
 
 待补充。
 
-## 范围
+## 3. 用户角色与使用场景
 
 待补充。
 
-## 非目标
+## 4. 业务流程
 
 待补充。
 
-## 业务规则与异常边界
+## 5. 功能需求
 
 待补充。
 
-## 验收标准
+## 6. 业务规则
 
-${criteria || "- 待补充。"}
+待补充。
+
+## 7. 数据口径与状态说明
+
+待补充。
+
+## 8. 需拍板业务决策
+
+### 8.1 已确认
+
+待补充。
+
+### 8.2 待确认
+
+待补充。
+
+## 9. 权限与可见性
+
+待补充。
+
+## 10. 异常与边界场景
+
+待补充。
+
+## 11. 验收标准
+
+${renderAcceptanceList(manifest, "- 待补充。")}
+
+## 12. 待确认项
+
+待补充。
 
 ## 外部接口影响
 
 待补充。
+`;
+}
 
-## 待确认事项
+function renderDesignDocument(manifest: RequirementManifest): string {
+  return `# ${manifest.requirementName}设计文档
+
+> 生成日期：${dateOnly(nowIso())} | 主题范围：${manifest.requirementName} | feature-id: ${manifest.requirementId}
+
+## 目录
+
+- [概述 / Overview](#概述--overview)
+- [架构设计 / Architecture](#架构设计--architecture)
+- [核心模块 / Core Modules](#核心模块--core-modules)
+- [技术决策 / Key Decisions](#技术决策--key-decisions)
+- [已知限制 / Known Limits](#已知限制--known-limits)
+- [扩展方向 / Extension Points](#扩展方向--extension-points)
+- [相关资源 / References](#相关资源--references)
+
+## 概述 / Overview
 
 待补充。
+
+## 架构设计 / Architecture
+
+### 整体结构
+
+待补充。
+
+### 数据流
+
+待补充。
+
+## 核心模块 / Core Modules
+
+待补充。
+
+## 技术决策 / Key Decisions
+
+待补充。
+
+## 已知限制 / Known Limits
+
+| 限制 | 影响范围 | 应对措施 |
+|------|----------|----------|
+| 待补充 | 待补充 | 待补充 |
+
+## 扩展方向 / Extension Points
+
+待补充。
+
+## 相关资源 / References
+
+- 待补充源码路径。
 `;
+}
+
+function renderTestDocument(manifest: RequirementManifest): string {
+  const cases = manifest.acceptanceCriteria
+    .map((criterion, index) => `| T${index + 1} | ${criterion.id} | ${criterion.description} | ☐ |`)
+    .join("\n");
+  return `# 测试文档：${manifest.requirementName}
+
+> feature-id: ${manifest.requirementId}
+> 测试日期：${dateOnly(nowIso())}
+> 关联文档：${artifactFilename("requirement", manifest)} | ${artifactFilename("design", manifest)}
+> 测试范围：${manifest.requirementName}
+
+## 1. 测试环境与前置准备
+
+待补充。
+
+## 2. 核心规则与用例总览
+
+| 用例 ID | 验收标准 | 描述 | 结果 |
+|---|---|---|---|
+${cases || "| 待补充 | 待补充 | 待补充 | ☐ |"}
+
+## 3. 功能用例
+
+待补充。
+
+## 4. 边界与异常用例
+
+待补充。
+
+## 5. 自动化与回归建议
+
+待补充。
+
+## 6. 测试清单
+
+${manifest.acceptanceCriteria.map((criterion) => `- [ ] ${criterion.id} ${criterion.description}`).join("\n") || "- [ ] 待补充验收标准。"}
+
+## 7. 涉及代码索引
+
+待补充。
+
+## 执行记录
+
+尚未执行。只有写入实际命令、结果和验收标准映射后，本文档才可作为完成证据。
+`;
+}
+
+function generatedArtifactText(manifest: RequirementManifest, type: string): string {
+  if (type === "requirement") {
+    return renderRequirementDocument(manifest);
   }
   if (type === "design") {
-    const sections = manifest.ticketKind === "bug"
-      ? ["Bug现象", "原因分析", "修复方案", "改造思路", "新旧代码对照", "逻辑变更说明", "影响范围", "风险评估"]
-      : [
-          "需求问题概述", "需求描述", "需求提出部门及联系人", "电信需求负责人", "需求适用范围",
-          "需求期望完成时间", "设计相关选项", "场景分析", "风险考虑", "实现方案", "数据模型",
-          "表结构设计", "新增模型汇总", "表结构描述", "建表语句", "表数据转储策略", "界面设计",
-        ];
+    if (manifest.ticketKind !== "bug") return renderDesignDocument(manifest);
+    const sections = ["Bug现象", "原因分析", "修复方案", "改造思路", "新旧代码对照", "逻辑变更说明", "影响范围", "风险评估"];
     return [
       `# ${manifest.requirementId}_${manifest.requirementName}_设计文档`,
       "",
@@ -1364,36 +1635,9 @@ ${mapping || "| [待补充 AC] | [待补充说明] | [待补充类型] | [待补
 `;
   }
   if (type === "test") {
-    const criteria = manifest.acceptanceCriteria
-      .map((criterion) => `- ${criterion.id}：计划验证，尚未执行。`)
-      .join("\n");
-    return `# ${manifest.requirementName} · 测试报告
-
-- 需求号：\`${manifest.requirementId}\`
-- 当前状态：计划中
-
-## 测试计划
-
-${criteria || "- 等需求验收标准登记后补充测试映射。"}
-
-## 执行记录
-
-尚未执行。只有写入实际命令、结果和验收标准映射后，本文档才可作为完成证据。
-`;
+    return renderTestDocument(manifest);
   }
-  const criteria = manifest.acceptanceCriteria
-    .map((criterion) => `- ${criterion.id}：通过 — ${criterion.description}`)
-    .join("\n");
-  return `# ${manifest.requirementId} ${manifest.requirementName} 复盘收口总结
-
-## 验收标准
-
-${criteria}
-
-## 收口说明
-
-当前实现、测试、评审和变更范围已经汇总；最终完成状态以当前 Git 快照的 finish 门禁为准。
-`;
+  return renderClosureArchive(manifest);
 }
 
 /** Generate a canonical lifecycle artifact without silently overwriting user content. */

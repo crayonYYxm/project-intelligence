@@ -233,6 +233,34 @@ describe("requirement state machine", () => {
     );
   });
 
+  it("generated requirement, design, and test docs follow the sample document standards", () => {
+    const root = freshProject();
+    createRequirement(root, "REQ-STD", "文档标准", { ticketKind: "requirement" });
+    setAcceptanceCriteria(root, "REQ-STD", [{ id: "AC-01", description: "生成样例标准文档" }]);
+
+    generateArtifact(root, "REQ-STD", "requirement");
+    const requirement = readFileSync(join(requirementDir(root, "REQ-STD"), artifactFilename("requirement", loadRequirement(root, "REQ-STD"))), "utf8");
+    assert.match(requirement, /^# 业务需求文档: 文档标准/m);
+    for (const heading of ["背景与目标", "需求范围", "用户角色与使用场景", "业务流程", "功能需求", "业务规则", "数据口径与状态说明", "需拍板业务决策", "权限与可见性", "异常与边界场景", "验收标准", "待确认项"]) {
+      assert.ok(requirement.includes(heading), `missing requirement heading: ${heading}`);
+    }
+
+    setState(root, "REQ-STD", "specified");
+    generateArtifact(root, "REQ-STD", "design");
+    const design = readFileSync(join(requirementDir(root, "REQ-STD"), artifactFilename("design", loadRequirement(root, "REQ-STD"))), "utf8");
+    for (const heading of ["目录", "概述 / Overview", "架构设计 / Architecture", "核心模块 / Core Modules", "技术决策 / Key Decisions", "已知限制 / Known Limits", "扩展方向 / Extension Points", "相关资源 / References"]) {
+      assert.ok(design.includes(`## ${heading}`), `missing design heading: ${heading}`);
+    }
+
+    setState(root, "REQ-STD", "implementing");
+    generateArtifact(root, "REQ-STD", "test");
+    const testDoc = readFileSync(join(requirementDir(root, "REQ-STD"), artifactFilename("test", loadRequirement(root, "REQ-STD"))), "utf8");
+    assert.match(testDoc, /^# 测试文档：文档标准/m);
+    for (const heading of ["测试环境与前置准备", "核心规则与用例总览", "功能用例", "边界与异常用例", "自动化与回归建议", "测试清单", "涉及代码索引"]) {
+      assert.ok(testDoc.includes(heading), `missing test heading: ${heading}`);
+    }
+  });
+
   it("loadRequirement rejects ambiguous id-title directories", () => {
     const root = freshProject();
     const requirementsRoot = join(root, ".project-intel", "requirements");

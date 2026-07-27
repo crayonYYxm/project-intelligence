@@ -79,6 +79,13 @@ describe("review / finish / maintain commands (3.F)", () => {
     assert.equal(result.exitCode, 0);
     assert.equal(loadRequirement(root, prepared.id).state, "finished");
     assert.equal(existsSync(closurePath), true);
+    const closure = readFileSync(closurePath, "utf8");
+    assert.match(closure, /^---\nreq_id: "REQ-F-AUTO-生命周期需求"/);
+    assert.match(closure, /^# 收口档案:生命周期需求/m);
+    for (const heading of ["历时", "产物清单", "测试汇总", "知识引用归纳(命中)", "澄清记录(缺口)", "新确认(沉淀候选)"]) {
+      assert.ok(closure.includes(`## ${heading}`), `missing closure archive heading: ${heading}`);
+    }
+    assert.ok(closure.includes("AC-01 核心行为通过自动测试验证"));
     assert.ok(loadRequirement(root, prepared.id).artifacts.some((item) =>
       item.type === "closure" && item.status === "registered"
     ));

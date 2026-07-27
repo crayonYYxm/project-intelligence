@@ -50,6 +50,22 @@ const REQUIREMENT_SECTIONS = [
   "待确认事项",
 ];
 
+const PRD_REQUIREMENT_SECTIONS = [
+  "背景与目标",
+  "需求范围",
+  "用户角色与使用场景",
+  "业务流程",
+  "功能需求",
+  "业务规则",
+  "数据口径与状态说明",
+  "需拍板业务决策",
+  "权限与可见性",
+  "异常与边界场景",
+  "验收标准",
+  "待确认项",
+  "外部接口影响",
+];
+
 const BUG_SECTIONS = ["复现条件", "当前行为", "预期行为"];
 const DESIGN_REQUIREMENT_SECTIONS = [
   "需求问题概述",
@@ -69,6 +85,16 @@ const DESIGN_REQUIREMENT_SECTIONS = [
   "建表语句",
   "表数据转储策略",
   "界面设计",
+];
+const DESIGN_SAMPLE_SECTIONS = [
+  "目录",
+  "概述 / Overview",
+  "架构设计 / Architecture",
+  "核心模块 / Core Modules",
+  "技术决策 / Key Decisions",
+  "已知限制 / Known Limits",
+  "扩展方向 / Extension Points",
+  "相关资源 / References",
 ];
 const DESIGN_BUG_SECTIONS = [
   "bug现象",
@@ -183,6 +209,12 @@ function requireSections(lines: string[], headings: Heading[], names: string[], 
     if (!body) errors.push(`缺少必要章节：${name}。`);
     else if (!meaningful(body)) errors.push(`章节缺少有效内容：${name}。`);
   }
+}
+
+function missingSections(lines: string[], headings: Heading[], names: string[]): string[] {
+  const errors: string[] = [];
+  requireSections(lines, headings, names, errors);
+  return errors;
 }
 
 function plain(value: string): string {
@@ -366,26 +398,40 @@ function validateRequirement(manifest: DocumentManifest, content: string): Docum
   const lines = content.split(/\r?\n/);
   const headings = parseHeadings(lines);
   const errors: string[] = [];
-  const required = manifest.ticketKind === "bug"
+  const legacyRequired = manifest.ticketKind === "bug"
     ? [...REQUIREMENT_SECTIONS, ...BUG_SECTIONS]
     : REQUIREMENT_SECTIONS;
-  requireSections(lines, headings, required, errors);
+  const legacyErrors = missingSections(lines, headings, legacyRequired);
+  const prdErrors = manifest.ticketKind === "bug" ? ["Bug 文档不使用 PRD 需求结构。"] : missingSections(lines, headings, PRD_REQUIREMENT_SECTIONS);
+  const usesPrdSchema = prdErrors.length === 0;
+  if (legacyErrors.length > 0 && prdErrors.length > 0) {
+    errors.push(...legacyErrors);
+    if (manifest.ticketKind !== "bug") errors.push(...prdErrors);
+  }
 
   const expectedTitle = `# ${manifest.requirementId} ${manifest.requirementName} 需求文档`;
   const title = lines.find((line) => line.trim().startsWith("# "))?.trim() ?? "";
-  if (title !== expectedTitle) errors.push(`需求文档标题与 manifest 不一致；应为“${expectedTitle}”。`);
-
-  const info = section(lines, headings, "文档信息");
-  const fields = new Map<string, string>();
-  for (const line of info.split(/\r?\n/)) {
-    const match = /^\s*[-*]\s*(需求号|需求名称|单据类型)\s*[:：]\s*(.*?)\s*$/.exec(line);
-    if (match) fields.set(match[1]!, plain(match[2]!));
+  const expectedPrdTitle = `# 业务需求文档: ${manifest.requirementName}`;
+  if (usesPrdSchema) {
+    if (title !== expectedPrdTitle) errors.push(`需求文档标题与 manifest 不一致；应为“${expectedPrdTitle}”。`);
+    if (!content.includes(manifest.requirementId)) errors.push("PRD 元信息缺少需求号。");
+  } else if (title !== expectedTitle) {
+    errors.push(`需求文档标题与 manifest 不一致；应为“${expectedTitle}”。`);
   }
-  if (fields.get("需求号") !== manifest.requirementId) errors.push("文档信息中的需求号与 manifest 不一致。");
-  if (fields.get("需求名称") !== manifest.requirementName) errors.push("文档信息中的需求名称与 manifest 不一致。");
-  const expectedKind = manifest.ticketKind === "bug" ? "bug" : "requirement";
-  const actualKind = (fields.get("单据类型") ?? "").toLowerCase();
-  if (!actualKind.includes(expectedKind)) errors.push("文档信息中的单据类型与 manifest 不一致。");
+
+  if (!usesPrdSchema) {
+    const info = section(lines, headings, "文档信息");
+    const fields = new Map<string, string>();
+    for (const line of info.split(/\r?\n/)) {
+      const match = /^\s*[-*]\s*(需求号|需求名称|单据类型)\s*[:：]\s*(.*?)\s*$/.exec(line);
+      if (match) fields.set(match[1]!, plain(match[2]!));
+    }
+    if (fields.get("需求号") !== manifest.requirementId) errors.push("文档信息中的需求号与 manifest 不一致。");
+    if (fields.get("需求名称") !== manifest.requirementName) errors.push("文档信息中的需求名称与 manifest 不一致。");
+    const expectedKind = manifest.ticketKind === "bug" ? "bug" : "requirement";
+    const actualKind = (fields.get("单据类型") ?? "").toLowerCase();
+    if (!actualKind.includes(expectedKind)) errors.push("文档信息中的单据类型与 manifest 不一致。");
+  }
 
   const criteria = new Map<string, string>();
   for (const line of section(lines, headings, "验收标准").split(/\r?\n/)) {
@@ -416,7 +462,7 @@ function validateRequirement(manifest: DocumentManifest, content: string): Docum
     errors.push("需求文档的外部接口影响与 manifest 不一致。");
   }
 
-  const pending = section(lines, headings, "待确认事项").trim();
+  const pending = section(lines, headings, usesPrdSchema ? "待确认项" : "待确认事项").trim();
   if (!/^(无|没有|不涉及|无待确认事项)(?:[\s，,。；;:：]|$)/.test(pending)) {
     errors.push("待确认事项仍未解决。");
   }
@@ -445,12 +491,15 @@ function validateDesign(manifest: DocumentManifest, content: string): DocumentVa
   const lines = content.split(/\r?\n/);
   const headings = parseHeadings(lines);
   const errors: string[] = [];
-  requireSections(
-    lines,
-    headings,
-    manifest.ticketKind === "bug" ? DESIGN_BUG_SECTIONS : DESIGN_REQUIREMENT_SECTIONS,
-    errors
-  );
+  if (manifest.ticketKind === "bug") {
+    requireSections(lines, headings, DESIGN_BUG_SECTIONS, errors);
+  } else {
+    const crmErrors = missingSections(lines, headings, DESIGN_REQUIREMENT_SECTIONS);
+    const sampleErrors = missingSections(lines, headings, DESIGN_SAMPLE_SECTIONS);
+    if (crmErrors.length > 0 && sampleErrors.length > 0) {
+      errors.push(...crmErrors, ...sampleErrors);
+    }
+  }
   if (!content.includes(manifest.requirementId) || !content.includes(manifest.requirementName)) {
     errors.push("设计文档标题或正文与需求身份不一致。");
   }
@@ -460,7 +509,9 @@ function validateDesign(manifest: DocumentManifest, content: string): DocumentVa
   return {
     ok: true,
     kind: manifest.ticketKind,
-    schema: manifest.ticketKind === "bug" ? "bug-v1" : "requirement-crm-v2",
+    schema: manifest.ticketKind === "bug"
+      ? "bug-v1"
+      : missingSections(lines, headings, DESIGN_SAMPLE_SECTIONS).length === 0 ? "requirement-sample-v1" : "requirement-crm-v2",
     errors: [],
     warnings: [],
     validatedAt: new Date().toISOString(),
@@ -490,8 +541,11 @@ function validatePlan(manifest: DocumentManifest, content: string): DocumentVali
 
 function validateClosure(manifest: DocumentManifest, content: string): DocumentValidation {
   const errors: string[] = [];
-  for (const heading of ["验收标准", "收口说明"]) {
-    if (!content.includes(`## ${heading}`)) errors.push(`缺少必要章节：${heading}。`);
+  const hasLegacySummary = ["验收标准", "收口说明"].every((heading) => content.includes(`## ${heading}`));
+  const hasClosureArchive = ["历时", "产物清单", "测试汇总", "知识引用归纳(命中)", "澄清记录(缺口)", "新确认(沉淀候选)"]
+    .every((heading) => content.includes(`## ${heading}`));
+  if (!hasLegacySummary && !hasClosureArchive) {
+    errors.push("缺少必要章节：新版收口档案需包含历时、产物清单、测试汇总、知识引用归纳(命中)、澄清记录(缺口)、新确认(沉淀候选)；旧版收口总结需包含验收标准、收口说明。");
   }
   if (!content.includes(manifest.requirementId)) errors.push("收口总结与需求号不一致。");
   for (const criterion of manifest.acceptanceCriteria) {
