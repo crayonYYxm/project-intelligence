@@ -4,7 +4,7 @@ Project Intelligence 是一个同时适配 Claude Code 和 Codex 的本地项目
 
 插件不替代业务代码开发本身，而是提供一套项目级工作流：
 
-- 先登记需求号、需求名称、Bug/Requirement 类型和对外接口影响。
+- 先登记用户提供的版本日期、需求号、需求名称、Bug/Requirement 类型和对外接口影响。
 - 再由 `project-spec` 形成需求文档和验收标准；Bug 先由 `project-debug` 登记根因证据，然后由 `project-design` 生成或验证源码佐证设计文档。
 - `project-test` 先明确测试合同（类型、报告动作、AC 映射），ready 后才允许进入实现。
 - 测试、评审、finish、maintain 都写入需求级 manifest。
@@ -15,10 +15,10 @@ Project Intelligence 是一个同时适配 Claude Code 和 Codex 的本地项目
 
 | 能力 | 说明 |
 | --- | --- |
-| 需求级档案 | 每个需求直接归档到 `.project-intel/requirements/<requirement-id>/`。 |
+| 需求级档案 | 每个需求直接归档到 `.project-intel/requirements/<YYYY-MM-DD>-<requirement-id>-<title>/`。 |
 | 强制状态机 | 固定流转 `draft -> specified -> designed -> ready -> implementing -> verified -> reviewed -> finished -> closed`。 |
-| 必选产物 | `requirement.md`、`design.md`、`test-report.md`、`closure-summary.md`。 |
-| 可选计划 | complex 任务或用户明确要求时生成同目录 `plan.md`。 |
+| 必选产物 | `<id>-<title>-需求文档.md`（Bug 为 `Bug文档`）、`设计文档.md`、`测试文档.md`、`收口文档.md`。 |
+| 可选计划 | complex 任务或用户明确要求时生成同目录 `<id>-<title>-实施计划.md`。 |
 | 独立设计 Skill | `project-design` 可只生成文档，不初始化或修改 `.project-intel`。 |
 | 测试门禁 | 普通需求至少需要通过的单元测试或服务测试；对外接口需求必须有服务测试。 |
 | 人工例外 | 仅限视觉、真机、硬件、纯配置等场景，并要求审批式报告和截图/日志路径。 |
@@ -144,6 +144,7 @@ project-intel --project /path/to/repo refresh --with-graph --allow-external-path
 project-intel --project /path/to/repo intake \
   --requirement-id REQ-1001 \
   --requirement-name "订单导出增加筛选条件" \
+  --version-date "2026-07-23" \
   --ticket-kind requirement \
   --external-api no \
   --requirement-action generate \
@@ -151,12 +152,12 @@ project-intel --project /path/to/repo intake \
   --track auto
 ```
 
-没有正式需求号时，Agent 使用 `LOCAL-YYYYMMDD-HHMMSS`。
+没有正式需求号时，Agent 使用 `LOCAL-YYYYMMDD-HHMMSS`。版本日期必须由用户提供，可使用完整日期或 `7.23版本`、`7月23日` 这类当前年份简写，不能静默使用当天日期。
 如果选择登记已有文件，动作改为 `register`，并同时传 `--requirement-path` 或 `--design-path`。这些选择会写入 `manifest.workflowSelections`，换会话或交给子任务后通过 `requirement status --json` 原样恢复。
 
 ### 3. 生成需求文档和验收标准
 
-`project-spec` 先完善 `requirement.md`，把同一组 AC 写入 manifest，再登记文档：
+`project-spec` 先完善标题化需求文档，把同一组 AC 写入 manifest，再登记文档：
 
 ```bash
 project-intel --project /path/to/repo requirement generate \
@@ -169,7 +170,7 @@ project-intel --project /path/to/repo requirement acceptance set \
 
 project-intel --project /path/to/repo requirement add \
   --requirement-id REQ-1001 --type requirement \
-  --path .project-intel/requirements/REQ-1001/requirement.md
+  --path .project-intel/requirements/2026-07-23-REQ-1001-订单导出增加筛选条件/REQ-1001-订单导出增加筛选条件-需求文档.md
 ```
 
 脚手架带占位符，必须由 Agent 补齐；仅生成不能进入 `specified`。
@@ -194,8 +195,8 @@ project-intel --project /path/to/repo requirement diagnose \
 生命周期中的 `generate` 由 `project-design` 分析本地单据和源码后写入：
 
 ```text
-.project-intel/requirements/bug1234/design.md
-.project-intel/requirements/CRM-req73822/design.md
+.project-intel/requirements/2026-07-23-bug1234-登录失败/bug1234-登录失败-设计文档.md
+.project-intel/requirements/2026-07-23-CRM-req73822-订单导出/CRM-req73822-订单导出-设计文档.md
 ```
 
 独立调用 `project-design` 时，Bug 输出 `docs/requirements/<bug编号>-<名称>-设计文档.md`，Requirement 输出 `docs/requirements/<需求号>_<名称>_设计文档.md`；两种模式都不会初始化或修改 `.project-intel`。
@@ -205,8 +206,8 @@ Requirement 使用 CRM 固定章节与顺序，但正文以中文业务叙述为
 生成或已有文档都必须经过验证后登记：
 
 ```bash
-python3 plugins/project-intelligence/skills/project-design/scripts/validate_design_doc.py \
-  --file .project-intel/requirements/REQ-1001/design.md \
+node plugins/project-intelligence/skills/project-design/scripts/validate_design_doc.mjs \
+  --file .project-intel/requirements/2026-07-23-REQ-1001-订单导出增加筛选条件/REQ-1001-订单导出增加筛选条件-设计文档.md \
   --repo /path/to/repo \
   --kind requirement \
   --json
@@ -216,7 +217,7 @@ python3 plugins/project-intelligence/skills/project-design/scripts/validate_desi
 project-intel --project /path/to/repo requirement add \
   --requirement-id REQ-1001 \
   --type design \
-  --path .project-intel/requirements/REQ-1001/design.md
+  --path .project-intel/requirements/2026-07-23-REQ-1001-订单导出增加筛选条件/REQ-1001-订单导出增加筛选条件-设计文档.md
 ```
 
 复杂需求或明确要求保留计划时，额外生成同目录可选文件：
@@ -225,7 +226,7 @@ project-intel --project /path/to/repo requirement add \
 project-intel --project /path/to/repo plan --requirement-id REQ-1001
 ```
 
-`plan` 同样默认拒绝覆盖已存在的 `plan.md`；确认需要重建时才显式传入 `--replace`。
+`plan` 同样默认拒绝覆盖已存在的标题化实施计划；确认需要重建时才显式传入 `--replace`。
 
 ### 5. readiness 和开始实现
 

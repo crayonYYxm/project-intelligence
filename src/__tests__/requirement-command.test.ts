@@ -52,12 +52,19 @@ describe("requirement command dispatcher", () => {
       "--task", "迁移运行时",
       "--requirement-id", "REQ-ACTIONS",
       "--requirement-name", "迁移运行时",
+      "--version-date", "7.23版本",
       "--external-api", "no",
       "--requirement-action", "later",
       "--design-action", "generate",
       "--track", "complex",
     ], noopGlobal);
     const manifest = loadRequirement(root, "REQ-ACTIONS");
+    assert.equal(manifest.versionDate, `${new Date().getFullYear()}-07-23`);
+    assert.ok(requirementDir(root, "REQ-ACTIONS").endsWith(join(
+      ".project-intel",
+      "requirements",
+      `${new Date().getFullYear()}-07-23-REQ-ACTIONS-迁移运行时`
+    )));
     assert.equal((manifest.workflowSelections?.requirement as Record<string, unknown>).action, "later");
     assert.equal((manifest.workflowSelections?.design as Record<string, unknown>).action, "generate");
     assert.throws(
@@ -69,6 +76,49 @@ describe("requirement command dispatcher", () => {
       () => runRequirement(root, ["defer", "--requirement-id", "REQ-ACTIONS", "--type", "design"], noopGlobal),
       /已选择 generate/
     );
+  });
+
+  it("intake requires a valid user supplied version date", () => {
+    const root = mkdtempSync(join(tmpdir(), "pi-req-"));
+    assert.throws(
+      () => runIntake(root, [
+        "--task", "新增需求",
+        "--requirement-id", "REQ-NO-DATE",
+        "--requirement-name", "新增需求",
+        "--external-api", "no",
+      ], noopGlobal),
+      /--version-date/
+    );
+    assert.throws(
+      () => runIntake(root, [
+        "--task", "新增需求",
+        "--requirement-id", "REQ-BAD-DATE",
+        "--requirement-name", "新增需求",
+        "--version-date", "2.30版本",
+        "--external-api", "no",
+      ], noopGlobal),
+      /版本日期/
+    );
+    assert.equal(existsSync(join(root, ".project-intel", "requirements")), false);
+  });
+
+  it("task-only intake remains a read-only analysis without a version date", () => {
+    const root = mkdtempSync(join(tmpdir(), "pi-req-"));
+    const result = runIntake(root, ["--task", "分析需求范围"], noopGlobal);
+    assert.equal((result.result as Record<string, unknown>).readiness, "analysis-only");
+    assert.equal(existsSync(join(root, ".project-intel")), false);
+  });
+
+  it("task intake with a version date registers a dated LOCAL requirement", () => {
+    const root = mkdtempSync(join(tmpdir(), "pi-req-"));
+    const result = runIntake(root, ["--task", "本地需求", "--version-date", "7.23"], noopGlobal);
+    const id = String((result.result as Record<string, unknown>).requirementId);
+    assert.match(id, /^LOCAL-\d{8}-\d{6}$/);
+    assert.ok(requirementDir(root, id).endsWith(join(
+      ".project-intel",
+      "requirements",
+      `${new Date().getFullYear()}-07-23-${id}-本地需求`
+    )));
   });
 
   it("acceptance set persists AC-01..AC-02", () => {

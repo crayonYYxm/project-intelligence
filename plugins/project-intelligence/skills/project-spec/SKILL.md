@@ -7,7 +7,7 @@ description: Use after project-intake and before project-debug/project-design to
 
 Write specs from project facts, not guesses.
 
-For requirement-level implementation, create or register `.project-intel/requirements/<id>-<title>/<id>-<title>-需求文档.md` or `.project-intel/requirements/<id>-<title>/<id>-<title>-Bug文档.md` and keep its numbered acceptance criteria identical to `manifest.acceptanceCriteria`. Legacy `<id>/` archives and `requirement.md` remain readable. Do not create `.project-intel/specs/`.
+For requirement-level implementation, create or register `.project-intel/requirements/<YYYY-MM-DD>-<id>-<title>/<id>-<title>-需求文档.md` or `.project-intel/requirements/<YYYY-MM-DD>-<id>-<title>/<id>-<title>-Bug文档.md` and keep its numbered acceptance criteria identical to `manifest.acceptanceCriteria`. Legacy `<id>-<title>/` / `<id>/` archives and `requirement.md` remain readable. Do not create `.project-intel/specs/`.
 
 1. Read `.project-intel/manifest.json`, `.project-intel/project-status.md`, relevant standards, knowledge JSON, and graph summary.
 2. Use the identity, ticket kind, track, and readiness fields already established by `project-intake`. Run read-only `project-intel intake --task "<requirement>"` only for an impact-only request that is not inside a lifecycle.
@@ -55,7 +55,7 @@ project-intel requirement acceptance set --requirement-id "<id>" \
   --criterion "AC-01:<observable behavior>" \
   --criterion "AC-02:<regression or compatibility result>"
 project-intel requirement add --requirement-id "<id>" --type requirement \
-  --path .project-intel/requirements/<id>-<title>/<id>-<title>-需求文档.md
+  --path .project-intel/requirements/<YYYY-MM-DD>-<id>-<title>/<id>-<title>-需求文档.md
 ```
 
 Do not add an acceptance-criteria heading to the Bug or CRM Requirement design. For a Bug, `project-debug` follows this step and supplies the diagnosis used by `project-design`; for a Requirement, `project-design` follows directly. Run `requirement ready` only after both `requirementValidation.ok` and `designValidation.ok` are true and any optional complex-task plan is complete.

@@ -21,7 +21,11 @@ import {
   SCHEMA_VERSION,
   STATES,
 } from "../requirements/state-machine.js";
-import { artifactFilename } from "../requirements/artifacts.js";
+import {
+  artifactFilename,
+  normalizeVersionDate,
+  requirementDirectoryName,
+} from "../requirements/artifacts.js";
 import { RequirementError } from "../errors.js";
 import {
   prepareDesignedRequirement,
@@ -194,12 +198,52 @@ describe("requirement state machine", () => {
     assert.equal(loadRequirement(root, "REQ-8").requirementName, "布局 / 标题: Win\\dows?\u0001\u0085 .");
   });
 
+  it("normalizes user supplied version dates and writes dated requirement directories", () => {
+    assert.equal(normalizeVersionDate("2026-07-23"), "2026-07-23");
+    assert.equal(normalizeVersionDate("2026.7.23"), "2026-07-23");
+    assert.equal(normalizeVersionDate("7.23版本", new Date(2026, 0, 1)), "2026-07-23");
+    assert.equal(normalizeVersionDate("7月23日", new Date(2026, 0, 1)), "2026-07-23");
+    assert.throws(() => normalizeVersionDate("2026-02-30"), /版本日期/);
+
+    const root = freshProject();
+    const manifest = createRequirement(root, "CRM-req76637", "迁改价值聚合ES合并与优惠折扣字段新增", {
+      versionDate: "2026-07-23",
+    });
+    assert.equal(manifest.versionDate, "2026-07-23");
+    assert.ok(requirementDir(root, "CRM-req76637").endsWith(join(
+      ".project-intel",
+      "requirements",
+      "2026-07-23-CRM-req76637-迁改价值聚合ES合并与优惠折扣字段新增"
+    )));
+    assert.equal(
+      artifactFilename("requirement", manifest),
+      "CRM-req76637-迁改价值聚合ES合并与优惠折扣字段新增-需求文档.md"
+    );
+
+    const bug = createRequirement(root, "76638", "优惠字段缺失", {
+      ticketKind: "bug",
+      versionDate: "2026-07-24",
+    });
+    assert.equal(bug.requirementId, "bug76638");
+    assert.ok(requirementDir(root, "bug76638").endsWith(join(
+      ".project-intel",
+      "requirements",
+      "2026-07-24-bug76638-优惠字段缺失"
+    )));
+  });
+
   it("limits id-title directories by UTF-8 byte length", () => {
     const root = freshProject();
     createRequirement(root, "REQ-LONG", "标题".repeat(200));
     const directory = requirementDir(root, "REQ-LONG").split(/[\\/]/).pop()!;
     assert.ok(Buffer.byteLength(directory) <= 240);
     assert.ok(existsSync(join(requirementDir(root, "REQ-LONG"), "manifest.json")));
+  });
+
+  it("includes the date prefix in the UTF-8 directory byte limit", () => {
+    const directory = requirementDirectoryName("REQ-LONG", "标题".repeat(200), "2026-07-23");
+    assert.ok(directory.startsWith("2026-07-23-REQ-LONG-"));
+    assert.ok(Buffer.byteLength(directory) <= 240);
   });
 
   it("numeric bug ids use the canonical id together with the title", () => {
@@ -264,7 +308,7 @@ describe("requirement state machine", () => {
   it("loadRequirement rejects ambiguous id-title directories", () => {
     const root = freshProject();
     const requirementsRoot = join(root, ".project-intel", "requirements");
-    for (const directory of ["REQ-DUP-标题一", "REQ-DUP-标题二"]) {
+    for (const directory of ["REQ-DUP-标题一", "2026-07-23-REQ-DUP-标题二"]) {
       const target = join(requirementsRoot, directory);
       mkdirSync(target, { recursive: true });
       writeFileSync(join(target, "manifest.json"), JSON.stringify({

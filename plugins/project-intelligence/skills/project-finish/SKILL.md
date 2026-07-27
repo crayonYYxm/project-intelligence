@@ -8,7 +8,7 @@ description: Use after implementation evidence and review when the user asks to 
 Use this after implementation and review fixes, before project maintenance.
 
 1. Inspect the diff and changed files.
-2. Read the resolved `.project-intel/requirements/<id>-<title>/<id>-<title>-测试文档.md` (or legacy `<id>/test-report.md`) and `manifest.testEvidence`. Confirm the feature/bugfix claim with fresh, task-matching evidence from the current diff: targeted tests, affected regression tests, or an approved reproducible manual procedure.
+2. Read the resolved `.project-intel/requirements/<YYYY-MM-DD>-<id>-<title>/<id>-<title>-测试文档.md` (or legacy `<id>-<title>/` / `<id>/test-report.md`) and `manifest.testEvidence`. Confirm the feature/bugfix claim with fresh, task-matching evidence from the current diff: targeted tests, affected regression tests, or an approved reproducible manual procedure.
 3. Verify scope did not drift. If it did, update the spec/plan before claiming completion.
 4. Check high-risk categories when relevant: interface compatibility, data migration, permissions, cache, transactions, remote calls, async jobs, release flags, rollback, monitoring, and user-visible edge states.
 5. If evidence is missing, return to `project-test`. Do not use `project-intel check`, lint, type-check, build output, or an Agent summary as a substitute for changed-behavior proof.

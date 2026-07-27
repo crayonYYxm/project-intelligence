@@ -35,6 +35,7 @@ import {
   artifactFilename,
   normalizeArtifactType,
   normalizeRequirementId,
+  normalizeVersionDate,
   requirementDirectoryName,
 } from "./artifacts.js";
 export { requirementDirectoryName } from "./artifacts.js";
@@ -64,6 +65,7 @@ export interface RequirementManifest {
   revision: number;
   requirementId: string;
   requirementName: string;
+  versionDate?: string;
   ticketKind: string;
   track: string;
   state: RequirementState;
@@ -124,15 +126,13 @@ function directManifestPaths(root: string, requirementId: string): string[] {
   const requirementsRoot = join(root, ".project-intel", "requirements");
   if (!existsSync(requirementsRoot)) return [];
   const matches: string[] = [];
+  const escapedId = id.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const datedPrefix = new RegExp(`^\\d{4}-\\d{2}-\\d{2}-${escapedId}(?:-|$)`);
   for (const directory of readdirSync(requirementsRoot).sort()) {
     if (directory === "by-id") continue;
+    if (directory !== id && !directory.startsWith(`${id}-`) && !datedPrefix.test(directory)) continue;
     const candidate = join(requirementsRoot, directory, "manifest.json");
     if (!existsSync(candidate)) continue;
-    if (directory === id) {
-      matches.push(candidate);
-      continue;
-    }
-    if (!directory.startsWith(`${id}-`)) continue;
     try {
       const payload = JSON.parse(readFileSync(candidate, "utf8")) as { requirementId?: string };
       if (normalizeId(String(payload.requirementId ?? "")) === id) matches.push(candidate);
@@ -147,12 +147,17 @@ function directManifestPaths(root: string, requirementId: string): string[] {
   return matches;
 }
 
-/** Resolve an existing requirement directory by id, or build a new `<id>-<title>` path when a name is provided. */
-export function requirementDir(root: string, requirementId: string, requirementName?: string): string {
+/** Resolve an existing requirement directory by id, or build a new dated title path when creation inputs are provided. */
+export function requirementDir(
+  root: string,
+  requirementId: string,
+  requirementName?: string,
+  versionDate?: string
+): string {
   const existing = directManifestPaths(root, requirementId)[0];
   if (existing) return dirname(existing);
   const directory = requirementName
-    ? requirementDirectoryName(requirementId, requirementName)
+    ? requirementDirectoryName(requirementId, requirementName, versionDate)
     : normalizeId(requirementId);
   const target = join(root, ".project-intel", "requirements", directory);
   if (requirementName && existsSync(join(target, "manifest.json"))) {
@@ -215,7 +220,7 @@ export function loadRequirement(root: string, requirementId: string): Requiremen
 
 /** Persist a manifest atomically under the requirement lock. */
 export function writeManifest(root: string, requirementId: string, manifest: RequirementManifest): void {
-  const dir = requirementDir(root, requirementId, manifest.requirementName);
+  const dir = requirementDir(root, requirementId, manifest.requirementName, manifest.versionDate);
   mkdirSync(dir, { recursive: true });
   manifest.updatedAt = nowIso();
   const path = join(dir, "manifest.json");
@@ -274,6 +279,7 @@ export function createRequirement(
     requirementPath?: string;
     designAction?: string;
     designPath?: string;
+    versionDate?: string;
   } = {}
 ): RequirementManifest {
   const track = options.track ?? "standard";
@@ -291,6 +297,9 @@ export function createRequirement(
   const identifier = normalizeId(/^\d+$/.test(rawId)
     ? `${ticketKind === "bug" ? "bug" : "req"}${rawId}`
     : rawId);
+  const versionDate = options.versionDate === undefined
+    ? undefined
+    : normalizeVersionDate(options.versionDate);
   const selections: Record<string, Record<string, unknown>> = {};
   for (const [key, actionValue, pathValue] of [
     ["requirement", options.requirementAction, options.requirementPath],
@@ -330,6 +339,7 @@ export function createRequirement(
       || current.ticketKind !== ticketKind
       || Boolean(currentExternal.confirmed) !== (options.externalApi !== undefined)
       || Boolean(currentExternal.value) !== Boolean(options.externalApi)
+      || (versionDate !== undefined && current.versionDate !== versionDate)
     ) {
       throw new RequirementError(`需求号 ${identifier} 已存在且关键信息不同；如需修改请使用 requirement amend。`);
     }
@@ -348,6 +358,7 @@ export function createRequirement(
     revision: 1,
     requirementId: identifier,
     requirementName: name,
+    ...(versionDate ? { versionDate } : {}),
     ticketKind,
     track,
     state: "draft",
@@ -1288,7 +1299,11 @@ function latestArtifactPath(manifest: RequirementManifest, type: string): string
 }
 
 function artifactLink(manifest: RequirementManifest, type: string): string {
-  const directory = requirementDirectoryName(manifest.requirementId, manifest.requirementName);
+  const directory = requirementDirectoryName(
+    manifest.requirementId,
+    manifest.requirementName,
+    manifest.versionDate
+  );
   const path = latestArtifactPath(manifest, type) ?? `.project-intel/requirements/${directory}/${artifactFilename(type, manifest)}`;
   const filename = basename(path);
   const localPrefix = `.project-intel/requirements/${directory}/`;
@@ -1374,7 +1389,11 @@ function renderClosureArchive(manifest: RequirementManifest): string {
     : "- [new] 收口档案应持续保留 git_range、产物清单、测试汇总和澄清缺口，便于后续追溯。 [来源: 收口归纳]";
   return `---
 req_id: ${yamlString(`${manifest.requirementId}-${manifest.requirementName}`)}
-簇: ${yamlString(`.project-intel/requirements/${requirementDirectoryName(manifest.requirementId, manifest.requirementName)}`)}
+簇: ${yamlString(`.project-intel/requirements/${requirementDirectoryName(
+  manifest.requirementId,
+  manifest.requirementName,
+  manifest.versionDate
+)}`)}
 status: 未收口
 mode: project-intelligence
 created: ${yamlString(finished)}

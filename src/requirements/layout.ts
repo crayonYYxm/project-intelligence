@@ -1,6 +1,6 @@
 // Requirement layout + artifact helpers (phase 3.D.5), ported from
 // requirements.requirement_dir / ARTIFACT_FILES / migrate_layout. The v2 layout
-// stores new requirements under `.project-intel/requirements/<id>-<title>/`
+// stores new requirements under `.project-intel/requirements/<date>-<id>-<title>/`
 // (no by-id/); id-only and legacy by-id archives remain readable.
 
 import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
@@ -21,10 +21,12 @@ export function migrateLayout(root: string, requirementId: string, apply: boolea
   if (existsSync(manifestPath(root, requirementId))) return { migrated: false }; // v2 already present
   const legacyManifest = JSON.parse(readFileSync(legacy, "utf8")) as {
     requirementName?: unknown;
+    versionDate?: unknown;
   };
   const requirementName = String(legacyManifest.requirementName ?? "").trim() || "untitled";
+  const versionDate = String(legacyManifest.versionDate ?? "").trim() || undefined;
   const fromDir = join(legacy, "..");
-  const toDir = requirementDir(root, requirementId, requirementName);
+  const toDir = requirementDir(root, requirementId, requirementName, versionDate);
   const target = join(toDir, "manifest.json");
   if (existsSync(toDir)) {
     throw new RequirementError(`迁移目标目录已存在，拒绝覆盖：${toDir}`);

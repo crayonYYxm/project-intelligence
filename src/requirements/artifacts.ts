@@ -29,6 +29,7 @@ export interface ArtifactContext {
   requirementId: string;
   requirementName: string;
   ticketKind?: string;
+  versionDate?: string;
 }
 
 function truncateUtf8(value: string, maxBytes: number): string {
@@ -56,9 +57,43 @@ export function sanitizeTitleSegment(value: string): string {
     .replace(/^[ .-]+|[ .-]+$/g, "");
 }
 
-export function requirementDirectoryName(requirementId: string, requirementName: string): string {
+export function normalizeVersionDate(value: string, referenceDate = new Date()): string {
+  const raw = String(value ?? "").trim().replace(/\s*版本\s*$/u, "");
+  const normalized = raw
+    .replace(/年|月/gu, "-")
+    .replace(/日/gu, "")
+    .replace(/[./]/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "");
+  const parts = normalized.split("-");
+  if (parts.length !== 2 && parts.length !== 3) {
+    throw new RequirementError(`版本日期格式无效：${value}`);
+  }
+  const [yearValue, monthValue, dayValue] = parts.length === 3
+    ? parts
+    : [String(referenceDate.getFullYear()), parts[0], parts[1]];
+  if (!/^\d{4}$/.test(yearValue!) || !/^\d{1,2}$/.test(monthValue!) || !/^\d{1,2}$/.test(dayValue!)) {
+    throw new RequirementError(`版本日期格式无效：${value}`);
+  }
+  const year = Number(yearValue);
+  const month = Number(monthValue);
+  const day = Number(dayValue);
+  const candidate = new Date(year, month - 1, day);
+  if (
+    year < 1000
+    || year > 9999
+    || candidate.getFullYear() !== year
+    || candidate.getMonth() !== month - 1
+    || candidate.getDate() !== day
+  ) {
+    throw new RequirementError(`版本日期不是有效日历日期：${value}`);
+  }
+  return `${String(year).padStart(4, "0")}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+}
+
+function requirementArtifactStem(requirementId: string, requirementName: string, maxBytes: number): string {
   const id = normalizeRequirementId(requirementId);
-  const availableTitleBytes = MAX_REQUIREMENT_DIRECTORY_BYTES - Buffer.byteLength(id) - 1;
+  const availableTitleBytes = maxBytes - Buffer.byteLength(id) - 1;
   if (availableTitleBytes < 1) {
     throw new RequirementError(`需求号过长，无法生成安全目录名：${id}`);
   }
@@ -66,6 +101,19 @@ export function requirementDirectoryName(requirementId: string, requirementName:
   const truncated = truncateUtf8(sanitizeTitleSegment(requirementName) || fallback, availableTitleBytes)
     .replace(/[ .-]+$/g, "");
   return `${id}-${truncated || fallback}`;
+}
+
+export function requirementDirectoryName(
+  requirementId: string,
+  requirementName: string,
+  versionDate?: string
+): string {
+  const datePrefix = versionDate ? `${normalizeVersionDate(versionDate)}-` : "";
+  return `${datePrefix}${requirementArtifactStem(
+    requirementId,
+    requirementName,
+    MAX_REQUIREMENT_DIRECTORY_BYTES - Buffer.byteLength(datePrefix)
+  )}`;
 }
 
 export function normalizeArtifactType(type: string): string {
@@ -82,5 +130,9 @@ export function artifactFilename(type: string, context?: ArtifactContext): strin
     ? "Bug文档"
     : ARTIFACT_LABELS[normalized];
   if (!label) return `${sanitizeTitleSegment(type) || "artifact"}.md`;
-  return `${requirementDirectoryName(context.requirementId, context.requirementName)}-${label}.md`;
+  return `${requirementArtifactStem(
+    context.requirementId,
+    context.requirementName,
+    MAX_REQUIREMENT_DIRECTORY_BYTES
+  )}-${label}.md`;
 }

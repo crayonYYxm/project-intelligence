@@ -41,11 +41,28 @@ export function runIntake(root: string, args: string[], global: GlobalOptions): 
   const track = flag(args, "--track") ?? "auto";
   let requirementId = flag(args, "--requirement-id");
   const requirementName = flag(args, "--requirement-name") ?? task;
+  const versionDate = flag(args, "--version-date");
   const externalApi = flag(args, "--external-api");
   const ticketKind = (flag(args, "--ticket-kind") ?? "requirement") as "bug" | "requirement";
 
   // Lightweight track inference (mirrors analyze_task_intake's heuristics).
   const inferredTrack = inferTrack(task, track);
+  const registrationRequested = [
+    "--requirement-id",
+    "--requirement-name",
+    "--version-date",
+    "--ticket-kind",
+    "--external-api",
+    "--requirement-action",
+    "--requirement-path",
+    "--design-action",
+    "--design-path",
+  ].some((option) => args.includes(option));
+  if (!registrationRequested) {
+    void global;
+    return ok({ task, track: inferredTrack, readiness: "analysis-only" });
+  }
+  if (!versionDate) throw new UsageError("登记需求时必须由用户提供 --version-date。");
 
   // Generate LOCAL-* ID when not provided (mirrors Python's LOCAL timestamp ID).
   if (!requirementId) {
@@ -56,9 +73,10 @@ export function runIntake(root: string, args: string[], global: GlobalOptions): 
 
   // Register the requirement. Only pass externalApi when explicitly provided
   // (not passing it leaves confirmed=false in the manifest, matching Python).
-  const createOpts: { track: string; ticketKind: string; externalApi?: boolean } = {
+  const createOpts: { track: string; ticketKind: string; versionDate: string; externalApi?: boolean } = {
     track: inferredTrack,
     ticketKind,
+    versionDate,
   };
   if (externalApi !== undefined) createOpts.externalApi = externalApi === "yes";
   const requirementAction = flag(args, "--requirement-action");

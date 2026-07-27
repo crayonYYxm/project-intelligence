@@ -102,7 +102,7 @@ export function runInit(root: string, args: string[], global: GlobalOptions, ref
         ".project-intel/graph/project-graph.json",
         ".project-intel/standards/*.md",
         ".project-intel/project-status.md",
-        ".project-intel/requirements/<requirement-id>-<title>/*.md",
+        ".project-intel/requirements/<YYYY-MM-DD>-<requirement-id>-<title>/*.md",
       ],
       adapterWritesRequireExplicitFlag: true,
       wouldRunGraph: opts.withGraph

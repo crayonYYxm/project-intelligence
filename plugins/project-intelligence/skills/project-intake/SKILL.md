@@ -19,7 +19,7 @@ project-intel intake --task "<requirement>"
    - `standard`: normal feature/change that needs lightweight spec and plan in context.
    - `complex`: cross-module, API/data/auth/payment/cache/async/release/compatibility/security/performance work.
 4. If readiness is `needs-clarification`, resolve only the missing information that can change implementation or acceptance.
-5. Do not create shared spec, plan, lifecycle, intake, or report files. New requirement-level durable files belong only in `.project-intel/requirements/<id>-<title>/`; legacy `<id>/` archives remain readable.
+5. Do not create shared spec, plan, lifecycle, intake, or report files. New requirement-level durable files belong only in `.project-intel/requirements/<YYYY-MM-DD>-<id>-<title>/`; legacy `<id>-<title>/` and `<id>/` archives remain readable.
 6. Route first to `project-spec` after collecting the requirement-document and design-document actions during intake. Persist both choices in `manifest.workflowSelections`; when `register` is chosen, persist the validated repository-relative source path too. Always execute the lifecycle in this order: `project-spec` first, then `project-debug` for a Bug, then `project-design`. `project-spec` must generate or register the titled requirement/Bug document and persist the same numbered acceptance criteria in the manifest. A `later` requirement document is a blocking choice.
 7. After `project-spec`, handle the selected development-design action:
    - `generate`: invoke `project-design`; for a Bug, invoke `project-debug` first so the design contains an evidence-backed root cause.
@@ -30,10 +30,11 @@ project-intel intake --task "<requirement>"
 
 Use GitNexus for precise impact when available and Understand-Anything for architecture/domain context when available.
 
-For implementation intent, ask for the requirement ID and requirement name before routing. Generate `LOCAL-YYYYMMDD-HHMMSS` when no formal ID exists, explicitly ask whether external APIs are affected, then register the requirement:
+For implementation intent, ask for the requirement ID, requirement name, and user-supplied version date before routing. Generate `LOCAL-YYYYMMDD-HHMMSS` when no formal ID exists. Accept a full version date such as `2026-07-23` or a current-year shorthand such as `7.23版本` / `7月23日`; do not silently use today's date. If the user supplies a local requirement document plus its requirement ID and version, use those values for the same intake. Explicitly ask whether external APIs are affected, then register the requirement:
 
 ```bash
 project-intel intake --requirement-id "<id>" --requirement-name "<name>" \
+  --version-date "<YYYY-MM-DD or M.D版本>" \
   --ticket-kind bug|requirement --external-api yes|no --track auto \
   --requirement-action generate|register|later \
   --design-action generate|register|later
