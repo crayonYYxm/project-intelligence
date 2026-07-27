@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-07-24T08:46:37.877Z",
+  "generatedAt": "2026-07-27T06:08:54.345Z",
   "sources": [
     {
       "name": "GitNexus",
@@ -8,13 +8,13 @@
       "role": "符号调用、影响、变更风险",
       "status": "present",
       "schemaVersion": 5,
-      "indexedCommit": "5f3ad66c9355153e765351291f5c8d8e3620ce22",
+      "indexedCommit": "200fd5e2b0009c8ecbfda5a0340ec98fadb27b0a",
       "stats": {
-        "files": 128,
-        "nodes": 2562,
-        "edges": 6596,
-        "communities": 130,
-        "processes": 221
+        "files": 101,
+        "nodes": 7857,
+        "edges": 21359,
+        "communities": 74,
+        "processes": 300
       },
       "capabilities": {
         "graph": "available",
@@ -44,13 +44,13 @@
     "role": "符号调用、影响、变更风险",
     "status": "present",
     "schemaVersion": 5,
-    "indexedCommit": "5f3ad66c9355153e765351291f5c8d8e3620ce22",
+    "indexedCommit": "200fd5e2b0009c8ecbfda5a0340ec98fadb27b0a",
     "stats": {
-      "files": 128,
-      "nodes": 2562,
-      "edges": 6596,
-      "communities": 130,
-      "processes": 221
+      "files": 101,
+      "nodes": 7857,
+      "edges": 21359,
+      "communities": 74,
+      "processes": 300
     },
     "capabilities": {
       "graph": "available",

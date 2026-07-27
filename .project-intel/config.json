@@ -40,11 +40,6 @@
       },
       {
         "kind": "type-check",
-        "command": "npx tsc --noEmit",
-        "source": "inferred"
-      },
-      {
-        "kind": "type-check",
         "command": "npm run typecheck",
         "source": "package.json"
       },

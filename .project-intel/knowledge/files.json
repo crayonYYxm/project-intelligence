@@ -14,7 +14,7 @@
   {
     "path": "AGENTS.md",
     "size": 10788,
-    "mtime": 1784879776910.6667,
+    "mtime": 1785116904066.1614,
     "suffix": ".md"
   },
   {
@@ -26,7 +26,7 @@
   {
     "path": "CLAUDE.md",
     "size": 9258,
-    "mtime": 1784879776910.8936,
+    "mtime": 1785116904066.537,
     "suffix": ".md"
   },
   {
@@ -66,6 +66,12 @@
     "suffix": ".json"
   },
   {
+    "path": "marketplace.json",
+    "size": 604,
+    "mtime": 1785125463859.1309,
+    "suffix": ".json"
+  },
+  {
     "path": "package-lock.json",
     "size": 16908,
     "mtime": 1784771178475.7024,
@@ -73,8 +79,8 @@
   },
   {
     "path": "package.json",
-    "size": 2079,
-    "mtime": 1784875973268.8032,
+    "size": 2153,
+    "mtime": 1785117417395.131,
     "suffix": ".json"
   },
   {
@@ -229,20 +235,20 @@
   },
   {
     "path": "scripts/check-package.mjs",
-    "size": 5817,
-    "mtime": 1784799245783.2485,
+    "size": 6524,
+    "mtime": 1785115688893.4128,
     "suffix": ".mjs"
   },
   {
     "path": "scripts/check-release.mjs",
-    "size": 1917,
-    "mtime": 1784795844166.1597,
+    "size": 2209,
+    "mtime": 1785115672702.3745,
     "suffix": ".mjs"
   },
   {
     "path": "scripts/gen-version.mjs",
-    "size": 3028,
-    "mtime": 1784795834541.592,
+    "size": 3767,
+    "mtime": 1785116047990.5544,
     "suffix": ".mjs"
   },
   {
@@ -403,8 +409,8 @@
   },
   {
     "path": "src/__tests__/review-finish-graph.test.ts",
-    "size": 7580,
-    "mtime": 1784881110030.501,
+    "size": 8691,
+    "mtime": 1785115490938.3987,
     "suffix": ".ts"
   },
   {
@@ -427,8 +433,14 @@
   },
   {
     "path": "src/__tests__/test-evidence.test.ts",
-    "size": 9545,
-    "mtime": 1784881532254.9746,
+    "size": 12139,
+    "mtime": 1785116047991.7322,
+    "suffix": ".ts"
+  },
+  {
+    "path": "src/__tests__/zcode-compat.test.ts",
+    "size": 2175,
+    "mtime": 1785115774821.936,
     "suffix": ".ts"
   },
   {
@@ -505,8 +517,8 @@
   },
   {
     "path": "src/commands/finish.ts",
-    "size": 2115,
-    "mtime": 1784875780410.3835,
+    "size": 2930,
+    "mtime": 1785115742035.0188,
     "suffix": ".ts"
   },
   {
@@ -565,8 +577,8 @@
   },
   {
     "path": "src/commands/test.ts",
-    "size": 16836,
-    "mtime": 1784881481971.7014,
+    "size": 20015,
+    "mtime": 1785116047992.087,
     "suffix": ".ts"
   },
   {
@@ -667,8 +679,8 @@
   },
   {
     "path": "src/requirements/state-machine.ts",
-    "size": 69028,
-    "mtime": 1784881204585.098,
+    "size": 69205,
+    "mtime": 1785115742034.6772,
     "suffix": ".ts"
   },
   {
@@ -733,8 +745,8 @@
   },
   {
     "path": "src/testing/render.ts",
-    "size": 10335,
-    "mtime": 1784876722214.7683,
+    "size": 10344,
+    "mtime": 1785116047991.3682,
     "suffix": ".ts"
   },
   {
@@ -746,7 +758,7 @@
   {
     "path": "src/version.ts",
     "size": 191,
-    "mtime": 1784882722857.7314,
+    "mtime": 1785125463858.445,
     "suffix": ".ts"
   },
   {

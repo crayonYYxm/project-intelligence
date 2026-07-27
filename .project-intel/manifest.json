@@ -1,10 +1,10 @@
 {
   "schemaVersion": 2,
-  "toolVersion": "0.7.0",
+  "toolVersion": "0.7.1",
   "projectRoot": ".",
-  "generatedAt": "2026-07-24T08:46:37.849Z",
+  "generatedAt": "2026-07-27T06:08:54.310Z",
   "git": {
-    "commit": "5f3ad66c9355153e765351291f5c8d8e3620ce22",
+    "commit": "4ea5beeedee31288871afa5d5c68f55158687568",
     "branch": "main",
     "dirty": true
   },
@@ -21,12 +21,12 @@
       ]
     }
   ],
-  "fileCount": 126,
+  "fileCount": 128,
   "suffixCounts": {
-    ".ts": 73,
+    ".ts": 74,
     ".md": 25,
     ".mjs": 19,
-    ".json": 4,
+    ".json": 5,
     ".yml": 2,
     "<none>": 1,
     ".html": 1,
@@ -39,13 +39,13 @@
       "role": "符号调用、影响、变更风险",
       "status": "present",
       "schemaVersion": 5,
-      "indexedCommit": "5f3ad66c9355153e765351291f5c8d8e3620ce22",
+      "indexedCommit": "200fd5e2b0009c8ecbfda5a0340ec98fadb27b0a",
       "stats": {
-        "files": 128,
-        "nodes": 2562,
-        "edges": 6596,
-        "communities": 130,
-        "processes": 221
+        "files": 101,
+        "nodes": 7857,
+        "edges": 21359,
+        "communities": 74,
+        "processes": 300
       },
       "capabilities": {
         "graph": "available",

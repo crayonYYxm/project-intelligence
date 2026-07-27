@@ -1,0 +1,1143 @@
+{
+  "schemaVersion": 2,
+  "revision": 24,
+  "requirementId": "LOCAL-20260724-181500",
+  "requirementName": "修复 ZCode 兼容性并生成测试与收口文档",
+  "ticketKind": "bug",
+  "track": "complex",
+  "state": "closed",
+  "externalApiImpact": {
+    "confirmed": true,
+    "value": false,
+    "source": "user"
+  },
+  "sourceTickets": [],
+  "changedFiles": [
+    {
+      "status": "??",
+      "path": "marketplace.json",
+      "sha256": "ef8dd5d38fe54a581def91cce537bfddaab3f16ea26c43985c4bb1e740f48210",
+      "recordedAt": "2026-07-27T01:36:54.321Z"
+    },
+    {
+      "status": " M",
+      "path": "package.json",
+      "sha256": "67f2c24e4522548b244291e2fad5dafb0a7ae9f6445bcbd1bf5eb85bc1b13a2e",
+      "recordedAt": "2026-07-27T01:36:54.321Z"
+    },
+    {
+      "status": "??",
+      "path": "plugins/project-intelligence/.zcode-plugin/plugin.json",
+      "sha256": "25898f28017357b6d24ccf4b41aa06854088d7ece6d1a4f27be108fe73dee8c4",
+      "recordedAt": "2026-07-27T01:36:54.321Z"
+    },
+    {
+      "status": " M",
+      "path": "scripts/check-package.mjs",
+      "sha256": "2a4eebc2bc93e603619ee359aa1f9bd0fe292de608deac1ab5d27cfc76f41463",
+      "recordedAt": "2026-07-27T01:36:54.321Z"
+    },
+    {
+      "status": " M",
+      "path": "scripts/check-release.mjs",
+      "sha256": "7e30907ef431255e3194e7fa9f2774406409e249c096f4d50656bbac807276b4",
+      "recordedAt": "2026-07-27T01:36:54.321Z"
+    },
+    {
+      "status": " M",
+      "path": "scripts/gen-version.mjs",
+      "sha256": "7efe09c9fb2b272608f9dfb3397c31575a6bc6537a03e2b4936a63c6a99634bf",
+      "recordedAt": "2026-07-27T01:36:54.321Z"
+    },
+    {
+      "status": " M",
+      "path": "src/__tests__/review-finish-graph.test.ts",
+      "sha256": "52ccef95d66ddb2e928db66052428dde995371f0251ec13c0ecab26429a730a8",
+      "recordedAt": "2026-07-27T01:36:54.321Z"
+    },
+    {
+      "status": " M",
+      "path": "src/__tests__/test-evidence.test.ts",
+      "sha256": "045585ea5ec692e485c667fd37c06403de29e5155881dbe88bba0003e81d6da7",
+      "recordedAt": "2026-07-27T01:36:54.321Z"
+    },
+    {
+      "status": "??",
+      "path": "src/__tests__/zcode-compat.test.ts",
+      "sha256": "f3c88a119343f2f4902317fc46b3f509d0c70c418b66f07cfab913daa135e5ba",
+      "recordedAt": "2026-07-27T01:36:54.321Z"
+    },
+    {
+      "status": " M",
+      "path": "src/commands/finish.ts",
+      "sha256": "ff10ad72205674ccbfd3ab640b4e67c1cf73b57c63a2dfdec11e1740f98418e2",
+      "recordedAt": "2026-07-27T01:36:54.321Z"
+    },
+    {
+      "status": " M",
+      "path": "src/commands/test.ts",
+      "sha256": "ae83c87a89c6f3d21cca8297385753f9666097c5ce0f2d67037b32664c9df69a",
+      "recordedAt": "2026-07-27T01:36:54.321Z"
+    },
+    {
+      "status": " M",
+      "path": "src/requirements/state-machine.ts",
+      "sha256": "f1f184590690024301b160e3d8d48097509ca45e40e9058d618bb4b39297fde4",
+      "recordedAt": "2026-07-27T01:36:54.321Z"
+    },
+    {
+      "status": " M",
+      "path": "src/testing/render.ts",
+      "sha256": "11df6c581241e517c50896de19b1d030bf7112c49a5ae441488cc966fd485ff0",
+      "recordedAt": "2026-07-27T01:36:54.321Z"
+    }
+  ],
+  "diagnosis": {
+    "status": "confirmed",
+    "rootCause": "仓库只提供 .claude-plugin 与 .codex-plugin 清单，缺少 ZCode 优先识别的 .zcode-plugin/plugin.json 和根 marketplace.json；prepareRequirementReport 仅写 test-reports/TEST-*.md，runFinish 只校验已有 closure artifact，导致 CLI 帮助与用户可见产物不一致。",
+    "evidence": [
+      {
+        "path": "package.json",
+        "sha256": "251644b32019881f30234281286e8732245098941e9cf50183a20f56cbcf9fd0"
+      },
+      {
+        "path": ".claude-plugin/marketplace.json",
+        "sha256": "23436f0588343db3c6779c4c0ea65f5592ade3e7ec6f73c344dc67df1c351cb1"
+      },
+      {
+        "path": "src/commands/test.ts",
+        "symbol": "prepareRequirementReport",
+        "sha256": "3aac0114f2dbb514a1193dd8da7ff84d6c3993ecfac6f6dd9049166589197184"
+      },
+      {
+        "path": "src/commands/finish.ts",
+        "symbol": "runFinish",
+        "sha256": "9126dec0ad85563bfce7bae9592b1aabf679769a52f9aa31ceacb0d3ff506581"
+      }
+    ],
+    "recordedAt": "2026-07-24T10:02:24.388Z"
+  },
+  "acceptanceCriteria": [
+    {
+      "id": "AC-01",
+      "description": "ZCode 可从仓库根目录 marketplace 发现插件，并优先读取 .zcode-plugin/plugin.json；npm 包包含两份 ZCode 清单。",
+      "status": "passed"
+    },
+    {
+      "id": "AC-02",
+      "description": "Git 跟踪文件和 npm 包内不存在符号链接，Windows/ZCode 克隆不再因链接权限失败。",
+      "status": "passed"
+    },
+    {
+      "id": "AC-03",
+      "description": "需求级测试命令每次记录证据后都会创建或更新 .project-intel/requirements/<id>/test-report.md，内容包含各次实际执行结果与验收标准映射。",
+      "status": "passed"
+    },
+    {
+      "id": "AC-04",
+      "description": "评审通过后直接执行 project-intel finish 会自动创建并登记 closure-summary.md；门禁失败时不会留下收口文档。",
+      "status": "passed"
+    },
+    {
+      "id": "AC-05",
+      "description": "现有 Claude Code、Codex、测试门禁、完整测试套件和发布包检查保持通过。",
+      "status": "passed"
+    }
+  ],
+  "readiness": {
+    "blockers": [],
+    "resolutions": [
+      {
+        "resolution": "ZCode 官方格式、文档生成行为和测试范围已确认",
+        "recordedAt": "2026-07-27T01:24:00.460Z"
+      }
+    ]
+  },
+  "artifacts": [
+    {
+      "type": "requirement",
+      "path": ".project-intel/requirements/LOCAL-20260724-181500/requirement.md",
+      "sha256": "8ebbee874dd194ae6626ac779c8d152f525c6ce4e50c7559648cd96d249bd71a",
+      "source": "registered",
+      "status": "registered",
+      "validation": {
+        "ok": true,
+        "kind": "bug",
+        "schema": "requirement-v2",
+        "errors": [],
+        "warnings": [],
+        "acceptanceIds": [
+          "AC-01",
+          "AC-02",
+          "AC-03",
+          "AC-04",
+          "AC-05"
+        ],
+        "acceptanceCriteria": [
+          {
+            "id": "AC-01",
+            "description": "ZCode 可从仓库根目录 marketplace 发现插件，并优先读取 .zcode-plugin/plugin.json；npm 包包含两份 ZCode 清单。"
+          },
+          {
+            "id": "AC-02",
+            "description": "Git 跟踪文件和 npm 包内不存在符号链接，Windows/ZCode 克隆不再因链接权限失败。"
+          },
+          {
+            "id": "AC-03",
+            "description": "需求级测试命令每次记录证据后都会创建或更新 .project-intel/requirements/<id>/test-report.md，内容包含各次实际执行结果与验收标准映射。"
+          },
+          {
+            "id": "AC-04",
+            "description": "评审通过后直接执行 project-intel finish 会自动创建并登记 closure-summary.md；门禁失败时不会留下收口文档。"
+          },
+          {
+            "id": "AC-05",
+            "description": "现有 Claude Code、Codex、测试门禁、完整测试套件和发布包检查保持通过。"
+          }
+        ],
+        "documentIdentity": {
+          "requirementId": "LOCAL-20260724-181500",
+          "requirementName": "修复 ZCode 兼容性并生成测试与收口文档",
+          "ticketKind": "bug",
+          "externalApiImpact": false
+        },
+        "blockingIssues": [],
+        "validatedAt": "2026-07-24T10:02:24.304Z"
+      },
+      "documentKind": "bug",
+      "recordedAt": "2026-07-24T10:01:15.747Z",
+      "sourcePath": ".project-intel/requirements/LOCAL-20260724-181500/requirement.md",
+      "registeredAt": "2026-07-24T10:02:24.305Z"
+    },
+    {
+      "type": "design",
+      "path": ".project-intel/requirements/LOCAL-20260724-181500/design.md",
+      "sha256": "e82cc28019aa0ace49c5e35b69791ec2a4f016339fafa62e11f3fa8de068e160",
+      "source": "registered",
+      "status": "registered",
+      "validation": {
+        "ok": true,
+        "kind": "bug",
+        "schema": "bug-v1",
+        "errors": [],
+        "warnings": [],
+        "validatedAt": "2026-07-24T10:03:50.193Z",
+        "sourceEvidence": [
+          {
+            "path": "package.json",
+            "symbols": []
+          },
+          {
+            "path": ".claude-plugin/marketplace.json",
+            "symbols": []
+          },
+          {
+            "path": "src/commands/test.ts",
+            "symbols": [
+              "prepareRequirementReport"
+            ]
+          },
+          {
+            "path": "src/commands/finish.ts",
+            "symbols": [
+              "runFinish"
+            ]
+          }
+        ]
+      },
+      "documentKind": "bug",
+      "recordedAt": "2026-07-24T10:02:24.476Z",
+      "sourcePath": ".project-intel/requirements/LOCAL-20260724-181500/design.md",
+      "registeredAt": "2026-07-24T10:03:50.195Z"
+    },
+    {
+      "type": "plan",
+      "path": ".project-intel/requirements/LOCAL-20260724-181500/plan.md",
+      "sha256": "ac406b2d5d2fd768c552236c81b8f6031247f7b8ee3434fd3769f2d9bbbb9473",
+      "source": "registered",
+      "status": "registered",
+      "validation": {
+        "ok": true,
+        "kind": "plan",
+        "schema": "plan-v1",
+        "errors": [],
+        "warnings": [],
+        "validatedAt": "2026-07-27T01:24:00.172Z"
+      },
+      "recordedAt": "2026-07-24T10:03:50.271Z",
+      "sourcePath": ".project-intel/requirements/LOCAL-20260724-181500/plan.md",
+      "documentKind": "bug",
+      "registeredAt": "2026-07-27T01:24:00.175Z"
+    },
+    {
+      "type": "unit-test",
+      "path": ".project-intel/requirements/LOCAL-20260724-181500/test-reports/TEST-04-unit.md",
+      "sha256": "a292e1ca8d7e71859d4c073032f358c547ff4b71e1712e06a0079172fe394b78",
+      "status": "passed",
+      "result": "passed",
+      "source": "generated",
+      "testKind": "unit",
+      "acceptanceIds": [
+        "AC-01",
+        "AC-02",
+        "AC-03",
+        "AC-04",
+        "AC-05"
+      ],
+      "recordedAt": "2026-07-27T01:35:03.040Z"
+    },
+    {
+      "type": "test",
+      "path": ".project-intel/requirements/LOCAL-20260724-181500/test-report.md",
+      "sha256": "adf9c8dd4be4bf08e5e845690b4ed1b55b4d8d24e387a06351071919da50c0a7",
+      "source": "generated",
+      "status": "passed",
+      "validation": {
+        "ok": true,
+        "schema": "test-report-v1",
+        "evidenceCount": 4
+      },
+      "recordedAt": "2026-07-27T01:35:03.057Z"
+    },
+    {
+      "type": "closure",
+      "path": ".project-intel/requirements/LOCAL-20260724-181500/closure-summary.md",
+      "sha256": "cecc55bd11d25c14432700e7ac31645eb9b5893c3c3c57211c03463d875a0ae6",
+      "source": "generated",
+      "status": "registered",
+      "validation": {
+        "ok": true,
+        "kind": "closure",
+        "schema": "closure-v1",
+        "errors": [],
+        "warnings": [],
+        "validatedAt": "2026-07-27T01:36:54.233Z"
+      },
+      "recordedAt": "2026-07-27T01:36:54.233Z"
+    }
+  ],
+  "testContract": {
+    "kind": "unit",
+    "reportAction": "generate",
+    "acceptanceIds": [
+      "AC-01",
+      "AC-02",
+      "AC-03",
+      "AC-04",
+      "AC-05"
+    ],
+    "reportPath": null,
+    "status": "selected",
+    "recordedAt": "2026-07-27T01:24:00.314Z",
+    "source": "explicit"
+  },
+  "testEvidence": [
+    {
+      "id": "TEST-01",
+      "phase": "red",
+      "passed": true,
+      "acceptance": [
+        "AC-01",
+        "AC-02",
+        "AC-03",
+        "AC-04",
+        "AC-05"
+      ],
+      "testKind": "unit",
+      "result": "passed",
+      "acceptanceIds": [
+        "AC-01",
+        "AC-02",
+        "AC-03",
+        "AC-04",
+        "AC-05"
+      ],
+      "files": [
+        "src/__tests__/review-finish-graph.test.ts",
+        "src/__tests__/test-evidence.test.ts",
+        "src/__tests__/zcode-compat.test.ts"
+      ],
+      "projectWide": false,
+      "gitCommit": "200fd5e2b0009c8ecbfda5a0340ec98fadb27b0a",
+      "evidenceCommit": "200fd5e2b0009c8ecbfda5a0340ec98fadb27b0a",
+      "diffHash": "2371450af7f03ce0d4088e9fa8c0a741729b9a1df20fb8a6c506dada7ab13967",
+      "evidenceDiffHash": "2371450af7f03ce0d4088e9fa8c0a741729b9a1df20fb8a6c506dada7ab13967",
+      "command": "node --import tsx --test src/__tests__/zcode-compat.test.ts src/__tests__/test-evidence.test.ts src/__tests__/review-finish-graph.test.ts",
+      "reportPath": ".project-intel/requirements/LOCAL-20260724-181500/test-reports/TEST-01-unit.md",
+      "reportSha256": "8ac93932f2fa064eeebdf0f741b752389bbf1764eecd71a369b21eee8d56046a",
+      "reportSourcePath": "",
+      "reportOriginalPath": "",
+      "recordedAt": "2026-07-27T01:25:16.297Z",
+      "valid": true
+    },
+    {
+      "id": "TEST-02",
+      "phase": "green",
+      "passed": true,
+      "acceptance": [
+        "AC-01",
+        "AC-02",
+        "AC-03",
+        "AC-04",
+        "AC-05"
+      ],
+      "testKind": "unit",
+      "result": "passed",
+      "acceptanceIds": [
+        "AC-01",
+        "AC-02",
+        "AC-03",
+        "AC-04",
+        "AC-05"
+      ],
+      "files": [
+        "marketplace.json",
+        "package.json",
+        "plugins/project-intelligence/.zcode-plugin/plugin.json",
+        "scripts/check-package.mjs",
+        "scripts/check-release.mjs",
+        "src/__tests__/review-finish-graph.test.ts",
+        "src/__tests__/test-evidence.test.ts",
+        "src/__tests__/zcode-compat.test.ts",
+        "src/commands/finish.ts",
+        "src/commands/test.ts",
+        "src/requirements/state-machine.ts"
+      ],
+      "projectWide": false,
+      "gitCommit": "200fd5e2b0009c8ecbfda5a0340ec98fadb27b0a",
+      "evidenceCommit": "200fd5e2b0009c8ecbfda5a0340ec98fadb27b0a",
+      "diffHash": "39054f94ff5175d8feb87658d71f7361f390b065c86096aff87086abc45b470f",
+      "evidenceDiffHash": "39054f94ff5175d8feb87658d71f7361f390b065c86096aff87086abc45b470f",
+      "command": "node --import tsx --test src/__tests__/zcode-compat.test.ts src/__tests__/test-evidence.test.ts src/__tests__/review-finish-graph.test.ts",
+      "reportPath": ".project-intel/requirements/LOCAL-20260724-181500/test-reports/TEST-02-unit.md",
+      "reportSha256": "79e4ef4459edc92c849979beeede0ddb7db7253d7f0d4b690b3e61f90fa63bf9",
+      "reportSourcePath": "",
+      "reportOriginalPath": "",
+      "recordedAt": "2026-07-27T01:30:21.528Z",
+      "valid": true
+    },
+    {
+      "id": "TEST-03",
+      "phase": "regression",
+      "passed": true,
+      "acceptance": [
+        "AC-01",
+        "AC-02",
+        "AC-03",
+        "AC-04",
+        "AC-05"
+      ],
+      "testKind": "unit",
+      "result": "passed",
+      "acceptanceIds": [
+        "AC-01",
+        "AC-02",
+        "AC-03",
+        "AC-04",
+        "AC-05"
+      ],
+      "files": [
+        "marketplace.json",
+        "package.json",
+        "plugins/project-intelligence/.zcode-plugin/plugin.json",
+        "scripts/check-package.mjs",
+        "scripts/check-release.mjs",
+        "src/__tests__/review-finish-graph.test.ts",
+        "src/__tests__/test-evidence.test.ts",
+        "src/__tests__/zcode-compat.test.ts",
+        "src/commands/finish.ts",
+        "src/commands/test.ts",
+        "src/requirements/state-machine.ts"
+      ],
+      "projectWide": false,
+      "gitCommit": "200fd5e2b0009c8ecbfda5a0340ec98fadb27b0a",
+      "evidenceCommit": "200fd5e2b0009c8ecbfda5a0340ec98fadb27b0a",
+      "diffHash": "39054f94ff5175d8feb87658d71f7361f390b065c86096aff87086abc45b470f",
+      "evidenceDiffHash": "39054f94ff5175d8feb87658d71f7361f390b065c86096aff87086abc45b470f",
+      "command": "npm test && npm run typecheck && npm run check-release",
+      "reportPath": ".project-intel/requirements/LOCAL-20260724-181500/test-reports/TEST-03-unit.md",
+      "reportSha256": "428196bcf3a1d018f02ff5b79c082201bdfd7bde84afea506ad22a76fd496e79",
+      "reportSourcePath": "",
+      "reportOriginalPath": "",
+      "recordedAt": "2026-07-27T01:31:11.575Z",
+      "valid": true
+    },
+    {
+      "id": "TEST-04",
+      "phase": "regression",
+      "passed": true,
+      "acceptance": [
+        "AC-01",
+        "AC-02",
+        "AC-03",
+        "AC-04",
+        "AC-05"
+      ],
+      "testKind": "unit",
+      "result": "passed",
+      "acceptanceIds": [
+        "AC-01",
+        "AC-02",
+        "AC-03",
+        "AC-04",
+        "AC-05"
+      ],
+      "files": [
+        "marketplace.json",
+        "package.json",
+        "plugins/project-intelligence/.zcode-plugin/plugin.json",
+        "scripts/check-package.mjs",
+        "scripts/check-release.mjs",
+        "scripts/gen-version.mjs",
+        "src/__tests__/review-finish-graph.test.ts",
+        "src/__tests__/test-evidence.test.ts",
+        "src/__tests__/zcode-compat.test.ts",
+        "src/commands/finish.ts",
+        "src/commands/test.ts",
+        "src/requirements/state-machine.ts",
+        "src/testing/render.ts"
+      ],
+      "projectWide": false,
+      "gitCommit": "200fd5e2b0009c8ecbfda5a0340ec98fadb27b0a",
+      "evidenceCommit": "200fd5e2b0009c8ecbfda5a0340ec98fadb27b0a",
+      "diffHash": "b37396a9ce17f9ad525f4fb7544b991178212e1c8bb3f4fec0925d968fc047bd",
+      "evidenceDiffHash": "b37396a9ce17f9ad525f4fb7544b991178212e1c8bb3f4fec0925d968fc047bd",
+      "command": "npm test && npm run typecheck && npm run check-release",
+      "reportPath": ".project-intel/requirements/LOCAL-20260724-181500/test-reports/TEST-04-unit.md",
+      "reportSha256": "a292e1ca8d7e71859d4c073032f358c547ff4b71e1712e06a0079172fe394b78",
+      "reportSourcePath": "",
+      "reportOriginalPath": "",
+      "recordedAt": "2026-07-27T01:35:03.040Z",
+      "valid": true
+    }
+  ],
+  "reviewRounds": [
+    {
+      "id": "REVIEW-01",
+      "result": "passed",
+      "summary": "ZCode 原生清单、无符号链接约束、测试主报告、RED 状态门禁和自动收口均已通过定向及完整回归；高中心度调用链已复核。",
+      "findings": [],
+      "files": [
+        "marketplace.json",
+        "package.json",
+        "plugins/project-intelligence/.zcode-plugin/plugin.json",
+        "scripts/check-package.mjs",
+        "scripts/check-release.mjs",
+        "scripts/gen-version.mjs",
+        "src/__tests__/review-finish-graph.test.ts",
+        "src/__tests__/test-evidence.test.ts",
+        "src/__tests__/zcode-compat.test.ts",
+        "src/commands/finish.ts",
+        "src/commands/test.ts",
+        "src/requirements/state-machine.ts",
+        "src/testing/render.ts"
+      ],
+      "diffHash": "b37396a9ce17f9ad525f4fb7544b991178212e1c8bb3f4fec0925d968fc047bd",
+      "evidenceDiffHash": "b37396a9ce17f9ad525f4fb7544b991178212e1c8bb3f4fec0925d968fc047bd",
+      "gitCommit": "200fd5e2b0009c8ecbfda5a0340ec98fadb27b0a",
+      "recordedAt": "2026-07-27T01:36:43.579Z",
+      "valid": true
+    }
+  ],
+  "scopeSnapshots": [
+    {
+      "kind": "test",
+      "capturedAt": "2026-07-27T01:25:16.297Z",
+      "gitAvailable": true,
+      "gitCommit": "200fd5e2b0009c8ecbfda5a0340ec98fadb27b0a",
+      "diffHash": "2371450af7f03ce0d4088e9fa8c0a741729b9a1df20fb8a6c506dada7ab13967",
+      "evidenceDiffHash": "2371450af7f03ce0d4088e9fa8c0a741729b9a1df20fb8a6c506dada7ab13967",
+      "files": [
+        "src/__tests__/review-finish-graph.test.ts",
+        "src/__tests__/test-evidence.test.ts",
+        "src/__tests__/zcode-compat.test.ts"
+      ],
+      "evidenceFiles": [
+        "src/__tests__/review-finish-graph.test.ts",
+        "src/__tests__/test-evidence.test.ts",
+        "src/__tests__/zcode-compat.test.ts"
+      ],
+      "entries": []
+    },
+    {
+      "kind": "test",
+      "capturedAt": "2026-07-27T01:30:21.528Z",
+      "gitAvailable": true,
+      "gitCommit": "200fd5e2b0009c8ecbfda5a0340ec98fadb27b0a",
+      "diffHash": "39054f94ff5175d8feb87658d71f7361f390b065c86096aff87086abc45b470f",
+      "evidenceDiffHash": "39054f94ff5175d8feb87658d71f7361f390b065c86096aff87086abc45b470f",
+      "files": [
+        "marketplace.json",
+        "package.json",
+        "plugins/project-intelligence/.zcode-plugin/plugin.json",
+        "scripts/check-package.mjs",
+        "scripts/check-release.mjs",
+        "src/__tests__/review-finish-graph.test.ts",
+        "src/__tests__/test-evidence.test.ts",
+        "src/__tests__/zcode-compat.test.ts",
+        "src/commands/finish.ts",
+        "src/commands/test.ts",
+        "src/requirements/state-machine.ts"
+      ],
+      "evidenceFiles": [
+        "marketplace.json",
+        "package.json",
+        "plugins/project-intelligence/.zcode-plugin/plugin.json",
+        "scripts/check-package.mjs",
+        "scripts/check-release.mjs",
+        "src/__tests__/review-finish-graph.test.ts",
+        "src/__tests__/test-evidence.test.ts",
+        "src/__tests__/zcode-compat.test.ts",
+        "src/commands/finish.ts",
+        "src/commands/test.ts",
+        "src/requirements/state-machine.ts"
+      ],
+      "entries": []
+    },
+    {
+      "kind": "test",
+      "capturedAt": "2026-07-27T01:31:11.575Z",
+      "gitAvailable": true,
+      "gitCommit": "200fd5e2b0009c8ecbfda5a0340ec98fadb27b0a",
+      "diffHash": "39054f94ff5175d8feb87658d71f7361f390b065c86096aff87086abc45b470f",
+      "evidenceDiffHash": "39054f94ff5175d8feb87658d71f7361f390b065c86096aff87086abc45b470f",
+      "files": [
+        "marketplace.json",
+        "package.json",
+        "plugins/project-intelligence/.zcode-plugin/plugin.json",
+        "scripts/check-package.mjs",
+        "scripts/check-release.mjs",
+        "src/__tests__/review-finish-graph.test.ts",
+        "src/__tests__/test-evidence.test.ts",
+        "src/__tests__/zcode-compat.test.ts",
+        "src/commands/finish.ts",
+        "src/commands/test.ts",
+        "src/requirements/state-machine.ts"
+      ],
+      "evidenceFiles": [
+        "marketplace.json",
+        "package.json",
+        "plugins/project-intelligence/.zcode-plugin/plugin.json",
+        "scripts/check-package.mjs",
+        "scripts/check-release.mjs",
+        "src/__tests__/review-finish-graph.test.ts",
+        "src/__tests__/test-evidence.test.ts",
+        "src/__tests__/zcode-compat.test.ts",
+        "src/commands/finish.ts",
+        "src/commands/test.ts",
+        "src/requirements/state-machine.ts"
+      ],
+      "entries": []
+    },
+    {
+      "kind": "test",
+      "capturedAt": "2026-07-27T01:35:03.040Z",
+      "gitAvailable": true,
+      "gitCommit": "200fd5e2b0009c8ecbfda5a0340ec98fadb27b0a",
+      "diffHash": "b37396a9ce17f9ad525f4fb7544b991178212e1c8bb3f4fec0925d968fc047bd",
+      "evidenceDiffHash": "b37396a9ce17f9ad525f4fb7544b991178212e1c8bb3f4fec0925d968fc047bd",
+      "files": [
+        "marketplace.json",
+        "package.json",
+        "plugins/project-intelligence/.zcode-plugin/plugin.json",
+        "scripts/check-package.mjs",
+        "scripts/check-release.mjs",
+        "scripts/gen-version.mjs",
+        "src/__tests__/review-finish-graph.test.ts",
+        "src/__tests__/test-evidence.test.ts",
+        "src/__tests__/zcode-compat.test.ts",
+        "src/commands/finish.ts",
+        "src/commands/test.ts",
+        "src/requirements/state-machine.ts",
+        "src/testing/render.ts"
+      ],
+      "evidenceFiles": [
+        "marketplace.json",
+        "package.json",
+        "plugins/project-intelligence/.zcode-plugin/plugin.json",
+        "scripts/check-package.mjs",
+        "scripts/check-release.mjs",
+        "scripts/gen-version.mjs",
+        "src/__tests__/review-finish-graph.test.ts",
+        "src/__tests__/test-evidence.test.ts",
+        "src/__tests__/zcode-compat.test.ts",
+        "src/commands/finish.ts",
+        "src/commands/test.ts",
+        "src/requirements/state-machine.ts",
+        "src/testing/render.ts"
+      ],
+      "entries": []
+    },
+    {
+      "kind": "review",
+      "capturedAt": "2026-07-27T01:36:43.575Z",
+      "gitAvailable": true,
+      "gitCommit": "200fd5e2b0009c8ecbfda5a0340ec98fadb27b0a",
+      "diffHash": "b37396a9ce17f9ad525f4fb7544b991178212e1c8bb3f4fec0925d968fc047bd",
+      "files": [
+        "marketplace.json",
+        "package.json",
+        "plugins/project-intelligence/.zcode-plugin/plugin.json",
+        "scripts/check-package.mjs",
+        "scripts/check-release.mjs",
+        "scripts/gen-version.mjs",
+        "src/__tests__/review-finish-graph.test.ts",
+        "src/__tests__/test-evidence.test.ts",
+        "src/__tests__/zcode-compat.test.ts",
+        "src/commands/finish.ts",
+        "src/commands/test.ts",
+        "src/requirements/state-machine.ts",
+        "src/testing/render.ts"
+      ],
+      "entries": [
+        {
+          "status": "??",
+          "path": "marketplace.json",
+          "sha256": "ef8dd5d38fe54a581def91cce537bfddaab3f16ea26c43985c4bb1e740f48210"
+        },
+        {
+          "status": " M",
+          "path": "package.json",
+          "sha256": "67f2c24e4522548b244291e2fad5dafb0a7ae9f6445bcbd1bf5eb85bc1b13a2e"
+        },
+        {
+          "status": "??",
+          "path": "plugins/project-intelligence/.zcode-plugin/plugin.json",
+          "sha256": "25898f28017357b6d24ccf4b41aa06854088d7ece6d1a4f27be108fe73dee8c4"
+        },
+        {
+          "status": " M",
+          "path": "scripts/check-package.mjs",
+          "sha256": "2a4eebc2bc93e603619ee359aa1f9bd0fe292de608deac1ab5d27cfc76f41463"
+        },
+        {
+          "status": " M",
+          "path": "scripts/check-release.mjs",
+          "sha256": "7e30907ef431255e3194e7fa9f2774406409e249c096f4d50656bbac807276b4"
+        },
+        {
+          "status": " M",
+          "path": "scripts/gen-version.mjs",
+          "sha256": "7efe09c9fb2b272608f9dfb3397c31575a6bc6537a03e2b4936a63c6a99634bf"
+        },
+        {
+          "status": " M",
+          "path": "src/__tests__/review-finish-graph.test.ts",
+          "sha256": "52ccef95d66ddb2e928db66052428dde995371f0251ec13c0ecab26429a730a8"
+        },
+        {
+          "status": " M",
+          "path": "src/__tests__/test-evidence.test.ts",
+          "sha256": "045585ea5ec692e485c667fd37c06403de29e5155881dbe88bba0003e81d6da7"
+        },
+        {
+          "status": "??",
+          "path": "src/__tests__/zcode-compat.test.ts",
+          "sha256": "f3c88a119343f2f4902317fc46b3f509d0c70c418b66f07cfab913daa135e5ba"
+        },
+        {
+          "status": " M",
+          "path": "src/commands/finish.ts",
+          "sha256": "ff10ad72205674ccbfd3ab640b4e67c1cf73b57c63a2dfdec11e1740f98418e2"
+        },
+        {
+          "status": " M",
+          "path": "src/commands/test.ts",
+          "sha256": "ae83c87a89c6f3d21cca8297385753f9666097c5ce0f2d67037b32664c9df69a"
+        },
+        {
+          "status": " M",
+          "path": "src/requirements/state-machine.ts",
+          "sha256": "f1f184590690024301b160e3d8d48097509ca45e40e9058d618bb4b39297fde4"
+        },
+        {
+          "status": " M",
+          "path": "src/testing/render.ts",
+          "sha256": "11df6c581241e517c50896de19b1d030bf7112c49a5ae441488cc966fd485ff0"
+        }
+      ],
+      "baselineFiles": [],
+      "artifactFiles": [],
+      "evidenceFiles": [
+        "marketplace.json",
+        "package.json",
+        "plugins/project-intelligence/.zcode-plugin/plugin.json",
+        "scripts/check-package.mjs",
+        "scripts/check-release.mjs",
+        "scripts/gen-version.mjs",
+        "src/__tests__/review-finish-graph.test.ts",
+        "src/__tests__/test-evidence.test.ts",
+        "src/__tests__/zcode-compat.test.ts",
+        "src/commands/finish.ts",
+        "src/commands/test.ts",
+        "src/requirements/state-machine.ts",
+        "src/testing/render.ts"
+      ],
+      "evidenceEntries": [
+        {
+          "status": "??",
+          "path": "marketplace.json",
+          "sha256": "ef8dd5d38fe54a581def91cce537bfddaab3f16ea26c43985c4bb1e740f48210"
+        },
+        {
+          "status": " M",
+          "path": "package.json",
+          "sha256": "67f2c24e4522548b244291e2fad5dafb0a7ae9f6445bcbd1bf5eb85bc1b13a2e"
+        },
+        {
+          "status": "??",
+          "path": "plugins/project-intelligence/.zcode-plugin/plugin.json",
+          "sha256": "25898f28017357b6d24ccf4b41aa06854088d7ece6d1a4f27be108fe73dee8c4"
+        },
+        {
+          "status": " M",
+          "path": "scripts/check-package.mjs",
+          "sha256": "2a4eebc2bc93e603619ee359aa1f9bd0fe292de608deac1ab5d27cfc76f41463"
+        },
+        {
+          "status": " M",
+          "path": "scripts/check-release.mjs",
+          "sha256": "7e30907ef431255e3194e7fa9f2774406409e249c096f4d50656bbac807276b4"
+        },
+        {
+          "status": " M",
+          "path": "scripts/gen-version.mjs",
+          "sha256": "7efe09c9fb2b272608f9dfb3397c31575a6bc6537a03e2b4936a63c6a99634bf"
+        },
+        {
+          "status": " M",
+          "path": "src/__tests__/review-finish-graph.test.ts",
+          "sha256": "52ccef95d66ddb2e928db66052428dde995371f0251ec13c0ecab26429a730a8"
+        },
+        {
+          "status": " M",
+          "path": "src/__tests__/test-evidence.test.ts",
+          "sha256": "045585ea5ec692e485c667fd37c06403de29e5155881dbe88bba0003e81d6da7"
+        },
+        {
+          "status": "??",
+          "path": "src/__tests__/zcode-compat.test.ts",
+          "sha256": "f3c88a119343f2f4902317fc46b3f509d0c70c418b66f07cfab913daa135e5ba"
+        },
+        {
+          "status": " M",
+          "path": "src/commands/finish.ts",
+          "sha256": "ff10ad72205674ccbfd3ab640b4e67c1cf73b57c63a2dfdec11e1740f98418e2"
+        },
+        {
+          "status": " M",
+          "path": "src/commands/test.ts",
+          "sha256": "ae83c87a89c6f3d21cca8297385753f9666097c5ce0f2d67037b32664c9df69a"
+        },
+        {
+          "status": " M",
+          "path": "src/requirements/state-machine.ts",
+          "sha256": "f1f184590690024301b160e3d8d48097509ca45e40e9058d618bb4b39297fde4"
+        },
+        {
+          "status": " M",
+          "path": "src/testing/render.ts",
+          "sha256": "11df6c581241e517c50896de19b1d030bf7112c49a5ae441488cc966fd485ff0"
+        }
+      ],
+      "evidenceDiffHash": "b37396a9ce17f9ad525f4fb7544b991178212e1c8bb3f4fec0925d968fc047bd",
+      "selectedFiles": [
+        "marketplace.json",
+        "package.json",
+        "plugins/project-intelligence/.zcode-plugin/plugin.json",
+        "scripts/check-package.mjs",
+        "scripts/check-release.mjs",
+        "scripts/gen-version.mjs",
+        "src/__tests__/review-finish-graph.test.ts",
+        "src/__tests__/test-evidence.test.ts",
+        "src/__tests__/zcode-compat.test.ts",
+        "src/commands/finish.ts",
+        "src/commands/test.ts",
+        "src/requirements/state-machine.ts",
+        "src/testing/render.ts"
+      ]
+    },
+    {
+      "kind": "finish",
+      "capturedAt": "2026-07-27T01:36:54.320Z",
+      "gitAvailable": true,
+      "gitCommit": "200fd5e2b0009c8ecbfda5a0340ec98fadb27b0a",
+      "diffHash": "b37396a9ce17f9ad525f4fb7544b991178212e1c8bb3f4fec0925d968fc047bd",
+      "files": [
+        "marketplace.json",
+        "package.json",
+        "plugins/project-intelligence/.zcode-plugin/plugin.json",
+        "scripts/check-package.mjs",
+        "scripts/check-release.mjs",
+        "scripts/gen-version.mjs",
+        "src/__tests__/review-finish-graph.test.ts",
+        "src/__tests__/test-evidence.test.ts",
+        "src/__tests__/zcode-compat.test.ts",
+        "src/commands/finish.ts",
+        "src/commands/test.ts",
+        "src/requirements/state-machine.ts",
+        "src/testing/render.ts"
+      ],
+      "entries": [
+        {
+          "status": "??",
+          "path": "marketplace.json",
+          "sha256": "ef8dd5d38fe54a581def91cce537bfddaab3f16ea26c43985c4bb1e740f48210"
+        },
+        {
+          "status": " M",
+          "path": "package.json",
+          "sha256": "67f2c24e4522548b244291e2fad5dafb0a7ae9f6445bcbd1bf5eb85bc1b13a2e"
+        },
+        {
+          "status": "??",
+          "path": "plugins/project-intelligence/.zcode-plugin/plugin.json",
+          "sha256": "25898f28017357b6d24ccf4b41aa06854088d7ece6d1a4f27be108fe73dee8c4"
+        },
+        {
+          "status": " M",
+          "path": "scripts/check-package.mjs",
+          "sha256": "2a4eebc2bc93e603619ee359aa1f9bd0fe292de608deac1ab5d27cfc76f41463"
+        },
+        {
+          "status": " M",
+          "path": "scripts/check-release.mjs",
+          "sha256": "7e30907ef431255e3194e7fa9f2774406409e249c096f4d50656bbac807276b4"
+        },
+        {
+          "status": " M",
+          "path": "scripts/gen-version.mjs",
+          "sha256": "7efe09c9fb2b272608f9dfb3397c31575a6bc6537a03e2b4936a63c6a99634bf"
+        },
+        {
+          "status": " M",
+          "path": "src/__tests__/review-finish-graph.test.ts",
+          "sha256": "52ccef95d66ddb2e928db66052428dde995371f0251ec13c0ecab26429a730a8"
+        },
+        {
+          "status": " M",
+          "path": "src/__tests__/test-evidence.test.ts",
+          "sha256": "045585ea5ec692e485c667fd37c06403de29e5155881dbe88bba0003e81d6da7"
+        },
+        {
+          "status": "??",
+          "path": "src/__tests__/zcode-compat.test.ts",
+          "sha256": "f3c88a119343f2f4902317fc46b3f509d0c70c418b66f07cfab913daa135e5ba"
+        },
+        {
+          "status": " M",
+          "path": "src/commands/finish.ts",
+          "sha256": "ff10ad72205674ccbfd3ab640b4e67c1cf73b57c63a2dfdec11e1740f98418e2"
+        },
+        {
+          "status": " M",
+          "path": "src/commands/test.ts",
+          "sha256": "ae83c87a89c6f3d21cca8297385753f9666097c5ce0f2d67037b32664c9df69a"
+        },
+        {
+          "status": " M",
+          "path": "src/requirements/state-machine.ts",
+          "sha256": "f1f184590690024301b160e3d8d48097509ca45e40e9058d618bb4b39297fde4"
+        },
+        {
+          "status": " M",
+          "path": "src/testing/render.ts",
+          "sha256": "11df6c581241e517c50896de19b1d030bf7112c49a5ae441488cc966fd485ff0"
+        }
+      ],
+      "baselineFiles": [],
+      "artifactFiles": [],
+      "evidenceFiles": [
+        "marketplace.json",
+        "package.json",
+        "plugins/project-intelligence/.zcode-plugin/plugin.json",
+        "scripts/check-package.mjs",
+        "scripts/check-release.mjs",
+        "scripts/gen-version.mjs",
+        "src/__tests__/review-finish-graph.test.ts",
+        "src/__tests__/test-evidence.test.ts",
+        "src/__tests__/zcode-compat.test.ts",
+        "src/commands/finish.ts",
+        "src/commands/test.ts",
+        "src/requirements/state-machine.ts",
+        "src/testing/render.ts"
+      ],
+      "evidenceEntries": [
+        {
+          "status": "??",
+          "path": "marketplace.json",
+          "sha256": "ef8dd5d38fe54a581def91cce537bfddaab3f16ea26c43985c4bb1e740f48210"
+        },
+        {
+          "status": " M",
+          "path": "package.json",
+          "sha256": "67f2c24e4522548b244291e2fad5dafb0a7ae9f6445bcbd1bf5eb85bc1b13a2e"
+        },
+        {
+          "status": "??",
+          "path": "plugins/project-intelligence/.zcode-plugin/plugin.json",
+          "sha256": "25898f28017357b6d24ccf4b41aa06854088d7ece6d1a4f27be108fe73dee8c4"
+        },
+        {
+          "status": " M",
+          "path": "scripts/check-package.mjs",
+          "sha256": "2a4eebc2bc93e603619ee359aa1f9bd0fe292de608deac1ab5d27cfc76f41463"
+        },
+        {
+          "status": " M",
+          "path": "scripts/check-release.mjs",
+          "sha256": "7e30907ef431255e3194e7fa9f2774406409e249c096f4d50656bbac807276b4"
+        },
+        {
+          "status": " M",
+          "path": "scripts/gen-version.mjs",
+          "sha256": "7efe09c9fb2b272608f9dfb3397c31575a6bc6537a03e2b4936a63c6a99634bf"
+        },
+        {
+          "status": " M",
+          "path": "src/__tests__/review-finish-graph.test.ts",
+          "sha256": "52ccef95d66ddb2e928db66052428dde995371f0251ec13c0ecab26429a730a8"
+        },
+        {
+          "status": " M",
+          "path": "src/__tests__/test-evidence.test.ts",
+          "sha256": "045585ea5ec692e485c667fd37c06403de29e5155881dbe88bba0003e81d6da7"
+        },
+        {
+          "status": "??",
+          "path": "src/__tests__/zcode-compat.test.ts",
+          "sha256": "f3c88a119343f2f4902317fc46b3f509d0c70c418b66f07cfab913daa135e5ba"
+        },
+        {
+          "status": " M",
+          "path": "src/commands/finish.ts",
+          "sha256": "ff10ad72205674ccbfd3ab640b4e67c1cf73b57c63a2dfdec11e1740f98418e2"
+        },
+        {
+          "status": " M",
+          "path": "src/commands/test.ts",
+          "sha256": "ae83c87a89c6f3d21cca8297385753f9666097c5ce0f2d67037b32664c9df69a"
+        },
+        {
+          "status": " M",
+          "path": "src/requirements/state-machine.ts",
+          "sha256": "f1f184590690024301b160e3d8d48097509ca45e40e9058d618bb4b39297fde4"
+        },
+        {
+          "status": " M",
+          "path": "src/testing/render.ts",
+          "sha256": "11df6c581241e517c50896de19b1d030bf7112c49a5ae441488cc966fd485ff0"
+        }
+      ],
+      "evidenceDiffHash": "b37396a9ce17f9ad525f4fb7544b991178212e1c8bb3f4fec0925d968fc047bd",
+      "selectedFiles": [
+        "marketplace.json",
+        "package.json",
+        "plugins/project-intelligence/.zcode-plugin/plugin.json",
+        "scripts/check-package.mjs",
+        "scripts/check-release.mjs",
+        "scripts/gen-version.mjs",
+        "src/__tests__/review-finish-graph.test.ts",
+        "src/__tests__/test-evidence.test.ts",
+        "src/__tests__/zcode-compat.test.ts",
+        "src/commands/finish.ts",
+        "src/commands/test.ts",
+        "src/requirements/state-machine.ts",
+        "src/testing/render.ts"
+      ]
+    }
+  ],
+  "workflowSelections": {
+    "requirement": {
+      "action": "register",
+      "path": ".project-intel/requirements/LOCAL-20260724-181500/requirement.md",
+      "status": "completed",
+      "artifactPath": ".project-intel/requirements/LOCAL-20260724-181500/requirement.md",
+      "updatedAt": "2026-07-24T10:02:24.305Z"
+    },
+    "design": {
+      "action": "register",
+      "path": ".project-intel/requirements/LOCAL-20260724-181500/design.md",
+      "status": "completed",
+      "artifactPath": ".project-intel/requirements/LOCAL-20260724-181500/design.md",
+      "updatedAt": "2026-07-24T10:03:50.195Z"
+    }
+  },
+  "baselineDiffHash": "c324a7ac3853e5bcb569872f3471807616940a49e6ce8bcece4ebbdd522415e4",
+  "baselineCommit": "200fd5e2b0009c8ecbfda5a0340ec98fadb27b0a",
+  "baselineScope": {
+    "diffHash": "c324a7ac3853e5bcb569872f3471807616940a49e6ce8bcece4ebbdd522415e4",
+    "gitCommit": "200fd5e2b0009c8ecbfda5a0340ec98fadb27b0a",
+    "entries": []
+  },
+  "currentDiffHash": "b37396a9ce17f9ad525f4fb7544b991178212e1c8bb3f4fec0925d968fc047bd",
+  "finishResult": {
+    "status": "passed",
+    "diffHash": "b37396a9ce17f9ad525f4fb7544b991178212e1c8bb3f4fec0925d968fc047bd",
+    "evidenceDiffHash": "b37396a9ce17f9ad525f4fb7544b991178212e1c8bb3f4fec0925d968fc047bd",
+    "gitCommit": "200fd5e2b0009c8ecbfda5a0340ec98fadb27b0a",
+    "files": [
+      "marketplace.json",
+      "package.json",
+      "plugins/project-intelligence/.zcode-plugin/plugin.json",
+      "scripts/check-package.mjs",
+      "scripts/check-release.mjs",
+      "scripts/gen-version.mjs",
+      "src/__tests__/review-finish-graph.test.ts",
+      "src/__tests__/test-evidence.test.ts",
+      "src/__tests__/zcode-compat.test.ts",
+      "src/commands/finish.ts",
+      "src/commands/test.ts",
+      "src/requirements/state-machine.ts",
+      "src/testing/render.ts"
+    ],
+    "recordedAt": "2026-07-27T01:36:54.321Z"
+  },
+  "maintenanceResult": {
+    "status": "passed",
+    "diffHash": "b37396a9ce17f9ad525f4fb7544b991178212e1c8bb3f4fec0925d968fc047bd",
+    "evidenceDiffHash": "b37396a9ce17f9ad525f4fb7544b991178212e1c8bb3f4fec0925d968fc047bd",
+    "gitCommit": "200fd5e2b0009c8ecbfda5a0340ec98fadb27b0a",
+    "recordedAt": "2026-07-27T01:37:06.317Z"
+  },
+  "history": [
+    {
+      "action": "record-diagnosis",
+      "rootCause": "仓库只提供 .claude-plugin 与 .codex-plugin 清单，缺少 ZCode 优先识别的 .zcode-plugin/plugin.json 和根 marketplace.json；prepareRequirementReport 仅写 test-reports/TEST-*.md，runFinish 只校验已有 closure artifact，导致 CLI 帮助与用户可见产物不一致。",
+      "evidence": [
+        {
+          "path": "package.json",
+          "sha256": "251644b32019881f30234281286e8732245098941e9cf50183a20f56cbcf9fd0"
+        },
+        {
+          "path": ".claude-plugin/marketplace.json",
+          "sha256": "23436f0588343db3c6779c4c0ea65f5592ade3e7ec6f73c344dc67df1c351cb1"
+        },
+        {
+          "path": "src/commands/test.ts",
+          "symbol": "prepareRequirementReport",
+          "sha256": "3aac0114f2dbb514a1193dd8da7ff84d6c3993ecfac6f6dd9049166589197184"
+        },
+        {
+          "path": "src/commands/finish.ts",
+          "symbol": "runFinish",
+          "sha256": "9126dec0ad85563bfce7bae9592b1aabf679769a52f9aa31ceacb0d3ff506581"
+        }
+      ],
+      "recordedAt": "2026-07-24T10:02:24.388Z"
+    }
+  ],
+  "stateTimestamps": {
+    "draft": "2026-07-24T10:01:15.643Z",
+    "specified": "2026-07-24T10:02:24.305Z",
+    "designed": "2026-07-24T10:03:50.195Z",
+    "ready": "2026-07-27T01:24:00.460Z",
+    "implementing": "2026-07-27T01:26:21.199Z",
+    "verified": "2026-07-27T01:30:21.528Z",
+    "reviewed": "2026-07-27T01:36:43.580Z",
+    "finished": "2026-07-27T01:36:54.321Z",
+    "closed": "2026-07-27T01:37:06.317Z"
+  },
+  "createdAt": "2026-07-24T10:01:15.643Z",
+  "updatedAt": "2026-07-27T01:37:06.317Z"
+}
