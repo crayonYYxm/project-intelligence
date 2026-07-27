@@ -1,0 +1,19 @@
+{
+  "name": "project-intelligence",
+  "description": "Project-level intelligence for source-backed development, testing, review, finish, and maintenance workflows.",
+  "plugins": [
+    {
+      "name": "project-intelligence",
+      "source": "./plugins/project-intelligence",
+      "description": "Source-backed requirement lifecycle, project context, debugging, test evidence, review, finish, and maintenance.",
+      "version": "0.7.1",
+      "category": "productivity",
+      "tags": [
+        "project-intelligence",
+        "requirements",
+        "testing"
+      ],
+      "strict": true
+    }
+  ]
+}

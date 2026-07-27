@@ -70,6 +70,11 @@ describe("executedTestCount", () => {
   it("extracts the Node test runner summary", () => {
     assert.equal(executedTestCount({ stdout: "ℹ tests 213\nℹ pass 213\nℹ fail 0" }), 213);
   });
+  it("does not mistake a Node stack-frame line number for a test count", () => {
+    assert.equal(executedTestCount({
+      stderr: "at Test.run (node:internal/test_runner/test:1382:25)\nℹ tests 44\nℹ pass 40\nℹ fail 4",
+    }), 44);
+  });
 });
 
 describe("inspectTestReport", () => {
@@ -132,6 +137,67 @@ describe("test command (AC-11: rejects forged pass)", () => {
       "--command", "echo 'Ran 2 tests'",
     ], noopGlobal);
     assert.equal(loadRequirement(root, "REQ-T").state, "verified");
+  });
+
+  it("keeps the requirement implementing after an expected RED failure", () => {
+    const root = mkdtempSync(join(tmpdir(), "pi-tc-"));
+    const prepared = prepareDesignedRequirement(root, "REQ-RED", { name: "RED 门禁需求" });
+    beginWithBusinessChange(prepared);
+
+    const result = runTest(root, [
+      "--requirement-id", prepared.id,
+      "--test-kind", "unit",
+      "--report-action", "generate",
+      "--phase", "red",
+      "--acceptance", "AC-01",
+      "--files", ...prepared.files,
+      "--command", "node -e \"console.error('ExpectedError'); process.exit(1)\"",
+      "--expect-failure", "ExpectedError",
+    ], noopGlobal);
+
+    assert.equal(result.exitCode, 0);
+    assert.equal(loadRequirement(root, prepared.id).state, "implementing");
+  });
+
+  it("creates and appends the canonical requirement test report", () => {
+    const root = mkdtempSync(join(tmpdir(), "pi-tc-"));
+    const prepared = prepareDesignedRequirement(root, "REQ-TEST-DOC", { name: "测试文档需求" });
+    beginWithBusinessChange(prepared);
+    const reportPath = join(root, ".project-intel", "requirements", prepared.id, "test-report.md");
+
+    runTest(root, [
+      "--requirement-id", prepared.id,
+      "--test-kind", "unit",
+      "--report-action", "generate",
+      "--phase", "green",
+      "--acceptance", "AC-01",
+      "--files", ...prepared.files,
+      "--command", "echo 'Ran 2 tests'",
+    ], noopGlobal);
+
+    assert.equal(existsSync(reportPath), true);
+    const first = readFileSync(reportPath, "utf8");
+    assert.match(first, /TEST-01/);
+    assert.match(first, /AC-01/);
+    assert.match(first, /Ran 2 tests/);
+
+    runTest(root, [
+      "--requirement-id", prepared.id,
+      "--test-kind", "unit",
+      "--report-action", "generate",
+      "--phase", "regression",
+      "--acceptance", "AC-01",
+      "--files", ...prepared.files,
+      "--command", "echo 'Ran 3 tests'",
+    ], noopGlobal);
+
+    const second = readFileSync(reportPath, "utf8");
+    assert.match(second, /TEST-02/);
+    assert.match(second, /Ran 3 tests/);
+    assert.ok(second.length > first.length);
+    const artifact = loadRequirement(root, prepared.id).artifacts.find((item) => item.type === "test");
+    assert.equal(artifact?.path, `.project-intel/requirements/${prepared.id}/test-report.md`);
+    assert.equal(artifact?.status, "passed");
   });
 
   it("registers a structured report without re-running a command", () => {

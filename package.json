@@ -1,6 +1,6 @@
 {
   "name": "project-intelligence",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "description": "Source-backed development design, requirement lifecycle gates, project context, test evidence, review, finish, and maintenance for Claude and Codex.",
   "license": "MIT",
   "type": "module",
@@ -14,8 +14,10 @@
     ".baseline/cli-snapshot.json",
     ".agents/plugins/marketplace.json",
     ".claude-plugin/marketplace.json",
+    "marketplace.json",
     "plugins/project-intelligence/.claude-plugin",
     "plugins/project-intelligence/.codex-plugin",
+    "plugins/project-intelligence/.zcode-plugin",
     "plugins/project-intelligence/assets",
     "plugins/project-intelligence/skills",
     "scripts/npm-pack-dry-run.mjs",

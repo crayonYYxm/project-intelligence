@@ -1,5 +1,5 @@
 import { execFileSync } from "node:child_process";
-import { mkdtempSync, mkdirSync, readdirSync, rmSync } from "node:fs";
+import { lstatSync, mkdtempSync, mkdirSync, readFileSync, readdirSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -64,6 +64,8 @@ for (const required of [
   "dist/version.js",
   ".agents/plugins/marketplace.json",
   ".claude-plugin/marketplace.json",
+  "marketplace.json",
+  "plugins/project-intelligence/.zcode-plugin/plugin.json",
   "plugins/project-intelligence/assets/plugin-intro.html",
   "plugins/project-intelligence/skills/project-test/SKILL.md",
   "plugins/project-intelligence/skills/project-design/SKILL.md",
@@ -75,6 +77,26 @@ for (const required of [
   if (!files.includes(required)) {
     throw new Error(`npm tarball is missing ${required}`);
   }
+}
+
+const packageJson = JSON.parse(readFileSync(join(ROOT, "package.json"), "utf8"));
+const symlinks = [];
+const inspectDistributionPath = (path) => {
+  const stat = lstatSync(path);
+  if (stat.isSymbolicLink()) {
+    symlinks.push(path);
+    return;
+  }
+  if (!stat.isDirectory()) return;
+  for (const entry of readdirSync(path)) {
+    inspectDistributionPath(join(path, entry));
+  }
+};
+for (const entry of packageJson.files) {
+  inspectDistributionPath(join(ROOT, entry));
+}
+if (symlinks.length) {
+  throw new Error(`npm distribution paths must not contain symbolic links: ${symlinks.join(", ")}`);
 }
 // Reject any Python runtime sources in the shipped core (they are excluded from
 // files; this is a defense-in-depth guard for AC-14).

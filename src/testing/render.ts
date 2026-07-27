@@ -26,7 +26,7 @@ export function executedTestCount(result: TestResult): number {
     /\b(\d+)\s+passed\b/im,
     /\bTests?\s+run:\s*(\d+)\b/im,
     /\b(\d+)\s+tests?\s+(?:completed|passed)\b/im,
-    /\b(?:tests?|test cases?)\s*[:=]\s*(\d+)\b/im,
+    /^[^\S\r\n]*(?:tests?|test cases?)\s*[:=]\s*(\d+)\b/im,
     /^[^\S\r\n]*(?:ℹ\s*)?tests\s+(\d+)\s*$/im,
     /"(?:tests|testCount|numTotalTests)"\s*:\s*(\d+)/,
   ];

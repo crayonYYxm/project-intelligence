@@ -625,7 +625,7 @@ export function recordTestResult(
     // Determine whether to advance to verified. The testContract determines
     // which test kinds are required. Only advance when ALL required kinds have
     // valid passing evidence AND all acceptance criteria are covered.
-    if (!evidence.passed) {
+    if (!evidence.passed || !isAdvancing) {
       m.state = "implementing";
       m.stateTimestamps ??= {};
       m.stateTimestamps.implementing = nowIso();
@@ -641,6 +641,7 @@ export function recordTestResult(
         const allSatisfied = [...requiredKinds].every((kind) => {
           const latest = [...arr].reverse().find((item) =>
             item.valid !== false
+            && isAdvancingEvidence(item)
             && String(item.testKind) === kind
             && String(item.evidenceDiffHash ?? item.diffHash ?? "") === evidenceHash
           );
@@ -653,6 +654,7 @@ export function recordTestResult(
         for (const e of arr) {
           if (
             e.valid !== false
+            && isAdvancingEvidence(e)
             && (e.passed === true || e.result === "passed")
             && String(e.evidenceDiffHash ?? e.diffHash ?? "") === evidenceHash
           ) {
@@ -770,7 +772,8 @@ export function validateFinishRequirement(
   root: string,
   requirementId: string,
   files: string[],
-  currentSnapshot?: ScopeSnapshot
+  currentSnapshot?: ScopeSnapshot,
+  options: { requireClosure?: boolean } = {}
 ): { manifest: RequirementManifest; snapshot: ScopeSnapshot; selectedFiles: string[] } {
   const manifest = loadRequirement(root, requirementId);
   if (manifest.state !== "reviewed") {
@@ -805,7 +808,7 @@ export function validateFinishRequirement(
   if (unresolved.length > 0) {
     throw new RequirementError("finish 门禁：仍有未解决的 critical/important 评审问题。");
   }
-  if (!hasCurrentArtifact(root, manifest, "closure")) {
+  if (options.requireClosure !== false && !hasCurrentArtifact(root, manifest, "closure")) {
     throw new RequirementError("缺少当前有效的复盘收口总结文件。");
   }
   return { manifest, snapshot, selectedFiles };

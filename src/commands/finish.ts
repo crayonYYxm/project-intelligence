@@ -3,9 +3,16 @@
 // a closure-summary.md. Per AC-11, the gate rejects when test/review evidence is
 // missing or failed.
 
+import { existsSync } from "node:fs";
+import { join } from "node:path";
 import { ok, type CommandResult, type GlobalOptions } from "../cli/parser.js";
 import { UsageError } from "../errors.js";
-import { finishRequirement, validateFinishRequirement } from "../requirements/state-machine.js";
+import {
+  finishRequirement,
+  generateArtifact,
+  requirementDir,
+  validateFinishRequirement,
+} from "../requirements/state-machine.js";
 import { print } from "../io/output.js";
 import { runCheck } from "./check.js";
 
@@ -24,18 +31,35 @@ export function runFinish(root: string, args: string[], global: GlobalOptions): 
   const check = runCheck(root, checkArgs, global);
   if (check.exitCode !== 0) throw new UsageError("finish 门禁：project-intel check 未通过。");
 
+  const preflight = validateFinishRequirement(root, id, files, undefined, { requireClosure: false });
   if (dryRun) {
-    const validated = validateFinishRequirement(root, id, files);
     void global;
     return ok({
       requirementId: id,
       dryRun: true,
-      files: validated.selectedFiles,
-      diffHash: validated.snapshot.diffHash,
-      message: "finish --dry-run：完整门禁已检查，未写入状态。",
+      files: preflight.selectedFiles,
+      diffHash: preflight.snapshot.diffHash,
+      message: "finish --dry-run：测试、评审和范围门禁已检查；正式执行时将生成收口总结。",
     });
   }
 
+  let closureReady = true;
+  try {
+    validateFinishRequirement(root, id, files, preflight.snapshot);
+  } catch (error) {
+    if (error instanceof Error && error.message.includes("缺少当前有效的复盘收口总结文件")) {
+      closureReady = false;
+    } else {
+      throw error;
+    }
+  }
+  if (!closureReady) {
+    const closurePath = join(requirementDir(root, id), "closure-summary.md");
+    if (existsSync(closurePath)) {
+      throw new UsageError("closure-summary.md 已存在但未有效登记；请先使用 requirement add --type closure 登记。");
+    }
+    generateArtifact(root, id, "closure");
+  }
   const manifest = finishRequirement(root, id, files);
   print(`finish：需求 ${id} 已完成（→ finished）`);
   void global;

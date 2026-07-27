@@ -21,7 +21,7 @@ import {
   type TestResult,
 } from "../testing/render.js";
 import { writeJson, writeText, loadJson } from "../fs/atomic-write.js";
-import { loadRequirement, recordTestResult, requirementDir } from "../requirements/state-machine.js";
+import { loadRequirement, mutate, recordTestResult, requirementDir } from "../requirements/state-machine.js";
 import {
   captureRequirementScope,
   normalizeScopeFiles,
@@ -186,7 +186,8 @@ export function runTest(root: string, args: string[], global: GlobalOptions): Co
       testKind: opts.testKind!,
       ...(manual ? { manual } : {}),
     };
-    recordTestResult(root, opts.requirementId, evidence);
+    const recorded = recordTestResult(root, opts.requirementId, evidence);
+    writeRequirementTestReport(root, opts.requirementId, recorded);
   } else {
     const reportsDir = join(projectIntelDir(root), "reports");
     mkdirSync(reportsDir, { recursive: true });
@@ -362,6 +363,86 @@ function prepareRequirementReport(
   }
   writeText(reportPath, lines.join("\n"));
   return { relativePath: relative(root, reportPath).replaceAll("\\", "/"), sha256: hashFile(reportPath) };
+}
+
+function writeRequirementTestReport(
+  root: string,
+  requirementId: string,
+  manifest: ReturnType<typeof loadRequirement>
+): void {
+  const evidence = (manifest.testEvidence ?? []) as Record<string, unknown>[];
+  const lines = [
+    `# ${manifest.requirementName} · 测试报告`,
+    "",
+    `- 需求号：\`${requirementId}\``,
+    `- 当前状态：${manifest.state}`,
+    `- 证据数量：${evidence.length}`,
+    "",
+    "## 验收标准映射",
+    "",
+    ...manifest.acceptanceCriteria.map((criterion) => {
+      const covered = evidence.some((item) =>
+        item.valid !== false
+        && ((item.acceptanceIds as string[] | undefined) ?? []).includes(criterion.id)
+      );
+      return `- ${criterion.id}：${covered ? "已记录证据" : "尚未记录"} — ${criterion.description}`;
+    }),
+    "",
+    "## 执行记录",
+    "",
+  ];
+  for (const item of evidence) {
+    const reportPath = String(item.reportPath ?? "");
+    const phase = String(item.phase ?? "");
+    const evidencePassed = item.passed === true || item.result === "passed";
+    const resultLabel = phase === "red"
+      ? (evidencePassed ? "预期失败已复现" : "RED 复现无效")
+      : (evidencePassed ? "passed" : "failed");
+    const detail = reportPath && existsSync(join(root, reportPath))
+      ? readFileSync(join(root, reportPath), "utf8").replace(/\s+$/g, "")
+      : "";
+    lines.push(`### ${String(item.id ?? "TEST")} · ${String(item.testKind ?? "unit")}`);
+    lines.push("");
+    lines.push(`- 阶段：${phase}`);
+    lines.push(`- 结果：${resultLabel}`);
+    lines.push(`- 验收标准：${((item.acceptanceIds as string[] | undefined) ?? []).join(", ")}`);
+    lines.push(`- 文件范围：${((item.files as string[] | undefined) ?? []).join(", ")}`);
+    lines.push(`- 明细报告：\`${reportPath}\``);
+    lines.push("");
+    if (detail) {
+      lines.push("#### 执行明细");
+      lines.push("");
+      lines.push(...detail.split(/\r?\n/).map((line) => `    ${line}`));
+      lines.push("");
+    }
+  }
+  const path = join(requirementDir(root, requirementId), "test-report.md");
+  writeText(path, `${lines.join("\n").replace(/\s+$/g, "")}\n`);
+  const sha256 = hashFile(path);
+  const latest = evidence.at(-1);
+  const advancing = latest
+    ? ["green", "regression", "verify", "manual"].includes(String(latest.phase ?? ""))
+    : false;
+  const passed = latest?.passed === true || latest?.result === "passed";
+  mutate(root, requirementId, (current) => {
+    current.artifacts ??= [];
+    const artifact = current.artifacts.find((item) => item.type === "test");
+    const record = {
+      type: "test",
+      path: relative(root, path).replaceAll("\\", "/"),
+      sha256,
+      source: "generated",
+      status: advancing ? (passed ? "passed" : "failed") : "recorded",
+      validation: {
+        ok: evidence.length > 0,
+        schema: "test-report-v1",
+        evidenceCount: evidence.length,
+      },
+      recordedAt: new Date().toISOString(),
+    };
+    if (artifact) Object.assign(artifact, record);
+    else current.artifacts.push(record);
+  });
 }
 
 function resolveReportFile(root: string, value: string): { path: string; relativePath: string } {

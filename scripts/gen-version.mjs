@@ -6,6 +6,8 @@
 //   - dist/version.js       (compiled runtime artifact; created if dist exists)
 //   - plugins/.../.claude-plugin/plugin.json#version
 //   - plugins/.../.codex-plugin/plugin.json#version  (preserves any "+..." suffix)
+//   - plugins/.../.zcode-plugin/plugin.json#version
+//   - marketplace.json project-intelligence entry version
 //
 // Used by `npm run build` (build depends on gen-version) and `npm run gen-version`.
 // AC-12: --version / doctor / package.json / packed artifacts report the same version.
@@ -67,4 +69,20 @@ const existingSuffix = currentCodex.includes("+")
 codex.version = existingSuffix ? `${version}${existingSuffix}` : `${version}+codex`;
 writeJson(codexPath, codex);
 
-console.log(`Version synced to ${version} across package.json, src/version.ts, dist/version.js, and both plugin.json.`);
+// 5. ZCode native plugin manifest.
+const zcodePath = "plugins/project-intelligence/.zcode-plugin/plugin.json";
+const zcode = readJson(zcodePath);
+zcode.version = version;
+writeJson(zcodePath, zcode);
+
+// 6. ZCode root marketplace entry.
+const marketplacePath = "marketplace.json";
+const marketplace = readJson(marketplacePath);
+const marketplacePlugin = marketplace.plugins?.find((plugin) => plugin.name === "project-intelligence");
+if (!marketplacePlugin) {
+  throw new Error("marketplace.json is missing the project-intelligence plugin entry");
+}
+marketplacePlugin.version = version;
+writeJson(marketplacePath, marketplace);
+
+console.log(`Version synced to ${version} across package.json, runtime artifacts, and Claude/Codex/ZCode manifests.`);

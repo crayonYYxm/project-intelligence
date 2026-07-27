@@ -1,0 +1,18 @@
+{
+  "name": "project-intelligence",
+  "version": "0.7.1",
+  "description": "Source-backed development design plus requirement-level intake, plans, standards, test reports, review gates, finish, maintenance, and debugging.",
+  "author": {
+    "name": "crayonYYxm"
+  },
+  "homepage": "https://github.com/crayonYYxm/project-intelligence",
+  "repository": "https://github.com/crayonYYxm/project-intelligence.git",
+  "license": "MIT",
+  "keywords": [
+    "project-intelligence",
+    "requirements",
+    "testing",
+    "review"
+  ],
+  "skills": "skills"
+}

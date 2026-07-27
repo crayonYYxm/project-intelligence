@@ -20,6 +20,8 @@ const readText = (path) => readFileSync(resolve(root, path), "utf8");
 const packageJson = readJson("package.json");
 const claude = readJson("plugins/project-intelligence/.claude-plugin/plugin.json");
 const codex = readJson("plugins/project-intelligence/.codex-plugin/plugin.json");
+const zcode = readJson("plugins/project-intelligence/.zcode-plugin/plugin.json");
+const zcodeMarketplace = readJson("marketplace.json");
 
 const version = packageJson.version;
 if (!version || !/^\d+\.\d+\.\d+/.test(version)) {
@@ -38,6 +40,10 @@ const values = {
   "src/version.ts": tsMatch[1],
   "claude-plugin": claude.version,
   "codex-plugin": codex.version.split("+")[0],
+  "zcode-plugin": zcode.version,
+  "zcode-marketplace": zcodeMarketplace.plugins.find((plugin) =>
+    plugin.name === "project-intelligence"
+  )?.version,
 };
 
 const unique = new Set(Object.values(values));
