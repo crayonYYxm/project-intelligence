@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "task": "移除生产桥接阶段 4：bin 切到 dist/cli.js（无 Python spawn）+ 运行时无 Python 引用扫描 + npm files 移除 Python scripts + check-package 适配 Node 核心",
+  "createdAt": "2026-07-23T06:43:01.325Z",
+  "updatedAt": "2026-07-23T06:43:01.325Z",
+  "entries": [
+    {
+      "phase": "verify",
+      "status": "failed",
+      "recordedAt": "2026-07-23T06:43:01.325Z",
+      "files": [
+        "bin/project-intel.mjs",
+        "package.json",
+        "scripts/check-package.mjs",
+        "scripts/scan-python-runtime-refs.mjs",
+        "src/cli.ts",
+        "src/commands/orchestration.ts"
+      ],
+      "commands": [
+        {
+          "command": "npm run build",
+          "stdout": "Version synced to 0.6.1 across package.json, src/version.ts, dist/version.js, both plugin.json, and application.py.",
+          "stderr": "npm notice run project-intelligence@0.6.1 build\nnpm notice run node scripts/gen-version.mjs && tsc -p tsconfig.json",
+          "exitCode": 0,
+          "executedCount": 0
+        },
+        {
+          "command": "npm run check-release",
+          "stdout": "Release metadata is consistent: 0.6.1\nnpm package contents and installed launcher verified: 126 files",
+          "stderr": "npm notice run project-intelligence@0.6.1 check-release\nnpm notice run node scripts/check-release.mjs && node scripts/check-package.mjs\nnpm warn Unknown env config \"global-ignore-file\". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.\nnpm warn Unknown env config \"global-ignore-file\". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.",
+          "exitCode": 0,
+          "executedCount": 0
+        },
+        {
+          "command": "node scripts/scan-python-runtime-refs.mjs",
+          "stdout": "No runtime Python references in dist/ + bin/. ✅",
+          "stderr": "",
+          "exitCode": 0,
+          "executedCount": 0
+        },
+        {
+          "command": "bin/project-intel.mjs --version",
+          "stdout": "0.6.1",
+          "stderr": "",
+          "exitCode": 0,
+          "executedCount": 0
+        }
+      ]
+    }
+  ]
+}
