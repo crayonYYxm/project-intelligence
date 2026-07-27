@@ -28,7 +28,7 @@ Use the plugin skill namespace when available:
 - Completion: \`$project-intelligence:project-finish\`; run \`$project-intelligence:project-maintain\` only after finish succeeds.
 - Knowledge, standards, quality, refresh, and init use their matching \`$project-intelligence:*\` skills.
 
-For requirement-level work, carry one requirement ID through every CLI call. New archives keep readable files under \`.project-intel/requirements/<id>-<title>/\`; legacy \`<id>/\` archives remain readable. Each archive contains \`requirement.md\`, \`design.md\`, optional \`plan.md\`, \`test-report.md\`, \`closure-summary.md\`, and \`manifest.json\`.
+For requirement-level work, carry one requirement ID through every CLI call. New archives keep readable files under \`.project-intel/requirements/<id>-<title>/\`; legacy \`<id>/\` archives remain readable. Each new archive contains titled Markdown files such as \`<id>-<title>-需求文档.md\` or \`<id>-<title>-Bug文档.md\`, \`<id>-<title>-设计文档.md\`, optional \`<id>-<title>-实施计划.md\`, \`<id>-<title>-测试文档.md\`, \`<id>-<title>-收口文档.md\`, plus \`manifest.json\`. Legacy short names remain readable.
 
 \`project-intel init\` and \`project-intel refresh\` are fact-only by default. Root adapters are changed only by explicit \`project-intel adapters apply\`, \`project-intel install\`, or \`project-intel refresh --adapters\`.`;
 }

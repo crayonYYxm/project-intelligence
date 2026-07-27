@@ -37,7 +37,12 @@ describe("requirement command dispatcher", () => {
     createRequirement(root, "REQ-PLAN", "实施计划目录");
     const result = runPlan(root, ["--requirement-id", "REQ-PLAN"], noopGlobal);
     const path = String((result.result as Record<string, unknown>).path);
-    assert.ok(path.endsWith(join(".project-intel", "requirements", "REQ-PLAN-实施计划目录", "plan.md")));
+    assert.ok(path.endsWith(join(
+      ".project-intel",
+      "requirements",
+      "REQ-PLAN-实施计划目录",
+      "REQ-PLAN-实施计划目录-实施计划.md"
+    )));
     assert.equal(existsSync(path), true);
   });
 
@@ -311,7 +316,10 @@ describe("requirement command dispatcher", () => {
     assert.equal(manifest.state, "verified");
     assert.equal(manifest.testEvidence?.length, 1);
     assert.equal(manifest.testEvidence?.[0]?.reportOriginalPath, "reports/unit.json");
-    assert.ok(existsSync(join(requirementDir(root, prepared.id), "test-report.md")));
+    assert.ok(existsSync(join(
+      requirementDir(root, prepared.id),
+      artifactFilename("test", loadRequirement(root, prepared.id))
+    )));
   });
 
   it("diagnose records a Bug root cause (ticketKind=bug)", () => {
@@ -426,6 +434,18 @@ describe("requirement layout", () => {
     assert.equal(artifactFilename("design"), "design.md");
     assert.equal(artifactFilename("plan"), "plan.md");
     assert.equal(artifactFilename("unit-test"), "test-report.md");
+    assert.equal(
+      artifactFilename("requirement", { requirementId: "REQ-DOC", requirementName: "标题 / A", ticketKind: "requirement" }),
+      "REQ-DOC-标题-A-需求文档.md"
+    );
+    assert.equal(
+      artifactFilename("requirement", { requirementId: "bug123", requirementName: "登录失败", ticketKind: "bug" }),
+      "bug123-登录失败-Bug文档.md"
+    );
+    assert.equal(
+      artifactFilename("closure", { requirementId: "REQ-DOC", requirementName: "标题", ticketKind: "requirement" }),
+      "REQ-DOC-标题-收口文档.md"
+    );
   });
 
   it("ARTIFACT_FILES covers the v2 types", () => {

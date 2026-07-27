@@ -5,7 +5,7 @@ description: Use after lifecycle readiness when the user wants to begin or conti
 
 # Project Task
 
-Before implementing, read `.project-intel/manifest.json`, `.project-intel/project-status.md`, and the active `.project-intel/requirements/<id>-<title>/manifest.json` (or a legacy `<id>/manifest.json`). Then load only relevant standards, knowledge, graph facts, `requirement.md`, `design.md`, and optional `plan.md`.
+Before implementing, read `.project-intel/manifest.json`, `.project-intel/project-status.md`, and the active `.project-intel/requirements/<id>-<title>/manifest.json` (or a legacy `<id>/manifest.json`). Then load only relevant standards, knowledge, graph facts, the titled requirement/Bug document, titled design document, and optional titled implementation plan. Legacy short filenames remain readable.
 
 If a conversation begins as discussion, explanation, spec, or plan and then turns into code modification, pause before the first `Edit`/`Write` and switch into this task workflow. Basic tools such as Grep, Read, Edit, Bash, Glob, or Write do not replace this workflow.
 
@@ -19,7 +19,7 @@ project-intel requirement status --requirement-id "<id>" --json
 
 Do not run intake again for an existing lifecycle requirement: it may have an explicitly confirmed track or other intake values that must not be re-inferred. If no requirement ID or manifest exists, return to `project-intake` and complete spec/design/readiness before resuming this Skill.
 
-2. Before the first code edit, confirm `project-spec` registered `requirement.md`, persisted matching acceptance criteria, and `project-design` registered `design.md`. Do not add AC headings to the design document.
+2. Before the first code edit, confirm `project-spec` registered the titled requirement/Bug document, persisted matching acceptance criteria, and `project-design` registered the titled design document. Do not add AC headings to the design document.
 3. Confirm `project-test` has already persisted an explicit test contract before readiness: test type, report action, target test file, command, explicit AC mapping, expected RED failure, GREEN proof, regression scope, and any justified manual-evidence exception. While the requirement is still `ready`, this is planning only. Then run `project-intel requirement begin --requirement-id "<id>"` and confirm `state: implementing` before generating the test report, editing the test file, or executing/recording RED.
 4. Identify related modules, components, Hooks, APIs, services, routes, and standards.
 5. Prefer existing project abstractions before creating new ones.

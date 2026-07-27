@@ -13,6 +13,7 @@ import {
 } from "../testing/render.js";
 import { runTest } from "../commands/test.js";
 import { loadRequirement, requirementDir } from "../requirements/state-machine.js";
+import { artifactFilename } from "../requirements/artifacts.js";
 import { beginWithBusinessChange, prepareDesignedRequirement } from "./helpers.js";
 
 const noopGlobal = { project: null, jsonMode: false } as never;
@@ -163,7 +164,7 @@ describe("test command (AC-11: rejects forged pass)", () => {
     const root = mkdtempSync(join(tmpdir(), "pi-tc-"));
     const prepared = prepareDesignedRequirement(root, "REQ-TEST-DOC", { name: "测试文档需求" });
     beginWithBusinessChange(prepared);
-    const reportPath = join(requirementDir(root, prepared.id), "test-report.md");
+    const reportPath = join(requirementDir(root, prepared.id), artifactFilename("test", loadRequirement(root, prepared.id)));
 
     runTest(root, [
       "--requirement-id", prepared.id,

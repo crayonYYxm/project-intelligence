@@ -22,6 +22,7 @@ import {
 } from "../testing/render.js";
 import { writeJson, writeText, loadJson } from "../fs/atomic-write.js";
 import { loadRequirement, mutate, recordTestResult, requirementDir } from "../requirements/state-machine.js";
+import { artifactFilename } from "../requirements/artifacts.js";
 import {
   captureRequirementScope,
   normalizeScopeFiles,
@@ -416,7 +417,7 @@ function writeRequirementTestReport(
       lines.push("");
     }
   }
-  const path = join(requirementDir(root, requirementId), "test-report.md");
+  const path = join(requirementDir(root, requirementId), artifactFilename("test", manifest));
   writeText(path, `${lines.join("\n").replace(/\s+$/g, "")}\n`);
   const sha256 = hashFile(path);
   const latest = evidence.at(-1);

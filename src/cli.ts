@@ -84,7 +84,7 @@ registry.register(withFlags("graph-tools", "查询可选图谱工具的状态与
 registry.register(withFlags("query", "搜索项目智能产物", (args, global) => runQuery(global.projectRoot ?? process.cwd(), args, global), true));
 registry.register(withFlags("intake", "分析需求入口、任务分流和 readiness", (args, global) => runIntake(global.projectRoot ?? process.cwd(), args, global)));
 registry.register(withFlags("spec", "为需求档案设置编号验收标准", (args, global) => runSpec(global.projectRoot ?? process.cwd(), args, global)));
-registry.register(withFlags("plan", "按需在需求目录生成 plan.md", (args, global) => runPlan(global.projectRoot ?? process.cwd(), args, global)));
+registry.register(withFlags("plan", "按需在需求目录生成带编号和标题的实施计划", (args, global) => runPlan(global.projectRoot ?? process.cwd(), args, global)));
 registry.register(withFlags("lifecycle", "输出任务影响分析", (args, global) => runLifecycle(global.projectRoot ?? process.cwd(), args, global)));
 registry.register(withFlags("debug", "输出系统化调试上下文", (args, global) => runDebug(global.projectRoot ?? process.cwd(), args, global)));
 registry.register(withFlags("requirements", "按源码文件维护简短中文需求记录", (args, global) => runRequirements(global.projectRoot ?? process.cwd(), args, global)));

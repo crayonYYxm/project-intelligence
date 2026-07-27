@@ -31,6 +31,13 @@ import {
 } from "./documents.js";
 import { inspectTestReport } from "../testing/render.js";
 import { sanitizeText } from "../testing/sanitize.js";
+import {
+  artifactFilename,
+  normalizeArtifactType,
+  normalizeRequirementId,
+  requirementDirectoryName,
+} from "./artifacts.js";
+export { requirementDirectoryName } from "./artifacts.js";
 
 export const SCHEMA_VERSION = 2;
 export const LEGACY_SCHEMA_VERSION = 1;
@@ -112,38 +119,6 @@ export interface RequirementManifest {
   updatedAt: string;
 }
 
-const MAX_REQUIREMENT_DIRECTORY_BYTES = 240;
-
-function truncateUtf8(value: string, maxBytes: number): string {
-  let result = "";
-  let bytes = 0;
-  for (const character of value) {
-    const size = Buffer.byteLength(character);
-    if (bytes + size > maxBytes) break;
-    result += character;
-    bytes += size;
-  }
-  return result;
-}
-
-export function requirementDirectoryName(requirementId: string, requirementName: string): string {
-  const id = normalizeId(requirementId);
-  const availableTitleBytes = MAX_REQUIREMENT_DIRECTORY_BYTES - Buffer.byteLength(id) - 1;
-  if (availableTitleBytes < 1) {
-    throw new RequirementError(`需求号过长，无法生成安全目录名：${id}`);
-  }
-  const normalizedTitle = String(requirementName ?? "")
-    .normalize("NFKC")
-    .replace(/[\u0000-\u001f\u007f-\u009f<>:\x22/\\|?*]/g, "-")
-    .replace(/\s+/g, "-")
-    .replace(/-+/g, "-")
-    .replace(/^[ .-]+|[ .-]+$/g, "");
-  const fallback = "untitled";
-  const truncated = truncateUtf8(normalizedTitle || fallback, availableTitleBytes)
-    .replace(/[ .-]+$/g, "");
-  return `${id}-${truncated || fallback}`;
-}
-
 function directManifestPaths(root: string, requirementId: string): string[] {
   const id = normalizeId(requirementId);
   const requirementsRoot = join(root, ".project-intel", "requirements");
@@ -206,7 +181,7 @@ export function normalizeId(id: string): string {
   // Pure numeric ids get a bug/req prefix; otherwise return as-is (sanitized).
   const trimmed = (id ?? "").trim();
   if (/^\d+$/.test(trimmed)) return trimmed; // canonicalize at the command layer
-  return trimmed.replace(/[^A-Za-z0-9._-]/g, "-");
+  return normalizeRequirementId(trimmed);
 }
 
 /** Read + validate a requirement manifest (raises RequirementError on problems). */
@@ -1173,7 +1148,7 @@ export function recordDiagnosis(
       throw new RequirementError("只有 Bug 需求需要登记 diagnosis。");
     }
     if (m.state !== "specified" && m.state !== "designed" && m.state !== "documented") {
-      throw new RequirementError("必须先完成 requirement.md，才能登记 Bug 根因。");
+      throw new RequirementError("必须先完成当前需求/Bug文档，才能登记 Bug 根因。");
     }
     if (m.state === "designed" || m.state === "documented") {
       for (const artifact of m.artifacts ?? []) {
@@ -1285,13 +1260,7 @@ export function resolveReviewFindings(
   });
 }
 
-const GENERATED_ARTIFACT_FILES: Record<string, string> = {
-  requirement: "requirement.md",
-  design: "design.md",
-  plan: "plan.md",
-  test: "test-report.md",
-  closure: "closure-summary.md",
-};
+const GENERATED_ARTIFACT_TYPES = new Set(["requirement", "design", "plan", "test", "closure"]);
 
 function generatedArtifactText(manifest: RequirementManifest, type: string): string {
   if (type === "requirement") {
@@ -1369,8 +1338,8 @@ ${criteria || "- 待补充。"}
 
 ## 输入基线
 
-- \`requirement.md\`
-- \`design.md\`
+- \`${artifactFilename("requirement", manifest)}\`
+- \`${artifactFilename("design", manifest)}\`
 
 ## 文件级变更
 
@@ -1434,10 +1403,8 @@ export function generateArtifact(
   artifactType: string,
   replace = false
 ): RequirementManifest {
-  const type = artifactType === "requirement-design" ? "design"
-    : artifactType === "test-report" ? "test"
-      : artifactType;
-  if (!Object.hasOwn(GENERATED_ARTIFACT_FILES, type)) {
+  const type = normalizeArtifactType(artifactType);
+  if (!GENERATED_ARTIFACT_TYPES.has(type)) {
     throw new RequirementError("可生成的产物类型只能是 requirement、design、plan、test 或 closure。");
   }
   const current = loadRequirement(root, requirementId);
@@ -1458,11 +1425,12 @@ export function generateArtifact(
   if ((type === "requirement" || type === "design") && selected && selected.action !== "generate") {
     throw new RequirementError(`${type} 已选择 ${String(selected.action)}；如需改为 generate，请先使用 requirement amend。`);
   }
-  const path = join(requirementDir(root, requirementId), GENERATED_ARTIFACT_FILES[type]!);
+  const filename = artifactFilename(type, current);
+  const path = join(requirementDir(root, requirementId), filename);
   const existed = existsSync(path);
   const backup = existed ? readFileSync(path) : null;
   if (type !== "test" && existed && readFileSync(path).length > 0 && !replace) {
-    throw new RequirementError(`${GENERATED_ARTIFACT_FILES[type]} 已存在；确需覆盖请显式使用 --replace。`);
+    throw new RequirementError(`${filename} 已存在；确需覆盖请显式使用 --replace。`);
   }
   if (type === "test" && existed && readFileSync(path).length > 0) {
     return current;
@@ -1558,7 +1526,7 @@ export function registerArtifact(
     throw new RequirementError(`${normalized} 已选择 ${String(selected.action)}；如需登记文档，请先使用 requirement amend。`);
   }
   if (normalized === "design" && !hasCurrentArtifact(root, current, "requirement")) {
-    throw new RequirementError("必须先登记当前有效的 requirement.md，才能登记设计文档。");
+    throw new RequirementError("必须先登记当前有效的需求文档，才能登记设计文档。");
   }
   const source = readValidatedDocument(root, current, normalized, pathValue);
   if (
@@ -1570,12 +1538,7 @@ export function registerArtifact(
       `${normalized} 已选择登记路径 ${String(selected.path)}；如需改用 ${source.relativePath}，请先使用 requirement amend。`
     );
   }
-  const filename = {
-    requirement: "requirement.md",
-    design: "design.md",
-    plan: "plan.md",
-    closure: "closure-summary.md",
-  }[normalized]!;
+  const filename = artifactFilename(normalized, current);
   const canonicalPath = join(requirementDir(root, requirementId), filename);
   const copyRequired = source.sourcePath !== canonicalPath;
   const canonicalExisted = existsSync(canonicalPath);
@@ -1696,7 +1659,7 @@ function assertReadinessInputs(root: string, m: RequirementManifest): void {
   }
   const plan = (m.artifacts ?? []).find((artifact) => artifact.type === "plan");
   if (plan && (!artifactDigest(root, plan) || (plan.validation as Record<string, unknown> | undefined)?.ok !== true)) {
-    throw new RequirementError("已选择生成实施计划，但 plan.md 尚未有效登记。");
+    throw new RequirementError("已选择生成实施计划，但当前实施计划尚未有效登记。");
   }
   if (m.ticketKind === "bug") {
     if (m.diagnosis?.status !== "confirmed" || !m.diagnosis.rootCause || !m.diagnosis.evidence?.length) {

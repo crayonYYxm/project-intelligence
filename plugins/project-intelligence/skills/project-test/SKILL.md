@@ -101,6 +101,6 @@ project-intel test --requirement-id "<id>" --test-kind unit \
   --acceptance AC-01,AC-02
 ```
 
-For external API impact, require `service` or `both`. `both` needs separate passing unit and service evidence. A generated `test-report.md` starts as a plan and becomes valid only after actual execution is appended. A zero-exit command without a recognised positive test count (including `true`, lint, build, or type-check) is not test evidence. `later`, empty, RED-only, stale, or failed evidence never satisfies finish.
+For external API impact, require `service` or `both`. `both` needs separate passing unit and service evidence. A generated titled test document starts as a plan and becomes valid only after actual execution is appended. A zero-exit command without a recognised positive test count (including `true`, lint, build, or type-check) is not test evidence. `later`, empty, RED-only, stale, or failed evidence never satisfies finish.
 
 Use manual testing only for visual, device, hardware, or configuration behavior that cannot reasonably be automated. Obtain explicit approval and record reason, steps, input, observation, and an existing screenshot/log path using the `--manual-*` options. A one-line “verified manually” statement is invalid.

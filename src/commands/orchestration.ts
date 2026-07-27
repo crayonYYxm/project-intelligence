@@ -17,6 +17,7 @@ import {
 } from "../requirements/state-machine.js";
 import { projectIntelDir } from "./init.js";
 import { writeText } from "../fs/atomic-write.js";
+import { artifactFilename } from "../requirements/artifacts.js";
 
 function flag(args: string[], name: string): string | undefined {
   const idx = args.indexOf(name);
@@ -114,20 +115,21 @@ export function runSpec(root: string, args: string[], global: GlobalOptions): Co
   return ok({ path });
 }
 
-/** `plan`: generate a plan.md scaffold inside the requirement directory. */
+/** `plan`: generate an implementation-plan scaffold inside the requirement directory. */
 export function runPlan(root: string, args: string[], global: GlobalOptions): CommandResult {
   const id = flag(args, "--requirement-id");
   const title = flag(args, "--title");
   if (!id) throw new UsageError("plan 需要 --requirement-id。");
   // Verify the requirement exists before generating (mirrors Python's gate).
-  loadRequirement(root, id);
+  const manifest = loadRequirement(root, id);
   const reqDir = requirementDir(root, id);
   mkdirSync(reqDir, { recursive: true });
-  const path = join(reqDir, "plan.md");
+  const planFilename = artifactFilename("plan", manifest);
+  const path = join(reqDir, planFilename);
   // Refuse to overwrite existing user content unless --replace is passed
   // (mirrors Python's requirement_generate --replace gate; AC-04/AC-13).
   if (existsSync(path) && !args.includes("--replace")) {
-    throw new UsageError("plan.md 已存在；如需覆盖请显式传入 --replace。");
+    throw new UsageError(`${planFilename} 已存在；如需覆盖请显式传入 --replace。`);
   }
   writeText(
     path,

@@ -20,9 +20,9 @@ Create plans that preserve project standards and are ready to execute.
 project-intel plan --requirement-id "<id>"
 ```
 
-This writes the resolved `.project-intel/requirements/<id>-<title>/plan.md`; legacy `<id>/` archives remain readable. Never create `.project-intel/plans/` or `.project-intel/specs/` in the new workflow.
+This writes the resolved `.project-intel/requirements/<id>-<title>/<id>-<title>-实施计划.md`; legacy `<id>/` archives and `plan.md` remain readable. Never create `.project-intel/plans/` or `.project-intel/specs/` in the new workflow.
 
-If `plan.md` already exists, update it deliberately instead of regenerating it. Pass `--replace` only after the user explicitly approves replacing the existing plan.
+If the titled implementation plan already exists, update it deliberately instead of regenerating it. Pass `--replace` only after the user explicitly approves replacing the existing plan.
 
 For a requirement-level task, carry the same requirement ID into every task and map every implementation/test task to one or more numbered acceptance criteria. Treat the registered design artifact as the implementation-design source and `manifest.acceptanceCriteria` as the acceptance source; do not require AC headings in the document. End the planning phase with the readiness gate:
 

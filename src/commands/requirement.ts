@@ -133,7 +133,7 @@ export function runRequirement(root: string, args: string[], global: GlobalOptio
       const id = requireId(rest);
       const type = flag(rest, "--type") ?? "requirement";
       const manifest = generateArtifact(root, id, type, rest.includes("--replace"));
-      const path = join(requirementDir(root, id), artifactFilename(type));
+      const path = join(requirementDir(root, id), artifactFilename(type, manifest));
       return ok({ requirementId: manifest.requirementId, type, path, state: manifest.state });
     }
     case "add": {
@@ -406,7 +406,7 @@ function archiveRegisteredReport(
   const suffix = extname(report.relativePath).toLowerCase() || ".txt";
   const archivedPath = join(reportsDir, `TEST-${String(sequence).padStart(2, "0")}-${testKind}${suffix}`);
   writeFileSync(archivedPath, report.content);
-  const canonicalPath = join(directory, "test-report.md");
+  const canonicalPath = join(directory, artifactFilename("test", loadRequirement(root, requirementId)));
   const existing = existsSync(canonicalPath)
     ? readFileSync(canonicalPath, "utf8").replace(/\s+$/g, "")
     : `# ${requirementId} 测试报告`;

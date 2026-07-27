@@ -14,6 +14,7 @@ import {
 import { runTest } from "../commands/test.js";
 import { runReview } from "../commands/review.js";
 import { runInit } from "../commands/init.js";
+import { artifactFilename } from "../requirements/artifacts.js";
 
 export const noopGlobal = { project: null, jsonMode: false } as never;
 
@@ -135,7 +136,7 @@ export function prepareReviewedRequirement(
     ],
     noopGlobal
   );
-  const closurePath = join(requirementDir(root, id), "closure-summary.md");
+  const closurePath = join(requirementDir(root, id), artifactFilename("closure", loadRequirement(root, id)));
   writeFileSync(closurePath, closureDocument(id, prepared.name, prepared.acceptanceIds));
   registerArtifact(root, id, "closure", closurePath);
   return prepared;

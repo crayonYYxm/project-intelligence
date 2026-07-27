@@ -7,24 +7,7 @@ import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, statSyn
 import { join, relative } from "node:path";
 import { requirementDir, legacyManifestPath, manifestPath, activeManifestPath } from "./state-machine.js";
 import { RequirementError } from "../errors.js";
-
-export const ARTIFACT_FILES: Record<string, string> = {
-  requirement: "requirement.md",
-  design: "design.md",
-  "requirement-design": "design.md",
-  plan: "plan.md",
-  test: "test-report.md",
-  "test-report": "test-report.md",
-  "unit-test": "test-report.md",
-  "service-test": "test-report.md",
-  "manual-test": "test-report.md",
-  closure: "closure-summary.md",
-};
-
-/** Resolve the canonical filename for an artifact type. */
-export function artifactFilename(type: string): string {
-  return ARTIFACT_FILES[type] ?? `${type}.md`;
-}
+export { ARTIFACT_FILES, artifactFilename } from "./artifacts.js";
 
 /** Whether a requirement id has a registered archive (v2 or legacy). */
 export function hasRequirement(root: string, requirementId: string): boolean {

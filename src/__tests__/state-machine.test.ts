@@ -11,6 +11,7 @@ import {
   recordReview,
   finishRequirement,
   closeRequirement,
+  generateArtifact,
   reopenRequirement,
   setAcceptanceCriteria,
   setTestContract,
@@ -20,6 +21,7 @@ import {
   SCHEMA_VERSION,
   STATES,
 } from "../requirements/state-machine.js";
+import { artifactFilename } from "../requirements/artifacts.js";
 import { RequirementError } from "../errors.js";
 import {
   prepareDesignedRequirement,
@@ -207,6 +209,28 @@ describe("requirement state machine", () => {
     assert.ok(requirementDir(root, "bug123").endsWith(
       join(".project-intel", "requirements", "bug123-登录失败")
     ));
+  });
+
+  it("generated lifecycle docs use id-title document filenames", () => {
+    const root = freshProject();
+    createRequirement(root, "REQ-DOC", "文件命名", { ticketKind: "requirement" });
+    generateArtifact(root, "REQ-DOC", "requirement");
+    assert.equal(
+      existsSync(join(requirementDir(root, "REQ-DOC"), "REQ-DOC-文件命名-需求文档.md")),
+      true
+    );
+    assert.equal(existsSync(join(requirementDir(root, "REQ-DOC"), "requirement.md")), false);
+
+    createRequirement(root, "BUG-DOC", "登录失败", { ticketKind: "bug" });
+    generateArtifact(root, "BUG-DOC", "requirement");
+    assert.equal(
+      existsSync(join(requirementDir(root, "BUG-DOC"), artifactFilename("requirement", loadRequirement(root, "BUG-DOC")))),
+      true
+    );
+    assert.equal(
+      artifactFilename("requirement", loadRequirement(root, "BUG-DOC")),
+      "BUG-DOC-登录失败-Bug文档.md"
+    );
   });
 
   it("loadRequirement rejects ambiguous id-title directories", () => {

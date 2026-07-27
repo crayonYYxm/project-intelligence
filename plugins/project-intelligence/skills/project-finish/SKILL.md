@@ -8,7 +8,7 @@ description: Use after implementation evidence and review when the user asks to 
 Use this after implementation and review fixes, before project maintenance.
 
 1. Inspect the diff and changed files.
-2. Read the resolved `.project-intel/requirements/<id>-<title>/test-report.md` (or legacy `<id>/test-report.md`) and `manifest.testEvidence`. Confirm the feature/bugfix claim with fresh, task-matching evidence from the current diff: targeted tests, affected regression tests, or an approved reproducible manual procedure.
+2. Read the resolved `.project-intel/requirements/<id>-<title>/<id>-<title>-测试文档.md` (or legacy `<id>/test-report.md`) and `manifest.testEvidence`. Confirm the feature/bugfix claim with fresh, task-matching evidence from the current diff: targeted tests, affected regression tests, or an approved reproducible manual procedure.
 3. Verify scope did not drift. If it did, update the spec/plan before claiming completion.
 4. Check high-risk categories when relevant: interface compatibility, data migration, permissions, cache, transactions, remote calls, async jobs, release flags, rollback, monitoring, and user-visible edge states.
 5. If evidence is missing, return to `project-test`. Do not use `project-intel check`, lint, type-check, build output, or an Agent summary as a substitute for changed-behavior proof.
@@ -19,7 +19,7 @@ project-intel requirement generate --requirement-id "<id>" --type closure
 project-intel finish --requirement-id "<id>" --files <all-actual-changed-files>
 ```
 
-Generation is create-only by default. If `closure-summary.md` already exists, complete or register the existing file; use `--replace` only after explicit user approval.
+Generation is create-only by default. If the titled closure document already exists, complete or register the existing file; use `--replace` only after explicit user approval.
 
 7. `project-intel finish` must return non-zero when changed source lacks current task/file-scoped passing evidence. For requirement-level tasks, manual evidence must already be registered through the approval-style `project-test` flow; do not bypass it with `finish --manual-evidence`.
 8. Do not commit, push, deploy, publish, run migrations, or change production state unless the user explicitly authorizes that action.
@@ -41,4 +41,4 @@ project-intel requirement defer --requirement-id "<id>" --type closure
 
 Then run `project-intel finish --requirement-id "<id>" --files <all-actual-changed-files>`. Finish must verify documents, test policy, acceptance mapping, review, current diff hash, complete scope, and closure summary.
 
-The four durable lifecycle documents are `requirement.md`, `design.md`, `test-report.md`, and `closure-summary.md` in the same requirement directory. `plan.md` is optional.
+The four durable lifecycle documents are the titled requirement/Bug document, titled design document, titled test document, and titled closure document in the same requirement directory. A titled implementation plan is optional. Legacy short names remain readable.

@@ -6,7 +6,7 @@
       "name": "project-intelligence",
       "source": "./plugins/project-intelligence",
       "description": "Source-backed requirement lifecycle, project context, debugging, test evidence, review, finish, and maintenance.",
-      "version": "0.7.2",
+      "version": "0.7.3",
       "category": "productivity",
       "tags": [
         "project-intelligence",

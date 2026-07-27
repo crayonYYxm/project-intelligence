@@ -1,6 +1,6 @@
 // `finish` command (phase 3.F.2). Runs the finish gate via the state machine's
 // finishRequirement (which enforces test evidence + approved review), then writes
-// a closure-summary.md. Per AC-11, the gate rejects when test/review evidence is
+// a titled closure document. Per AC-11, the gate rejects when test/review evidence is
 // missing or failed.
 
 import { existsSync } from "node:fs";
@@ -10,9 +10,11 @@ import { UsageError } from "../errors.js";
 import {
   finishRequirement,
   generateArtifact,
+  loadRequirement,
   requirementDir,
   validateFinishRequirement,
 } from "../requirements/state-machine.js";
+import { artifactFilename } from "../requirements/artifacts.js";
 import { print } from "../io/output.js";
 import { runCheck } from "./check.js";
 
@@ -54,9 +56,11 @@ export function runFinish(root: string, args: string[], global: GlobalOptions): 
     }
   }
   if (!closureReady) {
-    const closurePath = join(requirementDir(root, id), "closure-summary.md");
+    const current = loadRequirement(root, id);
+    const closureFilename = artifactFilename("closure", current);
+    const closurePath = join(requirementDir(root, id), closureFilename);
     if (existsSync(closurePath)) {
-      throw new UsageError("closure-summary.md 已存在但未有效登记；请先使用 requirement add --type closure 登记。");
+      throw new UsageError(`${closureFilename} 已存在但未有效登记；请先使用 requirement add --type closure 登记。`);
     }
     generateArtifact(root, id, "closure");
   }
