@@ -372,22 +372,82 @@ function writeRequirementTestReport(
   manifest: ReturnType<typeof loadRequirement>
 ): void {
   const evidence = (manifest.testEvidence ?? []) as Record<string, unknown>[];
+  const latest = evidence.at(-1);
+  const currentCommit = String(latest?.gitCommit ?? latest?.evidenceCommit ?? "");
+  const currentHash = String(latest?.evidenceDiffHash ?? latest?.diffHash ?? "");
+  const currentEvidence = evidence.filter((item) =>
+    item.valid !== false
+    && String(item.gitCommit ?? item.evidenceCommit ?? "") === currentCommit
+    && String(item.evidenceDiffHash ?? item.diffHash ?? "") === currentHash
+  );
+  const advancingPhases = new Set(["green", "regression", "verify", "manual"]);
+  const contractKind = String(manifest.testContract?.kind ?? "unit");
+  const requiredChannels = contractKind === "both" ? ["unit", "service"] : [contractKind];
+  const channelsPassing = requiredChannels.every((channel) => {
+    const channelLatest = [...currentEvidence].reverse().find((item) =>
+      String(item.testKind ?? "") === channel
+      && advancingPhases.has(String(item.phase ?? ""))
+    );
+    return Boolean(channelLatest && (channelLatest.passed === true || channelLatest.result === "passed"));
+  });
+  const passingEvidence = channelsPassing
+    ? currentEvidence.filter((item) =>
+        advancingPhases.has(String(item.phase ?? ""))
+        && (item.passed === true || item.result === "passed")
+      )
+    : [];
+  const coveredAcceptance = new Set(
+    passingEvidence.flatMap((item) => (item.acceptanceIds as string[] | undefined) ?? [])
+  );
+  const affectedFiles = [...new Set(
+    currentEvidence.flatMap((item) => (item.files as string[] | undefined) ?? [])
+  )].sort();
   const lines = [
-    `# ${manifest.requirementName} · 测试报告`,
+    `# 测试文档：${manifest.requirementName}`,
     "",
-    `- 需求号：\`${requirementId}\``,
+    `> feature-id: ${requirementId}`,
+    `> 测试日期：${new Date().toISOString().slice(0, 10)}`,
+    `> 关联文档：${artifactFilename("requirement", manifest)} | ${artifactFilename("design", manifest)}`,
+    `> 测试范围：${manifest.requirementName}`,
+    "",
+    "## 1. 测试环境与前置准备",
+    "",
+    `- 执行方式：${[...new Set(evidence.map((item) => String(item.testKind ?? "unit")))].join("、") || "自动化测试"}`,
     `- 当前状态：${manifest.state}`,
-    `- 证据数量：${evidence.length}`,
+    `- 当前快照证据：${currentEvidence.length}（历史总计 ${evidence.length}）`,
+    `- 最近执行：${String(latest?.recordedAt ?? "尚无执行时间")}`,
     "",
-    "## 验收标准映射",
+    "## 2. 核心规则与用例总览",
     "",
-    ...manifest.acceptanceCriteria.map((criterion) => {
-      const covered = evidence.some((item) =>
-        item.valid !== false
-        && ((item.acceptanceIds as string[] | undefined) ?? []).includes(criterion.id)
-      );
-      return `- ${criterion.id}：${covered ? "已记录证据" : "尚未记录"} — ${criterion.description}`;
-    }),
+    "| 用例 ID | 验收标准 | 描述 | 结果 |",
+    "|---|---|---|---|",
+    ...manifest.acceptanceCriteria.map((criterion, index) =>
+      `| T${index + 1} | ${criterion.id} | ${criterion.description.replaceAll("|", "\\|")} | ${coveredAcceptance.has(criterion.id) ? "通过" : "未通过"} |`
+    ),
+    "",
+    "## 3. 功能用例",
+    "",
+    `当前快照记录 ${currentEvidence.length} 条测试证据，其中 ${passingEvidence.length} 条为有效通过证据；完整历史命令、计数和输出见“执行记录”。`,
+    "",
+    "## 4. 边界与异常用例",
+    "",
+    currentEvidence.some((item) => item.phase === "red")
+      ? "已记录预期失败（RED）证据，用于证明实现前缺失行为或回归复现。"
+      : "本轮未单列 RED 证据；边界与异常行为由已登记的验证或回归命令覆盖。",
+    "",
+    "## 5. 自动化与回归建议",
+    "",
+    "后续修改关联文件时，应按当前测试合同重新执行对应 unit/service 回归并刷新 Git 快照证据。",
+    "",
+    "## 6. 测试清单",
+    "",
+    ...manifest.acceptanceCriteria.map((criterion) =>
+      `- [${coveredAcceptance.has(criterion.id) ? "x" : " "}] ${criterion.id} ${criterion.description}`
+    ),
+    "",
+    "## 7. 涉及代码索引",
+    "",
+    ...(affectedFiles.length > 0 ? affectedFiles.map((path) => `- \`${path}\``) : ["- 本轮测试证据声明为项目级覆盖。"]),
     "",
     "## 执行记录",
     "",
@@ -420,7 +480,6 @@ function writeRequirementTestReport(
   const path = join(requirementDir(root, requirementId), artifactFilename("test", manifest));
   writeText(path, `${lines.join("\n").replace(/\s+$/g, "")}\n`);
   const sha256 = hashFile(path);
-  const latest = evidence.at(-1);
   const advancing = latest
     ? ["green", "regression", "verify", "manual"].includes(String(latest.phase ?? ""))
     : false;

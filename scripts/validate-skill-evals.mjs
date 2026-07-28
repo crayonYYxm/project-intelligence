@@ -160,12 +160,15 @@ if (allowedResult.unexpected.length || allowedResult.missing.length) {
 const requiredSkillText = [
   ["project-intake", "Route first to `project-spec`"],
   ["project-intake", "`project-debug` for a Bug, then `project-design`"],
+  ["project-intake", "The four durable lifecycle documents are mandatory"],
   ["project-debug", "project-intel requirement diagnose"],
   ["project-design", "**Standalone**"],
   ["project-design", "**Lifecycle**"],
   ["project-spec", "before project-debug/project-design"],
-  ["project-spec", "requirement defer --requirement-id"],
+  ["project-spec", "When no standalone spec exists but a design document is supplied"],
   ["project-spec", "register existing"],
+  ["project-test", "The test document cannot be deferred"],
+  ["project-finish", "automatically generate and register the closure document"],
   ["project-task", "<selected-kind>"],
   ["project-task", "<selected-action>"],
   ["project-refresh", "cloud plugin"],
@@ -182,6 +185,9 @@ const forbiddenSkillText = [
   ["project-quality", "project-intel test --command"],
   ["project-task", "--test-kind unit --report-action generate"],
   ["project-task", "project-intel intake --requirement-id"],
+  ["project-spec", "requirement defer --requirement-id"],
+  ["project-test", "generate|register|later"],
+  ["project-finish", "Ask whether to generate, register, or defer"],
 ];
 for (const [skill, fragment] of forbiddenSkillText) {
   if (skillText(skill).includes(fragment)) {

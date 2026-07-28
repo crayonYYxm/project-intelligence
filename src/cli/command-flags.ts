@@ -20,7 +20,7 @@ export const VALUE_FLAGS: Record<string, Set<string>> = {
   intake: set("--task", "--requirement-id", "--requirement-name", "--version-date", "--ticket-kind", "--external-api", "--requirement-action", "--requirement-path", "--design-action", "--design-path", "--track"),
   spec: set("--requirement-id", "--criterion", "--title", "--from", "--track"),
   plan: set("--requirement-id", "--title", "--from-spec", "--track"),
-  lifecycle: set("--task", "--requirement-id", "--track", "--test-kind", "--report-action", "--report-path", "--acceptance"),
+  lifecycle: set("--task", "--requirement-id", "--track"),
   debug: set("--bug"),
   test: set("--task", "--requirement-id", "--test-kind", "--report-action", "--report-path", "--acceptance", "--phase", "--command", "--files", "--expect-failure", "--manual-evidence", "--manual-category", "--manual-reason", "--manual-steps", "--manual-input", "--manual-observation", "--manual-evidence-path"),
   review: set("--requirement-id", "--result", "--summary", "--finding", "--files"),

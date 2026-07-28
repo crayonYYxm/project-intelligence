@@ -116,7 +116,7 @@
         "scope": "backend",
         "category": "error-code",
         "rule": "业务异常和错误码应复用既有错误码体系，新增错误需同步前端/调用方可识别的语义",
-        "evidence": "28 个文件包含错误码或异常信号",
+        "evidence": "29 个文件包含错误码或异常信号",
         "level": "inferred"
       }
     ],

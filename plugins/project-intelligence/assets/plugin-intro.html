@@ -1241,7 +1241,7 @@ agent rule:
             <article class="timeline-step reveal">
               <span class="step-num">03</span>
               <h3>Spec</h3>
-              <p>生成或登记带编号和标题的需求/Bug文档，确认范围、边界、外部接口影响和编号验收标准。</p>
+              <p>生成或登记带编号和标题的需求/Bug文档；仅有设计文档时先据其生成 spec 和一致的编号验收标准。</p>
             </article>
             <article class="timeline-step reveal">
               <span class="step-num">04</span>
@@ -1261,7 +1261,7 @@ agent rule:
             <article class="timeline-step reveal">
               <span class="step-num">07</span>
               <h3>Test</h3>
-              <p>先确认 unit / service / both / manual 和报告动作；实现后记录当前代码快照、范围、命令、结果与 AC 映射。</p>
+              <p>ready 前确认 unit / service / both / manual 和 AC 映射；已有测试文档登记，否则生成，不允许延期。</p>
             </article>
             <article class="timeline-step reveal">
               <span class="step-num">08</span>
@@ -1281,7 +1281,7 @@ agent rule:
             <article class="timeline-step reveal">
               <span class="step-num">11</span>
               <h3>Finish</h3>
-              <p>生成或登记带编号和标题的收口文档，检查文档、AC、测试、评审、证据新鲜度和实际变更范围。</p>
+              <p>自动生成并登记带编号和标题的收口文档，再检查文档、AC、测试、评审、证据新鲜度和实际变更范围。</p>
             </article>
             <article class="timeline-step reveal">
               <span class="step-num">12</span>
@@ -1449,8 +1449,8 @@ agent rule:
               <p>保存最新一次刷新、质量和事实层健康状态；下一次刷新会覆盖它，不承担需求历史。</p>
             </article>
             <article class="artifact reveal">
-              <code>.project-intel/requirements/&lt;id&gt;-&lt;title&gt;/</code>
-              <p>每个新需求以编号和标题命名目录，独立保存带编号和标题的需求/Bug文档、设计文档、可选实施计划、测试文档、收口文档和机器状态 `manifest.json`；历史仅编号目录和旧短文件名仍可读取。</p>
+              <code>.project-intel/requirements/&lt;YYYY-MM-DD&gt;-&lt;id&gt;-&lt;title&gt;/</code>
+              <p>每个新需求以用户提供的版本日期、编号和标题命名目录，独立保存四类必选文档、可选实施计划和机器状态 `manifest.json`；历史仅编号目录和旧短文件名仍可读取。</p>
             </article>
           </div>
         </div>

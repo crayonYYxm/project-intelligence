@@ -46,7 +46,7 @@ describe("requirement command dispatcher", () => {
     assert.equal(existsSync(path), true);
   });
 
-  it("intake persists document actions and later selection blocks generation", () => {
+  it("intake defaults both mandatory document actions to generate", () => {
     const root = mkdtempSync(join(tmpdir(), "pi-req-"));
     runIntake(root, [
       "--task", "迁移运行时",
@@ -54,8 +54,6 @@ describe("requirement command dispatcher", () => {
       "--requirement-name", "迁移运行时",
       "--version-date", "7.23版本",
       "--external-api", "no",
-      "--requirement-action", "later",
-      "--design-action", "generate",
       "--track", "complex",
     ], noopGlobal);
     const manifest = loadRequirement(root, "REQ-ACTIONS");
@@ -65,16 +63,54 @@ describe("requirement command dispatcher", () => {
       "requirements",
       `${new Date().getFullYear()}-07-23-REQ-ACTIONS-迁移运行时`
     )));
-    assert.equal((manifest.workflowSelections?.requirement as Record<string, unknown>).action, "later");
+    assert.equal((manifest.workflowSelections?.requirement as Record<string, unknown>).action, "generate");
     assert.equal((manifest.workflowSelections?.design as Record<string, unknown>).action, "generate");
+  });
+
+  it("intake uses a supplied design as the source while generating the missing spec", () => {
+    const root = mkdtempSync(join(tmpdir(), "pi-req-"));
+    mkdirSync(join(root, "docs"), { recursive: true });
+    writeFileSync(join(root, "docs", "design.md"), "# 已有设计文档\n\n完整设计事实。\n");
+    runIntake(root, [
+      "--task", "设计先行需求",
+      "--requirement-id", "REQ-DESIGN-FIRST",
+      "--requirement-name", "设计先行需求",
+      "--version-date", "7.28版本",
+      "--external-api", "no",
+      "--design-path", "docs/design.md",
+    ], noopGlobal);
+    const manifest = loadRequirement(root, "REQ-DESIGN-FIRST");
+    assert.equal((manifest.workflowSelections?.requirement as Record<string, unknown>).action, "generate");
+    assert.deepEqual(manifest.workflowSelections?.design, {
+      action: "register",
+      path: "docs/design.md",
+      status: "selected",
+      selectedAt: (manifest.workflowSelections?.design as Record<string, unknown>).selectedAt,
+    });
+    const status = runRequirement(
+      root,
+      ["status", "--requirement-id", "REQ-DESIGN-FIRST"],
+      noopGlobal
+    ).result as Record<string, unknown>;
+    assert.equal(status.requirementName, "设计先行需求");
+    assert.equal(status.ticketKind, "requirement");
+    assert.deepEqual(status.workflowSelections, manifest.workflowSelections);
+    assert.deepEqual(status.testContract, manifest.testContract);
+  });
+
+  it("intake rejects later for mandatory lifecycle documents", () => {
+    const root = mkdtempSync(join(tmpdir(), "pi-req-"));
     assert.throws(
-      () => runRequirement(root, ["generate", "--requirement-id", "REQ-ACTIONS", "--type", "requirement"], noopGlobal),
-      /已选择 later/
-    );
-    runRequirement(root, ["defer", "--requirement-id", "REQ-ACTIONS", "--type", "requirement"], noopGlobal);
-    assert.throws(
-      () => runRequirement(root, ["defer", "--requirement-id", "REQ-ACTIONS", "--type", "design"], noopGlobal),
-      /已选择 generate/
+      () => runIntake(root, [
+        "--task", "迁移运行时",
+        "--requirement-id", "REQ-LATER",
+        "--requirement-name", "迁移运行时",
+        "--version-date", "7.23版本",
+        "--external-api", "no",
+        "--requirement-action", "later",
+        "--design-action", "generate",
+      ], noopGlobal),
+      /必选|later/
     );
   });
 
@@ -167,6 +203,34 @@ describe("requirement command dispatcher", () => {
       ((filtered.requirements as Record<string, unknown>[]) ?? []).map((item) => item.requirementId),
       ["REQ-LEGACY"]
     );
+  });
+
+  it("status remains readable for a legacy manifest without workflow selections", () => {
+    const root = mkdtempSync(join(tmpdir(), "pi-req-"));
+    const legacyDir = join(root, ".project-intel", "requirements", "by-id", "REQ-OLD");
+    mkdirSync(legacyDir, { recursive: true });
+    writeFileSync(join(legacyDir, "manifest.json"), JSON.stringify({
+      schemaVersion: 1,
+      revision: 1,
+      requirementId: "REQ-OLD",
+      requirementName: "旧版需求",
+      ticketKind: "requirement",
+      track: "standard",
+      state: "specified",
+      externalApiImpact: { confirmed: true, value: false },
+      acceptanceCriteria: [],
+      artifacts: [],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    }));
+    const result = runRequirement(
+      root,
+      ["status", "--requirement-id", "REQ-OLD"],
+      noopGlobal
+    ).result as Record<string, unknown>;
+    assert.equal(result.state, "specified");
+    assert.equal(result.requirementName, "旧版需求");
+    assert.equal(result.workflowSelections, undefined);
   });
 
   it("test-contract set requires --kind and --report-action", () => {
@@ -430,12 +494,24 @@ describe("requirement command dispatcher", () => {
     );
   });
 
-  it("defer adds a readiness blocker for design", () => {
+  it("defer rejects all four mandatory lifecycle documents", () => {
     const root = mkdtempSync(join(tmpdir(), "pi-req-"));
-    createRequirement(root, "REQ-DEF", "需求");
-    const r = runRequirement(root, ["defer", "--requirement-id", "REQ-DEF", "--type", "design"], noopGlobal);
-    assert.equal(r.exitCode, 0);
-    assert.equal((r.result as Record<string, unknown>).state, "draft");
+    for (const [type, state] of [
+      ["requirement", "draft"],
+      ["design", "specified"],
+      ["test", "implementing"],
+      ["closure", "reviewed"],
+    ]) {
+      const id = `REQ-DEF-${type}`;
+      createRequirement(root, id, `需求 ${type}`);
+      mutate(root, id, (manifest) => {
+        manifest.state = state as never;
+      });
+      assert.throws(
+        () => runRequirement(root, ["defer", "--requirement-id", id, "--type", type], noopGlobal),
+        /必选|不能延期|不支持 defer/
+      );
+    }
   });
 
   it("resolve-finding marks a review finding resolved", () => {

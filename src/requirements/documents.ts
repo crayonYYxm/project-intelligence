@@ -106,6 +106,15 @@ const DESIGN_BUG_SECTIONS = [
   "影响范围",
   "风险评估",
 ];
+const TEST_SECTIONS = [
+  "测试环境与前置准备",
+  "核心规则与用例总览",
+  "功能用例",
+  "边界与异常用例",
+  "自动化与回归建议",
+  "测试清单",
+  "涉及代码索引",
+];
 
 const SOURCE_SUFFIXES = new Set([
   ".c", ".cc", ".conf", ".cpp", ".cs", ".css", ".go", ".gradle", ".h", ".hpp", ".html",
@@ -141,6 +150,7 @@ export function validateDeliveryDocument(
   if (type === "requirement") return validateRequirement(manifest, content);
   if (type === "design") return validateDesign(manifest, content);
   if (type === "plan") return validatePlan(manifest, content);
+  if (type === "test") return validateTest(manifest, content);
   if (type === "closure") return validateClosure(manifest, content);
   throw new RequirementError(`不支持的交付文档类型：${type}`);
 }
@@ -535,6 +545,36 @@ function validatePlan(manifest: DocumentManifest, content: string): DocumentVali
     schema: "plan-v1",
     errors: [],
     warnings: [],
+    validatedAt: new Date().toISOString(),
+  };
+}
+
+function validateTest(manifest: DocumentManifest, content: string): DocumentValidation {
+  const lines = content.split(/\r?\n/);
+  const headings = parseHeadings(lines);
+  const errors: string[] = [];
+  const standardErrors = missingSections(lines, headings, TEST_SECTIONS);
+  const legacyErrors = missingSections(lines, headings, ["验收标准映射", "执行记录"]);
+  if (standardErrors.length > 0 && legacyErrors.length > 0) {
+    errors.push(...standardErrors);
+  }
+  if (!content.includes(manifest.requirementId)) errors.push("测试文档与需求号不一致。");
+  for (const criterion of manifest.acceptanceCriteria) {
+    if (!content.includes(criterion.id)) errors.push(`测试文档缺少验收标准映射：${criterion.id}。`);
+  }
+  if (!/(?:TEST-\d+|执行记录|测试类型)/i.test(content)) {
+    errors.push("测试文档缺少实际执行记录。");
+  }
+  const authoredContent = content.split(/\n## 执行记录(?:\r?\n|$)/, 1)[0] ?? content;
+  if (PLACEHOLDER_RE.test(authoredContent)) errors.push("测试文档仍包含占位内容。");
+  if (errors.length > 0) throw new RequirementError(`测试文档验证失败：${[...new Set(errors)].join("；")}`);
+  return {
+    ok: true,
+    kind: "test",
+    schema: standardErrors.length === 0 ? "test-document-v1" : "test-report-legacy-v1",
+    errors: [],
+    warnings: [],
+    acceptanceIds: manifest.acceptanceCriteria.map((criterion) => criterion.id).sort(),
     validatedAt: new Date().toISOString(),
   };
 }

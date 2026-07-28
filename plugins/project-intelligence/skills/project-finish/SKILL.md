@@ -12,16 +12,15 @@ Use this after implementation and review fixes, before project maintenance.
 3. Verify scope did not drift. If it did, update the spec/plan before claiming completion.
 4. Check high-risk categories when relevant: interface compatibility, data migration, permissions, cache, transactions, remote calls, async jobs, release flags, rollback, monitoring, and user-visible edge states.
 5. If evidence is missing, return to `project-test`. Do not use `project-intel check`, lint, type-check, build output, or an Agent summary as a substitute for changed-behavior proof.
-6. Ask whether to generate, register, or defer the closure summary, then run finish only when the task is actually at the finish stage:
+6. The finish workflow must automatically generate and register the closure document when no valid titled closure exists. Do not ask whether to defer it. If the user supplied an existing closure document, validate and register it first; otherwise run finish and let the CLI create the canonical closure:
 
 ```bash
-project-intel requirement generate --requirement-id "<id>" --type closure
 project-intel finish --requirement-id "<id>" --files <all-actual-changed-files>
 ```
 
-Generation is create-only by default. If the titled closure document already exists, complete or register the existing file; use `--replace` only after explicit user approval.
+Generation is create-only by default. If the titled closure document already exists but is invalid or unregistered, complete and register that existing file; use `--replace` only after explicit user approval.
 
-7. `project-intel finish` must return non-zero when changed source lacks current task/file-scoped passing evidence. For requirement-level tasks, manual evidence must already be registered through the approval-style `project-test` flow; do not bypass it with `finish --manual-evidence`.
+7. `project-intel finish` must return non-zero when changed source lacks current task/file-scoped passing evidence or any mandatory lifecycle document is missing, stale, or invalid. For requirement-level tasks, manual evidence must already be registered through the approval-style `project-test` flow; do not bypass it with `finish --manual-evidence`.
 8. Do not commit, push, deploy, publish, run migrations, or change production state unless the user explicitly authorizes that action.
 9. After finish, run maintenance once:
 
@@ -31,14 +30,12 @@ project-intel maintain --requirement-id "<id>" --files <all-actual-changed-files
 
 `project-finish` records release-readiness in `manifest.finishResult`. `project-maintain` refreshes project facts and records `manifest.maintenanceResult`; neither creates a shared report or per-source history file.
 
-For a requirement-level task, ask how to handle the closure summary: `generate`, `register existing`, or `later`. Execute one of:
+For a requirement-level task with a user-supplied closure, register it before finish:
 
 ```bash
-project-intel requirement generate --requirement-id "<id>" --type closure
 project-intel requirement add --requirement-id "<id>" --type closure --path <repo-relative-file>
-project-intel requirement defer --requirement-id "<id>" --type closure
 ```
 
-Then run `project-intel finish --requirement-id "<id>" --files <all-actual-changed-files>`. Finish must verify documents, test policy, acceptance mapping, review, current diff hash, complete scope, and closure summary.
+Otherwise run `project-intel finish --requirement-id "<id>" --files <all-actual-changed-files>` directly. Finish must verify the spec, design document, test document, test policy, acceptance mapping, review, current diff hash, complete scope, and generated closure summary.
 
 The four durable lifecycle documents are the titled requirement/Bug document, titled design document, titled test document, and titled closure document in the same requirement directory. A titled implementation plan is optional. Legacy short names remain readable.

@@ -1,10 +1,10 @@
 {
   "schemaVersion": 2,
-  "toolVersion": "0.7.1",
+  "toolVersion": "0.7.4",
   "projectRoot": ".",
-  "generatedAt": "2026-07-27T06:39:33.578Z",
+  "generatedAt": "2026-07-28T04:25:35.428Z",
   "git": {
-    "commit": "e8f0a6aea116525d5224faaf69c9945c0c92bbae",
+    "commit": "7db2db31f4b138de0657bdb05fa4fc065d13b117",
     "branch": "main",
     "dirty": true
   },
@@ -21,10 +21,10 @@
       ]
     }
   ],
-  "fileCount": 128,
+  "fileCount": 134,
   "suffixCounts": {
-    ".ts": 74,
-    ".md": 25,
+    ".ts": 75,
+    ".md": 30,
     ".mjs": 19,
     ".json": 5,
     ".yml": 2,

@@ -80,7 +80,6 @@ project-intel --project /path/to/repo test --requirement-id REQ-1001 --test-kind
 project-intel --project /path/to/repo test --requirement-id REQ-1001 --test-kind unit --report-action generate --phase green --command "npm test -- path/to/test" --files src/file.ts tests/file.test.ts --acceptance AC-01,AC-02
 project-intel --project /path/to/repo review --requirement-id REQ-1001 --result passed --summary "无阻塞问题" --files src/file.ts tests/file.test.ts
 project-intel --project /path/to/repo requirement resolve-finding --requirement-id REQ-1001 --finding-id FINDING-01-01 --resolved-by "reviewer" --resolution "已修复并复核"
-project-intel --project /path/to/repo requirement generate --requirement-id REQ-1001 --type closure
 project-intel --project /path/to/repo finish --requirement-id REQ-1001 --files src/file.ts tests/file.test.ts
 project-intel --project /path/to/repo maintain --requirement-id REQ-1001 --files src/file.ts tests/file.test.ts
 project-intel --project /path/to/repo adapters status --json
@@ -101,15 +100,15 @@ project-intel --project /path/to/repo requirement migrate
 - `graph-tools --json` 可用于在非交互 agent 会话里先读取图谱工具状态，再由 agent 用中文向用户确认安装选择；当多个图谱动作可用时，应提供“全部”和组合选择。
 - `intake` 将需求分为 `quick`、`standard`、`complex`，并输出 readiness、风险、缺失信息、必经阶段和复用候选；默认只打印，不生成文件。
 - `lifecycle` 输出带 track/readiness 的任务影响分析，默认只打印，不写共享报告。
-- `project-spec` 维护需求目录中的 `<id>-<title>-需求文档.md` 或 `<id>-<title>-Bug文档.md` 和 manifest 验收标准；`project-plan` 仅在复杂任务或明确要求时生成同目录的可选 `<id>-<title>-实施计划.md`。未选择计划时不强制生成；一旦生成，必须补全、登记且保持哈希有效，才能通过 ready/begin。
+- `project-spec` 维护需求目录中的 `<id>-<title>-需求文档.md` 或 `<id>-<title>-Bug文档.md` 和 manifest 验收标准；仅提供设计文档但没有独立 spec 时，先根据设计内容生成并登记需求/Bug 文档和一致的验收标准。`project-plan` 仅在复杂任务或明确要求时生成同目录的可选 `<id>-<title>-实施计划.md`。未选择计划时不强制生成；一旦生成，必须补全、登记且保持哈希有效，才能通过 ready/begin。
 - `project-design` 可以独立把本地 Bug/需求单转换为 `docs/requirements/` 下的源码佐证设计文档；独立调用不会初始化或修改 `.project-intel`。Bug 保持五段式；Requirement 保持 CRM 正式章节，但以中文业务场景、处理规则和字段流转为主，源码只保留 `路径#符号` 依据和极少量关键片段。在生命周期模式中，设计统一归档为 `.project-intel/requirements/<YYYY-MM-DD>-<id>-<title>/<id>-<title>-设计文档.md`。
 - `requirement` 将新需求归档到 `.project-intel/requirements/<YYYY-MM-DD>-<id>-<title>/`，版本日期由用户在 intake 时提供；并继续兼容历史 `<id>-<title>/`、`<id>/` 与 `by-id/<id>/`。四个必选文档是 `<id>-<title>-需求文档.md` 或 `<id>-<title>-Bug文档.md`、`<id>-<title>-设计文档.md`、`<id>-<title>-测试文档.md`、`<id>-<title>-收口文档.md`；`<id>-<title>-实施计划.md` 可选。manifest 保存版本日期、状态、AC、测试/评审证据、变更文件、finish 和 maintenance 结果。纯数字编号按单据类型规范化为 `bug<数字>` 或 `req<数字>`，历史 `requirement.md`、`design.md`、`test-report.md`、`closure-summary.md` 仍可读取。
-- intake 选择的需求文档和设计文档动作及已有文件路径保存在 `manifest.workflowSelections`，后续会话和子任务从 `requirement status --json` 恢复，不重复询问或猜测。
+- intake 不再询问四类必选文档是否延期：已有需求/设计文件时自动选择 `register`，缺失时自动选择 `generate`，并把动作和已有文件路径保存在 `manifest.workflowSelections`。后续会话和子任务从 `requirement status --json` 恢复，不重复询问或猜测。
 - 项目级可覆盖状态统一写入 `.project-intel/project-status.md`。新流程不创建共享 `reports/specs/plans/maintenance`、`requirements/by-id` 或 `requirements/files`；旧结构可用 `requirement migrate` 先预览，再加 `--apply` 迁移。
-- `requirement test-contract set` 把测试类型、报告动作和 AC 映射写入 manifest；`both` 只表示契约要求 unit 和 service 两类证据，单条 `test` 证据只能是 `unit`、`service` 或 `manual`。
+- `requirement test-contract set` 把测试类型、测试文档动作和 AC 映射写入 manifest；测试文档动作只能是 `generate` 或 `register`，不可延期。`both` 只表示契约要求 unit 和 service 两类证据，单条 `test` 证据只能是 `unit`、`service` 或 `manual`。
 - `test` 要求显式 `--files` 或 `--project-wide`；RED 还必须用 `--expect-failure` 匹配预期失败，退出码 2/3/4/5、命令不存在和超时都不会被误判为有效 RED。需求级 `<id>-<title>-测试文档.md` 按执行追加命令、结果、覆盖文件、AC、commit 和 diff hash；登记已有报告时还会保留脱敏后的不可变证据副本。
 - `review` 持久化结果、问题级别、完整 Git 范围和 diff hash；存在未解决的 critical/important 问题或评审后代码变化时不能 finish。修复后使用 `requirement resolve-finding` 按稳定 finding ID 写入解决人和解决说明，再执行新一轮 review。
-- `finish` 检查需求/设计、测试策略、验收标准映射、评审、实际 Git 变更范围、证据 hash 和结构完整的收口总结。登记已有测试报告时会解析实际通过/失败结果并与声明结果核对；人工测试只能通过 `project-test` 的审批式 visual/device/hardware/configuration 例外登记，不能由 finish 一行文字绕过。它不会自动提交、推送、部署或发布。
+- `finish` 自动生成并登记收口文档（已有现成收口文档时先校验并登记），再检查需求/设计、测试策略、验收标准映射、评审、实际 Git 变更范围、证据 hash 和收口结构。登记已有测试报告时会解析实际通过/失败结果并与声明结果核对；人工测试只能通过 `project-test` 的审批式 visual/device/hardware/configuration 例外登记，不能由 finish 一行文字绕过。它不会自动提交、推送、部署或发布。
 - 图谱工具未准备好但有支持的 setup 命令时，普通 `init` 会在交互终端询问是否继续；非交互 Agent 应先运行 `graph-tools --json` 并用中文取得用户选择。GitNexus 通常是 `npx gitnexus analyze` 这种“下载并运行分析”；Understand-Anything 会按当前环境安装到 Codex 或 Claude Code。
 - `init --setup-missing` 会跳过询问并直接运行支持的安装/初始化命令。
 - Understand-Anything 的 Codex 安装在 macOS/Linux 使用官方 `install.sh codex`，Windows 下载 `install.ps1` 后显式传入 `codex`，不会停在平台选择；Claude Code 安装使用 `claude plugin marketplace add Egonex-AI/Understand-Anything` 和 `claude plugin install understand-anything@understand-anything`。
@@ -152,7 +151,7 @@ project-intel --project /path/to/repo requirement migrate
 - `project-debug`：调查 Bug/错误；Bug 实现流程中还要在 design 前登记根因证据。
 - `project-design`：分析本地 Bug/需求单和源码，生成或验证开发设计文档；可独立使用，也可接入需求生命周期。
 - `project-plan`：复杂任务或用户明确要求时，将已确认设计转成可执行实施计划。
-- `project-test`：在 ready 前询问并持久化测试类型、报告动作和明确 AC 映射；begin 后记录 RED、GREEN、回归/验证或审批式人工证据。
+- `project-test`：在 ready 前确认并持久化测试类型、测试文档生成/登记动作和明确 AC 映射；begin 后维护测试文档并记录 RED、GREEN、回归/验证或审批式人工证据。
 - `project-task`：需求 ready 后进入实现，使用项目规范、知识库和复用点。
 - `project-orchestrate`：在任务可拆分时编排子代理、任务级 review、最终 review 和验证证据。
 - `project-review`：基于规范、图谱上下文、质量检查和复用风险审查代码。
@@ -167,7 +166,7 @@ project-intel --project /path/to/repo requirement migrate
 Project Intelligence 内置了完整的任务分流、测试、审查和收口纪律：
 
 - 实现意图默认按 `project-intake → project-spec → project-debug（仅 Bug）→ project-design → project-test（选择并写入测试合同）→ project-plan（complex 或明确要求）→ requirement ready → project-task（begin 后执行测试和实现）` 接力。即使用户要求暂不改文件，也完成适用的前置 Skill 路由后再停在编辑前。
-- intake 询问需求号/名称、单据类型、对外接口影响以及需求/设计文档动作；`project-spec` 维护带编号和标题的需求/Bug文档和 manifest AC，`project-design` 维护带编号和标题的源码佐证设计文档。Bug 还必须由 `project-debug` 通过 `requirement diagnose` 登记根因证据，全部满足后才能 ready/begin。进入 `project-test` 时必须询问测试类型与测试报告动作。
+- intake 询问需求号/名称、单据类型、对外接口影响和版本日期，但不再询问四类必选文档是否延期；已有文件登记，缺失文件生成。`project-spec` 维护带编号和标题的需求/Bug文档和 manifest AC，只有设计文档而没有独立 spec 时先据设计生成二者；`project-design` 维护带编号和标题的源码佐证设计文档。Bug 还必须由 `project-debug` 通过 `requirement diagnose` 登记根因证据，全部满足后才能 ready/begin。进入 `project-test` 时必须确认测试类型，测试文档只能生成或登记；`project-finish` 自动生成或登记收口文档。
 - 实现类子代理默认顺序执行，避免同一工作区并发改代码；并行代理主要用于只读影响分析、失败排查或互不相干的调查。
 - `project-plan` 必须写清文件、接口、约束、复用点、验证命令和预期证据，但默认只保留在上下文里，不主动生成 plan 文件。
 - `project-review` 对反馈先验证再修改，避免盲目接受不符合当前项目现实的建议。

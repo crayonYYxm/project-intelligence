@@ -19,6 +19,7 @@ import { fileURLToPath } from "node:url";
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const SNAPSHOT_PATH = resolve(ROOT, ".baseline/cli-snapshot.json");
 const NODE_CLI = resolve(ROOT, "dist", "cli.js");
+const INTENTIONAL_HELP_OVERRIDES = new Set(["intake", "lifecycle", "test", "requirement"]);
 
 interface CliSnapshot {
   generatedFrom: string;
@@ -131,12 +132,31 @@ describe("live Node CLI contract (AC-02/AC-10)", () => {
   it("every baseline command's --help is byte-for-byte compatible", () => {
     const snapshot = loadSnapshot();
     for (const cmd of snapshot.topHelp.commands) {
+      if (INTENTIONAL_HELP_OVERRIDES.has(cmd)) continue;
       const r = runNodeCli([cmd, "--help"]);
       const expected = snapshot.commands[cmd]!;
       assert.equal(r.status, expected.exitCode, `--help exit mismatch for '${cmd}'`);
       assert.equal(r.stdout, expected.stdout, `--help stdout mismatch for '${cmd}'`);
       assert.equal(r.stderr, expected.stderr ?? "", `--help stderr mismatch for '${cmd}'`);
     }
+  });
+
+  it("mandatory document commands no longer advertise later or defer", () => {
+    for (const cmd of INTENTIONAL_HELP_OVERRIDES) {
+      const r = runNodeCli([cmd, "--help"]);
+      assert.equal(r.status, 0, `${cmd} --help should exit 0`);
+      assert.doesNotMatch(r.stdout, /\blater\b|\bdefer\b/i, `${cmd} --help still advertises deferral`);
+    }
+    const intakeHelp = runNodeCli(["intake", "--help"]).stdout;
+    assert.match(intakeHelp, /\{generate,register\}/);
+    assert.match(intakeHelp, /--version-date\b/);
+    assert.match(runNodeCli(["test", "--help"]).stdout, /\{generate,register\}/);
+  });
+
+  it("lifecycle rejects the removed no-op report-action flag", () => {
+    const r = runNodeCli(["lifecycle", "--task", "帮助契约探针", "--report-action", "later"]);
+    assert.equal(r.status, 2);
+    assert.match(r.stderr, /unrecognized|无法识别|未知|不支持/i);
   });
 
   it("top-level --help is byte-for-byte compatible", () => {

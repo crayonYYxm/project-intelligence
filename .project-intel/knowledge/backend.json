@@ -587,6 +587,13 @@
       "level": "candidate"
     },
     {
+      "path": "src/requirements/artifacts.ts",
+      "signals": [
+        "RequirementError"
+      ],
+      "level": "candidate"
+    },
+    {
       "path": "src/requirements/documents.ts",
       "signals": [
         "RequirementError"

@@ -1,6 +1,6 @@
 ---
 name: project-test
-description: Use after requirement ready to choose the test type and report action, and after requirement begin to execute or record RED/GREEN/regression/manual evidence. 测试, 单元测试, 服务测试, 接口测试, 回归测试, 测试报告, 真机验证, TDD, 验证证据.
+description: Use before requirement ready to confirm the test type, mandatory test-document action, and AC mapping, and after requirement begin to execute or record RED/GREEN/regression/manual evidence. 测试, 单元测试, 服务测试, 接口测试, 回归测试, 测试报告, 真机验证, TDD, 验证证据.
 ---
 
 # Project Test
@@ -77,30 +77,30 @@ Always read the command output before claiming a test passed or a regression was
 
 ## Requirement-Level Report Gate
 
-Before `requirement ready`, ask both questions explicitly and persist the answer as a contract:
+The test document cannot be deferred. Before `requirement ready`, persist the evidence contract:
 
 1. Test type: `unit`, `service`, `both`, or `manual`.
-2. Test document action: `generate`, `register existing`, or `later`.
+2. Test document action: use `register` only when the user supplied a valid existing structured report; otherwise use `generate`.
 
 Also confirm the exact AC IDs the selected test is intended to prove. Persist the selection before readiness; do not rely on a CLI default:
 
 ```bash
 project-intel requirement test-contract set --requirement-id "<id>" \
-  --kind unit|service|both|manual --report-action generate|register|later \
+  --kind unit|service|both|manual --report-action generate|register \
   --acceptance AC-01,AC-02 [--report-path <existing-report-if-register>]
 ```
 
-In a requirement lifecycle, these questions may be answered while the requirement is `ready`, but do not execute the CLI command, generate/register the report, or edit a test file until `project-task` has successfully run `requirement begin` and the state is `implementing`.
+Confirm the test kind and contract while the requirement is `designed`, before `requirement ready`. Do not execute a test command, generate/register the report, or edit a test file until `project-task` has successfully run `requirement begin` and the state is `implementing`.
 
 After `project-task` successfully begins implementation, pass the requirement ID, selected action, and the explicitly confirmed AC mapping:
 
 ```bash
 project-intel test --requirement-id "<id>" --test-kind unit \
-  --report-action generate|register|later --report-path <existing-report-if-register> \
+  --report-action generate|register --report-path <existing-report-if-register> \
   --phase green --command "<command>" --files <source-and-test-files> \
   --acceptance AC-01,AC-02
 ```
 
-For external API impact, require `service` or `both`. `both` needs separate passing unit and service evidence. A generated titled test document starts as a plan and becomes valid only after actual execution is appended. A zero-exit command without a recognised positive test count (including `true`, lint, build, or type-check) is not test evidence. `later`, empty, RED-only, stale, or failed evidence never satisfies finish.
+For external API impact, require `service` or `both`. `both` needs separate passing unit and service evidence. Both report actions maintain the canonical titled test document in the requirement directory. It becomes valid only after actual execution is appended. A zero-exit command without a recognised positive test count (including `true`, lint, build, or type-check) is not test evidence. Empty, RED-only, stale, or failed evidence never satisfies finish.
 
 Use manual testing only for visual, device, hardware, or configuration behavior that cannot reasonably be automated. Obtain explicit approval and record reason, steps, input, observation, and an existing screenshot/log path using the `--manual-*` options. A one-line “verified manually” statement is invalid.

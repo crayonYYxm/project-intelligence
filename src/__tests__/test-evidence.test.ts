@@ -14,6 +14,7 @@ import {
 import { runTest } from "../commands/test.js";
 import { loadRequirement, requirementDir } from "../requirements/state-machine.js";
 import { artifactFilename } from "../requirements/artifacts.js";
+import { validateDeliveryDocumentInRepository } from "../requirements/documents.js";
 import { beginWithBusinessChange, prepareDesignedRequirement } from "./helpers.js";
 
 const noopGlobal = { project: null, jsonMode: false } as never;
@@ -158,6 +159,89 @@ describe("test command (AC-11: rejects forged pass)", () => {
 
     assert.equal(result.exitCode, 0);
     assert.equal(loadRequirement(root, prepared.id).state, "implementing");
+    const redDocument = readFileSync(
+      join(requirementDir(root, prepared.id), artifactFilename("test", loadRequirement(root, prepared.id))),
+      "utf8"
+    );
+    assert.match(redDocument, /\| T1 \| AC-01 \|[^|]+\| 未通过 \|/);
+    assert.match(redDocument, /- \[ \] AC-01/);
+  });
+
+  it("never uses RED evidence to satisfy acceptance coverage", () => {
+    const root = mkdtempSync(join(tmpdir(), "pi-tc-"));
+    const prepared = prepareDesignedRequirement(root, "REQ-RED-COVERAGE", {
+      name: "RED 覆盖隔离",
+      criteria: [
+        { id: "AC-01", description: "缺失行为先以 RED 复现" },
+        { id: "AC-02", description: "实现后行为由 GREEN 验证" },
+      ],
+    });
+    beginWithBusinessChange(prepared);
+
+    runTest(root, [
+      "--requirement-id", prepared.id,
+      "--test-kind", "unit",
+      "--report-action", "generate",
+      "--phase", "red",
+      "--acceptance", "AC-01",
+      "--files", ...prepared.files,
+      "--command", "node -e \"console.error('ExpectedRed'); process.exit(1)\"",
+      "--expect-failure", "ExpectedRed",
+    ], noopGlobal);
+    runTest(root, [
+      "--requirement-id", prepared.id,
+      "--test-kind", "unit",
+      "--report-action", "generate",
+      "--phase", "green",
+      "--acceptance", "AC-02",
+      "--files", ...prepared.files,
+      "--command", "echo 'Ran 2 tests'",
+    ], noopGlobal);
+
+    assert.equal(
+      loadRequirement(root, prepared.id).state,
+      "implementing",
+      "AC-01 has only RED evidence and must not advance the lifecycle"
+    );
+  });
+
+  it("does not show stale GREEN evidence as current document coverage", () => {
+    const root = mkdtempSync(join(tmpdir(), "pi-tc-"));
+    const prepared = prepareDesignedRequirement(root, "REQ-STALE-COVERAGE", {
+      name: "测试文档快照隔离",
+      criteria: [
+        { id: "AC-01", description: "旧快照行为" },
+        { id: "AC-02", description: "新快照行为" },
+      ],
+    });
+    beginWithBusinessChange(prepared);
+
+    runTest(root, [
+      "--requirement-id", prepared.id,
+      "--test-kind", "unit",
+      "--report-action", "generate",
+      "--phase", "green",
+      "--acceptance", "AC-01",
+      "--files", ...prepared.files,
+      "--command", "echo 'Ran 2 tests'",
+    ], noopGlobal);
+    writeFileSync(join(root, prepared.files[0]!), "export const migrated = 'new-snapshot';\n");
+    runTest(root, [
+      "--requirement-id", prepared.id,
+      "--test-kind", "unit",
+      "--report-action", "generate",
+      "--phase", "green",
+      "--acceptance", "AC-02",
+      "--files", ...prepared.files,
+      "--command", "echo 'Ran 2 tests'",
+    ], noopGlobal);
+
+    const document = readFileSync(
+      join(requirementDir(root, prepared.id), artifactFilename("test", loadRequirement(root, prepared.id))),
+      "utf8"
+    );
+    assert.match(document, /- \[ \] AC-01 旧快照行为/);
+    assert.match(document, /- \[x\] AC-02 新快照行为/);
   });
 
   it("creates and appends the canonical requirement test report", () => {
@@ -173,7 +257,7 @@ describe("test command (AC-11: rejects forged pass)", () => {
       "--phase", "green",
       "--acceptance", "AC-01",
       "--files", ...prepared.files,
-      "--command", "echo 'Ran 2 tests'",
+      "--command", "echo 'Ran 2 tests; TODO emitted by a dependency'",
     ], noopGlobal);
 
     assert.equal(existsSync(reportPath), true);
@@ -181,6 +265,27 @@ describe("test command (AC-11: rejects forged pass)", () => {
     assert.match(first, /TEST-01/);
     assert.match(first, /AC-01/);
     assert.match(first, /Ran 2 tests/);
+    for (const heading of [
+      "测试环境与前置准备",
+      "核心规则与用例总览",
+      "功能用例",
+      "边界与异常用例",
+      "自动化与回归建议",
+      "测试清单",
+      "涉及代码索引",
+    ]) {
+      assert.ok(first.includes(heading), `missing canonical test document heading: ${heading}`);
+    }
+    assert.equal(
+      validateDeliveryDocumentInRepository(
+        root,
+        loadRequirement(root, prepared.id),
+        "test",
+        first
+      ).ok,
+      true,
+      "placeholder-like text inside immutable command output must not invalidate the authored test document"
+    );
 
     runTest(root, [
       "--requirement-id", prepared.id,

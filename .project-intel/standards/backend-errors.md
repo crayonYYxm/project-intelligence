@@ -28,6 +28,7 @@
 | src/fs/lock.ts | RequirementError | candidate |
 | src/fs/paths.ts | UsageError | candidate |
 | src/process/spawn.ts | EXIT_NOT_FOUND | candidate |
+| src/requirements/artifacts.ts | RequirementError | candidate |
 | src/requirements/documents.ts | RequirementError | candidate |
 | src/requirements/layout.ts | RequirementError | candidate |
 | src/requirements/scope.ts | RequirementError | candidate |
@@ -38,7 +39,7 @@
 | 信号 | 出现次数 |
 | --- | --- |
 | UsageError | 15 |
-| RequirementError | 5 |
+| RequirementError | 6 |
 | RuntimeError | 3 |
 | USAGE_ERROR | 3 |
 | COMMAND_FAILED | 3 |

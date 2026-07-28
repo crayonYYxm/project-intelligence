@@ -274,7 +274,27 @@ function printBaselineHelp(registry: CommandRegistry | null, command: string | n
   }
   const entry = command ? snapshot.commands[command] : snapshot.topHelp;
   if (!entry) return false;
-  if (entry.stdout) process.stdout.write(entry.stdout);
+  if (command === "lifecycle") return false;
+  let stdout = entry.stdout;
+  if (command === "intake") {
+    stdout = stdout
+      .replaceAll("{generate,register,later}", "{generate,register}")
+      .replace(
+        "                            [--ticket-kind {bug,requirement}]",
+        "                            [--version-date VERSION_DATE]\n                            [--ticket-kind {bug,requirement}]"
+      )
+      .replace(
+        "  --ticket-kind {bug,requirement}",
+        "  --version-date VERSION_DATE\n                        用户输入的版本日期，例如 7.28 或 2026-07-28\n  --ticket-kind {bug,requirement}"
+      );
+  } else if (command === "test") {
+    stdout = stdout.replaceAll("{generate,register,later}", "{generate,register}");
+  } else if (command === "requirement") {
+    stdout = stdout
+      .replaceAll(",defer", "")
+      .replace(/\n    defer[^\n]*/g, "");
+  }
+  if (stdout) process.stdout.write(stdout);
   if (entry.stderr) process.stderr.write(entry.stderr);
   return true;
 }

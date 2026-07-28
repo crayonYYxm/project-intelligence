@@ -5,7 +5,7 @@
 // `requirement` subcommand family. It does NOT register new top-level commands.
 //
 // States: draft -> specified -> designed -> ready -> implementing -> verified ->
-// reviewed -> finished -> closed (with reopen/amend/defer side transitions).
+// reviewed -> finished -> closed (with reopen/amend side transitions).
 // schemaVersion 2. AC-05 / AC-13.
 
 import { existsSync, readFileSync, mkdirSync, readdirSync, realpathSync, statSync, unlinkSync, writeFileSync } from "node:fs";
@@ -301,26 +301,25 @@ export function createRequirement(
     ? undefined
     : normalizeVersionDate(options.versionDate);
   const selections: Record<string, Record<string, unknown>> = {};
+  const explicitlySelected = new Set<string>();
   for (const [key, actionValue, pathValue] of [
     ["requirement", options.requirementAction, options.requirementPath],
     ["design", options.designAction, options.designPath],
   ] as const) {
-    if (actionValue === undefined) {
-      if (pathValue) throw new RequirementError("只有 action=register 时才能提供已有文档路径。");
-      continue;
+    if (actionValue !== undefined || pathValue !== undefined) explicitlySelected.add(key);
+    const action = actionValue ?? (pathValue ? "register" : "generate");
+    if (!["generate", "register"].includes(action)) {
+      throw new RequirementError("需求文档和设计文档是必选产物，动作只能是 generate 或 register，不能使用 later。");
     }
-    if (!["generate", "register", "later"].includes(actionValue)) {
-      throw new RequirementError("文档动作只能是 generate、register 或 later。");
-    }
-    if (actionValue === "register" && !pathValue) {
+    if (action === "register" && !pathValue) {
       throw new RequirementError(`文档动作 register 必须提供 ${key} 路径。`);
     }
-    if (actionValue !== "register" && pathValue) {
+    if (action !== "register" && pathValue) {
       throw new RequirementError("只有文档动作 register 可以提供已有文件路径。");
     }
     const normalizedPath = pathValue ? resolveRepositoryFile(root, pathValue).relativePath : null;
     selections[key] = {
-      action: actionValue,
+      action,
       path: normalizedPath,
       status: "selected",
       selectedAt: nowIso(),
@@ -344,6 +343,7 @@ export function createRequirement(
       throw new RequirementError(`需求号 ${identifier} 已存在且关键信息不同；如需修改请使用 requirement amend。`);
     }
     for (const [key, selection] of Object.entries(selections)) {
+      if (!explicitlySelected.has(key)) continue;
       const existing = current.workflowSelections?.[key] as Record<string, unknown> | undefined;
       if (!existing || existing.action !== selection.action || existing.path !== selection.path) {
         throw new RequirementError(`需求号 ${identifier} 已存在且文档动作不同；如需修改请使用 requirement amend。`);
@@ -453,9 +453,9 @@ function isPassingEvidence(e: Record<string, unknown>): boolean {
  *  (phase: "green"/"regression"/"verify") and Python (testKind: "unit"/"service"/"manual")
  *  field names. In Python, any testKind with result="passed" is advancing. */
 function isAdvancingEvidence(e: Record<string, unknown>): boolean {
-  const ADVANCING_PHASES = new Set(["green", "regression", "verify"]);
+  const ADVANCING_PHASES = new Set(["green", "regression", "verify", "manual"]);
   const phase = String(e.phase ?? "");
-  if (phase && ADVANCING_PHASES.has(phase)) return true;
+  if (phase) return ADVANCING_PHASES.has(phase);
   // Python schema: testKind is unit/service/manual, result is passed/failed.
   // All testKinds are "advancing" in the sense that a pass advances the state.
   const testKind = String(e.testKind ?? "");
@@ -482,6 +482,9 @@ function assertCurrentTestGate(
   snapshot: ScopeSnapshot,
   selectedFiles: string[]
 ): void {
+  if (!hasCurrentArtifact(root, manifest, "test")) {
+    throw new RequirementError("缺少当前有效且验证通过的测试文档。");
+  }
   if (!snapshot.gitAvailable || !snapshot.gitCommit || !snapshot.diffHash) {
     throw new RequirementError("无法读取 Git 状态，不能验证测试证据。");
   }
@@ -492,6 +495,7 @@ function assertCurrentTestGate(
   const hash = snapshot.evidenceDiffHash ?? snapshot.diffHash;
   const records = normalizeTestEvidence(manifest.testEvidence).filter((evidence) =>
     evidence.valid !== false
+    && isAdvancingEvidence(evidence)
     && evidenceHash(evidence) === hash
     && String(evidence.gitCommit ?? evidence.evidenceCommit ?? "") === snapshot.gitCommit
   );
@@ -1031,8 +1035,8 @@ export function setTestContract(root: string, requirementId: string, contract: R
   if (!["unit", "service", "manual", "both"].includes(kind)) {
     throw new RequirementError("测试契约类型只能是 unit、service、manual 或 both。");
   }
-  if (!["generate", "register", "later"].includes(reportAction)) {
-    throw new RequirementError("测试报告动作只能是 generate、register 或 later。");
+  if (!["generate", "register"].includes(reportAction)) {
+    throw new RequirementError("测试文档是必选产物，测试报告动作只能是 generate 或 register，不能使用 later。");
   }
   const reportPath = String(contract.reportPath ?? "").trim();
   if (reportAction === "register" && !reportPath) {
@@ -1073,27 +1077,16 @@ export function setTestContract(root: string, requirementId: string, contract: R
             reportPassed: registeredReport.passed,
           }
         : {}),
-      status: reportAction === "later" ? "deferred" : "selected",
+      status: "selected",
       recordedAt: nowIso(),
       source: "explicit",
     };
     m.readiness ??= { blockers: [], resolutions: [] };
     m.readiness.blockers ??= [];
-    if (reportAction === "later") {
-      m.readiness.blockers.push({
-        id: `BLOCK-${String(m.readiness.blockers.length + 1).padStart(2, "0")}`,
-        artifactType: "test",
-        reason: "测试报告动作选择稍后处理。",
-        recordedAt: nowIso(),
-        resolution: null,
-        resolvedAt: null,
-      });
-    } else {
-      for (const blocker of m.readiness.blockers) {
-        if (blocker.artifactType === "test" && !blocker.resolvedAt) {
-          blocker.resolution = "测试契约已确认。";
-          blocker.resolvedAt = nowIso();
-        }
+    for (const blocker of m.readiness.blockers) {
+      if (blocker.artifactType === "test" && !blocker.resolvedAt) {
+        blocker.resolution = "测试契约已确认。";
+        blocker.resolvedAt = nowIso();
       }
     }
   });
@@ -1176,46 +1169,17 @@ export function recordDiagnosis(
 }
 
 /**
- * Defer an artifact to later, adding a readiness blocker. Mirrors record_later:
- * requirement/design/test/closure are allowed; the workflow selection is marked
- * `later` for document types.
+ * Retained as a compatibility entrypoint so older callers receive an explicit
+ * policy error instead of silently creating a readiness blocker.
  */
 export function recordLater(root: string, requirementId: string, artifactType: string): RequirementManifest {
   const normalized = artifactType === "requirement-design" ? "design" : artifactType;
   if (!["requirement", "design", "test", "closure"].includes(normalized)) {
-    throw new RequirementError("later 只支持 requirement、design、test 或 closure。");
+    throw new RequirementError("defer 兼容入口只识别 requirement、design、test 或 closure，且四类文档均不可延期。");
   }
-  const allowed: Record<string, RequirementState[]> = {
-    requirement: ["draft", "specified"],
-    design: ["draft", "specified", "designed", "documented"],
-    test: ["implementing", "verified"],
-    closure: ["reviewed"],
-  };
-  return mutate(root, requirementId, (m) => {
-    if (!allowed[normalized]?.includes(m.state as RequirementState)) {
-      throw new RequirementError(`当前状态不能将 ${normalized} 记录为稍后处理。`);
-    }
-    const selected = m.workflowSelections?.[normalized] as Record<string, unknown> | undefined;
-    if (selected && selected.action !== "later") {
-      throw new RequirementError(`${normalized} 已选择 ${String(selected.action)}；如需改为 later，请先使用 requirement amend。`);
-    }
-    m.readiness ??= {};
-    m.readiness.blockers ??= [];
-    const blockers = m.readiness.blockers;
-    blockers.push({
-      id: `BLOCK-${String(blockers.length + 1).padStart(2, "0")}`,
-      artifactType: normalized,
-      reason: `${normalized} 选择稍后处理。`,
-      recordedAt: nowIso(),
-      resolution: null,
-      resolvedAt: null,
-    });
-    if (normalized === "requirement" || normalized === "design") {
-      m.workflowSelections ??= {};
-      const sel = m.workflowSelections as Record<string, Record<string, unknown>>;
-      sel[normalized] = { action: "later", status: "deferred" };
-    }
-  });
+  void root;
+  void requirementId;
+  throw new RequirementError("需求文档、设计文档、测试文档和收口文档是四类必选产物，不支持 defer 或 later。");
 }
 
 /**
@@ -1394,7 +1358,7 @@ req_id: ${yamlString(`${manifest.requirementId}-${manifest.requirementName}`)}
   manifest.requirementName,
   manifest.versionDate
 )}`)}
-status: 未收口
+status: 已收口
 mode: project-intelligence
 created: ${yamlString(finished)}
 git_range: ${yamlString(closureGitRange(manifest))}

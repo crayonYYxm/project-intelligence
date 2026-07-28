@@ -97,6 +97,16 @@ describe("adapters command family", () => {
     assert.equal(targets.length, 3);
     assert.deepEqual(targets.map((t) => t.name), ["codex", "claude", "claude-nested"]);
   });
+
+  it("managed Codex and Claude rules require four documents and design-derived specs", () => {
+    const tmp = mkdtempSync(join(tmpdir(), "pi-adv-"));
+    const targets = adapterTargets(tmp, "both").filter((target) => target.name !== "claude-nested");
+    for (const target of targets) {
+      assert.match(target.block, /四类必选文档/);
+      assert.match(target.block, /仅提供设计文档.*spec/);
+      assert.doesNotMatch(target.block, /必选文档.*later/);
+    }
+  });
 });
 
 describe("top-level install command", () => {

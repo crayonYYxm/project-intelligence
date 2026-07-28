@@ -28,7 +28,9 @@ Use the plugin skill namespace when available:
 - Completion: \`$project-intelligence:project-finish\`; run \`$project-intelligence:project-maintain\` only after finish succeeds.
 - Knowledge, standards, quality, refresh, and init use their matching \`$project-intelligence:*\` skills.
 
-For requirement-level work, carry one requirement ID through every CLI call. Ask the user for a version date and pass it to intake with \`--version-date\`; do not silently use today's date. New archives keep readable files under \`.project-intel/requirements/<YYYY-MM-DD>-<id>-<title>/\`; legacy \`<id>-<title>/\` and \`<id>/\` archives remain readable. Each new archive contains titled Markdown files such as \`<id>-<title>-需求文档.md\` or \`<id>-<title>-Bug文档.md\`, \`<id>-<title>-设计文档.md\`, optional \`<id>-<title>-实施计划.md\`, \`<id>-<title>-测试文档.md\`, \`<id>-<title>-收口文档.md\`, plus \`manifest.json\`. Legacy short names remain readable.
+For requirement-level work, carry one requirement ID through every CLI call. Ask the user for a version date and pass it to intake with \`--version-date\`; do not silently use today's date. New archives keep readable files under \`.project-intel/requirements/<YYYY-MM-DD>-<id>-<title>/\`; legacy \`<id>-<title>/\` and \`<id>/\` archives remain readable.
+
+四类必选文档是标题化的需求/Bug 文档、设计文档、测试文档和收口文档，不可延期；实施计划仍为可选。有现成文档时登记到规范目录，缺失时生成。仅提供设计文档但没有独立 spec 时，\`project-spec\` 必须先根据设计内容生成并登记需求/Bug 文档和一致的验收标准，再继续设计校验。需求级测试必须维护测试文档，\`finish\` 必须自动生成收口文档。Legacy short names remain readable.
 
 \`project-intel init\` and \`project-intel refresh\` are fact-only by default. Root adapters are changed only by explicit \`project-intel adapters apply\`, \`project-intel install\`, or \`project-intel refresh --adapters\`.`;
 }
@@ -47,7 +49,9 @@ Use slash skills when available:
 - Completion: \`/project-finish\`; run \`/project-maintain\` only after finish succeeds.
 - Knowledge, standards, quality, refresh, and init use their matching \`/project-*\` skills.
 
-For requirement-level work, ask the user for a version date, pass it to intake with \`--version-date\`, and keep all readable artifacts in \`.project-intel/requirements/<YYYY-MM-DD>-<id>-<title>/\`; legacy \`<id>-<title>/\` and \`<id>/\` archives remain readable. \`init\` and \`refresh\` are fact-only by default; adapters change only when explicitly requested.`;
+For requirement-level work, ask the user for a version date, pass it to intake with \`--version-date\`, and keep all readable artifacts in \`.project-intel/requirements/<YYYY-MM-DD>-<id>-<title>/\`; legacy \`<id>-<title>/\` and \`<id>/\` archives remain readable.
+
+四类必选文档是标题化的需求/Bug 文档、设计文档、测试文档和收口文档，不可延期；实施计划仍为可选。有现成文档时登记，缺失时生成。仅提供设计文档但没有独立 spec 时，\`project-spec\` 必须先根据设计内容生成需求/Bug 文档和一致的验收标准。需求级测试维护测试文档，\`finish\` 自动生成收口文档。\`init\` and \`refresh\` are fact-only by default; adapters change only when explicitly requested.`;
 }
 
 /** The block written to .claude/CLAUDE.md (claude-nested target). */

@@ -81,17 +81,16 @@
       "forbiddenSkills": ["project-intake", "project-spec", "project-plan", "project-task"]
     },
     {
-      "id": "deferred-development-design-blocks-ready",
+      "id": "design-only-derives-missing-spec",
       "routeClass": "feature-lifecycle",
-      "prompt": "进入需求流程，需求文档正常生成，但开发设计文档选择稍后处理。不要改代码，说明停在哪一步。",
-      "expectedSkills": ["project-intake", "project-spec", "project-design"],
-      "expectedOrder": ["project-intake", "project-spec", "project-design"],
-      "forbiddenSkills": ["project-plan", "project-test", "project-task"]
+      "prompt": "进入需求流程，我只有一份设计文档，没有单独 spec。请先根据设计补齐 spec，再继续设计校验和测试准备，当前不要改业务代码。",
+      "expectedSkills": ["project-intake", "project-spec", "project-design", "project-test", "project-task"],
+      "expectedOrder": ["project-intake", "project-spec", "project-design", "project-test", "project-task"]
     },
     {
       "id": "external-api-service-report",
       "routeClass": "testing",
-      "prompt": "当前需求已经 ready，并且会新增对外 HTTP 接口。请确定测试类型和测试报告动作，暂时不要执行命令。",
+      "prompt": "当前需求已完成设计并会新增对外 HTTP 接口，还没有现成测试文档。请在 ready 前确定测试类型和 AC 映射，暂时不要执行测试命令。",
       "expectedSkills": ["project-test"],
       "forbiddenSkills": ["project-knowledge", "project-task"]
     },

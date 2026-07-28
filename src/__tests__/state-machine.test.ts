@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { mkdtempSync, existsSync, readFileSync, mkdirSync, writeFileSync } from "node:fs";
+import { mkdtempSync, existsSync, readFileSync, mkdirSync, unlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
@@ -8,6 +8,7 @@ import {
   loadRequirement,
   mutate,
   readyRequirement,
+  recordLater,
   recordReview,
   finishRequirement,
   closeRequirement,
@@ -54,6 +55,19 @@ describe("requirement state machine", () => {
     assert.equal(m.state, "draft");
     assert.equal(m.requirementId, "REQ-1");
     assert.ok(existsSync(manifestPath(root, "REQ-1")));
+    assert.equal((m.workflowSelections?.requirement as Record<string, unknown>).action, "generate");
+    assert.equal((m.workflowSelections?.design as Record<string, unknown>).action, "generate");
+  });
+
+  it("createRequirement rejects later for mandatory lifecycle documents", () => {
+    const root = freshProject();
+    assert.throws(
+      () => createRequirement(root, "REQ-LATER", "延期需求", {
+        requirementAction: "later",
+        designAction: "generate",
+      }),
+      /必选|later/
+    );
   });
 
   it("createRequirement is idempotent on matching identity", () => {
@@ -149,6 +163,43 @@ describe("requirement state machine", () => {
     assert.throws(() => finishRequirement(root, "REQ-4B", prepared.files), RequirementError);
   });
 
+  it("finish gate rejects when the mandatory test document was deleted", () => {
+    const root = freshProject();
+    const prepared = prepareReviewedRequirement(root, "REQ-TEST-DOC-MISSING");
+    const manifest = loadRequirement(root, "REQ-TEST-DOC-MISSING");
+    const artifact = manifest.artifacts.find((item) => item.type === "test")!;
+    unlinkSync(join(root, artifact.path));
+    assert.throws(
+      () => finishRequirement(root, "REQ-TEST-DOC-MISSING", prepared.files),
+      /测试文档/
+    );
+  });
+
+  it("finish gate rejects when the mandatory test document was tampered", () => {
+    const root = freshProject();
+    const prepared = prepareReviewedRequirement(root, "REQ-TEST-DOC-TAMPERED");
+    const manifest = loadRequirement(root, "REQ-TEST-DOC-TAMPERED");
+    const artifact = manifest.artifacts.find((item) => item.type === "test")!;
+    writeFileSync(join(root, artifact.path), "# 篡改后的测试文档\n");
+    assert.throws(
+      () => finishRequirement(root, "REQ-TEST-DOC-TAMPERED", prepared.files),
+      /测试文档/
+    );
+  });
+
+  it("close gate revalidates the mandatory test document", () => {
+    const root = freshProject();
+    const prepared = prepareReviewedRequirement(root, "REQ-TEST-DOC-CLOSE");
+    finishRequirement(root, "REQ-TEST-DOC-CLOSE", prepared.files);
+    const manifest = loadRequirement(root, "REQ-TEST-DOC-CLOSE");
+    const artifact = manifest.artifacts.find((item) => item.type === "test")!;
+    writeFileSync(join(root, artifact.path), "# finish 后篡改\n");
+    assert.throws(
+      () => closeRequirement(root, "REQ-TEST-DOC-CLOSE", true),
+      /测试文档/
+    );
+  });
+
   it("review failed does not advance to reviewed", () => {
     const root = freshProject();
     const prepared = prepareVerifiedRequirement(root, "REQ-5");
@@ -185,6 +236,37 @@ describe("requirement state machine", () => {
     const m = loadRequirement(root, "REQ-7");
     assert.equal(m.acceptanceCriteria.length, 2);
     assert.equal((m.testContract as Record<string, unknown>).kind, "both");
+  });
+
+  it("test contracts cannot defer the mandatory test document", () => {
+    const root = freshProject();
+    createRequirement(root, "REQ-TEST-LATER", "测试文档延期");
+    setAcceptanceCriteria(root, "REQ-TEST-LATER", [{ id: "AC-01", description: "核心行为通过" }]);
+    assert.throws(
+      () => setTestContract(root, "REQ-TEST-LATER", {
+        kind: "unit",
+        reportAction: "later",
+        acceptanceIds: ["AC-01"],
+      }),
+      /必选|later/
+    );
+  });
+
+  it("recordLater rejects every mandatory lifecycle document", () => {
+    const root = freshProject();
+    for (const [type, state] of [
+      ["requirement", "draft"],
+      ["design", "specified"],
+      ["test", "implementing"],
+      ["closure", "reviewed"],
+    ]) {
+      const id = `REQ-NO-LATER-${type}`;
+      createRequirement(root, id, `禁止延期 ${type}`);
+      mutate(root, id, (manifest) => {
+        manifest.state = state as never;
+      });
+      assert.throws(() => recordLater(root, id, type), /必选|不能延期|不支持 defer/);
+    }
   });
 
   it("manifest is written under an id-title directory with a cross-platform safe title", () => {

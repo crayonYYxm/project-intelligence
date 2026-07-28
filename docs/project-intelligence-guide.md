@@ -5,8 +5,8 @@ Project Intelligence 是一个同时适配 Claude Code 和 Codex 的本地项目
 插件不替代业务代码开发本身，而是提供一套项目级工作流：
 
 - 先登记用户提供的版本日期、需求号、需求名称、Bug/Requirement 类型和对外接口影响。
-- 再由 `project-spec` 形成需求文档和验收标准；Bug 先由 `project-debug` 登记根因证据，然后由 `project-design` 生成或验证源码佐证设计文档。
-- `project-test` 先明确测试合同（类型、报告动作、AC 映射），ready 后才允许进入实现。
+- 再由 `project-spec` 形成需求文档和验收标准；只有设计文档而没有独立 spec 时，先根据设计内容生成需求/Bug 文档和一致的 AC。Bug 先由 `project-debug` 登记根因证据，然后由 `project-design` 生成或验证源码佐证设计文档。
+- `project-test` 先明确测试合同（类型、测试文档生成/登记动作、AC 映射），ready 后才允许进入实现。
 - 测试、评审、finish、maintain 都写入需求级 manifest。
 - 证据使用当前 Git diff hash 校验，代码变化后旧测试和旧评审会过期。
 - 项目知识、规范、质量检查、图谱上下文统一沉淀在 `.project-intel/`。
@@ -34,30 +34,28 @@ flowchart TD
     A["用户提出需求 / Bug / 评审 / 查询"] --> B{"是否实现类任务？"}
     B -- "否：查询、解释、规范、质量" --> K["project-knowledge / project-standards / project-quality"]
     B -- "是：功能、修复、重构" --> C["project-intake\n登记编号、名称、单据类型、接口影响"]
-    C --> S["project-spec\n生成/登记 requirement.md\nAC-xx 同步到 manifest"]
+    C --> S["project-spec\n生成/登记需求或 Bug 文档\n仅有设计时据其反推 spec\nAC-xx 同步到 manifest"]
     S --> T{"ticketKind 是 Bug？"}
     T -- "是" --> G["project-debug\n定位根因\nrequirement diagnose 登记证据"]
-    T -- "否" --> D{"design.md 动作"}
+    T -- "否" --> D{"是否已有设计文档？"}
     G --> D
-    D -- "生成" --> E["project-design\n分析单据与源码"]
-    D -- "登记已有文件" --> F["project-design\n验证并复制到需求目录"]
-    D -- "稍后处理" --> X["记录 blocker\n禁止 ready"]
+    D -- "否" --> E["project-design\n分析单据与源码并生成"]
+    D -- "是" --> F["project-design\n验证并登记到需求目录"]
     E --> Y["requirement add --type design"]
     F --> Y
     Y --> Z{"complex 或明确要求计划？"}
     Z -- "是" --> P0["project-plan\n生成可选 plan.md"]
-    Z -- "否" --> H["requirement ready\n检查需求、Bug 诊断、设计、AC、阻塞项"]
-    P0 --> H
-    H --> J["project-test\n只选择测试类型与报告动作"]
-    J --> I["project-task\nrequirement begin\n进入 implementing"]
+    Z -- "否" --> J["project-test\n确认测试类型和 AC 映射\n测试文档仅生成或登记"]
+    P0 --> J
+    J --> H["requirement ready\n检查需求、Bug 诊断、设计、AC、测试合同和阻塞项"]
+    H --> I["project-task\nrequirement begin\n进入 implementing"]
     I --> R0["project-test\n生成/登记报告并记录 RED"]
     R0 --> L["project-task\n修改代码"]
     L --> M["project-test\n记录 GREEN / regression / verify 证据"]
     M --> N["project-review\n登记结构化评审"]
     N --> O{"评审是否通过？"}
     O -- "否：critical/important 未解决" --> L
-    O -- "是" --> P["生成或登记 closure-summary.md"]
-    P --> Q["project-finish\n检查文档、测试、评审、验收、范围、新鲜度"]
+    O -- "是" --> Q["project-finish\n自动生成/登记收口文档\n检查文档、测试、评审、验收、范围、新鲜度"]
     Q --> R{"finish 通过？"}
     R -- "否" --> L
     R -- "是" --> S2["project-maintain\n刷新 project-status 并 closed"]
@@ -94,13 +92,13 @@ flowchart TD
 ├── local/                 # 忽略，本机工具状态
 ├── tmp/                   # 忽略，临时编排文件
 └── requirements/
-    └── <safe-requirement-id>/
+    └── <YYYY-MM-DD>-<id>-<title>/
         ├── manifest.json
-        ├── requirement.md
-        ├── design.md
-        ├── plan.md         # 可选
-        ├── test-report.md
-        └── closure-summary.md
+        ├── <id>-<title>-需求文档.md   # Bug 使用 Bug文档
+        ├── <id>-<title>-设计文档.md
+        ├── <id>-<title>-实施计划.md   # 可选
+        ├── <id>-<title>-测试文档.md
+        └── <id>-<title>-收口文档.md
 
 docs/requirements/         # 仅 project-design 独立模式的输出，不属于生命周期
 ```
@@ -111,8 +109,8 @@ docs/requirements/         # 仅 project-design 独立模式的输出，不属�
 - `.project-intel/config.json` 保存规则、扫描范围、质量命令。
 - `.project-intel/project-status.md` 是项目级可覆盖的当前状态，不保存需求历史。
 - `.project-intel/requirements/*/manifest.json` 是需求级真相来源，记录 AC、变更文件、测试、评审、finish、maintenance 和状态历史。
-- `plan.md` 不生成时完全可选；一旦选择生成，就必须补全文件级步骤、测试/AC 映射和回滚方案并重新登记，后续篡改会阻止 ready 或 begin。
-- `test-report.md` 是当前需求的持续追加记录，不会被其他需求覆盖；每轮执行包含测试类型、结果、覆盖范围、AC、Git commit 和代码快照，登记的外部报告另存脱敏证据副本。
+- 标题化实施计划不生成时完全可选；一旦选择生成，就必须补全文件级步骤、测试/AC 映射和回滚方案并重新登记，后续篡改会阻止 ready 或 begin。
+- 标题化测试文档是当前需求的持续追加记录，不会被其他需求覆盖；每轮执行包含测试类型、结果、覆盖范围、AC、Git commit 和代码快照，登记的外部报告另存脱敏证据副本。
 - `docs/requirements/` 只用于 `project-design` 独立模式；生命周期登记外部已有文档时会验证并复制为需求目录中的规范文件名。
 - 已验证的设计、测试报告、收口总结仍属于交付 diff 和评审范围，但不要求作为业务源码被测试覆盖；业务源码不能通过改名或登记成 artifact 来逃避覆盖门禁。
 - 新流程不创建 `reports/specs/plans/maintenance`、`requirements/by-id` 或 `requirements/files`。旧 `by-id` 可通过 `requirement migrate` 预览并迁移；无法可靠归属需求的旧共享文件只报告，不自动猜测。
@@ -147,13 +145,11 @@ project-intel --project /path/to/repo intake \
   --version-date "2026-07-23" \
   --ticket-kind requirement \
   --external-api no \
-  --requirement-action generate \
-  --design-action generate \
   --track auto
 ```
 
 没有正式需求号时，Agent 使用 `LOCAL-YYYYMMDD-HHMMSS`。版本日期必须由用户提供，可使用完整日期或 `7.23版本`、`7月23日` 这类当前年份简写，不能静默使用当天日期。
-如果选择登记已有文件，动作改为 `register`，并同时传 `--requirement-path` 或 `--design-path`。这些选择会写入 `manifest.workflowSelections`，换会话或交给子任务后通过 `requirement status --json` 原样恢复。
+四类文档不可延期。没有传入现成路径时，需求/Bug 文档和设计文档默认选择 `generate`；传入 `--requirement-path` 或 `--design-path` 时自动选择 `register`。如果只传设计文档，`project-spec` 先根据设计内容生成需求/Bug 文档和一致的 AC，再进入设计校验。这些选择会写入 `manifest.workflowSelections`，换会话或交给子任务后通过 `requirement status --json` 原样恢复。
 
 ### 3. 生成需求文档和验收标准
 
@@ -230,6 +226,16 @@ project-intel --project /path/to/repo plan --requirement-id REQ-1001
 
 ### 5. readiness 和开始实现
 
+先持久化测试合同。已有合规测试文档时使用 `register` 并提供路径，否则使用 `generate`；四类必选文档均不可延期：
+
+```bash
+project-intel --project /path/to/repo requirement test-contract set \
+  --requirement-id REQ-1001 \
+  --kind unit \
+  --report-action generate \
+  --acceptance AC-01,AC-02
+```
+
 ```bash
 project-intel --project /path/to/repo requirement ready \
   --requirement-id REQ-1001 \
@@ -239,7 +245,7 @@ project-intel --project /path/to/repo requirement begin \
   --requirement-id REQ-1001
 ```
 
-缺少需求/设计文档、缺少验收标准或存在未解决 blocker 时，`ready` 会失败。
+缺少需求/设计文档、缺少验收标准、没有显式测试合同或存在未解决 blocker 时，`ready` 会失败。
 
 ### 6. 记录测试报告
 
@@ -314,10 +320,6 @@ project-intel --project /path/to/repo requirement resolve-finding \
 ### 8. 收口和维护
 
 ```bash
-project-intel --project /path/to/repo requirement generate \
-  --requirement-id REQ-1001 \
-  --type closure
-
 project-intel --project /path/to/repo finish \
   --requirement-id REQ-1001 \
   --files src/order/export.ts tests/order-export.test.ts
@@ -327,7 +329,7 @@ project-intel --project /path/to/repo maintain \
   --files src/order/export.ts tests/order-export.test.ts
 ```
 
-`finish` 会检查：
+`finish` 会自动生成并登记标题化收口文档；用户提供现成收口文档时则先校验并登记。随后检查：
 
 - 当前状态必须是 `reviewed`。
 - 需求/设计文档存在且当前有效。
@@ -363,11 +365,11 @@ project-intel --project /path/to/repo requirement migrate --apply
 | `project-intake` | 实现前做需求入口分析，登记需求号/名称/对外接口影响，判断 track 和 readiness。 | 我要做一个需求、实现这个功能、修复这个 Bug、接入这个需求、需求入口分析、需求分流 |
 | `project-brainstorm` | 需求还不清楚时做脑暴、方案比较、范围澄清。 | 需求脑暴、比较方案、明确范围、功能应该怎么做、before code changes |
 | `project-design` | 分析本地 Bug/需求单和源码，生成或验证开发设计文档；支持独立和生命周期模式。 | 根据 Bug 单写开发设计文档、把需求单转成技术设计、根据需求单写中文开发设计、需求设计少贴代码、按业务场景写技术设计 |
-| `project-spec` | 形成需求目录中的 `requirement.md`，并把相同编号验收标准写入 manifest。 | 写需求文档、整理需求、需求澄清、补充验收标准、生成 requirement.md |
+| `project-spec` | 形成需求目录中的标题化需求/Bug 文档，并把相同编号验收标准写入 manifest；仅有设计文档时据其生成。 | 写需求文档、整理需求、需求澄清、补充验收标准、根据设计补 spec |
 | `project-plan` | complex 或明确要求时生成同需求目录的可选 `plan.md`。 | 写个方案、写实施计划、任务拆分、开发步骤、task checklist |
 | `project-task` | 在 ready 后进入实现，读取项目规范、复用点、图谱和当前需求档案。 | 开始实现、开始修复、继续开发、需求开发、实现需求 |
 | `project-debug` | 排查 Bug、错误、回归、测试失败；在 Bug 生命周期中于 spec 后、design 前登记根因。 | 排查 Bug、定位问题、定位根因、为什么会这样、root cause |
-| `project-test` | 选择测试类型、报告动作，记录 RED/GREEN/回归/验证/人工例外证据。 | 单元测试、服务测试、接口测试、回归测试、测试报告、真机验证 |
+| `project-test` | ready 前确认测试类型、AC 映射和测试文档生成/登记动作，begin 后记录 RED/GREEN/回归/验证/人工例外证据。 | 单元测试、服务测试、接口测试、回归测试、测试报告、真机验证 |
 | `project-review` | 审查代码变更、PR、diff、复用风险、测试缺口，并写入结构化评审。 | 代码评审、检查改动、有没有漏洞、评估风险、PR 审查 |
 | `project-finish` | 完成前检查验收证据、范围漂移、发布风险、收口总结。 | 收尾吧、收口、验收、检查是否完成、发布前检查 |
 | `project-maintain` | 仅在 project-finish 成功、需求为 finished 后刷新项目状态、记录 manifest 维护结果并关闭需求。 | 关闭需求、提交后维护、需求完成后维护、project-finish 后维护 |
@@ -391,14 +393,13 @@ project-intel --project /path/to/repo requirement migrate --apply
 
 ```text
 用户：给订单导出增加按状态筛选。
-Agent：触发 project-intake，询问需求号、需求名、是否影响对外接口、文档动作。
-Agent：触发 project-spec，生成并登记 requirement.md，把 AC-01/AC-02 同步写入 manifest。
-Agent：触发 project-design，生成并登记 design.md。
-Agent：ready 前触发 project-test，询问 unit/service/both/manual、报告动作并写入带 AC 映射的测试合同。
+Agent：触发 project-intake，询问需求号、需求名、版本日期和是否影响对外接口；现成文档登记，缺失文档生成。
+Agent：触发 project-spec，生成并登记标题化需求文档，把 AC-01/AC-02 同步写入 manifest；只有设计时据设计反推。
+Agent：触发 project-design，生成并登记标题化设计文档。
+Agent：ready 前触发 project-test，确认 unit/service/both/manual 和 AC 映射；没有现成测试文档时自动选择 generate。
 Agent：project-task 执行 requirement begin，然后才生成报告、写 RED 测试 -> 实现 -> GREEN/回归。
 Agent：触发 project-review，登记评审。
-Agent：生成 closure-summary.md。
-Agent：project-finish 通过后 project-maintain，需求 closed。
+Agent：project-finish 自动生成并登记标题化收口文档，通过后 project-maintain，需求 closed。
 ```
 
 ### 场景 B：修一个 bug
@@ -451,16 +452,16 @@ Agent：不运行 intake，也不创建或修改 .project-intel。
 ## 八、使用纪律
 
 - 实现类任务不要绕过需求号、需求名称和对外接口影响确认。
-- `project-test` 必须询问测试类型和报告动作。
+- `project-test` 必须确认测试类型；已有测试文档时登记，没有时生成，动作只能是 `generate` 或 `register`。
 - 需求仍为 `ready` 时只能确定测试方案；必须先 `requirement begin`，再生成/登记报告、编辑测试文件或执行 RED。
 - Bug 必须按 `intake -> spec -> debug/diagnose -> design -> optional plan -> ready` 流转，不能在 design 后又无条件跳回 spec。
 - 需求生命周期中已存在的文档默认不覆盖；`--replace` 只能在用户明确授权后使用。
 - 登记已有测试报告时，报告解析出的实际通过/失败结果必须与登记结果一致。
-- “稍后处理”可以记录，但会形成 blocker，不能直接 ready 或 finish。
+- 需求/Bug、设计、测试和收口四类文档不可“稍后处理”或延期。
 - 人工测试是审批式例外，不是默认测试类型。
 - review 后如果代码变化，旧 review 失效。
 - test 后如果代码变化，旧测试证据失效。
-- finish 前必须有 closure summary。
+- finish 必须自动生成并登记收口文档；如果用户提供了现成收口文档，则校验后登记。
 - closure summary 必须包含需求结果、变更范围、验收标准结果、测试证据、评审结论、人工例外、遗留问题和复盘结论，空文件或占位内容不能通过。
 - maintain 不等于 finish；未 finished 不能 closed。
 - finish 后代码或 Git 提交变化必须重新测试、评审和 finish，不能直接 maintain。

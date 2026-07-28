@@ -94,7 +94,19 @@ export function runRequirement(root: string, args: string[], global: GlobalOptio
     case "status": {
       const id = requireId(rest);
       const manifest = loadRequirement(root, id);
-      return ok({ requirementId: manifest.requirementId, state: manifest.state, revision: manifest.revision });
+      return ok({
+        requirementId: manifest.requirementId,
+        requirementName: manifest.requirementName,
+        versionDate: manifest.versionDate,
+        ticketKind: manifest.ticketKind,
+        track: manifest.track,
+        state: manifest.state,
+        revision: manifest.revision,
+        externalApiImpact: manifest.externalApiImpact,
+        workflowSelections: manifest.workflowSelections,
+        testContract: manifest.testContract,
+        readiness: manifest.readiness,
+      });
     }
     case "query": {
       const state = flag(rest, "--state");
@@ -201,8 +213,8 @@ export function runRequirement(root: string, args: string[], global: GlobalOptio
       if (!["unit", "service", "manual", "both"].includes(kind)) {
         throw new UsageError("test-contract kind 只能是 unit、service、manual 或 both。");
       }
-      if (!["generate", "register", "later"].includes(reportAction)) {
-        throw new UsageError("test-contract report-action 只能是 generate、register 或 later。");
+      if (!["generate", "register"].includes(reportAction)) {
+        throw new UsageError("测试文档是必选产物，test-contract report-action 只能是 generate 或 register。");
       }
       if (reportAction === "register" && !reportPath) {
         throw new UsageError("report-action=register 时必须提供 --report-path。");

@@ -81,6 +81,7 @@ describe("review / finish / maintain commands (3.F)", () => {
     assert.equal(existsSync(closurePath), true);
     const closure = readFileSync(closurePath, "utf8");
     assert.match(closure, /^---\nreq_id: "REQ-F-AUTO-生命周期需求"/);
+    assert.match(closure, /^status: 已收口$/m);
     assert.match(closure, /^# 收口档案:生命周期需求/m);
     for (const heading of ["历时", "产物清单", "测试汇总", "知识引用归纳(命中)", "澄清记录(缺口)", "新确认(沉淀候选)"]) {
       assert.ok(closure.includes(`## ${heading}`), `missing closure archive heading: ${heading}`);

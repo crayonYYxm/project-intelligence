@@ -11,19 +11,16 @@ For requirement-level implementation, create or register `.project-intel/require
 
 1. Read `.project-intel/manifest.json`, `.project-intel/project-status.md`, relevant standards, knowledge JSON, and graph summary.
 2. Use the identity, ticket kind, track, and readiness fields already established by `project-intake`. Run read-only `project-intel intake --task "<requirement>"` only for an impact-only request that is not inside a lifecycle.
-3. Read `project-intel requirement status --requirement-id "<id>" --json` and use its identity, ticket kind, and `workflowSelections.requirement` action/path persisted during intake. Do not ask again or infer a different action.
+3. Read `project-intel requirement status --requirement-id "<id>" --json` and use its identity, ticket kind, and `workflowSelections` persisted during intake. Do not ask again or infer a different action.
 4. Handle exactly one requirement-document action before continuing to debug/design:
    - `generate`: create the canonical scaffold only when it does not exist, complete it, persist matching AC, and register it.
    - `register existing`: read the supplied repository-relative file without rewriting it, confirm its AC with the user, persist the same AC in the manifest, then register it. Registration copies validated content to the canonical titled requirement/Bug document when necessary.
-   - `later`: persist the blocker and stop before `project-debug`, `project-design`, or readiness:
+   Required lifecycle documents cannot be deferred.
+5. When no standalone spec exists but a design document is supplied, read `workflowSelections.design.path` before generating the spec. Derive the business background, goal, scope, actors, scenarios, rules, exceptions, external-API impact, and numbered observable acceptance criteria from that design plus repository facts. State in the spec that the design was the input source. Do not merely copy implementation details or invent rules absent from the design and source.
 
-```bash
-project-intel requirement defer --requirement-id "<id>" --type requirement
-```
-
-5. For `generate` or `register existing`, capture the requirement, impacted modules, reusable capabilities, standards, quality gates, acceptance criteria, behavior contracts, and evidence mapping in the titled requirement/Bug document.
-6. Keep unknowns explicit; do not invent hard rules from `candidate` findings.
-7. For `generate`, create the canonical requirement scaffold only when it does not exist, complete it, then register it:
+6. For `generate` or `register existing`, capture the requirement, impacted modules, reusable capabilities, standards, quality gates, acceptance criteria, behavior contracts, and evidence mapping in the titled requirement/Bug document.
+7. Keep unknowns explicit; do not invent hard rules from `candidate` findings.
+8. For `generate`, create the canonical requirement scaffold only when it does not exist, complete it, then register it:
 
 ```bash
 project-intel requirement generate --requirement-id "<id>" --type requirement

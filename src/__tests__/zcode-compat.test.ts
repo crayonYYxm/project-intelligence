@@ -24,6 +24,15 @@ describe("ZCode plugin compatibility", () => {
     assert.ok(packageJson.files.includes("plugins/project-intelligence/.zcode-plugin"));
   });
 
+  it("ships the shared mandatory four-document workflow used by ZCode", () => {
+    const intake = readFileSync(join(root, "plugins/project-intelligence/skills/project-intake/SKILL.md"), "utf8");
+    const spec = readFileSync(join(root, "plugins/project-intelligence/skills/project-spec/SKILL.md"), "utf8");
+    const finish = readFileSync(join(root, "plugins/project-intelligence/skills/project-finish/SKILL.md"), "utf8");
+    assert.match(intake, /four durable lifecycle documents are mandatory/i);
+    assert.match(spec, /no standalone spec exists but a design document is supplied/i);
+    assert.match(finish, /automatically generate.*closure/i);
+  });
+
   it("contains no symbolic links in tracked distribution paths", () => {
     const distributionRoots = [
       "marketplace.json",

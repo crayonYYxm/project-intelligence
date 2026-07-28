@@ -16,9 +16,8 @@ For lifecycle mode, read `project-intel requirement status --requirement-id <id>
 
 - `generate`: analyze the ticket and source, write the document, validate it, then register it.
 - `register existing`: validate the supplied repository-relative document and register it without rewriting unless the user requested changes.
-- `later`: run `project-intel requirement defer --requirement-id <id> --type design` and stop before readiness.
 
-For a lifecycle Bug, `project-debug` must have persisted a current `requirement diagnose` result before this Skill generates the document, so the root cause is evidence-backed and machine-gated. `project-spec` must already have produced the current titled requirement/Bug document and manifest AC. Acceptance criteria do not belong in the design document.
+The design document is mandatory and cannot be deferred. For a lifecycle Bug, `project-debug` must have persisted a current `requirement diagnose` result before this Skill generates the document, so the root cause is evidence-backed and machine-gated. `project-spec` must already have produced the current titled requirement/Bug document and manifest AC, including when that spec was derived from this supplied design source. Acceptance criteria do not belong in the design document.
 
 ## Establish inputs
 
